@@ -1,0 +1,55 @@
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c four_caspt2_module.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c nbitsa.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c read1mo_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c readorb_enesym_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c readint2_ivo_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c fockivo_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c intmo_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c pgsym_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c takekr.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c dim.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c one_e_exct.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c diag.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c timing.f
+fortcom: Warning: timing.f, line 2: A dummy argument with an explicit INTENT(OUT) declaration is not given an explicit value.   [DATE]
+        SUBROUTINE timing(date0, tsec0, date, tsec)
+----------------------------------------^
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c mem.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c uramda_s_half.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c e0test_v2.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c r4divo_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -o r4divotyexe four_caspt2_module.o nbitsa.o read1mo_ty.o readorb_enesym_ty.o readint2_ivo_ty.o fockivo_ty.o intmo_ty.o pgsym_ty.o takekr.o dim.o one_e_exct.o diag.o timing.o mem.o uramda_s_half.o e0test_v2.o r4divo_ty.o  /data/minori/PROGRAMS/utchem_dev_maho/utchem/lib/LINUX64/liblapack.a /data/minori/PROGRAMS/utchem_dev_maho/utchem/lib/LINUX64/libblas.a 
+mv r4divotyexe bin/r4divotyexe
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c readvec.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c cutoff.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c readint2_casci_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c prtoutfock.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c fockhf1_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c fockcasci_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c tramo_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c e0after_tra_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c trac.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c sdet.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c calce0.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c fockdiag_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c nrintread.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c checkdgc.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c casci_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c casdet_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c casmat.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c r4dcasci_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -o r4dcascityexe four_caspt2_module.o nbitsa.o readvec.o read1mo_ty.o readorb_enesym_ty.o one_e_exct.o dim.o diag.o cutoff.o readint2_casci_ty.o prtoutfock.o fockhf1_ty.o fockcasci_ty.o tramo_ty.o e0after_tra_ty.o trac.o sdet.o calce0.o fockdiag_ty.o takekr.o intmo_ty.o pgsym_ty.o timing.o mem.o uramda_s_half.o nrintread.o checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_ty.o  /data/minori/PROGRAMS/utchem_dev_maho/utchem/lib/LINUX64/liblapack.a /data/minori/PROGRAMS/utchem_dev_maho/utchem/lib/LINUX64/libblas.a 
+mv r4dcascityexe bin/r4dcascityexe
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c readint2_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c intra.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_A_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_B_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_C_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_D_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_E_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_F_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_G_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c solvall_H_ord_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -c r4dcaspt2_tra_ty.f
+ifort  -I/data/minori/PROGRAMS/utchem_dev_maho/utchem/include -I. -module .  -FR -cm -w90 -w95 -auto -align -pad -O2 -mp1 -i8 -prefetch -unroll -o r4dcaspt2otyexe four_caspt2_module.o nbitsa.o readvec.o readorb_enesym_ty.o read1mo_ty.o readint2_ord_ty.o tramo_ty.o one_e_exct.o dim.o diag.o cutoff.o calce0.o timing.o mem.o intra.o takekr.o solvall_A_ord_ty.o solvall_B_ord_ty.o solvall_C_ord_ty.o solvall_D_ord_ty.o solvall_E_ord_ty.o solvall_F_ord_ty.o solvall_G_ord_ty.o solvall_H_ord_ty.o uramda_s_half.o pgsym_ty.o checkdgc.o e0test_v2.o r4dcaspt2_tra_ty.o  /data/minori/PROGRAMS/utchem_dev_maho/utchem/lib/LINUX64/liblapack.a /data/minori/PROGRAMS/utchem_dev_maho/utchem/lib/LINUX64/libblas.a 
+mv r4dcaspt2otyexe bin/r4dcaspt2otyexe

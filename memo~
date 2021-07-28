@@ -1,0 +1,8 @@
+2007.7.11
+
+For CASPT2, I decided to use Typart int2 and int1 because int1_molfdir is for under C2h sym.
+(character REPA dimension is too small for C8h case.) 1E5/2g or something like that.
+
+readint2_ty.f is now made for Typart data files.
+
+

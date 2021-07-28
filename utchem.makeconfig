@@ -1,0 +1,82 @@
+/home/minori/PROGRAMS/utchem_rq37_new/utchem/config/makeconfig
+
+# #####################################
+# FROM general.makeconfig.in
+# #####################################
+
+         UTCHEM_TOP = /home/minori/PROGRAMS/utchem_rq37_new/utchem
+        LAPACK_COMP = YES
+      LAPACK95_COMP = YES
+          BLAS_COMP = YES
+          LAPACKLIB = /home/minori/PROGRAMS/utchem_rq37_new/utchem/lib/LINUX64/liblapack.a
+        LAPACK95LIB = /home/minori/PROGRAMS/utchem_rq37_new/utchem/lib/LINUX64/liblapack95.a
+            BLASLIB = /home/minori/PROGRAMS/utchem_rq37_new/utchem/lib/LINUX64/libblas.a
+           HOSTTYPE = linux_ifc
+              GADIR = ga4-0-2
+
+                BIN = /home/minori/PROGRAMS/utchem_rq37_new/utchem/bin/$(TARGET)
+                LIB = /home/minori/PROGRAMS/utchem_rq37_new/utchem/lib/$(TARGET)
+            INCLUDE = /home/minori/PROGRAMS/utchem_rq37_new/utchem/include
+           LOCALBIN = .
+           LOCALLIB = .
+           LOCALINC = .
+
+             PYTHON = /usr/bin/python
+
+     LDFLAGS_NOMAIN =
+# #####################################
+# FROM linux_intel8.makeconfig.in
+# #####################################
+
+             TARGET = LINUX64
+
+       USE_INTEGER4 =
+       USE_INTEGER8 = yes
+
+        LARGE_FILES = yes
+
+             DMACRO =
+#             DMACRO+=-DSUPPORT_R16
+#             DMACRO+=-DHAVE_ERF
+
+                INC = -I$(INCLUDE) -I$(LOCALINC)
+                MOD = -module $(LOCALINC)
+             INCMOD = $(INC) $(MOD)
+
+#           FCONVERT =
+
+               F77C = ifort
+           F77FLAGS = $(DMACRO) $(INCMOD) -FI -cm -w90 -w95 -pad -O2 -mp1 -i8 -integer_size 64 -prefetch -unroll
+      F77FLAGSNOOPT = $(DMACRO) $(INCMOD) -FI -cm -w90 -w95 -pad -O0      -i8 -integer_size 64
+
+               F90C = ifort
+           F90FLAGS = $(DMACRO) $(INCMOD) -FR -cm -w90 -w95 -pad -O2 -mp1 -i8 -integer_size 64 -prefetch -unroll
+      F90FLAGSNOOPT = $(DMACRO) $(INCMOD) -FR -cm -w90 -w95 -pad -O0      -i8 -integer_size 64
+
+          MODSUFFIX = mod
+
+                 CC = gcc
+             CFLAGS = $(INC) -O2 -funroll-loops -DLINUX -DEXT_INT
+
+                CXX = g++
+           CXXFLAGS = $(INC) -O2 -funroll-loops -DLINUX -DEXT_INT
+
+                 LD = ifort
+            LDFLAGS = -DIFC8 -L$(LIB) -L$(LOCALLIB) -i8 -integer_size 64
+     LDFLAGS_NOMAIN = -nofor_main
+
+                 AR = ar
+            ARFLAGS = cr
+             RANLIB = ranlib
+
+               MAKE = gmake
+
+              SHELL = /bin/sh
+                 MV = /bin/mv -f
+                 RM = /bin/rm -f
+                 CP = /bin/cp -f
+              MKDIR = /bin/mkdir
+                 LN = /bin/ln
+
+             GALIBS = -lglobal -lma -larmci -ltcgmsg -lpario
+~
