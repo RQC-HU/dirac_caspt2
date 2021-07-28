@@ -1,4 +1,4 @@
-include  /home/minori/PROGRAMS/utchem_rq37_new/utchem/config/makeconfig
+# include  /home/minori/PROGRAMS/utchem_rq37_new/utchem/config/makeconfig
 
 #OBJS4 = ../netlibfiles/linpack/linpack.a
 #R4DCASCI = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
@@ -12,7 +12,7 @@ include  /home/minori/PROGRAMS/utchem_rq37_new/utchem/config/makeconfig
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
 	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcasci.o \
-	create_binmdcint.o 
+	create_binmdcint.o
 
 #R4DCASCI_TY = four_caspt2_module.o nbitsa.o readvec.o read1mo_ty.o \
 	readorb_enesym_ty.o \
@@ -25,7 +25,7 @@ include  /home/minori/PROGRAMS/utchem_rq37_new/utchem/config/makeconfig
 	pgsym_ty.o \
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
-	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_ty.o 
+	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_ty.o
 
 R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	readorb_enesym_co.f \
@@ -38,7 +38,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
 	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_co.o \
-	create_binmdcint.o 
+	create_binmdcint.o
 
 #R4DIVO = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
 	readorb_enesym.o \
@@ -49,7 +49,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	intmo.o \
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
-	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4divo.o 
+	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4divo.o
 
 #R4DIVO_TY = four_caspt2_module.o nbitsa.o \
 	read1mo_ty.o \
@@ -61,7 +61,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	takekr.o dim.o one_e_exct.o diag.o \
 	timing.o mem.o \
 	uramda_s_half.o \
-	e0test_v2.o r4divo_co.o 
+	e0test_v2.o r4divo_co.o
 #	 cutoff.o readvec.o
 
 #R4DCASPT2O = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
@@ -83,7 +83,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	solvall_G_ord.o \
 	solvall_H_ord.o \
 	uramda_s_half.o nrintread.o \
-	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcaspt2_tra.o 
+	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcaspt2_tra.o
 
 #R4DCASPT2O_TY = four_caspt2_module.o nbitsa.o readvec.o \
 	readorb_enesym_ty.o read1mo_ty.o \
@@ -105,7 +105,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	solvall_H_ord_ty.o \
 	uramda_s_half.o \
 	pgsym_ty.o \
-	checkdgc.o e0test_v2.o r4dcaspt2_tra_ty.o 
+	checkdgc.o e0test_v2.o r4dcaspt2_tra_ty.o
 
 R4DCASPT2O_CO = four_caspt2_module.o nbitsa.o readvec.o \
 	readorb_enesym_co.o read1mo_co.o \
@@ -161,8 +161,12 @@ NRMOBJS2 = four_caspt2_module.o nbitsa.o \
 	solvall_G.o \
 	solvall_H.o \
 	uramda_s_half.o nrintread.o \
-	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcaspt2_ver2_nr.o 
+	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcaspt2_ver2_nr.o
 
+# THis is a Intel mkl setting for the Institute for Molecular Science's linux server
+MKLROOT = /local/apl/lx/intel2020update2/compilers_and_libraries_2020.2.254/linux/mkl/
+F90C = ifort
+F90FLAGS = -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe
 all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
@@ -177,55 +181,53 @@ all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 
 
 #r4divotyexe : $(R4DIVO_TY)
-#	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO_TY) $(LAPACKLIB) $(BLASLIB) 
+#	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO_TY) $(LAPACKLIB) $(BLASLIB)
 #	mv r4divotyexe bin/r4divotyexe
 
 #r4dcascityexe : $(R4DCASCI_TY)
-#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI_TY) $(LAPACKLIB) $(BLASLIB) 
+#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI_TY) $(LAPACKLIB) $(BLASLIB)
 #	mv r4dcascityexe bin/r4dcascityexe
 
 #r4dcasciexe : $(R4DCASCI)
-#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI) $(LAPACKLIB) $(BLASLIB) 
+#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI) $(LAPACKLIB) $(BLASLIB)
 #	mv r4dcasciexe bin/r4dcasciexe
 
 #r4divoexe : $(R4DIVO)
-#	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO) $(LAPACKLIB) $(BLASLIB) 
+#	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO) $(LAPACKLIB) $(BLASLIB)
 #	mv r4divoexe bin/r4divoexe
 
 #r4dcaspt2oexe : $(R4DCASPT2O)
-#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O) $(LAPACKLIB) $(BLASLIB) 
+#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O) $(LAPACKLIB) $(BLASLIB)
 #	mv r4dcaspt2oexe bin/r4dcaspt2oexe
 
 #r4dcaspt2otyexe : $(R4DCASPT2O_TY)
-#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_TY) $(LAPACKLIB) $(BLASLIB) 
+#	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_TY) $(LAPACKLIB) $(BLASLIB)
 #	mv r4dcaspt2otyexe bin/r4dcaspt2otyexe
 
 hfc_casciexe : $(HFC_CASCI)
-	$(F90C) $(F90FLAGS) -o $@ $(HFC_CASCI) $(LAPACKLIB) $(BLASLIB) 
+	$(F90C) $(F90FLAGS) -o $@ $(HFC_CASCI)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
 	mv hfc_casciexe bin/hfc_casciexe
 
 eeff_casciexe : $(EEFF_CASCI)
-	$(F90C) $(F90FLAGS) -o $@ $(EEFF_CASCI) $(LAPACKLIB) $(BLASLIB) 
+	$(F90C) $(F90FLAGS) -o $@ $(EEFF_CASCI)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
 	mv eeff_casciexe bin/eeff_casciexe
 
 r4dcascicoexe : $(R4DCASCI_CO)
-	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI_CO) $(LAPACKLIB) $(BLASLIB)
+	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI_CO)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
 	mv r4dcascicoexe bin/r4dcascicoexe
 
 r4dcaspt2ocoexe : $(R4DCASPT2O_CO)
-	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_CO) $(LAPACKLIB) $(BLASLIB)
+	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_CO)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
 	mv r4dcaspt2ocoexe bin/r4dcaspt2ocoexe
 
 r4divocoexe : $(R4DIVO_CO)
-	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO_CO) $(LAPACKLIB) $(BLASLIB)
+	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO_CO)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
 	mv r4divocoexe bin/r4divocoexe
 
 #nrmain2 : $(NRMOBJS2)
-#	 $(FC) $(FFLAGS) -o $@ $(NRMOBJS2) $(LAPACKLIB) $(BLASLIB) 
+#	 $(FC) $(FFLAGS) -o $@ $(NRMOBJS2) $(LAPACKLIB) $(BLASLIB)
 #
 
 clean:
 	rm *.o
 	rm *.mod
-
-
