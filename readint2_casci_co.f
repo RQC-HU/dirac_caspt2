@@ -13,10 +13,10 @@
         character  :: datex*10, timex*8
 
         integer    :: mdcint, nkr, idum, nuniq, nmom, nmoc
-!        integer(4) ::  nkr, idum
+!        integer ::  nkr, idum
 !        integer    :: mdcint, nuniq, nmom, nmoc
         integer    :: nz, type       
-!        integer(4) :: nz
+!        integer :: nz
 !        integer    :: type
         integer    :: j0, i0, i1
         integer    :: k0, l0, ii, jj, kk, ll, signind

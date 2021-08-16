@@ -18,11 +18,11 @@
 
         real*8 :: w, ETOTAL
 !        logical :: breit
-        logical(4) :: breit
+        logical :: breit
 !Iwamuro modify
         integer :: dammy1
         real*8  :: dammy2
-        
+
 !  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
 !                     BREIT,ETOTAL,scfru
 !  Write(UT_sys_ftmp) NSYMRP,(REPN(IRP),IRP=1,NSYMRP)
@@ -58,7 +58,7 @@
      Call memplus(size(UTCHEMIMO2),kind(UTCHEMIMO2),1)
 
      Read(mrconee) NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars
- 
+
 
      write(*,*)' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
      write(*,*) NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars
@@ -68,7 +68,7 @@
     write(*,*) nsymrpa, (repna(i0), i0 = 1, nsymrpa*2)
 
      allocate(MULTB_S(1:NSYMRPA,1:NSYMRPA))
-     allocate(MULTB_D(1:NSYMRPA,1:NSYMRPA))  ! dagger 
+     allocate(MULTB_D(1:NSYMRPA,1:NSYMRPA))  ! dagger
      allocate(MULTB_DF(1:NSYMRPA,1:NSYMRPA)) ! forward
      allocate(MULTB_DB(1:NSYMRPA,1:NSYMRPA)) ! backward
      allocate(MULTB_DS(1:NSYMRPA,1:NSYMRPA))
@@ -94,8 +94,8 @@
 
 
     Read(mrconee) ((multb(i0,j0),i0=1,2*nsymrpa),j0=1,2*nsymrpa)
-    
-!    Read(mrconee) (IRPMO(IMO),ORBMO(IMO),IMO=1,NMO)                             ! orbital energies <= used here 
+
+!    Read(mrconee) (IRPMO(IMO),ORBMO(IMO),IMO=1,NMO)                             ! orbital energies <= used here
 !Iwamuro modify
 !    Do IMO=1,NMO
 !      Write(*,*) IRPMO(IMO),ORBMO(IMO)
@@ -108,7 +108,7 @@
 !Iwamuro modify
 
 
-! create MULTB2 
+! create MULTB2
 
         Do i0 = 1, 2*nsymrpa
            Do j0 = 1, 2*nsymrpa
@@ -129,7 +129,7 @@
            write(*,'(400I3)') (MULTB2(i0, j0) ,j0 = 1, 2*nsymrpa)
         End do
 
-! create MULTB_S, MULTB_D 
+! create MULTB_S, MULTB_D
 
        Do i0 = 1, nsymrpa
          Do j0 = 1, nsymrpa
@@ -165,7 +165,7 @@
         sp( ninact+nact+nsec+1 : nmo                )    = 4
 
      write(*,*)'moint1 is closed.'
-!     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1 
+!     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1
 
 ! Create MULTB_DF, MULTB_SB and MULTB_DB
 
@@ -178,22 +178,22 @@
      Do isym = 1, nsymrpa-1, 2
        MULTB_DF(isym+1,jsym) = MULTB_D(isym  , jsym)
        MULTB_DF(isym  ,jsym) = MULTB_D(isym+1, jsym)
-     Enddo 
-     Enddo 
+     Enddo
+     Enddo
 
      Do jsym = 1, nsymrpa
      Do isym = 1, nsymrpa
-       ksym = MULTB_DF(isym, jsym) 
+       ksym = MULTB_DF(isym, jsym)
        MULTB_DB(isym ,ksym) = jsym
-     Enddo 
-     Enddo 
+     Enddo
+     Enddo
 
      Do jsym = 1, nsymrpa
      Do isym = 1, nsymrpa
-       ksym = MULTB_S (isym, jsym) 
+       ksym = MULTB_S (isym, jsym)
        MULTB_SB(isym ,ksym) = jsym
-     Enddo 
-     Enddo 
+     Enddo
+     Enddo
 
      Write(*,*)'MULTB_SB'
      Do I = 1, nsymrpa
@@ -234,7 +234,7 @@
            REPNA(49)='au    '; REPNA(50)='bu    '; REPNA(51)='1e1u  '; REPNA(52)='2e1u  '
            REPNA(53)='1e2u  '; REPNA(54)='2e2u  '; REPNA(55)='1e3u  '; REPNA(56)='2e3u  '
            REPNA(57)='1e4u  '; REPNA(58)='2e4u  '; REPNA(59)='1e5u  '; REPNA(60)='2e5u  '
-           REPNA(61)='1e7u  '; REPNA(62)='2e7u  '; REPNA(63)='1e9u  '; REPNA(64)='2e9u  '       
+           REPNA(61)='1e7u  '; REPNA(62)='2e7u  '; REPNA(63)='1e9u  '; REPNA(64)='2e9u  '
 
            Do i = 1, nsymrpa/2
            Do j = 1, nsymrpa/2
@@ -258,7 +258,7 @@
            Do j= 1, nsymrpa/2
              SD(i+nsymrpa/2,j+nsymrpa/2) = SD(i,j)
            End do
-           End do           
+           End do
 
         Elseif(trim(ptgrp)=='C32') then
            REPNA(1) ='1e1/2'; REPNA(2) ='2e1/2'; REPNA(3) ='1e3/2'; REPNA(4) ='2e3/2'
@@ -277,7 +277,7 @@
            REPNA(49)='a    '; REPNA(50)='b    '; REPNA(51)='1e1  '; REPNA(52)='2e1  '
            REPNA(53)='1e2  '; REPNA(54)='2e2  '; REPNA(55)='1e3  '; REPNA(56)='2e3  '
            REPNA(57)='1e4  '; REPNA(58)='2e4  '; REPNA(59)='1e5  '; REPNA(60)='2e5  '
-           REPNA(61)='1e7  '; REPNA(62)='2e7  '; REPNA(63)='1e9  '; REPNA(64)='2e9  '        
+           REPNA(61)='1e7  '; REPNA(62)='2e7  '; REPNA(63)='1e9  '; REPNA(64)='2e9  '
 
            Do i = 1, nsymrpa
            Do j = 1, nsymrpa
@@ -286,7 +286,7 @@
            Enddo
 
         Else
-        
+
            Do i = 1, nsymrpa
            Do j = 1, nsymrpa
              SD(i,j) = MULTB(i+nsymrpa,j)
@@ -336,15 +336,15 @@
         Allocate ( indmor(nmo)); Call memplus(KIND(indmor),SIZE(indmor),1)
         Allocate ( dammo (nmo)); Call memplus(KIND(dammo ),SIZE(dammo ),1)
 
-!Iwamuro modify        
+!Iwamuro modify
         irpmo(:) = 0
-        irpamo(:) = 0        
+        irpamo(:) = 0
 
         orbmo(:) = 0.0d+00
         orb(:) = 0.0d+00
         indmo(:) = 0
 
-    Read(mrconee) (IRPMO(IMO), IRPAMO(IMO), ORBMO(IMO),IMO=1,NMO)                             ! orbital energies <= used here 
+    Read(mrconee) (IRPMO(IMO), IRPAMO(IMO), ORBMO(IMO),IMO=1,NMO)                             ! orbital energies <= used here
 
     CLOSE(mrconee)
 
@@ -383,11 +383,11 @@
 
         write(*,'("irpamo ",20I2)')(irpamo(i0),i0=1,nmo)
 
-        
+
 !        orbmo(:) = 0.0d+00
         orb = orbmo
 
-! orb is lower order of orbmo      
+! orb is lower order of orbmo
 
         do i0 = 1, nmo-1
            m = i0
@@ -405,7 +405,7 @@
 !            write(*,*)orbmo(i0)
 !        end do
 
-!! orb is lower order of orbmo      
+!! orb is lower order of orbmo
 
         do i0 = 1, nmo, 2
               m = 0
@@ -417,7 +417,7 @@
                  else
                     indmo(i0+1) = j0
                  endif
-                    
+
               end if
            end do
         end do
@@ -467,18 +467,17 @@
 
         goto 1000
 
- 10     write(*,*) 'err 0'   
+ 10     write(*,*) 'err 0'
         go to 1000
- 11     write(*,*) 'err 1'   
+ 11     write(*,*) 'err 1'
         go to 1000
- 12     write(*,*) 'err 2'   
+ 12     write(*,*) 'err 2'
         go to 1000
- 13     write(*,*) 'err 3'   
+ 13     write(*,*) 'err 3'
         go to 1000
- 14     write(*,*) 'err 4'   
+ 14     write(*,*) 'err 4'
         go to 1000
  100    go to 1000
 
 
  1000   end subroutine readorb_enesym_co
-

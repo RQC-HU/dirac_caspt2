@@ -1,0 +1,71 @@
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c four_caspt2_module.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c nbitsa.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c read1mo_co.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c readorb_enesym_co.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c readint2_ivo_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c fockivo_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c intmo_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c pgsym_co.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c takekr.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c dim.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c one_e_exct.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c diag.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c timing.f
+timing.f(2): 警告 #6843: 明示的な INTENT(OUT) 宣言を含む仮引数では明示的な値を指定できません。   [DATE]
+        SUBROUTINE timing(date0, tsec0, date, tsec)
+----------------------------------------^
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c mem.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c uramda_s_half.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c e0test_v2.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c r4divo_co.f
+r4divo_co.f(72): リマーク #8291: この編集記述子のフィールド幅 'W' と小数の桁数 'D' の推奨される関係は 'W>=D+7' です。
+        read(5,'(E8.2)')eshift
+------------------^
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -o r4divocoexe four_caspt2_module.o nbitsa.o read1mo_co.o readorb_enesym_co.o readint2_ivo_ty.o fockivo_ty.o intmo_ty.o pgsym_co.o takekr.o dim.o one_e_exct.o diag.o timing.o mem.o uramda_s_half.o e0test_v2.o r4divo_co.o
+mv r4divocoexe bin/r4divocoexe
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c readvec.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c cutoff.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c readint2_casci_co.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c prtoutfock.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c fockhf1_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c fockcasci_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c tramo_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c e0after_tra_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c trac.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c sdet.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c calce0.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c fockdiag_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c nrintread.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c checkdgc.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c casci_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c casdet_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c casmat.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c r4dcasci_co.f
+r4dcasci_co.f(72): リマーク #8291: この編集記述子のフィールド幅 'W' と小数の桁数 'D' の推奨される関係は 'W>=D+7' です。
+        read(5,'(E8.2)')eshift
+------------------^
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c create_binmdcint.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -o r4dcascicoexe four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o readorb_enesym_co.f one_e_exct.o dim.o diag.o cutoff.o readint2_casci_co.o prtoutfock.o fockhf1_ty.o fockcasci_ty.o tramo_ty.o e0after_tra_ty.o trac.o sdet.o calce0.o fockdiag_ty.o takekr.o intmo_ty.o timing.o mem.o uramda_s_half.o nrintread.o checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_co.o create_binmdcint.o
+mv r4dcascicoexe bin/r4dcascicoexe
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c readint2_ord_co.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c intra.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_A_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_B_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_C_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_D_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_E_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_F_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_G_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c solvall_H_ord_ty.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c r4dcaspt2_tra_co.f
+r4dcaspt2_tra_co.f(73): リマーク #8291: この編集記述子のフィールド幅 'W' と小数の桁数 'D' の推奨される関係は 'W>=D+7' です。
+        read(5,'(E8.2)')eshift
+------------------^
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -o r4dcaspt2ocoexe four_caspt2_module.o nbitsa.o readvec.o readorb_enesym_co.o read1mo_co.o readint2_ord_co.o tramo_ty.o one_e_exct.o dim.o diag.o cutoff.o calce0.o timing.o mem.o intra.o takekr.o solvall_A_ord_ty.o solvall_B_ord_ty.o solvall_C_ord_ty.o solvall_D_ord_ty.o solvall_E_ord_ty.o solvall_F_ord_ty.o solvall_G_ord_ty.o solvall_H_ord_ty.o uramda_s_half.o checkdgc.o e0test_v2.o r4dcaspt2_tra_co.o
+mv r4dcaspt2ocoexe bin/r4dcaspt2ocoexe
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c hfc_casci.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -o hfc_casciexe four_caspt2_module.o nbitsa.o one_e_exct.o dim.o hfc_casci.o
+mv hfc_casciexe bin/hfc_casciexe
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -c eeff_casci.f
+ifort -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll -o eeff_casciexe four_caspt2_module.o nbitsa.o one_e_exct.o dim.o eeff_casci.o
+mv eeff_casciexe bin/eeff_casciexe

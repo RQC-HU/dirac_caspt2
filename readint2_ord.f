@@ -13,20 +13,20 @@
         character  :: datex*10, timex*8
 
 !        integer :: mdcint, nkr, idum, nmom, max1, max2, min1, min2
-        integer(4) :: nkr, idum 
+        integer :: nkr, idum 
         integer :: mdcint, nmom, max1, max2, min1, min2
 !        integer :: nz, type
-        integer(4) :: nz
+        integer :: nz
         integer :: type
         integer :: j0, i0, i1
         integer :: k0, l0, ii, jj, kk, ll, signind
 !        integer :: i, j, k, l, ikr, jkr, lkr, kkr
-        integer(4) :: ikr, jkr, kkr, lkr
+        integer :: ikr, jkr, kkr, lkr
         integer :: i, j, k, l
         integer :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint
 
 !        integer, allocatable :: indk(:), indl(:), kr(:) 
-        integer(4), allocatable :: indk(:), indl(:), kr(:) 
+        integer, allocatable :: indk(:), indl(:), kr(:) 
 
 !        real*8, allocatable :: rklr(:), rkli(:)
         double precision, allocatable :: rklr(:), rkli(:)

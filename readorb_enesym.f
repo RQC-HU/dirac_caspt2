@@ -20,7 +20,7 @@
 
         real*8 :: w
 !        logical :: breit
-        logical(4) :: breit
+        logical :: breit
 
 !       Write(UT_sys_ftmp) NMO,BREIT,ECORE
 !       Write(UT_sys_ftmp) NSYMRP,(REPN(IRP),IRP=1,NSYMRP)
@@ -35,7 +35,7 @@
         open( mrconee, file=trim(filename),form ='unformatted', status='old', err=10)
         write(*,*)'come1'
 
-!        read(mrconee,err=11) nmo, breit, ecore       
+!        read(mrconee,err=11) nmo, breit, ecore
         read(mrconee,err=11) nmo, breit, ecore, nfsym, nz1, sfform, norbt
         write(*,*) nmo, breit, ecore, nfsym, nz1, sfform, norbt
 
@@ -47,7 +47,7 @@
 !        write(*,*) nsymrpa, (repna(i0), i0 = 1, nsymrpa*2)
 
         read(mrconee,err=14) ((multb(i0,j0),i0=1,2*nsymrpa),j0=1,2*nsymrpa)
-!        write(*,*) ((multb(i0,j0),i0=1,2*nsymrpa),j0=1,2*nsymrpa)     
+!        write(*,*) ((multb(i0,j0),i0=1,2*nsymrpa),j0=1,2*nsymrpa)
 
 !         MULTB(1:16, 17:32) = 0
 !         MULTB(17:32, 1:16) = 0
@@ -184,7 +184,7 @@
 
         Do i0 = 1, 2*nsymrpa
            Do j0 = 1, 2*nsymrpa
-              k0 = MULTB(i0, j0) 
+              k0 = MULTB(i0, j0)
               MULTB2(i0, k0) = j0
            Enddo
         End do
@@ -209,7 +209,7 @@
         Allocate ( indmor(nmo)); Call memplus(KIND(indmor),SIZE(indmor),1)
 
         Allocate ( dammo (nmo)); Call memplus(KIND(dammo ),SIZE(dammo ),1)
-        
+
 
         irpmo(:) = 0
         irpamo(:) = 0
@@ -241,29 +241,29 @@
               goto 100 ! error
            Elseif (irpmo(i) <= 24) then
                irpmo(i) = irpmo (i) - 8
-           Else 
+           Else
               goto 100   !error
            Endif
 
-           If (irpmo(i) == 3) then   
+           If (irpmo(i) == 3) then
               irpmo(i) = 4
-           Elseif (irpmo(i) == 4) then  
+           Elseif (irpmo(i) == 4) then
               irpmo(i) = 3
-           Elseif (irpmo(i) == 11) then 
+           Elseif (irpmo(i) == 11) then
               irpmo(i) = 12
-           Elseif (irpmo(i) == 12) then 
+           Elseif (irpmo(i) == 12) then
               irpmo(i) = 11
            Endif
-   
+
         Enddo
 
-        write(*,*) "Modify irpmo" 
+        write(*,*) "Modify irpmo"
 
         write(*,'("irpmo ",20I2)')(irpmo(i0),i0=1,nmo)
 
         orb = orbmo
 
-! orb is lower order of orbmo      
+! orb is lower order of orbmo
 
         do i0 = 1, nmo-1
            m = i0
@@ -281,7 +281,7 @@
             write(*,*)orbmo(i0)
         end do
 
-!! orb is lower order of orbmo      
+!! orb is lower order of orbmo
 
         do i0 = 1, nmo, 2
               m = 0
@@ -293,7 +293,7 @@
                  else
                     indmo(i0+1) = j0
                  endif
-                    
+
               end if
            end do
         end do
@@ -339,19 +339,18 @@
 
         goto 1000
 
- 10     write(*,*) 'err 0'   
+ 10     write(*,*) 'err 0'
         go to 1000
- 11     write(*,*) 'err 1'   
+ 11     write(*,*) 'err 1'
         go to 1000
- 12     write(*,*) 'err 2'   
+ 12     write(*,*) 'err 2'
         go to 1000
- 13     write(*,*) 'err 3'   
+ 13     write(*,*) 'err 3'
         go to 1000
- 14     write(*,*) 'err 4'   
+ 14     write(*,*) 'err 4'
         go to 1000
  15     write(*,*) 'err 5'
         go to 1000
  100    go to 1000
 
  1000   end subroutine readorb_enesym
-

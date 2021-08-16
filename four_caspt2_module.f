@@ -29,13 +29,13 @@
     real*8 :: enuc
     double precision :: ecore
 !   integer :: nsymrp, nsymrpa, multb(128,128), multb2(128,128), nmo, scfru
-!   integer(4) :: nmo
-   integer(4) :: nsymrp, nsymrpa, multb(128,128), multb2(128,128), nmo, scfru
+!   integer :: nmo
+   integer :: nsymrp, nsymrpa, multb(128,128), multb2(128,128), nmo, scfru
    character :: repn(64)*14, repna(64)*4, repn_ty(64)*6
 !   character :: repn(50)*14, repna(50)*4, repn_ty(50)*6
 !   integer, allocatable :: irpmo(:), irpamo(:), indmo(:), indmor(:)
-   integer(4), allocatable :: irpmo(:), irpamo(:)
-   integer(4), allocatable :: indmo(:), indmor(:)
+   integer, allocatable :: irpmo(:), irpamo(:)
+   integer, allocatable :: indmo(:), indmor(:)
    real*8, allocatable  :: oner(:,:), onei(:,:)
    real*8, allocatable  :: orbmo(:), orb(:)
    real*8, allocatable  :: orbmocas(:), orbcas(:)

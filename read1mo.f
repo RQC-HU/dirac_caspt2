@@ -12,8 +12,8 @@
      	character*50,intent(in) :: filename
 !        integer :: j0, j, i, i0, i1
 !        integer :: k0, l0, ii, jj, kk, ll, nmom
-        integer(4) :: j0, j, i, i0, i1
-        integer(4) :: k0, l0, ii, jj, kk, ll, nmom
+        integer :: j0, j, i, i0, i1
+        integer :: k0, l0, ii, jj, kk, ll, nmom
 !        real*8, allocatable :: roner(:,:), ronei(:,:)
         double precision, allocatable :: roner(:,:), ronei(:,:)
 

@@ -163,10 +163,18 @@ NRMOBJS2 = four_caspt2_module.o nbitsa.o \
 	uramda_s_half.o nrintread.o \
 	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcaspt2_ver2_nr.o
 
-# THis is a Intel mkl setting for the Institute for Molecular Science's linux server
-MKLROOT = /local/apl/lx/intel2020update2/compilers_and_libraries_2020.2.254/linux/mkl/
+# This is a Intel mkl setting for the Institute for Molecular Science's linux server
+# MKLROOT = /local/apl/lx/intel2020update2/compilers_and_libraries_2020.2.254/linux/mkl
+MKLROOT = /local/apl/lx/intel2020update2/mkl
+#BLASMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/blas95.mod
+#LAPACKMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/lapack95.mod
+#INC = -I$(BLASMOD) -I$(LAPACKMOD)
+INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
 F90C = ifort
-F90FLAGS = -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
+# F90FLAGS = $(INC) -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
+F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
+
+
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe
 all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
@@ -177,6 +185,7 @@ all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 .SUFFIXES: .f .o
 .f.o:
 	$(F90C) $(F90FLAGS) -c $*.f
+#	$(F90C) $(F90FLAGS) -I$(MKLROOT)/include -c $*.f
 #	$(F90C) $(F90FLAGS) -c $< :
 
 
@@ -205,23 +214,23 @@ all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 #	mv r4dcaspt2otyexe bin/r4dcaspt2otyexe
 
 hfc_casciexe : $(HFC_CASCI)
-	$(F90C) $(F90FLAGS) -o $@ $(HFC_CASCI)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
+	$(F90C) $(F90FLAGS) -o $@ $(HFC_CASCI)
 	mv hfc_casciexe bin/hfc_casciexe
 
 eeff_casciexe : $(EEFF_CASCI)
-	$(F90C) $(F90FLAGS) -o $@ $(EEFF_CASCI)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
+	$(F90C) $(F90FLAGS) -o $@ $(EEFF_CASCI)
 	mv eeff_casciexe bin/eeff_casciexe
 
 r4dcascicoexe : $(R4DCASCI_CO)
-	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI_CO)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
+	$(F90C) $(F90FLAGS) -o $@ $(R4DCASCI_CO)
 	mv r4dcascicoexe bin/r4dcascicoexe
 
 r4dcaspt2ocoexe : $(R4DCASPT2O_CO)
-	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_CO)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
+	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_CO)
 	mv r4dcaspt2ocoexe bin/r4dcaspt2ocoexe
 
 r4divocoexe : $(R4DIVO_CO)
-	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO_CO)  -I$(MKLROOT)/include/intel64/ilp64 -i8  -I"$(MKLROOT)/include"
+	$(F90C) $(F90FLAGS) -o $@ $(R4DIVO_CO)
 	mv r4divocoexe bin/r4divocoexe
 
 #nrmain2 : $(NRMOBJS2)
