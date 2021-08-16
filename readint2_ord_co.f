@@ -19,7 +19,7 @@
         integer :: i, j, k, l
         integer :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint
 
-        integer, allocatable :: indk(:), indl(:), kr(:) 
+        integer, allocatable :: indk(:), indl(:), kr(:)
 
         real*8, allocatable :: rklr(:), rkli(:)
 
@@ -473,7 +473,7 @@
                            write(7)ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
 !                           write(*,'("Gint5",4I4,2E20.10)')ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
 
-                        elseif(j > i .and. l > k ) then ! (23|13)=>(31|32) 
+                        elseif(j > i .and. l > k ) then ! (23|13)=>(31|32)
                            write(7)ltr,ktr,jtr,itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                            write(*,'("Gint6",4I4,2E20.10)')ltr,ktr,jtr,itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
@@ -481,7 +481,7 @@
                            write(7)k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 !                           write(*,'("Gint7",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 
-                        elseif(i < j .and. k > l) then ! (23|31)=>(31|32) 
+                        elseif(i < j .and. k > l) then ! (23|31)=>(31|32)
                            write(7)k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 !                           write(*,'("Gint8",4I4,2E20.10)')k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
@@ -525,7 +525,7 @@
 !                     if(abs(rkli(inz)) > thres) realc = .false.
 
  70               Enddo
-	
+
                   indk(:)=0
                   indl(:)=0
                   rklr = 0.0d+00
@@ -585,4 +585,3 @@
          deallocate (rkli); Call memminus(KIND(rkli),SIZE(rkli),1)
          deallocate (kr  ); Call memminus(KIND(kr  ),SIZE(kr  ),1)
          end subroutine readint2_ord_co
-

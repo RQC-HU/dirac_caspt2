@@ -20,7 +20,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 ! Iwamuro modify
         logical(4) :: realonly
         real    :: cutoff
- 
+
         realonly = .false.
         cutoff = 0.25D-12
 
@@ -69,12 +69,12 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !        write(*,*) 'rklr(inz),rkli(inz)', (rklr(inz),rkli(inz), inz=1,nz)
 
 !------------------------------------------------------------
- 
+
 !------------------------------!
 !   Create new ikr for UTChem  !
 !------------------------------!
 
-!       new ikr = iikr 
+!       new ikr = iikr
 !           jkr = jjkr
 !           kkr = kkkr
 !           lkr = llkr
@@ -85,7 +85,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         lll = indmor(kr(-(indl(inz))))
 
         iikr = (-1)**(mod(iii,2)+1)*(iii/2+mod(iii,2))
-        jjkr = (-1)**(mod(jjj,2)+1)*(jjj/2+mod(jjj,2))              
+        jjkr = (-1)**(mod(jjj,2)+1)*(jjj/2+mod(jjj,2))
         kkkr = (-1)**(mod(kkk,2)+1)*(kkk/2+mod(kkk,2))
         llkr = (-1)**(mod(lll,2)+1)*(lll/2+mod(lll,2))
 
@@ -116,7 +116,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         If(iikr>0 .and. jjkr>0 .and. kkkr>0 .and. llkr>0) then  !TYPE1
               if( (ii<=jj .and. kk<=ll .and. (ii<kk .or. (ii==kk .and. jj<=ll))) .or. &
                    (ii<=jj .and. ll<=kk .and. (ii<ll .or. (ii==ll .and. jj<=kk))) ) then
-!                  if(ii==2 .and. jj==2 .and. kk==4 .and. ll==3) go to 300 
+!                  if(ii==2 .and. jj==2 .and. kk==4 .and. ll==3) go to 300
                   if(abs(rklr(inz))>cutoff.or. &
                      abs(rkli(inz))>cutoff      ) then
                     write(28) -ikr,-jkr,1,-(indk(inz)),-(indl(inz)),rklr(inz),rkli(inz)
@@ -184,4 +184,3 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         deallocate(rkli)
 
 end Subroutine create_newmdcint
- 
