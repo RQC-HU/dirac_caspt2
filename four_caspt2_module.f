@@ -69,9 +69,8 @@
 !             (spinor_info(3,irp),irp=1,nfsym), (spinor_info(4,irp),irp=1,nfsym),&
 !             (spinor_info(5,irp),irp=1,nfsym)
 !       Write NREP, (REPNA(IRP),IRP=1,2*NREP)
-!       Write ((MULTB(I,J,1),I=1,2*NREP),J=1,2*NREP)  
+!       Write ((MULTB(I,J,1),I=1,2*NREP),J=1,2*NREP)
 !       Write (IRPMO(IMO),IRPAMO(IMO),ORBMO(IMO),IMO=1,NMO)
 !       Write ((ONER(IMO,JMO), ONEI(IMO,JMO), JMO=1, NMO), IMO=1, NMO)
 
    end MODULE four_caspt2_module
-

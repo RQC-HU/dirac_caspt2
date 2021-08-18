@@ -27,7 +27,7 @@
         write(*,*)'Enter read1mo'
 
     	mrconee=10
-    
+
         realc = .true.
 
         Allocate ( roner (nmo,nmo)); Call memplus(KIND(roner ),SIZE(roner ),1)
@@ -35,11 +35,11 @@
 
     	open( mrconee, file=trim(filename), status='old', form='unformatted', err=10)
         rewind (mrconee)
-        read(mrconee,err=10) 
         read(mrconee,err=10)
         read(mrconee,err=10)
         read(mrconee,err=10)
-        read(mrconee,err=10) 
+        read(mrconee,err=10)
+        read(mrconee,err=10)
         read(mrconee,err=10) ((roner(i0,j0),ronei(i0,j0),j0=1,nmo),i0=1,nmo)
 
 ! Iwamuro modify
@@ -67,11 +67,9 @@
         write(*,*) realc,'realc'
         goto 1000
 
- 10     write(*,*) 'err 10 mo1'   
+ 10     write(*,*) 'err 10 mo1'
         go to 1000
- 11     write(*,*) 'err 11 mo1'   
+ 11     write(*,*) 'err 11 mo1'
         go to 1000
 
  1000   end subroutine read1mo
-
-   

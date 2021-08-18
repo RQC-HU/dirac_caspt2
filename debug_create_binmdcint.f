@@ -1,10 +1,10 @@
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
+program debug_create_binmdcint! 2 Electorn Integrals In Mdcint
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        Use four_caspt2_module
+        ! Use four_caspt2_module
 
         Implicit None
 
@@ -28,9 +28,23 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         integer         :: i, digit
         Character*50    :: fileBaseName, mdcintBaseName, mdcintNew, mdcint_debug, mdcint_int, mdcintNum
 
+        ! TEMPORARIRY ADDED VARIABLES
+        ! integer, ALLOCATABLE :: indmor
+        logical :: readonly
+        integer :: nmo, ninact, nact, nsec
+        ninact = 8
+        nact = 12
+        nsec = 172
+        ! open(5,file='active.inp',form='formatted',status='old')
+        ! read(5,'(I4)')ninact
+        ! read(5,'(I4)')nact
+        ! read(5,'(I4)')nsec
+        ! close(5)
+        nmo = ninact + nact + nsec
+        ! Allocate ( indmor(nmo))
 
         Do i=1,8 ! TODO MDCINTファイルの数に応じてloopの数を変更する
-        realonly = .false.
+        ! realonly = .false.
         cutoff = 0.25D-12
         nnz = 1
 
@@ -51,16 +65,16 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         fileBaseName = "MDCINXXXX"
         if (i == 1) then
                 Filename = "MDCINT"
-                mdcintNew = "MDCINTNEW"
+                ! mdcintNew = "MDCINTNEW"
                 mdcint_debug = "MDCINT_debug"
-                mdcint_int = "MDCINT_int"
+                ! mdcint_int = "MDCINT_int"
         else
                 mdcintBaseName = "MDCINXXXX"
                 write(mdcintNum,"(I3)") i-1
                 Filename = TRIM(mdcintBaseName)//TRIM(ADJUSTL(mdcintNum))
-                mdcintNew = "MDCINTNEW"//TRIM(ADJUSTL(mdcintNum))
+                ! mdcintNew = "MDCINTNEW"//TRIM(ADJUSTL(mdcintNum))
                 mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintNum))
-                mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
+                ! mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
         end if
         mdcint=11
         open(mdcint, file=Filename, form ='unformatted', status='unknown')
@@ -72,8 +86,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         goto 201
 
-200     realonly = .true.
-        write(*,*) "realonly = ", realonly
+! 200     realonly = .true.
+        ! write(*,*) "realonly = ", realonly
+200     write(*,*) "realonly = .true."
 201     close(mdcint)
 
         ! open(mdcint, file="MDCINT", form='unformatted', status='unknown')
@@ -83,31 +98,31 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 
         open(mdcint, file=Filename, form='unformatted', status='unknown')
-        open(28, file=mdcintNew, form='unformatted', status='unknown')
+        ! open(28, file=mdcintNew, form='unformatted', status='unknown')
         open(29, file=mdcint_debug, form='formatted', status='unknown')
-        open(30, file=mdcint_int, form='formatted', status='unknown')
+        ! open(30, file=mdcint_int, form='formatted', status='unknown')
 
         read (mdcint) datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
 
         nnkr = nkr
         kkr(:) = kr(:)
 
-        write(28) datex, timex, nnkr, (kkr(i0),kkr(-1*i0),i0=1,nnkr)
+        ! write(28) datex, timex, nnkr, (kkr(i0),kkr(-1*i0),i0=1,nnkr)
 !        write(29,*) datex, timex, nnkr, (kkr(i0),kkr(-1*i0),i0=1,nnkr)
 !Iwamuro debug
         ! write(*,*) "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
         ! write(*,*) Filename
 
-100     if (realonly) then
-        read (mdcint) ikr,jkr, nz, &
+! 100     if (realonly) then
+100     read (mdcint) ikr,jkr, nz, &
                 (indk(inz),indl(inz),inz=1,nz), &
                 (rklr(inz), inz=1,nz)
         rkli = 0.0d+00
-        else
-        read (mdcint) ikr,jkr, nz, &
-                (indk(inz),indl(inz),inz=1,nz), &
-                (rklr(inz),rkli(inz), inz=1,nz)
-        endif
+        ! else
+        ! read (mdcint) ikr,jkr, nz, &
+        !         (indk(inz),indl(inz),inz=1,nz), &
+        !         (rklr(inz),rkli(inz), inz=1,nz)
+        ! endif
 ! Debug output
         write(*,*) ""
         write(*,*) ikr,jkr, nz, &
@@ -131,10 +146,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         if (ikr<0) go to 100
         if (ikr == 0) then
-        write(28) 0, 0, 0
+        ! write(28) 0, 0, 0
         write(29,'(3I4)') 0, 0, 0
-        write(30,'(3I4)') 0, 0, 0
-        go to 1000
+        ! write(30,'(3I4)') 0, 0, 0
+        ! go to 1000
+        go to 100
         endif
 
         ikr8 = ikr
@@ -146,36 +162,36 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         Do inz = 1,nz
         ! Debug output (if write(*,*))
-        if (inz == 1) then
-        write(*,*)"new_ikr2"
-        write(*,*)"Filename:", Filename
-        write(*,*)"inz:", inz
-        endif
-        iii = indmor(kr(ikr8))
-        if (inz == 1) then
-        write(*,*) "kr(ikr)", kr(ikr)
-        write(*,*) "indmor(kr(ikr))", indmor(kr(ikr))
-        endif
+        ! if (inz == 1) then
+        ! write(*,*)"new_ikr2"
+        ! write(*,*)"Filename:", Filename
+        ! write(*,*)"inz:", inz
+        ! endif
+        ! iii = indmor(kr(ikr8))
+        ! if (inz == 1) then
+        ! write(*,*) "kr(ikr)", kr(ikr)
+        ! write(*,*) "indmor(kr(ikr))", indmor(kr(ikr))
+        ! endif
 
-        jjj = indmor(kr(jkr8))
-        if (inz == 1) then
-        write(*,*) "kr(jkr)", kr(jkr)
-        write(*,*) "indmor(kr(jkr))", indmor(kr(jkr))
-        endif
+        ! jjj = indmor(kr(jkr8))
+        ! if (inz == 1) then
+        ! write(*,*) "kr(jkr)", kr(jkr)
+        ! write(*,*) "indmor(kr(jkr))", indmor(kr(jkr))
+        ! endif
 
-        kkk = indmor(kr(indk8(inz)))
-        if (inz == 1) then
-        write(*,*) "indk(inz)", indk(inz)
-        write(*,*) "kr(indk(inz))", kr(indk(inz))
-        write(*,*) "indmor(kr(indk(inz)))", indmor(kr(indk(inz)))
-        endif
+        ! kkk = indmor(kr(indk8(inz)))
+        ! if (inz == 1) then
+        ! write(*,*) "indk(inz)", indk(inz)
+        ! write(*,*) "kr(indk(inz))", kr(indk(inz))
+        ! write(*,*) "indmor(kr(indk(inz)))", indmor(kr(indk(inz)))
+        ! endif
 
-        lll = indmor(kr(indl8(inz)))
-        if (inz == 1) then
-        write(*,*) "indl(inz)", indl(inz)
-        write(*,*) "kr(indl(inz))", kr(indl(inz))
-        write(*,*) "indmor(kr(indl(inz)))", indmor(kr(indl(inz)))
-        endif
+        ! lll = indmor(kr(indl8(inz)))
+        ! if (inz == 1) then
+        ! write(*,*) "indl(inz)", indl(inz)
+        ! write(*,*) "kr(indl(inz))", kr(indl(inz))
+        ! write(*,*) "indmor(kr(indl(inz)))", indmor(kr(indl(inz)))
+        ! endif
 
         iikr = (-1)**(mod(iii,2)+1)*(iii/2+mod(iii,2))
         jjkr = (-1)**(mod(jjj,2)+1)*(jjj/2+mod(jjj,2))
@@ -189,9 +205,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 
 ! Iwamuro debug
-        if (inz == 1) then
-        write(*,*) "new_ikr2", iikr, jjkr, kkkr, llkr
-        endif
+        ! if (inz == 1) then
+        ! write(*,*) "new_ikr2", iikr, jjkr, kkkr, llkr
+        ! endif
 ! Debug output end (if write(*,*))
 
 !------------------------------------------------------------
@@ -215,9 +231,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
-                write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 endif
         endif
 
@@ -227,9 +243,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
-                write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 endif
         endif
 
@@ -237,11 +253,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         if(ii<=jj .and. kk<=ll .and. (ii<kk .or. (ii==kk .and. jj<=ll))) then
                 if(abs(rklr(inz))>cutoff.or. &
                 abs(rkli(inz))>cutoff      ) then
-!                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
+                !    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
-                write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 endif
         endif
 
@@ -251,16 +267,29 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
-                write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 endif
         endif
         Endif
 300     Enddo
 
         go to 100
+        ! go to 1000
+end do
+        close(29)
 
+        deallocate(kr)
+        deallocate(indk)
+        deallocate(indl)
+        deallocate(rklr)
+        deallocate(rkli)
+        deallocate(kkr)
+        deallocate(indk8)
+        deallocate(indl8)
+        deallocate(rklr8)
+        deallocate(rkli8)
 !--------------------------------- UTChem integral translation------------------------------------
 !TYPE1       If( ((p10<=p20.and.p30<=p40.and.(p10<p30.or.(p10==p30.and.p20<=p40))) .or. &
 !               (p10< p20.and.p40<=p30.and.(p10<p40.or.(p10==p40.and.p20<=p30))).and.(isp==isq)) &
@@ -273,10 +302,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !              .or. (isp/=isq) ) then
 !-------------------------------------------------------------------------------------------------
 
-1000    close(mdcint)
-        close(28)
-        close(29)
-        close(30)
+! 1000    close(mdcint)
+!         close(28)
+!         close(29)
+!         close(30)
+1000    close(29)
 
         deallocate(kr)
         deallocate(indk)
@@ -288,5 +318,5 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         deallocate(indl8)
         deallocate(rklr8)
         deallocate(rkli8)
-        end do
-end Subroutine create_newmdcint
+! end Subroutine create_newmdcint
+end program debug_create_binmdcint
