@@ -147,34 +147,34 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         Do inz = 1,nz
         ! Debug output (if write(*,*))
         if (inz == 1) then
-        write(*,*)"new_ikr2"
-        write(*,*)"Filename:", Filename
-        write(*,*)"inz:", inz
+        ! write(*,*)"new_ikr2"
+        ! write(*,*)"Filename:", Filename
+        ! write(*,*)"inz:", inz
         endif
         iii = indmor(kr(ikr8))
         if (inz == 1) then
-        write(*,*) "kr(ikr)", kr(ikr)
-        write(*,*) "indmor(kr(ikr))", indmor(kr(ikr))
+        ! write(*,*) "kr(ikr)", kr(ikr)
+        ! write(*,*) "indmor(kr(ikr))", indmor(kr(ikr))
         endif
 
         jjj = indmor(kr(jkr8))
         if (inz == 1) then
-        write(*,*) "kr(jkr)", kr(jkr)
-        write(*,*) "indmor(kr(jkr))", indmor(kr(jkr))
+        ! write(*,*) "kr(jkr)", kr(jkr)
+        ! write(*,*) "indmor(kr(jkr))", indmor(kr(jkr))
         endif
 
         kkk = indmor(kr(indk8(inz)))
         if (inz == 1) then
-        write(*,*) "indk(inz)", indk(inz)
-        write(*,*) "kr(indk(inz))", kr(indk(inz))
-        write(*,*) "indmor(kr(indk(inz)))", indmor(kr(indk(inz)))
+        ! write(*,*) "indk(inz)", indk(inz)
+        ! write(*,*) "kr(indk(inz))", kr(indk(inz))
+        ! write(*,*) "indmor(kr(indk(inz)))", indmor(kr(indk(inz)))
         endif
 
         lll = indmor(kr(indl8(inz)))
         if (inz == 1) then
-        write(*,*) "indl(inz)", indl(inz)
-        write(*,*) "kr(indl(inz))", kr(indl(inz))
-        write(*,*) "indmor(kr(indl(inz)))", indmor(kr(indl(inz)))
+        ! write(*,*) "indl(inz)", indl(inz)
+        ! write(*,*) "kr(indl(inz))", kr(indl(inz))
+        ! write(*,*) "indmor(kr(indl(inz)))", indmor(kr(indl(inz)))
         endif
 
         iikr = (-1)**(mod(iii,2)+1)*(iii/2+mod(iii,2))
@@ -190,7 +190,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 ! Iwamuro debug
         if (inz == 1) then
-        write(*,*) "new_ikr2", iikr, jjkr, kkkr, llkr
+        ! write(*,*) "new_ikr2", iikr, jjkr, kkkr, llkr
         endif
 ! Debug output end (if write(*,*))
 
@@ -273,20 +273,20 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !              .or. (isp/=isq) ) then
 !-------------------------------------------------------------------------------------------------
 
-1000    close(mdcint)
-        close(28)
-        close(29)
-        close(30)
+                1000    close(mdcint)
+                        close(28)
+                        close(29)
+                        close(30)
 
-        deallocate(kr)
-        deallocate(indk)
-        deallocate(indl)
-        deallocate(rklr)
-        deallocate(rkli)
-        deallocate(kkr)
-        deallocate(indk8)
-        deallocate(indl8)
-        deallocate(rklr8)
-        deallocate(rkli8)
+                        deallocate(kr)
+                        deallocate(indk)
+                        deallocate(indl)
+                        deallocate(rklr)
+                        deallocate(rkli)
+                        deallocate(kkr)
+                        deallocate(indk8)
+                        deallocate(indl8)
+                        deallocate(rklr8)
+                        deallocate(rkli8)
         end do
 end Subroutine create_newmdcint
