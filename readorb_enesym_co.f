@@ -426,9 +426,9 @@
            indmor(indmo(i0)) = i0  ! i0 is energetic order, indmo(i0) is symmtric order (MRCONEE order)
         end do
 
-!        do i0 = 1,  nmo
-!           write(*,'(2I4)')indmor(i0), indmo(i0), i0
-!        end do
+       do i0 = 1,  nmo
+          write(*,'("indmor output",3I4)')indmor(i0), indmo(i0), i0
+       end do
 
         orbmo = orb
 

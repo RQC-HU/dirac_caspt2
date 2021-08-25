@@ -1,6 +1,6 @@
 program read_mdcint_debug
     implicit none
-    integer::i, mdcint = 11, debug = 12, ikr, jkr, nz, inz, nkr, i0
+    integer::i, mdcint = 11, debug = 12, ikr, jkr, nz, inz, nkr, i0, filesdebug = 13
     integer, allocatable :: indk(:), indl(:), kr(:)
     double precision, allocatable :: rklr(:), rkli(:)
     character*50::Filename, mdcintBaseName, mdcint_debug, mdcintNum
@@ -18,19 +18,19 @@ program read_mdcint_debug
         if ( i == 1 ) then
             Filename = "MDCINT"
             ! mdcintNew = "MDCINTNEW"
-            mdcint_debug = "MDCINT_debug"
+            mdcint_debug = "MDCINT_debug_only"
             ! mdcint_int = "MDCINT_int"
         else
             write(mdcintNum,"(I3)") i-1
             Filename = trim(mdcintBaseName)//trim(adjustl(mdcintNum))
             ! mdcintNew = "MDCINTNEW"
-            mdcint_debug = "MDCINT_debug"//trim(adjustl(mdcintNum))
+            mdcint_debug = "MDCINT_debug_only"//trim(adjustl(mdcintNum))
             ! mdcint_int = "MDCINT_int"
         end if
         open(mdcint, file=Filename, form="unformatted", status="unknown")
         open(debug, file=mdcint_debug, form="formatted", status="unknown")
-        open(100, file="mdcintfiles_debug", form="formatted", status="unknown")
-        write(100,*) Filename, mdcint_debug
+        open(filesdebug, file="mdcintfiles_debug", form="formatted", status="unknown")
+        write(filesdebug,*) Filename, mdcint_debug
         ! close(100)
         read (mdcint)
         ! read (mdcint) datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
@@ -39,11 +39,15 @@ program read_mdcint_debug
             read(mdcint,end=100, err=110, iomsg=errmsg) ikr,jkr, nz, &
                     (indk(inz),indl(inz), inz=1,nz), &
                     (rklr(inz), inz=1,nz)
+            if (ikr == 0) then
+                write(debug,"(3I20)") ikr, jkr,nz
+                go to 100
+            end if
             do inz = 1, nz
                 write(debug, "(5I20,E32.16)") ikr, jkr, nz, indk(inz), indl(inz), rklr(inz)
             end do
         end do
-        100 write(100,*) "Read MDCINT"//trim(adjustl(mdcintNum))//" END"
+100         write(filesdebug,*) "Read MDCINT"//trim(adjustl(mdcintNum))//" END"
             deallocate(kr)
             deallocate(indk)
             deallocate(indl)
@@ -51,9 +55,9 @@ program read_mdcint_debug
             deallocate(rkli)
             close(mdcint)
             close(debug)
-            close(100)
+            close(filesdebug)
     end do
-110 write(100,*) "ERR : ", trim(errmsg)
+110 write(filesdebug,*) "ERR : ", trim(errmsg)
     deallocate(kr)
     deallocate(indk)
     deallocate(indl)
@@ -61,5 +65,5 @@ program read_mdcint_debug
     deallocate(rkli)
     close(mdcint)
     close(debug)
-    close(100)
+    close(filesdebug)
 end program read_mdcint_debug

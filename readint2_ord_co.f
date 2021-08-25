@@ -27,8 +27,10 @@
 
 !Iwamuro modify
 !        integer :: ikr, jkr, kkr, lkr
-
         Allocate(kr(-nmo/2:nmo/2)); Call memplus(KIND(kr),SIZE(kr),1)
+        kr(:)   = 0
+
+
         Allocate(indk((nmo/2)**2)); Call memplus(KIND(indk),SIZE(indk),1)
         Allocate(indl((nmo/2)**2)); Call memplus(KIND(indl),SIZE(indl),1)
         Allocate(rklr((nmo/2)**2)); Call memplus(KIND(rklr),SIZE(rklr),1)
@@ -40,7 +42,6 @@
         indl(:) = 0
         rklr(:) = 0.0d+00
         rkli(:) = 0.0d+00
-        kr(:)   = 0
 
         totalint = 0
 
