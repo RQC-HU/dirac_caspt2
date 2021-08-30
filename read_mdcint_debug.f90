@@ -1,69 +1,71 @@
 program read_mdcint_debug
     implicit none
-    integer::i, mdcint = 11, debug = 12, ikr, jkr, nz, inz, nkr, i0, filesdebug = 13
+    include 'mpif.h'
+
+    integer :: ikr, jkr, nz, inz, filesdebug = 1500
     integer, allocatable :: indk(:), indl(:), kr(:)
     double precision, allocatable :: rklr(:), rkli(:)
-    character*50::Filename, mdcintBaseName, mdcint_debug, mdcintNum
-    character*100:: errmsg
-    character  :: datex*10, timex*8
-    integer :: nmo = 192
+    character*50        ::  Filename, mdcintBaseName, mdcint_debug, chr_mdcint
+    integer             ::  nmo = 192
+    real(8)             ::  time_start, time_end
+    integer             ::  ierr, nprocs, rank, procs = 8 !! TODO MPI PROCS を動的に?設定する
+
+    Allocate (kr(-nmo/2:nmo/2))
+    kr = 0
     inz = 1
-    do i = 1, 8
-        Allocate(kr(-nmo/2:nmo/2))
-        Allocate(indk(nmo**2))
-        Allocate(indl(nmo**2))
-        Allocate(rklr(nmo**2))
-        Allocate(rkli(nmo**2))
-        mdcintBaseName = "MDCINXXXX"
-        if ( i == 1 ) then
-            Filename = "MDCINT"
-            ! mdcintNew = "MDCINTNEW"
-            mdcint_debug = "MDCINT_debug_only"
-            ! mdcint_int = "MDCINT_int"
-        else
-            write(mdcintNum,"(I3)") i-1
-            Filename = trim(mdcintBaseName)//trim(adjustl(mdcintNum))
-            ! mdcintNew = "MDCINTNEW"
-            mdcint_debug = "MDCINT_debug_only"//trim(adjustl(mdcintNum))
-            ! mdcint_int = "MDCINT_int"
+    time_start = mpi_wtime()
+    open (filesdebug, file="mdcintfiles_debug", form="formatted", status="unknown")
+    call MPI_INIT(ierr)
+    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+
+    Allocate (indk(nmo**2))
+    Allocate (indl(nmo**2))
+    Allocate (rklr(nmo**2))
+    Allocate (rkli(nmo**2))
+    mdcintBaseName = "MDCINXXXX"
+    if (rank == 0) then
+        Filename = "MDCINT"
+        ! mdcintNew = "MDCINTNEW"
+        mdcint_debug = "MDCINT_debug_only"
+        ! mdcint_int = "MDCINT_int"
+    else
+        write (chr_mdcint, "(I3)") rank
+        Filename = trim(mdcintBaseName)//trim(adjustl(chr_mdcint))
+        ! mdcintNew = "MDCINTNEW"
+        mdcint_debug = "MDCINT_debug_only"//trim(adjustl(chr_mdcint))
+        ! mdcint_int = "MDCINT_int"
+    end if
+    write (200 + rank, *) 'debug', rank, trim(Filename), trim(mdcint_debug)
+
+    open (rank + 10, file=Filename, form="unformatted", status="unknown")
+    open (rank + 10 + nprocs, file=mdcint_debug, form="formatted", status="unknown")
+    write (filesdebug, *) Filename, mdcint_debug
+    read (rank + 10)
+    do
+        read (rank + 10, end=100) ikr, jkr, nz, &
+            (indk(inz), indl(inz), inz=1, nz), &
+            (rklr(inz), inz=1, nz)
+        if (ikr == 0) then
+            write (rank + 10 + nprocs, "(3I20)") ikr, jkr, nz
+            write (filesdebug, "(3I20)") ikr, jkr, nz
+            go to 100
         end if
-        open(mdcint, file=Filename, form="unformatted", status="unknown")
-        open(debug, file=mdcint_debug, form="formatted", status="unknown")
-        open(filesdebug, file="mdcintfiles_debug", form="formatted", status="unknown")
-        write(filesdebug,*) Filename, mdcint_debug
-        ! close(100)
-        read (mdcint)
-        ! read (mdcint) datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
-        ! read(mdcint, end=100, err=110, iomsg=errmsg) ikr,jkr, nz, (indk(inz),indl(inz), rklr(inz),rkli(inz), inz=1,nz)
-        do
-            read(mdcint,end=100, err=110, iomsg=errmsg) ikr,jkr, nz, &
-                    (indk(inz),indl(inz), inz=1,nz), &
-                    (rklr(inz), inz=1,nz)
-            if (ikr == 0) then
-                write(debug,"(3I20)") ikr, jkr,nz
-                go to 100
-            end if
-            do inz = 1, nz
-                write(debug, "(5I20,E32.16)") ikr, jkr, nz, indk(inz), indl(inz), rklr(inz)
-            end do
+        do inz = 1, nz
+            write (rank + 10 + nprocs, "(5I20,E32.16)") ikr, jkr, nz, indk(inz), indl(inz), rklr(inz)
         end do
-100         write(filesdebug,*) "Read MDCINT"//trim(adjustl(mdcintNum))//" END"
-            deallocate(kr)
-            deallocate(indk)
-            deallocate(indl)
-            deallocate(rklr)
-            deallocate(rkli)
-            close(mdcint)
-            close(debug)
-            close(filesdebug)
     end do
-110 write(filesdebug,*) "ERR : ", trim(errmsg)
-    deallocate(kr)
-    deallocate(indk)
-    deallocate(indl)
-    deallocate(rklr)
-    deallocate(rkli)
-    close(mdcint)
-    close(debug)
-    close(filesdebug)
+100 write (filesdebug, *) "Read MDCINT"//trim(adjustl(chr_mdcint))//" END"
+    close (rank + 10)
+    close (rank + 10 + nprocs)
+    deallocate (indk)
+    deallocate (indl)
+    deallocate (rklr)
+    deallocate (rkli)
+    call MPI_FINALIZE(ierr)
+    deallocate (kr)
+    time_end = mpi_wtime()
+    write (filesdebug, *) "It took ", time_end - time_start, " seconds.(RANK:", rank, ")"
+    close (filesdebug)
+
 end program read_mdcint_debug

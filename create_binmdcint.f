@@ -1,10 +1,12 @@
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
+! Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
+program create_newmdcint
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         Use four_caspt2_module
+        use omp_lib
 
         Implicit None
 
@@ -25,12 +27,13 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         integer, allocatable :: kkr(:), indk8(:), indl8(:)
         real*8, allocatable  :: rklr8(:), rkli8(:)
 
-        integer         :: i, digit, loop = 0
+        integer         :: i, loop = 0, omp_max, tid
         Character*50    :: fileBaseName, mdcintBaseName, mdcintNew, mdcint_debug, mdcint_int, mdcintNum
 
+        omp_max = omp_get_max_threads()
         Allocate(kr(-nmo/2:nmo/2))
         kr = 0
-
+        !$omp parallel do private(i0,indk,indl,rklr,rkli,rklr8,rkli8,indk8,indl8,kkr,Filename,mdcintNew,mdcint_debug,datex,timex,nkr,ikr,jkr,nz,inz,realonly,iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,nnkr,ikr8,jkr8,iiit,jjjt,kkkt,lllt,mdcint_int,mdcintNum)
         Do i=1,8 ! TODO MDCINTファイルの数に応じてloopの数を変更する
         realonly = .false.
         cutoff = 0.25D-12
@@ -62,40 +65,45 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintNum))
                 mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
         end if
-        mdcint=11
-        open(mdcint, file=Filename, form ='unformatted', status='unknown')
+        ! mdcint=11
+        tid = omp_get_thread_num()
+        open(tid+100, file=Filename, form ='unformatted', status='unknown')
+        ! open(mdcint, file=Filename, form ='unformatted', status='unknown')
         ! open(mdcint, file="MDCINT", form ='unformatted', status='unknown')
         if (i == 1) then
-        read (mdcint) datex,timex,nkr,(kr(i0),kr(-1*i0),i0=1,nkr)
+        read (tid+100) datex,timex,nkr,(kr(i0),kr(-1*i0),i0=1,nkr)
+        ! read (mdcint) datex,timex,nkr,(kr(i0),kr(-1*i0),i0=1,nkr)
         else
-        read (mdcint)
+        read (tid+100)
+        ! read (mdcint)
         end if
 
-        read (mdcint,ERR=200) ikr,jkr, nz, (indk(inz),indl(inz), rklr(inz),rkli(inz), inz=1,nz)
+        read (tid+100,ERR=200) ikr,jkr, nz, (indk(inz),indl(inz), rklr(inz),rkli(inz), inz=1,nz)
+        ! read (mdcint,ERR=200) ikr,jkr, nz, (indk(inz),indl(inz), rklr(inz),rkli(inz), inz=1,nz)
 
         goto 201
 
 200     realonly = .true.
         write(*,*) "realonly = ", realonly
-201     close(mdcint)
+201     close(tid+100)
+! 201     close(mdcint)
 
         ! open(mdcint, file="MDCINT", form='unformatted', status='unknown')
         ! open(28, file="MDCINTNEW", form='unformatted', status='unknown')
         ! open(29, file="MDCINT_debug", form='formatted', status='unknown')
         ! open(30, file="MDCINT_int", form='formatted', status='unknown')
 
-        loop = 0
-        open(mdcint, file=Filename, form='unformatted', status='unknown')
-        open(28, file=mdcintNew, form='unformatted', status='unknown')
-        open(29, file=mdcint_debug, form='formatted', status='unknown')
+        open(tid+100, file=Filename, form='unformatted', status='unknown')
+        ! open(mdcint, file=Filename, form='unformatted', status='unknown')
+        open(tid+200, file=mdcintNew, form='unformatted', status='unknown')
+        open(tid+300, file=mdcint_debug, form='formatted', status='unknown')
         ! open(30, file=mdcint_int, form='formatted', status='unknown')
-        write(20,*)loop,trim(Filename)
         if (i == 1) then
-        read (mdcint) datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
+        read (tid+100) datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
         else
-        read(mdcint)
+        read(tid+100)
         end if
-        write(29,*) i,datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
+        write(tid+300,*) i,datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
         nnkr = nkr
         kkr(:) = kr(:)
 
@@ -106,12 +114,12 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         ! write(*,*) Filename
 
 100     if (realonly) then
-        read (mdcint,end=400) ikr,jkr, nz, &
+        read (tid+100,end=1000) ikr,jkr, nz, &
                 (indk(inz),indl(inz),inz=1,nz), &
                 (rklr(inz), inz=1,nz)
         rkli = 0.0d+00
         else
-        read (mdcint,end=400) ikr,jkr, nz, &
+        read (tid+100,end=1000) ikr,jkr, nz, &
                 (indk(inz),indl(inz),inz=1,nz), &
                 (rklr(inz),rkli(inz), inz=1,nz)
         endif
@@ -140,7 +148,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         if (ikr<0) go to 100
         if (ikr == 0) then
         write(20,*)ikr,jkr,nz,mdcint_debug,loop,i
-        write(28) 0, 0, 0
+        write(tid+200) 0, 0, 0
         ! write(29,'(3I4)') 0, 0, 0
         ! write(30,'(3I4)') 0, 0, 0
         go to 1000
@@ -225,7 +233,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                write(tid+200) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! else
                 ! write(29,'(a6,5I4,2E32.16)')'else1',-iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
@@ -239,7 +247,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                write(tid+200) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! else
@@ -253,7 +261,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                write(tid+200) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! else
@@ -267,7 +275,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 abs(rkli(inz))>cutoff      ) then
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
-                write(28) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
+                write(tid+200) iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! else
@@ -293,9 +301,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !              .or. (isp/=isq) ) then
 !-------------------------------------------------------------------------------------------------
 
-1000            close(mdcint)
-                close(28)
-                close(29)
+1000            close(tid+100)
+                close(tid+200)
+                close(tid+300)
                 ! close(30)
                 write(20,*) "1000 closed "//trim(Filename)
                 deallocate(indk)
@@ -307,6 +315,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 deallocate(indl8)
                 deallocate(rklr8)
                 deallocate(rkli8)
-400     end do
+        end do
+        !$omp end parallel do
         deallocate(kr)
-end Subroutine create_newmdcint
+! end Subroutine create_newmdcint
+end program create_newmdcint
