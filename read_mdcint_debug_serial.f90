@@ -1,7 +1,7 @@
 program read_mdcint_debug
     implicit none
     integer                 ::  i = 7, mdcint = 11, debug = 12, ikr, jkr, nz, inz, nkr, i0, filesdebug = 13
-    integer, allocatable    ::  indk(:), indl(:), kr(:)
+    integer , allocatable    ::  indk(:), indl(:), kr(:)
     double precision, allocatable :: rklr(:), rkli(:)
     character*50    ::  Filename, mdcintBaseName, mdcint_debug, mdcintNum
     character*100   ::  errmsg
