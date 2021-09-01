@@ -29,3 +29,6 @@ mpiifort
           specify the size of REAL and COMPLEX declarations, constants,
           functions, and intrinsics
             size: 32, 64, 128
+
+-free     specify source files are in free format. Same as -FR 
+          -nofree indicates fixed format

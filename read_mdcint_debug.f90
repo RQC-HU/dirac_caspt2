@@ -1,8 +1,9 @@
 program read_mdcint_debug
     implicit none
     include 'mpif.h'
+    Character  :: datex*10, timex*8
 
-    integer :: ikr, jkr, nz, inz, filesdebug = 1500
+    integer :: ikr, jkr, nz, inz, filesdebug = 1500, nkr, i0
     integer, allocatable :: indk(:), indl(:), kr(:)
     double precision, allocatable :: rklr(:), rkli(:)
     character*50        ::  Filename, mdcintBaseName, mdcint_debug, chr_mdcint
@@ -13,12 +14,16 @@ program read_mdcint_debug
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
     inz = 1
+    ! add
+    open (10, file="MDCINT", form="unformatted", status="unknown")
+    read (10) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+    close (10)
+    ! add end
     time_start = mpi_wtime()
     open (filesdebug, file="mdcintfiles_debug", form="formatted", status="unknown")
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-
     Allocate (indk(nmo**2))
     Allocate (indl(nmo**2))
     Allocate (rklr(nmo**2))
