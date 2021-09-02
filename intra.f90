@@ -9,8 +9,8 @@
    use four_caspt2_module
 
         Implicit NONE
-     
-        
+
+
         integer, intent(in)        :: spi, spj, spk, spl
         character*5, intent(in)    :: fname
 
@@ -71,7 +71,7 @@
 
 ! Abe modified 2016. 11.11  100 GB is the max memory
         nmaxint = AINT(5.00d+10 - tmem)/48 ! one integrals required four integer and one complex values
-! Abe modified 2016. 11.11 
+! Abe modified 2016. 11.11
 
         write(*,*) 'nmaxint = ', nmaxint
         write(*,*)'tmem, nmaxint*48',tmem, nmaxint*48
@@ -85,10 +85,10 @@
         Allocate(cint2(nmaxint)); Call memplus(KIND(cint2),SIZE(cint2),2)
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and first index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and first index transformation !
 !                                                !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         open(1, file =trim(fname), status='old', form='unformatted')  ! no symmetry about spi,spj,spk,spl
 
@@ -159,7 +159,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -178,14 +178,14 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and second index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and second index transformation !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  31     Do inz = 1, nmaxint
            read(1, err=10, end=21) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -235,7 +235,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -254,14 +254,14 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and third index transformation  ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and third index transformation  !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  32     Do inz = 1, nmaxint
            read(1, err=10, end=22) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -312,7 +312,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -331,12 +331,12 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and fourth index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and fourth index transformation !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  33     Do inz = 1, nmaxint
            read(1, err=10, end=23) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -383,7 +383,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -430,8 +430,8 @@
    use four_caspt2_module
 
         Implicit NONE
-     
-        
+
+
         integer, intent(in)        :: spi, spj, spk, spl
         character*5, intent(in)    :: fname
 
@@ -497,7 +497,7 @@
 
 ! Abe modified 2016. 11.11  100 GB is the max memory
         nmaxint = AINT(5.00d+10 - tmem)/48 ! one integrals required four integer and one complex values
-! Abe modified 2016. 11.11 
+! Abe modified 2016. 11.11
 
         write(*,*) 'nmaxint = ', nmaxint
         write(*,*)'tmem, nmaxint*48',tmem, nmaxint*48
@@ -513,12 +513,12 @@
         Allocate(cint2(nmaxint)); Call memplus(KIND(cint2),SIZE(cint2),2)
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and first index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and first index transformation !
 !                                                !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  30     Do inz = 1, nmaxint
            read(1, err=10, end=20) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -657,7 +657,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -676,14 +676,14 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and second index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and second index transformation !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  31     Do inz = 1, nmaxint
            read(1, err=10, end=21) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -735,7 +735,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -754,14 +754,14 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and third index transformation  ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and third index transformation  !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  32     Do inz = 1, nmaxint
            read(1, err=10, end=22) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -812,7 +812,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -831,12 +831,12 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and fourth index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and fourth index transformation !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  33     Do inz = 1, nmaxint
            read(1, err=10, end=23) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -885,7 +885,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -932,8 +932,8 @@
    use four_caspt2_module
 
         Implicit NONE
-     
-        
+
+
         integer, intent(in)        :: spi, spj, spk, spl
         character*5, intent(in)    :: fname
 
@@ -1000,7 +1000,7 @@
 
 ! Abe modified 2016. 11.11  100 GB is the max memory
         nmaxint = AINT(5.00d+10 - tmem)/48 ! one integrals required four integer and one complex values
-! Abe modified 2016. 11.11 
+! Abe modified 2016. 11.11
 
         write(*,*) 'nmaxint = ', nmaxint
         write(*,*)'tmem, nmaxint*48',tmem, nmaxint*48
@@ -1016,17 +1016,17 @@
         Allocate(cint2(nmaxint)); Call memplus(KIND(cint2),SIZE(cint2),2)
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and first index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and first index transformation !
 !                                                !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  30     Do inz = 1, nmaxint
            read(1, err=10, end=20) i(inz),j(inz),k(inz),l(inz),cint2(inz)
 !Iwamuro modify
-!           write(*,'("cint2debugC",4I4,2E20.10)')i(inz),j(inz),k(inz),l(inz),cint2(inz) 
+!           write(*,'("cint2debugC",4I4,2E20.10)')i(inz),j(inz),k(inz),l(inz),cint2(inz)
        Enddo
 
         Do inz = 1, nmaxint
@@ -1147,7 +1147,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -1166,14 +1166,14 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and second index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and second index transformation !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  31     Do inz = 1, nmaxint
            read(1, err=10, end=21) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -1226,7 +1226,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -1245,14 +1245,14 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and third index transformation  ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and third index transformation  !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  32     Do inz = 1, nmaxint
            read(1, err=10, end=22) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -1303,7 +1303,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -1322,12 +1322,12 @@
         traint2 = 0.0d+00
 
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!  
-! Read intergals  and fourth index transformation ! 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+! Read intergals  and fourth index transformation !
 !                                                 !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
  33     Do inz = 1, nmaxint
            read(1, err=10, end=23) i(inz),j(inz),k(inz),l(inz),cint2(inz)
@@ -1374,7 +1374,7 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        open(1, file =trim(fname), status='old', form='unformatted')  
+        open(1, file =trim(fname), status='old', form='unformatted')
 
         Do l0 = li, le
            Do k0 = ki, ke
@@ -1407,6 +1407,3 @@
 
 
  1000   end subroutine intra_3
-
-
-

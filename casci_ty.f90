@@ -104,13 +104,13 @@
                 write(*,*)(btest(i0,j0),j0=0,nact-1)
                 write(*,'(I4,2(3X,E14.7)," Weights ",E14.7)') &
                 & j, mat(j,irec), &
-                & ABS(mat(j, irec))**2 
+                & ABS(mat(j, irec))**2
              end if
           end do
         end do
 
         Deallocate (mat); Call memminus(KIND(mat),SIZE(mat),2)
-              
+
 
  1000   end subroutine casci_ty
 
@@ -125,22 +125,20 @@
         integer :: n, m, i, j, res, m0
 
         j = 1
-        
+
         if(n-m < m)then
            m0 = n-m
         else
            m0 = m
         endif
-           
+
         Do i = n-m0+1, n
            j = j*i
         End do
-        
+
         Do i = 1, m0
            j = j/i
         End do
 
         res = j
  1000   end function comb
-
-

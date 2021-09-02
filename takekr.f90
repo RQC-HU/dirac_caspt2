@@ -40,7 +40,5 @@
         endif
 
         cint2 = signij*signkl*DCONJG(cint2)
-        
+
         End subroutine takekr
-
-
