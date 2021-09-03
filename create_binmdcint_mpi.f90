@@ -5,7 +5,7 @@ program create_newmdcint
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    Use four_caspt2_module, only: indmor, nmo, realonly
+    Use four_caspt2_module
     ! use omp_lib
     Implicit None
     include 'mpif.h'
@@ -13,8 +13,6 @@ program create_newmdcint
     Character*50 :: Filename
 
     Character  :: datex*10, timex*8
-
-    integer :: nkr, nz
     integer :: i0, mdcint, inz, nnz
     integer :: ikr, jkr
     integer :: ii, jj, kk, ll
@@ -31,19 +29,26 @@ program create_newmdcint
     Character*50    :: fileBaseName, mdcintBaseName, mdcintNew, mdcint_debug, mdcint_int, mdcintNum
     integer         :: ierr, nprocs, rank, procs = 8 !! TODO MPI PROCS を動的に?設定する
     real            :: time_start, time_end
+    integer         :: nkr, nz
+    nmo = 192 ! If you run this code through, comment it out.
     ! omp_max = omp_get_max_threads()
+
+    ! MPI initialization and get the number of MPI processes (nprocs) and own process number.
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+    call MPI
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
+
+    ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
     if (rank == 0) then
-        open (8, file="debug", form="formatted", status="unknown")
+        ! open (8, file="debug", form="formatted", status="unknown")
         open (10, file="MDCINT", form="unformatted", status="unknown")
         read (10) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
         open (11, file="firstline_mdcint", form="formatted", status="unknown")
         write (11, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-        write (11, *) size(kr)
+        ! write (11, *) size(kr)
         close (11)
         close (10)
     end if
@@ -56,17 +61,36 @@ program create_newmdcint
     Allocate (indk8(nmo**2))
     Allocate (indl8(nmo**2))
     Allocate (kkr(-nmo/2:nmo/2))
+
+    ! [indmor] For standalone mode. If you run whole casci/caspt2 code, comment
+    ! out next line.
+    Allocate (indmor(nmo))
+
+    write (*, *) "allocate successed. rank=", rank
+
+    ! Broadcast kr and other data that are not included in the MDCINXXX files
+    call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+    write (*, *) "datex broadcast rank=", rank
+    write (*, *) "if ierr == 0, datex broadcast successed. ierr=", ierr, "rank=", rank
+    call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+    write (*, *) "timex broadcast rank=", rank
+    write (*, *) "if ierr == 0, timex broadcast successed. ierr=", ierr, "rank=", rank
+    call MPI_Bcast(nkr, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+    write (*, *) "nkr broadcast rank=", rank
+    write (*, *) "if ierr == 0, nkr broadcast successed. ierr=", ierr, "rank=", rank
     call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
-    write (8, *) "allocate successed. rank=", rank
-    write (8, *) "if ierr == 0, kr broadcast successed. ierr=", ierr, "rank=", rank
+    write (*, *) "kr broadcast rank=", rank
+    write (*, *) "if ierr == 0, kr broadcast successed. ierr=", ierr, "rank=", rank
+
     kkr = 0
     nnkr = 0
 
     ! Do i=1,8 ! TODO MDCINTファイルの数に応じてloopの数を変更する
-    realonly = .true.
+    realonly = .false.
     cutoff = 0.25D-12
     nnz = 1
 
+    ! Rename the MDCINT to open according to the process number.
     fileBaseName = "MDCINXXXX"
     if (rank == 0) then
         Filename = "MDCINT"
@@ -81,7 +105,8 @@ program create_newmdcint
         mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintNum))
         mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
     end if
-    write (8, *) "set mdcint valiables. rank=", rank
+
+    write (*, *) "end set mdcint valiables. rank=", rank
     ! mdcint=11
     ! tid = omp_get_thread_num()
     open (rank + 100, file=Filename, form='unformatted', status='unknown')
@@ -90,14 +115,13 @@ program create_newmdcint
 !     else
     read (rank + 100)
 !     end if
-    write (8, *) "read day,time,kr. rank=", rank
 
     read (rank + 100, ERR=200) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
     ! read (mdcint,ERR=200) ikr,jkr, nz, (indk(inz),indl(inz), rklr(inz),rkli(inz), inz=1,nz)
     goto 201
 
 200 realonly = .true.
-    write (*, *) "realonly = ", realonly
+    write (*, *) "realonly = ", realonly, rank
 201 close (rank + 100)
 ! 201     close(mdcint)
 
@@ -107,16 +131,14 @@ program create_newmdcint
     ! open(30, file="MDCINT_int", form='formatted', status='unknown')
 
     open (rank + 100, file=Filename, form='unformatted', status='unknown')
-    ! open(mdcint, file=Filename, form='unformatted', status='unknown')
     open (rank + 200, file=mdcintNew, form='unformatted', status='unknown')
     open (rank + 300, file=mdcint_debug, form='formatted', status='unknown')
     ! open(30, file=mdcint_int, form='formatted', status='unknown')
-    ! if (rank == 0) then
-    ! read (rank+100) datex,timex,nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
-    ! else
+    write (*, *) "before read day,time,kr. rank=", rank
     read (rank + 100)
-    ! end if
-    write (rank + 300, *) rank, datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+    write (*, *) "end read day,time,kr. rank=", rank
+
+    write (rank + 300, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
     nnkr = nkr
     kkr(:) = kr(:)
 
@@ -125,6 +147,7 @@ program create_newmdcint
 !Iwamuro debug
     ! write(*,*) "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
     ! write(*,*) Filename
+    ! write (*, *) "before read ikr,jkr,...and more. rank=", rank
 
 100 if (realonly) then
         read (rank + 100, end=1000) ikr, jkr, nz, &
@@ -136,7 +159,8 @@ program create_newmdcint
             (indk(inz), indl(inz), inz=1, nz), &
             (rklr(inz), rkli(inz), inz=1, nz)
     end if
-    write (8, *) "read ikr,jkr,nz. rank=", rank
+    ! write (*, '(A35,4I6)') "end read ikr,jkr,...and more. rank=", rank, ikr, jkr, nz
+
 ! Debug output
     ! write(*,*) ""
     ! write(*,*) ikr,jkr, nz, &
@@ -159,37 +183,46 @@ program create_newmdcint
 
 !        Do inz = 1,nz
 
-    if (ikr < 0) go to 100
+    if (ikr < 0) then
+        write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
+        go to 100
+    end if
     if (ikr == 0) then
         write (20, *) ikr, jkr, nz, mdcint_debug
-        write (rank + 200) 0, 0, 0
+        ! write (rank + 200) 0, 0, 0
         ! write(29,'(3I4)') 0, 0, 0
         ! write(30,'(3I4)') 0, 0, 0
         go to 1000
     end if
 
+    ! write (*, *) "before i(8). rank=", rank
     ikr8 = ikr
     jkr8 = jkr
     indk8(:) = indk(:)
     indl8(:) = indl(:)
     rklr8(:) = rklr(:)
     rkli8(:) = rkli(:)
-    write (8, *) "Before do. rank=", rank
+    ! write (*, *) "end i(8). rank=", rank
+
+    ! write (*, '(A16,3I8)') "before do. rank=", rank, inz, nz
     Do inz = 1, nz
+        ! write (*, *) "Immediately after the declaration of do. rank=", rank
         ! write (rank + 300, "(5I20,E32.16)") ikr, jkr, nz, indk(inz), indl(inz), rklr(inz)
         ! Debug output (if write(*,*))
-        if (inz == 1) then
-            ! write(*,*)"new_ikr2"
-            ! write(*,*)"Filename:", Filename
-            ! write(*,*)"inz:", inz
-        end if
+        ! if (inz == 1) then
+        ! write(*,*)"new_ikr2"
+        ! write(*,*)"Filename:", Filename
+        ! write(*,*)"inz:", inz
+        ! end if
 
+        ! write (*, *) "before set iii. rank=", rank
         iii = indmor(kr(ikr8))
         if (rank == 1 .and. inz == 1) then
             ! write(*,*) "iii",ikr,ikr8,iii,(-1)**(mod(iii,2)+1)*(iii/2+mod(iii,2))
             ! write(*,*) "kr(ikr)", kr(ikr8)
             ! write(*,*) "indmor(kr(ikr))", indmor(kr(ikr))
         end if
+        ! write (*, *) "end set iii. rank=", rank, "iii=", iii
 
         jjj = indmor(kr(jkr8))
         if (inz == 1) then
@@ -297,11 +330,12 @@ program create_newmdcint
                 ! write(29,'(a6,5I4,2E32.16)')'else4',-iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
             end if
         end if
-        ! else
-        ! write(28,'(a6,5I4,2E32.16)')'else',-iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
+        else
+        write (rank + 200) - iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
+        write (rank + 300, '(a6,5I4,2E32.16)') 'else', -iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
         End if
 300 End do
-    write (8, *) "End do. rank=", rank
+    ! write (*, *) "End do. rank=", rank
 
     go to 100
 
@@ -330,16 +364,20 @@ program create_newmdcint
     deallocate (indl8)
     deallocate (rklr8)
     deallocate (rkli8)
+    !! [indmor] For standalone mode. If you run whole casci/caspt2 code, comment
+    !! out next line.
+    deallocate (indmor)
+    write(*,*) 'end create_binmdcint. rank=', rank
     call MPI_FINALIZE(ierr)
     write (20, *) "1000 closed "//trim(Filename)
     ! end do
     deallocate (kr)
-    time_end = mpi_wtime()
-    if (rank == 0) then
-        close (8)
-        open (10, file="output", form="formatted", status="unknown")
-        write (10, *) "It took ", time_end - time_start, " seconds."
-        close (10)
-    end if
+    ! time_end = mpi_wtime()
+    ! if (rank == 0) then
+    ! close (8)
+    ! open (10, file="output", form="formatted", status="unknown")
+    ! write (10, *) "It took ", time_end - time_start, " seconds."
+    ! close (10)
+    ! end if
 ! end Subroutine create_newmdcint
 end program create_newmdcint
