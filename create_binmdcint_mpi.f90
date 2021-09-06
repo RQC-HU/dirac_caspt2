@@ -37,7 +37,6 @@ program create_newmdcint
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-    call MPI
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
 
@@ -215,14 +214,12 @@ program create_newmdcint
         ! write(*,*)"inz:", inz
         ! end if
 
-        ! write (*, *) "before set iii. rank=", rank
         iii = indmor(kr(ikr8))
         if (rank == 1 .and. inz == 1) then
             ! write(*,*) "iii",ikr,ikr8,iii,(-1)**(mod(iii,2)+1)*(iii/2+mod(iii,2))
             ! write(*,*) "kr(ikr)", kr(ikr8)
             ! write(*,*) "indmor(kr(ikr))", indmor(kr(ikr))
         end if
-        ! write (*, *) "end set iii. rank=", rank, "iii=", iii
 
         jjj = indmor(kr(jkr8))
         if (inz == 1) then
@@ -334,8 +331,7 @@ program create_newmdcint
         write (rank + 200) - iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
         write (rank + 300, '(a6,5I4,2E32.16)') 'else', -iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
         End if
-300 End do
-    ! write (*, *) "End do. rank=", rank
+    End do
 
     go to 100
 
@@ -367,7 +363,7 @@ program create_newmdcint
     !! [indmor] For standalone mode. If you run whole casci/caspt2 code, comment
     !! out next line.
     deallocate (indmor)
-    write(*,*) 'end create_binmdcint. rank=', rank
+    write (*, *) 'end create_binmdcint. rank=', rank
     call MPI_FINALIZE(ierr)
     write (20, *) "1000 closed "//trim(Filename)
     ! end do
