@@ -1,7 +1,7 @@
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-! Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
-program create_newmdcint
+! Subroutine create_newmdcint_mpi ! 2 Electorn Integrals In Mdcint
+program create_newmdcint_mpi
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -375,5 +375,5 @@ program create_newmdcint
     ! write (10, *) "It took ", time_end - time_start, " seconds."
     ! close (10)
     ! end if
-! end Subroutine create_newmdcint
-end program create_newmdcint
+! end Subroutine create_newmdcint_mpi
+end program create_newmdcint_mpi
