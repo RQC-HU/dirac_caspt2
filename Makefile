@@ -38,7 +38,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
 	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_co.o \
-	create_binmdcint.o
+	create_binmdcint.o get_filename.o
 
 #R4DIVO = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
 	readorb_enesym.o \
@@ -174,8 +174,15 @@ INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
 F90C = mpiifort
 # F90FLAGS = $(INC) -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 # F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
-F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
 
+# Use this flags if normally
+ F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
+
+# Use this flags when debugging (list out of range access)
+# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -CB
+
+# Use this flags when debugging
+# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -check
 
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe

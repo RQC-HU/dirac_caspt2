@@ -24,8 +24,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     complex*16              ::  cmplxint, dens, trace1, trace2, dens1, dens2
 
     character*50            :: filename
-    ! Valiables for MPI
-    integer :: ierr, nprocs, rank
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -36,10 +34,12 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !        thres = 0.0d+00
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
+
+!   MPI initialization and get the number of MPI processes (nprocs) and own process number.
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+    write (*, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
     if (rank == 0) then
         write (*, *) ''
         write (*, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
@@ -89,22 +89,26 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     write (*, *) 'ptgrp      =', ptgrp
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if (rank == 0) then
-        filename = 'MRCONEE'
+    ! if (rank == 0) then
+    filename = 'MRCONEE'
 
-        call readorb_enesym_co(filename)
-        call read1mo_co(filename)
+    call readorb_enesym_co(filename)
+    call read1mo_co(filename)
 
-        write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
-    end if
+    write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
+    ! end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!Iwamuro create new ikr for dirac
+    call get_mdcint_filename
+
+    !Iwamuro create new ikr for dirac
     Call create_newmdcint
+    write (*, *) 'Before readint2_casci_co', rank
     if (rank == 0) then
         filename = 'MDCINTNEW'
 
-        Call readint2_casci_co(filename, nuniq)
+        ! Call readint2_casci_co(filename, nuniq)
+        Call readint2_casci_co(mdcintnew, nuniq)
 
 !        Allocate(sp(1:nmo)) ;  Call memplus(KIND(sp),SIZE(sp),1)
 !        sp( 1               : ninact           )    = 1
@@ -226,43 +230,43 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (5) nmo
         write (5) eps(1:nmo)
         close (5)
+    end if
+    deallocate (sp); Call memplus(KIND(sp), SIZE(sp), 1)
+    deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
+    deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
+    deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
+    deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
+    deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
+    deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
+    deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
+    deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
+    deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
+    deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
+    deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
+    deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
-        deallocate (sp); Call memplus(KIND(sp), SIZE(sp), 1)
-        deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
-        deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
-        deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
-        deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
-        deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
-        deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
-        deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
-        deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
-        deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
-        deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
-        deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
-        deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
-
-        deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
-        deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
-        deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
-        deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
-        deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
-        deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-        deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
-        deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
-        deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-        deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
-        deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
-        deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-        deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
-        deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-        deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
-
+    deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
+    deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
+    deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
+    deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
+    deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
+    deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
+    deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
+    deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
+    deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
+    deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
+    deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
+    deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
+    deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
+    deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
+    deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+    if (rank == 0) then
         write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
         Call timing(val(3), totalsec, date0, tsec0)
         write (*, *) 'End r4dcasci_ty part'
     end if
     call MPI_FINALIZE(ierr)
-
+    write (*, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
 1000 continue
 END program r4dcasci_co

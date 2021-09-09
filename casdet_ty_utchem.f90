@@ -86,5 +86,3 @@
         If(mod(ielec, 2) == 0) isym = isym + nsymrp ! even number electronic system
 
  1000   end subroutine detsym_ty
-
-

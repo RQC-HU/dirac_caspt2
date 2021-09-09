@@ -18,7 +18,7 @@ program mpihello
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierr)
-
+    write (*, *) 'mpiinit', nprocs, rank
     ! if (rank == 0) then
     !     open (20, file="jlist", form="formatted", status="unknown")
     !     write (*, *) "This is the serial execution area."

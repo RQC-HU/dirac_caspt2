@@ -23,90 +23,93 @@
        write (*, *) 'ndet', ndet
 
        Call casdet_ty(totsym)
-       ! ndet :　配置の数(n determinant)
+       ! ndet : 配置の数(n determinant)
        Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
 
        Call casmat(mat)
+       !    call MPI_Reduce(mat)
+       if (rank == 0) then
+           write (*, *) 'before allocate ecas(ndet)'
+           Allocate (ecas(ndet))
+           write (*, *) 'allocate ecas(ndet)'
+           ecas = 0.0d+00
+           thresd = 1.0d-15
+           cutoff = .FALSE.
 
-       Allocate (ecas(ndet))
-       ecas = 0.0d+00
-       thresd = 1.0d-15
-       cutoff = .FALSE.
-
-       Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
+           Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
 
 ! Print out CI matrix!
 
-       write (*, *) 'debug1'
+           write (*, *) 'debug1'
 
-       cimat = 10
-       filename = 'CIMAT'
-       open (10, file='CIMAT', status='unknown', form='unformatted')
-       write (10) ndet
-       write (10) idet(1:ndet)
-       write (10) ecas(1:ndet)
+           cimat = 10
+           filename = 'CIMAT'
+           open (10, file='CIMAT', status='unknown', form='unformatted')
+           write (10) ndet
+           write (10) idet(1:ndet)
+           write (10) ecas(1:ndet)
 !        write(10) mat(1:ndet,1:ndet)
-       close (10)
+           close (10)
 
 ! Print out C1 matrix!
 
 ! Print out CI matrix!
 
-       write (*, *) 'debug2'
+           write (*, *) 'debug2'
 
-       cimat = 10
-       filename = 'CIMAT1'
-       open (10, file='CIMAT1', status='unknown', form='unformatted')
-       write (10) ndet
-       write (10) idet(1:ndet)
-       write (10) ecas(1:ndet)
-       write (10) mat(1:ndet, 1:ndet)
-       close (10)
+           cimat = 10
+           filename = 'CIMAT1'
+           open (10, file='CIMAT1', status='unknown', form='unformatted')
+           write (10) ndet
+           write (10) idet(1:ndet)
+           write (10) ecas(1:ndet)
+           write (10) mat(1:ndet, 1:ndet)
+           close (10)
 
 ! Print out C1 matrix!
 
-       write (*, *) 'debug3'
+           write (*, *) 'debug3'
 
-       Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
-       Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
-       Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
+           Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
+           Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
+           Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
-       eigen(:) = 0.0d+00
-       cir(:, :) = 0.0d+00
-       cii(:, :) = 0.0d+00
+           eigen(:) = 0.0d+00
+           cir(:, :) = 0.0d+00
+           cii(:, :) = 0.0d+00
 
-       eigen(1:nroot) = ecas(1:nroot) + ecore
-       cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
-       cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
+           eigen(1:nroot) = ecas(1:nroot) + ecore
+           cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
+           cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
 
-       Deallocate (ecas)
+           Deallocate (ecas)
 
-       write (*, *) 'debug4'
+           write (*, *) 'debug4'
 
-       write (*, '("CASCI ENERGY FOR ",I2," STATE")') totsym
-       Do irec = 1, nroot
-           write (*, '(I4,F30.15)') irec, eigen(irec)
-       End do
+           write (*, '("CASCI ENERGY FOR ",I2," STATE")') totsym
+           Do irec = 1, nroot
+               write (*, '(I4,F30.15)') irec, eigen(irec)
+           End do
 
-       do j = 1, ndet
-           if (ABS(DIMAG(mat(j, selectroot))) > thres) then
-               realcvec = .false.
-           end if
-       end do
-
-       do irec = 1, nroot
-           write (*, '("Root = ",I4)') irec
            do j = 1, ndet
-               if ((ABS(mat(j, irec))**2) > 1.0d-02) then
-                   i0 = idet(j)
-                   write (*, *) (btest(i0, j0), j0=0, nact - 1)
-                   write (*, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
-                   & j, mat(j, irec), &
-                   & ABS(mat(j, irec))**2
+               if (ABS(DIMAG(mat(j, selectroot))) > thres) then
+                   realcvec = .false.
                end if
            end do
-       end do
 
+           do irec = 1, nroot
+               write (*, '("Root = ",I4)') irec
+               do j = 1, ndet
+                   if ((ABS(mat(j, irec))**2) > 1.0d-02) then
+                       i0 = idet(j)
+                       write (*, *) (btest(i0, j0), j0=0, nact - 1)
+                       write (*, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
+                       & j, mat(j, irec), &
+                       & ABS(mat(j, irec))**2
+                   end if
+               end do
+           end do
+       end if
        Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
 
 1000 end subroutine casci_ty

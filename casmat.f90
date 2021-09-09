@@ -25,7 +25,7 @@
 
        Allocate (oc(nelec))
        Allocate (vi(nact - nelec))
-
+       write (*, *) 'allocated oc and vi', rank
        Do i = 1, ndet
 
            occ = 0
@@ -49,7 +49,7 @@
 !           write(*,*) ' '
 
 !! IDENTICAL DETERMINANT => DIAGONAL TERM
-           !   diagonal term は HFの表現と同じ
+           !   diagonal term is same as Hartree-Fock's expression
 
            cmplxint = 0.0d+00
 
@@ -192,7 +192,6 @@
 
                End do            ! k0
            End do               ! i0
-
 !! TWO ELECTRON DIFFERNT CASE
 
            Do i0 = 1, nelec
@@ -252,7 +251,7 @@
 
        Deallocate (oc)
        Deallocate (vi)
-
+       write (*, '(A,I4)') 'end casmat', rank
 1000 end subroutine
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

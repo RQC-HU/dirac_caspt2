@@ -26,8 +26,7 @@ program create_newmdcint_mpi
     real*8, allocatable  :: rklr8(:), rkli8(:)
 
     ! integer         :: i, loop = 0, omp_max, tid
-    Character*50    :: fileBaseName, mdcintBaseName, mdcintNew, mdcint_debug, mdcint_int, mdcintNum
-    integer         :: ierr, nprocs, rank, procs = 8 !! TODO MPI PROCS を動的に?設定する
+    Character*50    :: mdcintBaseName, mdcintNum
     real            :: time_start, time_end
     integer         :: nkr, nz
     nmo = 192 ! If you run this code through, comment it out.
@@ -37,9 +36,10 @@ program create_newmdcint_mpi
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+    write (*, *) 'MPI_INIT', nprocs, rank
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
-
+    call get_mdcint_filename
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
     if (rank == 0) then
         ! open (8, file="debug", form="formatted", status="unknown")
@@ -74,10 +74,10 @@ program create_newmdcint_mpi
     call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
     write (*, *) "timex broadcast rank=", rank
     write (*, *) "if ierr == 0, timex broadcast successed. ierr=", ierr, "rank=", rank
-    call MPI_Bcast(nkr, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+    call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
     write (*, *) "nkr broadcast rank=", rank
     write (*, *) "if ierr == 0, nkr broadcast successed. ierr=", ierr, "rank=", rank
-    call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+    call MPI_Bcast(kr(-nmo/2), nmo+1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
     write (*, *) "kr broadcast rank=", rank
     write (*, *) "if ierr == 0, kr broadcast successed. ierr=", ierr, "rank=", rank
 
@@ -89,26 +89,25 @@ program create_newmdcint_mpi
     cutoff = 0.25D-12
     nnz = 1
 
-    ! Rename the MDCINT to open according to the process number.
-    fileBaseName = "MDCINXXXX"
-    if (rank == 0) then
-        Filename = "MDCINT"
-        mdcintNew = "MDCINTNEW"
-        mdcint_debug = "MDCINT_debug"
-        mdcint_int = "MDCINT_int"
-    else
-        mdcintBaseName = "MDCINXXXX"
-        write (mdcintNum, "(I3)") rank
-        Filename = TRIM(mdcintBaseName)//TRIM(ADJUSTL(mdcintNum))
-        mdcintNew = "MDCINTNEW"//TRIM(ADJUSTL(mdcintNum))
-        mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintNum))
-        mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
-    end if
+    ! ! Rename the MDCINT to open according to the process number.
+    ! if (rank == 0) then
+    !     mdcint_filename = "MDCINT"
+    !     mdcintNew = "MDCINTNEW"
+    !     mdcint_debug = "MDCINT_debug"
+    !     mdcint_int = "MDCINT_int"
+    ! else
+    !     mdcintBaseName = "MDCINXXXX"
+    !     write (mdcintNum, "(I3)") rank
+    !     mdcint_filename = TRIM(mdcintBaseName)//TRIM(ADJUSTL(mdcintNum))
+    !     mdcintNew = "MDCINTNEW"//TRIM(ADJUSTL(mdcintNum))
+    !     mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintNum))
+    !     mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
+    ! end if
 
     write (*, *) "end set mdcint valiables. rank=", rank
     ! mdcint=11
     ! tid = omp_get_thread_num()
-    open (rank + 100, file=Filename, form='unformatted', status='unknown')
+    open (rank + 100, file=mdcint_filename, form='unformatted', status='unknown')
 !     if (rank == 0) then
 !         read (rank + 100) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 !     else
@@ -129,7 +128,7 @@ program create_newmdcint_mpi
     ! open(29, file="MDCINT_debug", form='formatted', status='unknown')
     ! open(30, file="MDCINT_int", form='formatted', status='unknown')
 
-    open (rank + 100, file=Filename, form='unformatted', status='unknown')
+    open (rank + 100, file=mdcint_filename, form='unformatted', status='unknown')
     open (rank + 200, file=mdcintNew, form='unformatted', status='unknown')
     open (rank + 300, file=mdcint_debug, form='formatted', status='unknown')
     ! open(30, file=mdcint_int, form='formatted', status='unknown')
@@ -327,9 +326,9 @@ program create_newmdcint_mpi
                 ! write(29,'(a6,5I4,2E32.16)')'else4',-iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
             end if
         end if
-        else
-        write (rank + 200) - iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
-        write (rank + 300, '(a6,5I4,2E32.16)') 'else', -iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
+        ! else
+        ! write (rank + 200) - iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
+        ! write (rank + 300, '(a6,5I4,2E32.16)') 'else', -iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
         End if
     End do
 

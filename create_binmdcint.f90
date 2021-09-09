@@ -26,8 +26,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     real*8, allocatable  :: rklr8(:), rkli8(:)
 
     ! integer         :: i, loop = 0, omp_max, tid
-    Character*50    :: fileBaseName, mdcintBaseName, mdcintNew, mdcint_debug, mdcint_int, mdcintNum
-    integer         :: ierr, nprocs, rank, procs = 8 !! TODO MPI PROCS を動的に?設定する
+    ! Character*50    :: file_baseName, mdcint_baseName, mdcintnew, mdcint_debug, mdcint_int
+    ! integer         :: ierr, nprocs, rank, procs = 8 !! TODO MPI PROCS を動的に?設定する
     real            :: time_start, time_end
     integer         :: nkr, nz
     ! [nmo] For standalone mode. If you run whole casci/caspt2 code, comment
@@ -35,13 +35,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     ! nmo = 192
     ! omp_max = omp_get_max_threads()
 
-    ! MPI initialization and get the number of MPI processes (nprocs) and own process number.
     ! call MPI_INIT(ierr)
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+    ! call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+    ! call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
-
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
     if (rank == 0) then
         ! open (8, file="debug", form="formatted", status="unknown")
@@ -65,24 +63,29 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     ! [indmor] For standalone mode. If you run whole casci/caspt2 code, comment
     ! out next line.
-    ! Allocate (indmor(nmo))
+    if (.not. allocated(indmor)) then
+        Allocate (indmor(nmo)); Call memplus(KIND(indmor), SIZE(indmor), 1)
+    end if
 
     write (*, *) "allocate successed. rank=", rank
-
+    ! if (rank /= 0) then
     ! Broadcast kr and other data that are not included in the MDCINXXX files
     call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
-    write (*, *) "datex broadcast rank=", rank
-    write (*, *) "if ierr == 0, datex broadcast successed. ierr=", ierr, "rank=", rank
+    write (*, '(a,i4)') "datex broadcast rank=", rank
+    write (*, '(a,i4,a,i4)') "if ierr == 0, datex broadcast successed. ierr=", ierr, "rank=", rank
     call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
-    write (*, *) "timex broadcast rank=", rank
-    write (*, *) "if ierr == 0, timex broadcast successed. ierr=", ierr, "rank=", rank
-    call MPI_Bcast(nkr, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
-    write (*, *) "nkr broadcast rank=", rank
-    write (*, *) "if ierr == 0, nkr broadcast successed. ierr=", ierr, "rank=", rank
-    call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
-    write (*, *) "kr broadcast rank=", rank
-    write (*, *) "if ierr == 0, kr broadcast successed. ierr=", ierr, "rank=", rank
-
+    write (*, '(a,i4)') "timex broadcast rank=", rank
+    write (*, '(a,i4,a,i4)') "if ierr == 0, timex broadcast successed. ierr=", ierr, "rank=", rank
+    call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+    write (*, '(a,i4)') "nkr broadcast rank=", rank
+    write (*, '(a,i4,a,i4)') "if ierr == 0, nkr broadcast successed. ierr=", ierr, "rank=", rank
+    call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+    write (*, '(a,i4)') "kr broadcast rank=", rank
+    write (*, '(a,i4,a,i4)') "if ierr == 0, kr broadcast successed. ierr=", ierr, "rank=", rank
+    call MPI_Bcast(indmor(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+    write (*, '(a,i4)') "datex broadcast rank=", rank
+    write (*, '(a,i4,a,i4)') "if ierr == 0, datex broadcast successed. ierr=", ierr, "rank=", rank
+    ! end if
     kkr = 0
     nnkr = 0
 
@@ -91,26 +94,10 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     cutoff = 0.25D-12
     nnz = 1
 
-    ! Rename the MDCINT to open according to the process number.
-    fileBaseName = "MDCINXXXX"
-    if (rank == 0) then
-        Filename = "MDCINT"
-        mdcintNew = "MDCINTNEW"
-        mdcint_debug = "MDCINT_debug"
-        mdcint_int = "MDCINT_int"
-    else
-        mdcintBaseName = "MDCINXXXX"
-        write (mdcintNum, "(I3)") rank
-        Filename = TRIM(mdcintBaseName)//TRIM(ADJUSTL(mdcintNum))
-        mdcintNew = "MDCINTNEW"//TRIM(ADJUSTL(mdcintNum))
-        mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintNum))
-        mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintNum))
-    end if
-
-    write (*, *) "end set mdcint valiables. rank=", rank
+    write (*, '(3a,i20)') "end set ", mdcintNew, "valiables. rank=", rank
     ! mdcint=11
     ! tid = omp_get_thread_num()
-    open (rank + 100, file=Filename, form='unformatted', status='unknown')
+    open (rank + 100, file=mdcint_filename, form='unformatted', status='unknown')
 !     if (rank == 0) then
 !         read (rank + 100) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 !     else
@@ -124,14 +111,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 200 realonly = .true.
     write (*, *) "realonly = ", realonly, rank
 201 close (rank + 100)
-! 201     close(mdcint)
 
-    ! open(mdcint, file="MDCINT", form='unformatted', status='unknown')
-    ! open(28, file="MDCINTNEW", form='unformatted', status='unknown')
-    ! open(29, file="MDCINT_debug", form='formatted', status='unknown')
-    ! open(30, file="MDCINT_int", form='formatted', status='unknown')
-
-    open (rank + 100, file=Filename, form='unformatted', status='unknown')
+    open (rank + 100, file=mdcint_filename, form='unformatted', status='unknown')
     open (rank + 200, file=mdcintNew, form='unformatted', status='unknown')
     open (rank + 300, file=mdcint_debug, form='formatted', status='unknown')
     ! open(30, file=mdcint_int, form='formatted', status='unknown')
@@ -139,12 +120,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     read (rank + 100)
     write (*, *) "end read day,time,kr. rank=", rank
 
+    write (rank + 200) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
     write (rank + 300, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
     nnkr = nkr
     kkr(:) = kr(:)
 
-    ! write(28) datex, timex, nnkr, (kkr(i0),kkr(-1*i0),i0=1,nnkr)
-    ! write(29,*) datex, timex, nnkr, (kkr(i0),kkr(-1*i0),i0=1,nnkr)
 !Iwamuro debug
     ! write(*,*) "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
     ! write(*,*) Filename
@@ -160,7 +140,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
             (indk(inz), indl(inz), inz=1, nz), &
             (rklr(inz), rkli(inz), inz=1, nz)
     end if
-    ! write (*, '(A35,4I6)') "end read ikr,jkr,...and more. rank=", rank, ikr, jkr, nz
+    ! write (*, '(A,4I6)') "end read ikr,jkr,...and more. rank=", rank, ikr, jkr, nz
 
 ! Debug output
     ! write(*,*) ""
@@ -281,6 +261,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! else
                 ! write(29,'(a6,5I4,2E32.16)')'else1',-iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
@@ -295,6 +277,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! else
@@ -309,6 +293,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! else
@@ -323,6 +309,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! write(30,'(5I4,2E32.16)') iiit,jjjt,nnz,kkkt,lllt,rklr8(inz),-(rkli8(inz))
                 ! else
@@ -364,10 +352,10 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     deallocate (rkli8)
     !! [indmor] For standalone mode. If you run whole casci/caspt2 code, comment
     !! out next line.
-    deallocate (indmor)
+    ! deallocate (indmor)
     write (*, *) 'end create_binmdcint. rank=', rank
     ! call MPI_FINALIZE(ierr)
-    write (20, *) "1000 closed "//trim(Filename)
+    ! write (*, *) "1000 closed "//trim(mdcint_filename)
     ! end do
     deallocate (kr)
     ! time_end = mpi_wtime()
