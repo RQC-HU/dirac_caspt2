@@ -61,50 +61,48 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) inittime
 
         Call timing(val(3), totalsec, date0, tsec)
-    end if
-    open (5 + rank, file='active.inp', form='formatted', status='old')
-    read (5 + rank, '(I4)') ninact
-    read (5 + rank, '(I4)') nact
-    read (5 + rank, '(I4)') nsec
-    read (5 + rank, '(I4)') nelec
-    read (5 + rank, '(I4)') nroot
-    read (5 + rank, '(I4)') selectroot
-    read (5 + rank, '(I4)') totsym
-    read (5 + rank, '(I4)') ncore
-    read (5 + rank, '(I4)') nbas
-    read (5 + rank, '(E8.2)') eshift
-    read (5 + rank, '(A6)') ptgrp
-    close (5 + rank)
+!     end if
+        open (5 + rank, file='active.inp', form='formatted', status='old')
+        read (5 + rank, '(I4)') ninact
+        read (5 + rank, '(I4)') nact
+        read (5 + rank, '(I4)') nsec
+        read (5 + rank, '(I4)') nelec
+        read (5 + rank, '(I4)') nroot
+        read (5 + rank, '(I4)') selectroot
+        read (5 + rank, '(I4)') totsym
+        read (5 + rank, '(I4)') ncore
+        read (5 + rank, '(I4)') nbas
+        read (5 + rank, '(E8.2)') eshift
+        read (5 + rank, '(A6)') ptgrp
+        close (5 + rank)
 
-    write (*, *) 'ninact     =', ninact
-    write (*, *) 'nact       =', nact
-    write (*, *) 'nsec       =', nsec
-    write (*, *) 'nelec      =', nelec
-    write (*, *) 'nroot      =', nroot
-    write (*, *) 'selectroot =', selectroot
-    write (*, *) 'totsym     =', totsym
-    write (*, *) 'ncore      =', ncore
-    write (*, *) 'nbas       =', nbas
-    write (*, *) 'eshift     =', eshift
-    write (*, *) 'ptgrp      =', ptgrp
-
+        write (*, *) 'ninact     =', ninact
+        write (*, *) 'nact       =', nact
+        write (*, *) 'nsec       =', nsec
+        write (*, *) 'nelec      =', nelec
+        write (*, *) 'nroot      =', nroot
+        write (*, *) 'selectroot =', selectroot
+        write (*, *) 'totsym     =', totsym
+        write (*, *) 'ncore      =', ncore
+        write (*, *) 'nbas       =', nbas
+        write (*, *) 'eshift     =', eshift
+        write (*, *) 'ptgrp      =', ptgrp
+!     if (rank == 0) then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! if (rank == 0) then
-    filename = 'MRCONEE'
+        filename = 'MRCONEE'
 
-    call readorb_enesym_co(filename)
-    call read1mo_co(filename)
+        call readorb_enesym_co(filename)
+        call read1mo_co(filename)
 
-    write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
-    ! end if
+        write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    call get_mdcint_filename
+        call get_mdcint_filename
 
-    !Iwamuro create new ikr for dirac
-    Call create_newmdcint
-    write (*, *) 'Before readint2_casci_co', rank
-    if (rank == 0) then
+        !Iwamuro create new ikr for dirac
+        Call create_newmdcint
+        write (*, *) 'Before readint2_casci_co', rank
+        ! if (rank == 0) then
         filename = 'MDCINTNEW'
 
         ! Call readint2_casci_co(filename, nuniq)
