@@ -20,7 +20,7 @@
        character*20            :: filename
 
        ndet = comb(nact, nelec)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'ndet', ndet
        end if
        Call casdet_ty(totsym)
@@ -29,11 +29,11 @@
 
        Call casmat(mat)
        !    call MPI_Reduce(mat)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'before allocate ecas(ndet)'
        end if
        Allocate (ecas(ndet))
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'allocate ecas(ndet)'
        end if
        ecas = 0.0d+00
@@ -44,7 +44,7 @@
        !    if (rank == 0) then
 
 ! Print out CI matrix!
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'debug1'
 
            cimat = 10
@@ -73,7 +73,7 @@
        end if
 ! Print out C1 matrix!
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'debug3'
        end if
        Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
@@ -89,7 +89,7 @@
        cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
 
        Deallocate (ecas)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'debug4'
 
            write (3000, '("CASCI ENERGY FOR ",I2," STATE")') totsym

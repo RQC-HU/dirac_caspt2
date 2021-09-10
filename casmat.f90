@@ -21,12 +21,12 @@
 
        mat = 0.0d+00
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'Cas mat enter'
        end if
        Allocate (oc(nelec))
        Allocate (vi(nact - nelec))
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'allocated oc and vi', rank
        end if
        Do i = 1, ndet
@@ -55,19 +55,22 @@
            !   diagonal term is same as Hartree-Fock's expression
 
            cmplxint = 0.0d+00
+            !! Adding one-electron integral to mat is executed only by the master process
+            !! because DIRAC's one-electron integral file (MRCONEE) is not
+            !! devided even if DIRAC is executed in parallel (MPI).
            if (rank == 0) then
-           Do i0 = 1, ninact
-               ir = i0
-               cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
-               mat(i, i) = mat(i, i) + cmplxint
-           End do
+               Do i0 = 1, ninact
+                   ir = i0
+                   cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
+                   mat(i, i) = mat(i, i) + cmplxint
+               End do
 
-           Do i0 = 1, nelec
-               indr = oc(i0)
-               ir = indr + ninact
-               cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
-               mat(i, i) = mat(i, i) + cmplxint
-           End do
+               Do i0 = 1, nelec
+                   indr = oc(i0)
+                   ir = indr + ninact
+                   cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
+                   mat(i, i) = mat(i, i) + cmplxint
+               End do
            end if
            mat0 = 0.0d+00
 
@@ -136,6 +139,9 @@
 !                 write(*,*)'j=',j
 
                    If (j > i) then
+                        !! Adding one-electron integral to mat is executed only by the master process
+                        !! because DIRAC's one-electron integral file (MRCONEE) is not
+                        !! devided even if DIRAC is executed in parallel (MPI).
                        if (rank == 0) then
                            cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
                            mat(i, j) = mat(i, j) + cmplxint
@@ -254,7 +260,7 @@
 
        Deallocate (oc)
        Deallocate (vi)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, '(A,I4)') 'end casmat', rank
            write (3000, '(A,I4)') 'Reduce mat(:,:)', rank
        end if

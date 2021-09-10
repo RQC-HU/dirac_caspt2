@@ -9,6 +9,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
 
        integer :: ii, jj, kk, ll
        integer :: j, i, k, l
@@ -25,14 +26,17 @@
 
        f = 0.0d+00
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'enter building fock matrix'
        end if
        do i = 1, ninact + nact
            do j = i, ninact + nact
-
-               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-
+                !! Adding one-electron integral to the fock matrics is executed only by the master process
+                !! because DIRAC's one-electron integral file (MRCONEE) is not
+                !! devided even if DIRAC is executed in parallel (MPI).
+               if (rank == 0) then
+                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               end if
                do k = 1, ninact
 
                    Call intmo2_ty(i, j, k, k, cmplxint)
@@ -44,7 +48,6 @@
                    f(i, j) = f(i, j) - cmplxint
 
                End do           ! k
-
                do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
                    do l = ninact + 1, ninact + nact           ! ACTIVE SPACE
 
@@ -76,10 +79,10 @@
 
        do i = ninact + nact + 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
-
-               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               if (rank == 0) then
+                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
 !               if(i==19.and.j==19)write(*,'("int1 ",2I4,2E20.10)')i,j,f(i,j)
-
+               end if
                do k = 1, ninact
 
                    f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
@@ -127,8 +130,9 @@
 
            end do       ! j
        end do          ! i
+       call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'fockcasci end'
        end if
    end

@@ -39,7 +39,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         open (3000, file='rank0.out', form='formatted', status='unknown')
         write (3000, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         write (3000, *) ''
@@ -48,7 +48,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
     tmem = 0.0d+00
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
         val = 0
@@ -79,7 +79,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     read (5 + rank, '(A6)') ptgrp
     close (5 + rank)
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) 'ninact     =', ninact
         write (3000, *) 'nact       =', nact
         write (3000, *) 'nsec       =', nsec
@@ -98,7 +98,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     call readorb_enesym_co(filename)
     call read1mo_co(filename)
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -107,7 +107,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     !Iwamuro create new ikr for dirac
     Call create_newmdcint
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) 'Before readint2_casci_co', rank
     end if
     ! if (rank == 0) then
@@ -121,14 +121,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !        sp( ninact+1        : ninact+nact      )    = 2
 !        sp( ninact+nact+1   : ninact+nact+nsec )    = 3
 !        sp( ninact+nact+nsec: nmo              )    = 4
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) 'nmo        =', nmo
     end if
     nmo = ninact + nact + nsec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    if (rank == 0) then
+    if (rank == 0) then  ! Process limits for output
         write (3000, *) "iwamuro modify"
     end if
     If (mod(nelec, 2) == 0) then
@@ -139,7 +139,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         endsym = nsymrp
     End if
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 !   Do totsym = inisym, inisym
 !   Do totsym = inisym, endsym
@@ -162,20 +162,20 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !      goto 1000
 
 !    This is test for bug fix about realc part
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) realc, 'realc'
         write (3000, *) realcvec, 'realcvec'
     end if
     test = .true.
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) realc, 'realc'
         write (3000, *) realcvec, 'realcvec'
     end if
     realc = .FALSE.      !!!      realc =.TRUE.
     realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) 'FOR TEST WE DO (F,F)'
         write (3000, *) realc, 'realc'
         write (3000, *) realcvec, 'realcvec'
@@ -188,7 +188,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     Call e0test_v2
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -207,7 +207,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !      debug = .FALSE.
     debug = .TRUE.
     If (debug) then
-        if (rank == 0) then
+        if (rank == 0) then ! Process limits for output
             write (3000, *) 'fockhf1_ty start'
         end if
         Call fockhf1_ty
@@ -222,7 +222,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
 !      debug = .TRUE.
     debug = .FALSE.
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, *) debug, 'debug'
     end if
     if (debug) Call prtoutfock
@@ -232,7 +232,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     Call fockdiag_ty
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
     Do i0 = 1, nmo
         write (3000, *) 'eps(', i0, ')=', eps(i0)
     End do
@@ -277,14 +277,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
     deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
         Call timing(val(3), totalsec, date0, tsec0)
         write (3000, *) 'End r4dcasci_ty part'
     end if
     call MPI_FINALIZE(ierr)
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (3000, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
         close (50)
     end if

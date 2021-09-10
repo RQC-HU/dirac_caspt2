@@ -28,7 +28,7 @@
 
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) ' '
            write (3000, *) 'FOR TEST, FOCK MATRIX OF HF STATE IS CALCULATED '
        end if
@@ -37,9 +37,12 @@
 
        do i = 1, ninact + nact
            do j = i, ninact + nact
-
-               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-
+            !! Adding one-electron integral to the fock matrics is executed only by the master process
+            !! because DIRAC's one-electron integral file (MRCONEE) is not
+            !! devided even if DIRAC is executed in parallel (MPI).
+               if (rank == 0) then
+                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               end if
                do k = 1, ninact + nelec
 
                    Call intmo2_ty(i, j, k, k, cmplxint)
@@ -55,15 +58,14 @@
                End do           ! k
 
                f(j, i) = DCONJG(f(i, j))
-
            End do       ! j
        End do          ! i
 
        do i = ninact + nact + 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
-
-               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-
+               if (rank == 0) then
+                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               end if
                do k = 1, ninact + nelec
 
                    f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
@@ -78,7 +80,7 @@
            End do       ! j
        End do          ! i
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) ' '
            write (3000, *) 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
            write (3000, *) ' '
