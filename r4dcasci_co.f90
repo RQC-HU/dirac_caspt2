@@ -39,28 +39,31 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-    write (*, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
-!     if (rank == 0) then
-    write (*, *) ''
-    write (*, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
-    write (*, *) ''
-
+    if (rank == 0) then
+        open (3000, file='rank0.out', form='formatted', status='unknown')
+        write (3000, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
+        write (3000, *) ''
+        write (3000, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
+        write (3000, *) ''
+    end if
     tmem = 0.0d+00
 
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    if (rank == 0) then
+        write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
-    val = 0
-    Call DATE_AND_TIME(VALUES=val)
-    Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-    Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
+        val = 0
+        Call DATE_AND_TIME(VALUES=val)
 
-    totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
-    initdate = val(3)
-    inittime = totalsec
+        write (3000, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
+        write (3000, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
 
-    write (*, *) inittime
+        totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
+        initdate = val(3)
+        inittime = totalsec
 
-    Call timing(val(3), totalsec, date0, tsec)
+        write (3000, *) inittime
+        ! Call timing(val(3), totalsec, date0, tsec)
+    end if
 !     end if
     open (5 + rank, file='active.inp', form='formatted', status='old')
     read (5 + rank, '(I4)') ninact
@@ -76,31 +79,37 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     read (5 + rank, '(A6)') ptgrp
     close (5 + rank)
 
-    write (*, *) 'ninact     =', ninact
-    write (*, *) 'nact       =', nact
-    write (*, *) 'nsec       =', nsec
-    write (*, *) 'nelec      =', nelec
-    write (*, *) 'nroot      =', nroot
-    write (*, *) 'selectroot =', selectroot
-    write (*, *) 'totsym     =', totsym
-    write (*, *) 'ncore      =', ncore
-    write (*, *) 'nbas       =', nbas
-    write (*, *) 'eshift     =', eshift
-    write (*, *) 'ptgrp      =', ptgrp
+    if (rank == 0) then
+        write (3000, *) 'ninact     =', ninact
+        write (3000, *) 'nact       =', nact
+        write (3000, *) 'nsec       =', nsec
+        write (3000, *) 'nelec      =', nelec
+        write (3000, *) 'nroot      =', nroot
+        write (3000, *) 'selectroot =', selectroot
+        write (3000, *) 'totsym     =', totsym
+        write (3000, *) 'ncore      =', ncore
+        write (3000, *) 'nbas       =', nbas
+        write (3000, *) 'eshift     =', eshift
+        write (3000, *) 'ptgrp      =', ptgrp
+    end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
 
     call readorb_enesym_co(filename)
     call read1mo_co(filename)
 
-    write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
+    if (rank == 0) then
+        write (3000, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
+    end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     call get_mdcint_filename
 
     !Iwamuro create new ikr for dirac
     Call create_newmdcint
-    write (*, *) 'Before readint2_casci_co', rank
+    if (rank == 0) then
+        write (3000, *) 'Before readint2_casci_co', rank
+    end if
     ! if (rank == 0) then
     filename = 'MDCINTNEW'
 
@@ -112,14 +121,16 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !        sp( ninact+1        : ninact+nact      )    = 2
 !        sp( ninact+nact+1   : ninact+nact+nsec )    = 3
 !        sp( ninact+nact+nsec: nmo              )    = 4
-    write (*, *) 'nmo        =', nmo
-
+    if (rank == 0) then
+        write (3000, *) 'nmo        =', nmo
+    end if
     nmo = ninact + nact + nsec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    write (*, *) "iwamuro modify"
-
+    if (rank == 0) then
+        write (3000, *) "iwamuro modify"
+    end if
     If (mod(nelec, 2) == 0) then
         inisym = nsymrp + 1
         endsym = 2*nsymrp
@@ -128,55 +139,58 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         endsym = nsymrp
     End if
 
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
+    if (rank == 0) then
+        write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 !   Do totsym = inisym, inisym
 !   Do totsym = inisym, endsym
 
 !      totsym = 4
 
-    write (*, *) ' '
-    write (*, *) '*******************************'
-    write (*, *) ' '
-    write (*, *) 'IREP IS ', repna(totsym)
-    write (*, *) ' '
-    write (*, *) '*******************************'
-    write (*, *) ' '
-
+        write (3000, *) ' '
+        write (3000, *) '*******************************'
+        write (3000, *) ' '
+        write (3000, *) 'IREP IS ', repna(totsym)
+        write (3000, *) ' '
+        write (3000, *) '*******************************'
+        write (3000, *) ' '
+    end if
     realcvec = .TRUE.
 
     Call casci_ty(totsym)
-    if (rank == 0) then
+    ! if (rank == 0) then
 
 !      goto 1000
 
 !    This is test for bug fix about realc part
+    if (rank == 0) then
+        write (3000, *) realc, 'realc'
+        write (3000, *) realcvec, 'realcvec'
+    end if
+    test = .true.
 
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
+    if (rank == 0) then
+        write (3000, *) realc, 'realc'
+        write (3000, *) realcvec, 'realcvec'
+    end if
+    realc = .FALSE.      !!!      realc =.TRUE.
+    realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
-        test = .true.
-
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
-
-        realc = .FALSE.      !!!      realc =.TRUE.
-        realcvec = .FALSE.   !!!      realcvec =.TRUE.
-
-        write (*, *) 'FOR TEST WE DO (F,F)'
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
-
+    if (rank == 0) then
+        write (3000, *) 'FOR TEST WE DO (F,F)'
+        write (3000, *) realc, 'realc'
+        write (3000, *) realcvec, 'realcvec'
+    end if
 !!=============================================!
 !                                              !
-        iroot = selectroot
+    iroot = selectroot
 !                                              !
 !!=============================================!
 
-        Call e0test_v2
+    Call e0test_v2
 
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
+    if (rank == 0) then
+        write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 !            BUILDING  FOCK MATRIX               !
 !  fij = hij + SIGUMA[<0|Ekl|0>{(ij|kl)-(il|kj)} !
@@ -186,49 +200,54 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
 
-        Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
+    Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
 
-        f(:, :) = 0.0d+00
+    f(:, :) = 0.0d+00
 
 !      debug = .FALSE.
-        debug = .TRUE.
-        If (debug) then
-            Call fockhf1_ty
-        End if
+    debug = .TRUE.
+    If (debug) then
+        if (rank == 0) then
+            write (3000, *) 'fockhf1_ty start'
+        end if
+        Call fockhf1_ty
+    End if
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
 
-        f(:, :) = 0.0d+00
+    f(:, :) = 0.0d+00
 
-        Call fockcasci_ty
+    Call fockcasci_ty
 
 !      debug = .TRUE.
-        debug = .FALSE.
-        write (*, *) debug, 'debug'
+    debug = .FALSE.
+    if (rank == 0) then
+        write (3000, *) debug, 'debug'
+    end if
+    if (debug) Call prtoutfock
 
-        if (debug) Call prtoutfock
+    Allocate (eps(nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
+    eps = 0.0d+00
 
-        Allocate (eps(nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
-        eps = 0.0d+00
+    Call fockdiag_ty
 
-        Call fockdiag_ty
-
-        Do i0 = 1, nmo
-            write (*, *) 'eps(', i0, ')=', eps(i0)
-        End do
-
+    if (rank == 0) then
+    Do i0 = 1, nmo
+        write (3000, *) 'eps(', i0, ')=', eps(i0)
+    End do
+    end if
 !      Do i0 = 1, nmo/2
 !         if(ABS(eps(i0*2)-eps(i0*2-1)) > 1.0d-10) then
 !            write(*,*)i0*2-1,i0*2,eps(i0*2-1),eps(i0*2)
 !         Endif
 !      Enddo
 
-        open (5, file='EPS', form='unformatted', status='unknown')
-        write (5) nmo
-        write (5) eps(1:nmo)
-        close (5)
-    end if
+    open (5, file='EPS', form='unformatted', status='unknown')
+    write (5) nmo
+    write (5) eps(1:nmo)
+    close (5)
+    ! end if
     deallocate (sp); Call memplus(KIND(sp), SIZE(sp), 1)
     deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
     deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
@@ -259,12 +278,15 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
     deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
     if (rank == 0) then
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
         Call timing(val(3), totalsec, date0, tsec0)
-        write (*, *) 'End r4dcasci_ty part'
+        write (3000, *) 'End r4dcasci_ty part'
     end if
     call MPI_FINALIZE(ierr)
-    write (*, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
+    if (rank == 0) then
+        write (3000, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
+        close (50)
+    end if
 1000 continue
 END program r4dcasci_co

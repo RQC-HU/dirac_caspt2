@@ -2,62 +2,63 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE traci( fa )  ! Transform CI matrix for new spinor basis
+   SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+       use four_caspt2_module
 
-        Implicit NONE
-        real*8,      intent(in)  :: fa(ninact+1:ninact+nact,ninact+1:ninact+nact)
+       Implicit NONE
+       real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
+       integer :: i0, j0, i, info, job
+       integer :: ii, jj, ok
+       integer :: occ(nelec, ndet)
 
-        integer :: i0, j0, i, info, job
-        integer :: ii, jj, ok
-        integer :: occ(nelec, ndet)
-
-        integer, allocatable     :: IPIV(:)
-        complex*16, Allocatable  :: ds(:,:), dsold(:,:), ci(:), work(:), z(:)
-        complex*16  :: det(2)
-        logical     :: error
+       integer, allocatable     :: IPIV(:)
+       complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:), z(:)
+       complex*16  :: det(2)
+       logical     :: error
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        occ = 0
-        write(*,*)'Enter TRACI'
+       occ = 0
+       if (rank == 0) then
+           write (3000, *) 'Enter TRACI'
+       end if
 
-        Do i0 = 1, ndet
+       Do i0 = 1, ndet
            i = 0
            ok = 0
            Do j0 = 0, 31
-              if(btest(idet(i0),j0)) then
-                 i = i+1
-                 Do ii = 1, nact
-                    if( ii == j0+1 ) then  ! j0+1 means occupied spinor labeled by casci
-                       occ(i, i0) = ii         ! This is energetic order inside active spinor!
-                       ok = ok + 1
-                       goto 200
-                    End if
-                 End do
-                       
- 200          endif
+               if (btest(idet(i0), j0)) then
+                   i = i + 1
+                   Do ii = 1, nact
+                       if (ii == j0 + 1) then  ! j0+1 means occupied spinor labeled by casci
+                           occ(i, i0) = ii         ! This is energetic order inside active spinor!
+                           ok = ok + 1
+                           goto 200
+                       End if
+                   End do
+
+200            end if
            End do
-        End do 
+       End do
 
-        Allocate(ds(ndet, ndet))
+       Allocate (ds(ndet, ndet))
 
-        ds = 0.0d+00
+       ds = 0.0d+00
 
-        Do i0 = 1, ndet     ! k  (old)
+       Do i0 = 1, ndet     ! k  (old)
            Do j0 = 1, ndet  ! k~ (new)   <k|k~>
 
-              Call dets (fa(ninact+1:ninact+nact,ninact+1:ninact+nact), &
-                         occ(1:nelec,i0),occ(1:nelec,j0),ds(i0,j0))
+               Call dets(fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact), &
+                         occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
 
            End do
-        End do
+       End do
 
 ! for a while !        write(*,'(/,"REAL")')
 ! for a while !        Do i0 = 1, ndet
@@ -75,7 +76,6 @@
 ! for a while !!!!           & )') (DBLE(ds(i0,j0)),j0 = 1,ndet)
 ! for a while !!!!!           write(*,'(5E13.5,/,5E13.5,/,5E13.5,/)') (DBLE(ds(i0,j0)),j0 = 1,ndet)
 ! for a while !        End do
-
 
 ! for a while !        write(*,'(/,"REAL")')
 ! for a while !        Do i0 = 1, ndet
@@ -104,22 +104,26 @@
 ! for a while !        End do
 ! for a while !        End do
 
-        write(*,*)'Obtain inverse of ds matrix'
+       if (rank == 0) then
+           write (3000, *) 'Obtain inverse of ds matrix'
+       end if
 
-        Allocate (IPIV(ndet))
-        Allocate(dsold(ndet, ndet))
+       Allocate (IPIV(ndet))
+       Allocate (dsold(ndet, ndet))
 
-        dsold = ds
+       dsold = ds
 
-        Call ZGETRF( ndet, ndet, ds, ndet, IPIV, INFO )!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
-        write(*,*)'info',info
+       Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
+       if (rank == 0) then
+           write (3000, *) 'info', info
+       end if
 
-           
+       Allocate (work(ndet))
 
-        Allocate (work(ndet))
-
-        Call ZGETRI( ndet, ds, ndet, IPIV, WORK, ndet, INFO )
-        write(*,*)'info',info
+       Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
+       if (rank == 0) then
+           write (3000, *) 'info', info
+       end if
 
 ! for a while !      write(*,'(/,"REAL")')
 ! for a while !        Do i0 = 1, ndet
@@ -146,31 +150,37 @@
 ! for a while !        End do
 ! for a while !        End do
 
-        Deallocate(work)
-        Deallocate(IPIV)
-           write(*,*)'Check whether inverese matrix is really so'
+       Deallocate (work)
+       Deallocate (IPIV)
+       if (rank == 0) then
+           write (3000, *) 'Check whether inverese matrix is really so'
+       end if
 
-        error = .FALSE.
+       error = .FALSE.
 
-        dsold = MATMUL( ds, dsold)
-        Do i0 = 1, ndet
-        Do j0 = 1, ndet
+       dsold = MATMUL(ds, dsold)
+       Do i0 = 1, ndet
+       Do j0 = 1, ndet
 
+           If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
+               error = .TRUE.
+               if (rank == 0) then
+                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+               end if
+           Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
+               error = .TRUE.
+               if (rank == 0) then
+                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+               end if
+           End if
 
-           If((i0 /= j0).and. ABS(dsold(i0,j0)) > 1.0d-10) then
-              error = .TRUE.
-              write(*,'(2I4,2E13.5)')i0,j0,dsold(i0,j0)
-           Elseif(i0 == j0 .and. ABS(dsold(i0,j0)-1.0d+00) > 1.0d-10) then
-              error = .TRUE.
-              write(*,'(2I4,2E13.5)')i0,j0,dsold(i0,j0)
-           Endif
+       End do
+       End do
 
-        End do            
-        End do            
-
-        If(.not. error)  write(*,*) 'Inverse matrix is obtained correclty'
-
-        Deallocate(dsold)
+       if (rank == 0) then
+           If (.not. error) write (3000, *) 'Inverse matrix is obtained correclty'
+       end if
+       Deallocate (dsold)
 
 !        Now ds is inverse matrix!
 
@@ -187,144 +197,146 @@
 !
 !        Deallocate (ci)
 
-        Allocate (ci(ndet))
+       Allocate (ci(ndet))
 
-        ci = 0.0d+00
-        ci = DCMPLX(cir(1:ndet,selectroot), cii(1:ndet,selectroot))
-        ci = MATMUL ( ds, ci)
-        cir(1:ndet,selectroot) = DBLE(ci)
-        cii(1:ndet,selectroot) = DIMAG(ci)
+       ci = 0.0d+00
+       ci = DCMPLX(cir(1:ndet, selectroot), cii(1:ndet, selectroot))
+       ci = MATMUL(ds, ci)
+       cir(1:ndet, selectroot) = DBLE(ci)
+       cii(1:ndet, selectroot) = DIMAG(ci)
 
-        Deallocate (ci)
+       Deallocate (ci)
 
-        Deallocate (ds)
+       Deallocate (ds)
 
-        End subroutine traci
-
-
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
-   SUBROUTINE tracic( fac )  ! Transform CI matrix for new spinor basis
+   End subroutine traci
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
-
-        Implicit NONE
-        complex*16, intent(in)  :: fac(ninact+1:ninact+nact,ninact+1:ninact+nact)
-
-
-        integer :: i0, j0, i, info, job
-        integer :: ii, jj, ok
-        integer :: occ(nelec, ndet)
-
-        integer, allocatable     :: IPIV(:)
-        complex*16, Allocatable  :: ds(:,:), dsold(:,:), ci(:), work(:), z(:)
-        complex*16  :: det(2)
-        logical     :: error
+   SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        occ = 0
-        write(*,*)'Enter TRACI'
+       use four_caspt2_module
 
-        Do i0 = 1, ndet
+       Implicit NONE
+       complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+
+       integer :: i0, j0, i, info, job
+       integer :: ii, jj, ok
+       integer :: occ(nelec, ndet)
+
+       integer, allocatable     :: IPIV(:)
+       complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:), z(:)
+       complex*16  :: det(2)
+       logical     :: error
+
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+
+       occ = 0
+       if (rank == 0) then
+           write (3000, *) 'Enter TRACI'
+       end if
+       Do i0 = 1, ndet
            i = 0
            ok = 0
            Do j0 = 0, 31
-              if(btest(idet(i0),j0)) then
-                 i = i+1
-                 Do ii = 1, nact
-                    if( ii == j0+1 ) then  ! j0+1 means occupied spinor labeled by casci
-                       occ(i, i0) = ii         ! This is energetic order inside active spinor!
-                       ok = ok + 1
-                       goto 200
-                    End if
-                 End do
-                       
- 200          endif
+               if (btest(idet(i0), j0)) then
+                   i = i + 1
+                   Do ii = 1, nact
+                       if (ii == j0 + 1) then  ! j0+1 means occupied spinor labeled by casci
+                           occ(i, i0) = ii         ! This is energetic order inside active spinor!
+                           ok = ok + 1
+                           goto 200
+                       End if
+                   End do
+
+200            end if
            End do
-        End do 
+       End do
 
-        Allocate(ds(ndet, ndet))
+       Allocate (ds(ndet, ndet))
 
-        ds = 0.0d+00
+       ds = 0.0d+00
 
-        Do i0 = 1, ndet     ! k  (old)
+       Do i0 = 1, ndet     ! k  (old)
            Do j0 = 1, ndet  ! k~ (new)   <k|k~>
 
-              Call detsc (fac(ninact+1:ninact+nact,ninact+1:ninact+nact), &
-                         occ(1:nelec,i0),occ(1:nelec,j0),ds(i0,j0))
+               Call detsc(fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact), &
+                          occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
 
            End do
-        End do
+       End do
 
+       if (rank == 0) then
+           write (3000, *) 'Obtain inverse of ds matrix'
+       end if
+       Allocate (IPIV(ndet))
+       Allocate (dsold(ndet, ndet))
 
-        write(*,*)'Obtain inverse of ds matrix'
+       dsold = ds
 
-        Allocate (IPIV(ndet))
-        Allocate(dsold(ndet, ndet))
+       Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
+       if (rank == 0) then
+           write (3000, *) 'info', info
+       end if
+       Allocate (work(ndet))
 
-        dsold = ds
+       Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
+       if (rank == 0) then
+           write (3000, *) 'info', info
+       end if
+       Deallocate (work)
+       Deallocate (IPIV)
+       if (rank == 0) then
+           write (3000, *) 'Check whether inverese matrix is really so'
+       end if
+       error = .FALSE.
 
-        Call ZGETRF( ndet, ndet, ds, ndet, IPIV, INFO )
-        write(*,*)'info',info
+       dsold = MATMUL(ds, dsold)
+       Do i0 = 1, ndet
+       Do j0 = 1, ndet
 
-        Allocate (work(ndet))
+           If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
+               error = .TRUE.
+               if (rank == 0) then
+                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+               end if
+           Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
+               error = .TRUE.
+               if (rank == 0) then
+                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+               end if
+           End if
 
-        Call ZGETRI( ndet, ds, ndet, IPIV, WORK, ndet, INFO )
-        write(*,*)'info',info
+       End do
+       End do
 
-
-        Deallocate(work)
-        Deallocate(IPIV)
-           write(*,*)'Check whether inverese matrix is really so'
-
-        error = .FALSE.
-
-        dsold = MATMUL( ds, dsold)
-        Do i0 = 1, ndet
-        Do j0 = 1, ndet
-
-
-           If((i0 /= j0).and. ABS(dsold(i0,j0)) > 1.0d-10) then
-              error = .TRUE.
-              write(*,'(2I4,2E13.5)')i0,j0,dsold(i0,j0)
-           Elseif(i0 == j0 .and. ABS(dsold(i0,j0)-1.0d+00) > 1.0d-10) then
-              error = .TRUE.
-              write(*,'(2I4,2E13.5)')i0,j0,dsold(i0,j0)
-           Endif
-
-        End do            
-        End do            
-
-        If(.not. error)  write(*,*) 'Inverse matrix is obtained correclty'
-
-        Deallocate(dsold)
+       if (rank == 0) then
+           If (.not. error) write (3000, *) 'Inverse matrix is obtained correclty'
+       end if
+       Deallocate (dsold)
 
 !        Now ds is inverse matrix!
 
-        Allocate (ci(ndet))
+       Allocate (ci(ndet))
 
-        ci = 0.0d+00
-        ci = DCMPLX(cir(1:ndet,selectroot), cii(1:ndet,selectroot))
-        ci = MATMUL ( ds, ci)
-        cir(1:ndet,selectroot) = DBLE(ci(1:ndet))
-        cii(1:ndet,selectroot) = DIMAG(ci(1:ndet))
+       ci = 0.0d+00
+       ci = DCMPLX(cir(1:ndet, selectroot), cii(1:ndet, selectroot))
+       ci = MATMUL(ds, ci)
+       cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
+       cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
 
-        open (5, file = 'NEWCICOEFF', status = 'unknown', form = 'unformatted')
-        write(5) ci(1:ndet)
+       open (5, file='NEWCICOEFF', status='unknown', form='unformatted')
+       write (5) ci(1:ndet)
 !        write(*,'("ci",2E20.10)') ci(1:ndet)
-        close(5)
+       close (5)
 
+       Deallocate (ci)
 
-        Deallocate (ci)
+       Deallocate (ds)
 
-        Deallocate (ds)
-
-        End subroutine tracic
-
-
+   End subroutine tracic

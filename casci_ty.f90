@@ -20,17 +20,22 @@
        character*20            :: filename
 
        ndet = comb(nact, nelec)
-       write (*, *) 'ndet', ndet
-
+       if (rank == 0) then
+           write (3000, *) 'ndet', ndet
+       end if
        Call casdet_ty(totsym)
        ! ndet : 配置の数(n determinant)
        Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
 
        Call casmat(mat)
        !    call MPI_Reduce(mat)
-       write (*, *) 'before allocate ecas(ndet)'
+       if (rank == 0) then
+           write (3000, *) 'before allocate ecas(ndet)'
+       end if
        Allocate (ecas(ndet))
-       write (*, *) 'allocate ecas(ndet)'
+       if (rank == 0) then
+           write (3000, *) 'allocate ecas(ndet)'
+       end if
        ecas = 0.0d+00
        thresd = 1.0d-15
        cutoff = .FALSE.
@@ -40,7 +45,7 @@
 
 ! Print out CI matrix!
        if (rank == 0) then
-           write (*, *) 'debug1'
+           write (3000, *) 'debug1'
 
            cimat = 10
            filename = 'CIMAT'
@@ -55,7 +60,7 @@
 
 ! Print out CI matrix!
 
-           write (*, *) 'debug2'
+           write (3000, *) 'debug2'
 
            cimat = 10
            filename = 'CIMAT1'
@@ -68,8 +73,9 @@
        end if
 ! Print out C1 matrix!
 
-       write (*, *) 'debug3'
-
+       if (rank == 0) then
+           write (3000, *) 'debug3'
+       end if
        Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
        Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
        Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
@@ -84,11 +90,11 @@
 
        Deallocate (ecas)
        if (rank == 0) then
-           write (*, *) 'debug4'
+           write (3000, *) 'debug4'
 
-           write (*, '("CASCI ENERGY FOR ",I2," STATE")') totsym
+           write (3000, '("CASCI ENERGY FOR ",I2," STATE")') totsym
            Do irec = 1, nroot
-               write (*, '(I4,F30.15)') irec, eigen(irec)
+               write (3000, '(I4,F30.15)') irec, eigen(irec)
            End do
 
            do j = 1, ndet
@@ -98,12 +104,12 @@
            end do
 
            do irec = 1, nroot
-               write (*, '("Root = ",I4)') irec
+               write (3000, '("Root = ",I4)') irec
                do j = 1, ndet
                    if ((ABS(mat(j, irec))**2) > 1.0d-02) then
                        i0 = idet(j)
-                       write (*, *) (btest(i0, j0), j0=0, nact - 1)
-                       write (*, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
+                       write (3000, *) (btest(i0, j0), j0=0, nact - 1)
+                       write (3000, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
                        & j, mat(j, irec), &
                        & ABS(mat(j, irec))**2
                    end if

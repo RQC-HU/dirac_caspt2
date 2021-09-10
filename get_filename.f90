@@ -17,6 +17,7 @@ subroutine get_mdcint_filename
         mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(mdcintnum))
         mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(mdcintnum))
     end if
-    write(*,*)"get filename : ",trim(mdcint_filename)," ",trim(mdcintnew)," ",trim(mdcint_debug)," ",trim(mdcint_int)
+    if (rank == 0) then
+        write (3000, *) "get filename : ", trim(mdcint_filename), " ", trim(mdcintnew), " ", trim(mdcint_debug), " ", trim(mdcint_int)
+    end if
 end subroutine get_mdcint_filename
-

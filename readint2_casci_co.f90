@@ -41,7 +41,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     nmoc = ninact + nact
     nmom = ninact + nact + nsec
-    write(*,'(A,I8)') "Enter readint2_casci_co",rank
+    if (rank == 0) then
+        write (3000, '(A,I8)') "Enter readint2_casci_co", rank
+    end if
     Allocate (int2rs(0:nmoc**4)); Call memplus(KIND(int2rs), SIZE(int2rs), 1)
     Allocate (int2is(0:nmoc**4)); Call memplus(KIND(int2is), SIZE(int2is), 1)
 
@@ -70,7 +72,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 !Iwamuro modify
     Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    if (rank == 0) then
+        write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    end if
 
     nuniq = 0
     indk(:) = 0
@@ -88,14 +92,16 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     totalint = 0
     mdcint = 11
-    open (mdcint, file=trim(filename), form='unformatted', status='old', err=10)
+    ! open (mdcint, file=trim(filename), form='unformatted', status='old', err=10)
+    open (mdcint, file=trim(filename), form='unformatted', status='old')
 
     read (mdcint, err=20, end=30) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
-    write (*, *) datex, timex
-    write (*, *) 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
-
+    if (rank == 0) then
+        write (3000, *) datex, timex
+        write (3000, *) 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
+    end if
 60  read (mdcint, END=50) i, j, nz, &
         (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
 
@@ -398,17 +404,29 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     Goto 60
 
-10  write (*, *) 'error for opening mdcint 10'
+    if (rank == 0) then
+        write (3000, *) 'error for opening mdcint 10'
+    end if
     go to 100
-20  write (*, *) 'error for reading mdcint 20'
+20  if (rank == 0) then
+        write (3000, *) 'error for reading mdcint 20'
+    end if
     go to 100
-30  write (*, *) 'end mdcint 30'
+30  if (rank == 0) then
+        write (3000, *) 'end mdcint 30'
+    end if
     go to 100
-40  write (*, *) 'error for reading mdcint 40'
+40  if (rank == 0) then
+        write (3000, *) 'error for reading mdcint 40'
+    end if
     go to 100
-50  write (*, *) 'end mdcint 50 normal'
+50  if (rank == 0) then
+        write (3000, *) 'end mdcint 50 normal'
+    end if
     go to 100
-41  write (*, *) 'error for reading mdcint 41'
+41  if (rank == 0) then
+        write (3000, *) 'error for reading mdcint 41'
+    end if
     go to 100
 ! 56      write(*,*)'error for reading mdcint 56'
 !         go to 100
@@ -417,7 +435,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     close (mdcint)
 
-    write (*, *) nuniq, totalint
+    write (3000, *) nuniq, totalint
 
 !         write(*,*) "debug1"
 

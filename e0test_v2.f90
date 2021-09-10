@@ -6,31 +6,30 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+       use four_caspt2_module
 
-        Implicit NONE
-        integer :: ii, jj, kk, ll, typetype
-        integer :: j0, j, i, k, l, i0, i1, nuniq
-        integer :: k0, l0, nint
-        logical :: test
- 
-        real*8 :: i2r, i2i, dr, di, i2idammy, nsign, factor
-        complex*16 :: oneeff, cmplxint, dens, energyHF(2)
-        complex*16, allocatable :: energy(:,:)
+       Implicit NONE
+       integer :: ii, jj, kk, ll, typetype
+       integer :: j0, j, i, k, l, i0, i1, nuniq
+       integer :: k0, l0, nint
+       logical :: test
 
-        character*50 :: filename
+       real*8 :: i2r, i2i, dr, di, i2idammy, nsign, factor
+       complex*16 :: oneeff, cmplxint, dens, energyHF(2)
+       complex*16, allocatable :: energy(:, :)
+
+       character*50 :: filename
 !        character :: jobz*1, uplo*1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+       Allocate (energy(nroot, 4)); Call memplus(KIND(energy), SIZE(energy), 1)
+       energy(1:nroot, 1:4) = 0.0d+00
 
-         Allocate (energy(nroot, 4)) ; Call memplus(KIND(energy),SIZE(energy),1)
-         energy(1:nroot,1:4) = 0.0d+00
+       debug = .TRUE.
 
-        debug = .TRUE.
-
-     if (realc) then
+       if (realc) then
 !~~~~~~~~~~~~~~~~~~~~~~
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
@@ -41,15 +40,16 @@
 !   Inactive (core) part      !
 !                             !
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
-!"""""""""""""""""""""""""""""!  
+!"""""""""""""""""""""""""""""!
 
-         do i = 1, ninact
-            ii = i
-            energy(iroot,1) = energy(iroot,1) + oner(ii,ii)
-         end do
+           do i = 1, ninact
+               ii = i
+               energy(iroot, 1) = energy(iroot, 1) + oner(ii, ii)
+           end do
 
-         write(*,*)'energy 1 =',energy(iroot,1)
-
+           if (rank == 0) then
+               write (3000, *) 'energy 1 =', energy(iroot, 1)
+           end if
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 2            !
@@ -60,17 +60,17 @@
 !                             !
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !"""""""""""""""""""""""""""""
-         do i = 1, ninact
-            do j =  1, ninact
-               ii = i
-               jj = j
+           do i = 1, ninact
+               do j = 1, ninact
+                   ii = i
+                   jj = j
 
-               nint = ABS(indtwr(ii,ii,jj,jj))
-               nsign = SIGN(1,indtwr(ii,ii,jj,jj))
+                   nint = ABS(indtwr(ii, ii, jj, jj))
+                   nsign = SIGN(1, indtwr(ii, ii, jj, jj))
 
 !               write(*,'(4I3,F5.1,I6)')ii,ii,jj,jj,nsign,nint
 
-               i2r = int2r(nint)*nsign
+                   i2r = int2r(nint)*nsign
 
 !               if (iroot == 1) then
 !                  write(*,*)' (',ii,ii,'|',jj,jj,')'
@@ -79,28 +79,28 @@
 !                         'sign = ',sign,'conj = ',conj
 !               end if
 
-               energy(iroot,2) = energy(iroot,2) + (0.5d+00)*i2r
+                   energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*i2r
 
-
-               nint = ABS(indtwr(ii,jj,jj,ii))
-               nsign = SIGN(1,indtwr(ii,jj,jj,ii))
+                   nint = ABS(indtwr(ii, jj, jj, ii))
+                   nsign = SIGN(1, indtwr(ii, jj, jj, ii))
 
 !               write(*,'(4I3,F5.1,I6)')ii,jj,jj,ii,nsign,nint
 
-               i2r = int2r(nint)*nsign
+                   i2r = int2r(nint)*nsign
 
-               energy(iroot,2) = energy(iroot,2) - (0.5d+00)*i2r 
-                        
-            end do
-         end do
+                   energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*i2r
 
-         write(*,*)'energy 2 =',energy(iroot,2)
+               end do
+           end do
 
+           if (rank == 0) then
+               write (3000, *) 'energy 2 =', energy(iroot, 2)
+           end if
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 3            !
-!"""""""""""""""""""""""""""""!  hij + siguma [ (kk|ij)-(kj|ik) ]    
-!   One-electron sumation     !          k                           
+!"""""""""""""""""""""""""""""!  hij + siguma [ (kk|ij)-(kj|ik) ]
+!   One-electron sumation     !          k
 !                             !
 !   Active part               !
 !                             !
@@ -109,48 +109,53 @@
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !"""""""""""""""""""""""""""""
 
-         do i = ninact+1, ninact+nact
-            do j = ninact+1, ninact+nact
-               ii = i
-               jj = j
+           do i = ninact + 1, ninact + nact
+               do j = ninact + 1, ninact + nact
+                   ii = i
+                   jj = j
 
-               oneeff = 0.0d+00
+                   oneeff = 0.0d+00
 
-               do k = 1, ninact            ! kk is inactive spinor
-                  kk = k
-               
-                  nint = ABS(indtwr(kk,kk,ii,jj))
-                  nsign = SIGN(1,indtwr(kk,kk,ii,jj))
-                  i2r = int2r(nint)*nsign
+                   do k = 1, ninact            ! kk is inactive spinor
+                       kk = k
 
-                  write(*,'(4I3,F5.1,I6)')kk,kk,ii,jj,nsign,nint
+                       nint = ABS(indtwr(kk, kk, ii, jj))
+                       nsign = SIGN(1, indtwr(kk, kk, ii, jj))
+                       i2r = int2r(nint)*nsign
 
-                  oneeff = oneeff + i2r 
+                       if (rank == 0) then
+                           write (3000, '(4I3,F5.1,I6)') kk, kk, ii, jj, nsign, nint
+                       end if
 
-                  nint = ABS(indtwr(kk,jj,ii,kk))
-                  nsign = SIGN(1,indtwr(kk,jj,ii,kk))
-                  i2r = int2r(nint)*nsign
+                       oneeff = oneeff + i2r
 
-                  write(*,'(4I3,F5.1,I6)')kk,jj,ii,kk,nsign,nint
+                       nint = ABS(indtwr(kk, jj, ii, kk))
+                       nsign = SIGN(1, indtwr(kk, jj, ii, kk))
+                       i2r = int2r(nint)*nsign
 
-                  oneeff = oneeff - i2r 
-                  
-               end do ! kk
+                       if (rank == 0) then
+                           write (3000, '(4I3,F5.1,I6)') kk, jj, ii, kk, nsign, nint
+                       end if
 
-               if(realcvec) then
-                  Call dim1_density_R (ii, jj, dr)
-                  energy(iroot,3) = energy(iroot,3) &
-                                 + (oner(ii,jj)+oneeff)*dr
-               else
-                  Call dim1_density (ii, jj, dr, di)
-                  energy(iroot,3) = energy(iroot,3) &
-                                 + (oner(ii,jj)+oneeff)*DCMPLX(dr,di)
-               end if
-            end do
-         end do
+                       oneeff = oneeff - i2r
 
-         write(*,*)'energy 3 =',energy(iroot,3)
+                   end do ! kk
 
+                   if (realcvec) then
+                       Call dim1_density_R(ii, jj, dr)
+                       energy(iroot, 3) = energy(iroot, 3) &
+                                          + (oner(ii, jj) + oneeff)*dr
+                   else
+                       Call dim1_density(ii, jj, dr, di)
+                       energy(iroot, 3) = energy(iroot, 3) &
+                                          + (oner(ii, jj) + oneeff)*DCMPLX(dr, di)
+                   end if
+               end do
+           end do
+
+           if (rank == 0) then
+               write (3000, *) 'energy 3 =', energy(iroot, 3)
+           end if
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 4            !
@@ -162,76 +167,74 @@
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !"""""""""""""""""""""""""""""
 
-         do i = ninact+1, ninact+nact
-            do j = ninact+1, ninact+nact
-               do k = ninact+1, ninact+nact
-                  do l = ninact+1, ninact+nact
-                     ii = i
-                     jj = j
-                     kk = k
-                     ll = l
+           do i = ninact + 1, ninact + nact
+               do j = ninact + 1, ninact + nact
+                   do k = ninact + 1, ninact + nact
+                       do l = ninact + 1, ninact + nact
+                           ii = i
+                           jj = j
+                           kk = k
+                           ll = l
 
-                     i2r = 0.0d+00
-                     i2i = 0.0d+00
-                     dr = 0.0d+00
-                     di = 0.0d+00
-                     
-                     nint = ABS(indtwr(ii,jj,kk,ll))
-                     nsign = SIGN(1,indtwr(ii,jj,kk,ll))
-     !                write(*,'(4I3,F5.1,I6)')ii,jj,kk,ll,nsign,nint
+                           i2r = 0.0d+00
+                           i2i = 0.0d+00
+                           dr = 0.0d+00
+                           di = 0.0d+00
 
-                     i2r = int2r(nint)*nsign
+                           nint = ABS(indtwr(ii, jj, kk, ll))
+                           nsign = SIGN(1, indtwr(ii, jj, kk, ll))
+                           !                write(*,'(4I3,F5.1,I6)')ii,jj,kk,ll,nsign,nint
 
-                        if(realcvec) then
-                           Call dim2_density_R (ii, jj, kk, ll, dr)
+                           i2r = int2r(nint)*nsign
 
-                           energy(iroot,4) = energy(iroot,4) &
-                                             + (0.5d+00)*dr*i2r
-                        else
-                           Call dim2_density (ii, jj, kk, ll, dr, di)
-                           energy(iroot,4) = energy(iroot,4) &
-                                           + (0.5d+00)*DCMPLX(dr,di)*i2r
-                        endif
+                           if (realcvec) then
+                               Call dim2_density_R(ii, jj, kk, ll, dr)
 
-                     if(jj == kk) then
+                               energy(iroot, 4) = energy(iroot, 4) &
+                                                  + (0.5d+00)*dr*i2r
+                           else
+                               Call dim2_density(ii, jj, kk, ll, dr, di)
+                               energy(iroot, 4) = energy(iroot, 4) &
+                                                  + (0.5d+00)*DCMPLX(dr, di)*i2r
+                           end if
 
-                        dr = 0.0d+00
-                        di = 0.0d+00
-                     
-                        if(realcvec) then
-                           Call dim1_density_R (ii, ll, dr)
-                        
-                           energy(iroot,4) = energy(iroot,4) &
-                                             - (0.5d+00)*dr*i2r
-                        else
-                           Call dim1_density (ii, ll, dr, di)
-                           energy(iroot,4) = energy(iroot,4) &
-                                           - (0.5d+00)*DCMPLX(dr,di)*i2r
-                        endif
+                           if (jj == kk) then
 
+                               dr = 0.0d+00
+                               di = 0.0d+00
 
-                     end if
+                               if (realcvec) then
+                                   Call dim1_density_R(ii, ll, dr)
 
-                  end do ! ll
-               end do    ! kk
-            end do       ! jj
-         end do          ! ii
+                                   energy(iroot, 4) = energy(iroot, 4) &
+                                                      - (0.5d+00)*dr*i2r
+                               else
+                                   Call dim1_density(ii, ll, dr, di)
+                                   energy(iroot, 4) = energy(iroot, 4) &
+                                                      - (0.5d+00)*DCMPLX(dr, di)*i2r
+                               end if
 
-         write(*,*)'energy 4 =',energy(iroot,4)
+                           end if
 
-         write(*,*)iroot,'t-energy(1-4)', &
-         energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4)
+                       end do ! ll
+                   end do    ! kk
+               end do       ! jj
+           end do          ! ii
 
-         write(*,*)iroot,'t-energy ', &
-         eigen(iroot)-ecore
+           if (rank == 0) then
+               write (3000, *) 'energy 4 =', energy(iroot, 4)
 
-         write(*,*)'R the error ', &
-         eigen(iroot)-ecore &
-         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
+               write (3000, *) iroot, 't-energy(1-4)', &
+                   energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
+               write (3000, *) iroot, 't-energy ', &
+                   eigen(iroot) - ecore
 
-      else
-
+               write (3000, *) 'R the error ', &
+                   eigen(iroot) - ecore &
+                   - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
+           end if
+       else
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF1          !
@@ -242,14 +245,14 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-         energyHF(1)=0.0d+00
-         ii = 0
-         do i = 1, ninact+nelec
-            cmplxint = 0.0d+00
-            cmplxint = CMPLX(oner(i,i), onei(i, i), 16)
+           energyHF(1) = 0.0d+00
+           ii = 0
+           do i = 1, ninact + nelec
+               cmplxint = 0.0d+00
+               cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
 !            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
-            energyHF(1) = energyHF(1) + cmplxint
-         end do
+               energyHF(1) = energyHF(1) + cmplxint
+           end do
 
 !         write(*,*)'energyHF(1)',energyHF(1)
 
@@ -262,58 +265,52 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-         energyHF(2)=0.0d+00
+           energyHF(2) = 0.0d+00
 
-         do i = 1, ninact+nelec
-            do j =  i, ninact+nelec
+           do i = 1, ninact + nelec
+               do j = i, ninact + nelec
 
-               cmplxint = 0.0d+00
-               i2r = 0.0d+00
-               i2i = 0.0d+00
-               nsign = 0.0d+00
+                   cmplxint = 0.0d+00
+                   i2r = 0.0d+00
+                   i2i = 0.0d+00
+                   nsign = 0.0d+00
 
-               nint = ABS(indtwr(i,i,j,j))
+                   nint = ABS(indtwr(i, i, j, j))
 
-               nsign = SIGN(1,indtwr(i,i,j,j))
-               i2r = int2r(nint)*nsign
+                   nsign = SIGN(1, indtwr(i, i, j, j))
+                   i2r = int2r(nint)*nsign
 
-               nsign = SIGN(1,indtwi(i,i,j,j))
-               i2i = int2i(nint)*nsign
+                   nsign = SIGN(1, indtwi(i, i, j, j))
+                   i2i = int2i(nint)*nsign
 
-               cmplxint = CMPLX(i2r, i2i, 16)
-               energyHF(2) = energyHF(2) + (0.5d+00)* cmplxint
+                   cmplxint = CMPLX(i2r, i2i, 16)
+                   energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
 
+                   cmplxint = 0.0d+00
+                   i2r = 0.0d+00
+                   i2i = 0.0d+00
+                   nsign = 0.0d+00
+                   nint = 0
 
-               cmplxint = 0.0d+00
-               i2r = 0.0d+00
-               i2i = 0.0d+00
-               nsign = 0.0d+00
-               nint = 0
+                   nint = ABS(indtwr(i, j, j, i))
 
-               nint = ABS(indtwr(i,j,j,i))
+                   nsign = SIGN(1, indtwr(i, j, j, i))
+                   i2r = int2r(nint)*nsign
 
-               nsign = SIGN(1,indtwr(i,j,j,i))
-               i2r = int2r(nint)*nsign
+                   nsign = 0.0d+00
 
-               nsign = 0.0d+00
+                   nsign = SIGN(1, indtwi(i, j, j, i))
+                   i2i = int2i(nint)*nsign
 
-               nsign = SIGN(1,indtwi(i,j,j,i))
-               i2i = int2i(nint)*nsign
+                   cmplxint = CMPLX(i2r, i2i, 16)
+                   energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
 
-               cmplxint = CMPLX(i2r, i2i, 16)
-               energyHF(2) = energyHF(2) - (0.5d+00)* cmplxint
+               end do
+           end do
 
-            end do
-         end do
-
-         energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
-
+           energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 
 !         write(*,*)'energyHF(2)',energyHF(2)
-
-
-
-
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
@@ -324,11 +321,10 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-         do i = 1, ninact
-            cmplxint = CMPLX(oner(i,i), onei(i,i), 16)
-            energy(iroot,1) = energy(iroot,1) + cmplxint
-         end do
-
+           do i = 1, ninact
+               cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+               energy(iroot, 1) = energy(iroot, 1) + cmplxint
+           end do
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 2            !
@@ -339,116 +335,113 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-         do i = 1, ninact
-            do j =  i, ninact
-               i2r = 0.0d+00
-               i2i = 0.0d+00
+           do i = 1, ninact
+               do j = i, ninact
+                   i2r = 0.0d+00
+                   i2i = 0.0d+00
 
-               nint = ABS(indtwr(i,i,j,j))
-               nsign = SIGN(1,indtwr(i,i,j,j))
-               i2r = int2r(nint)*nsign
+                   nint = ABS(indtwr(i, i, j, j))
+                   nsign = SIGN(1, indtwr(i, i, j, j))
+                   i2r = int2r(nint)*nsign
 
-               nsign = SIGN(1,indtwi(i,i,j,j))
-               i2i = int2i(nint)*nsign
+                   nsign = SIGN(1, indtwi(i, i, j, j))
+                   i2i = int2i(nint)*nsign
 
-               cmplxint = CMPLX(i2r, i2i, 16)
-               energy(iroot,2) = energy(iroot,2) + (0.5d+00)* cmplxint
+                   cmplxint = CMPLX(i2r, i2i, 16)
+                   energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
 
-               i2r = 0.0d+00
-               i2i = 0.0d+00
+                   i2r = 0.0d+00
+                   i2i = 0.0d+00
 
-               nint = ABS(indtwr(i,j,j,i))
+                   nint = ABS(indtwr(i, j, j, i))
 
-               nsign = SIGN(1,indtwr(i,j,j,i))
-               i2r = int2r(nint)*nsign
+                   nsign = SIGN(1, indtwr(i, j, j, i))
+                   i2r = int2r(nint)*nsign
 
-               nsign = SIGN(1,indtwi(i,j,j,i))
-               i2i = int2i(nint)*nsign
+                   nsign = SIGN(1, indtwi(i, j, j, i))
+                   i2i = int2i(nint)*nsign
 
-               cmplxint = CMPLX(i2r, i2i, 16)
-               energy(iroot,2) = energy(iroot,2) - (0.5d+00)* cmplxint
+                   cmplxint = CMPLX(i2r, i2i, 16)
+                   energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
 
-            end do
-         end do
+               end do
+           end do
 
-         energy(iroot,2) = energy(iroot,2) + DCONJG(energy(iroot,2))
-
+           energy(iroot, 2) = energy(iroot, 2) + DCONJG(energy(iroot, 2))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 3            !
 !"""""""""""""""""""""""""""""!
 !   One-electron sumation     !
-!                             !  hij + siguma [ (kk|ij)-(kj|ik) ]    
-!   Active part               !          k                           
+!                             !  hij + siguma [ (kk|ij)-(kj|ik) ]
+!   Active part               !          k
 !                             !
-!   With effective one-e-int  !  hij + siguma [ (ij|kk)-(ik|kj) ]    
+!   With effective one-e-int  !  hij + siguma [ (ij|kk)-(ik|kj) ]
 !                             !          k
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-         do i = ninact+1, ninact+nact
-            do j = i, ninact+nact
+           do i = ninact + 1, ninact + nact
+               do j = i, ninact + nact
 
-               oneeff = 0.0d+00
+                   oneeff = 0.0d+00
 
-               do k = 1, ninact            ! kk is inactive spinor
+                   do k = 1, ninact            ! kk is inactive spinor
 
-                  i2r = 0.0d+00
-                  i2i = 0.0d+00
+                       i2r = 0.0d+00
+                       i2i = 0.0d+00
 
-                  nint = ABS(indtwr(i,j,k,k))
-                  nsign = SIGN(1,indtwr(i,j,k,k))
+                       nint = ABS(indtwr(i, j, k, k))
+                       nsign = SIGN(1, indtwr(i, j, k, k))
 
-                  i2r = int2r(nint)*nsign
+                       i2r = int2r(nint)*nsign
 
-                  nsign = SIGN(1,indtwi(i,j,k,k))
-                  i2i = int2i(nint)*nsign
+                       nsign = SIGN(1, indtwi(i, j, k, k))
+                       i2i = int2i(nint)*nsign
 
-                  cmplxint = CMPLX(i2r, i2i, 16)
-                  oneeff = oneeff + cmplxint
+                       cmplxint = CMPLX(i2r, i2i, 16)
+                       oneeff = oneeff + cmplxint
 
-                  i2r = 0.0d+00
-                  i2i = 0.0d+00
-                  nint = ABS(indtwr(i,k,k,j))
-                  nsign = SIGN(1,indtwr(i,k,k,j))
-                  i2r = int2r(nint)*nsign
+                       i2r = 0.0d+00
+                       i2i = 0.0d+00
+                       nint = ABS(indtwr(i, k, k, j))
+                       nsign = SIGN(1, indtwr(i, k, k, j))
+                       i2r = int2r(nint)*nsign
 
-                  nsign = SIGN(1,indtwi(i,k,k,j))
-                  i2i = int2i(nint)*nsign
+                       nsign = SIGN(1, indtwi(i, k, k, j))
+                       i2i = int2i(nint)*nsign
 
-                  cmplxint = CMPLX(i2r, i2i, 16)
-                  oneeff = oneeff - cmplxint
+                       cmplxint = CMPLX(i2r, i2i, 16)
+                       oneeff = oneeff - cmplxint
 
- 300           end do           ! kk
+300                end do           ! kk
 
-               cmplxint = CMPLX(oner(i, j), onei(i, j), 16)
+                   cmplxint = CMPLX(oner(i, j), onei(i, j), 16)
 
-               oneeff = oneeff + cmplxint
+                   oneeff = oneeff + cmplxint
 
-               if(i==j) oneeff = oneeff * (0.5d+00)
+                   if (i == j) oneeff = oneeff*(0.5d+00)
 
-               if(realcvec) then
-                  ii = i - ninact
-                  jj = j - ninact
-                  Call dim1_density_R (ii, jj, dr)
-                  ii = i
-                  jj = j
-                  
-                 energy(iroot,3) = energy(iroot,3) + oneeff*dr
+                   if (realcvec) then
+                       ii = i - ninact
+                       jj = j - ninact
+                       Call dim1_density_R(ii, jj, dr)
+                       ii = i
+                       jj = j
 
-               else
+                       energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
 
-                  Call dim1_density (i - ninact, j - ninact, dr, di)
+                   else
 
-                  
-                  dens = CMPLX(dr, di, 16)
-                  energy(iroot,3) = energy(iroot,3) + oneeff*dens
+                       Call dim1_density(i - ninact, j - ninact, dr, di)
 
-               end if
-            end do
-         end do
+                       dens = CMPLX(dr, di, 16)
+                       energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
-         energy(iroot,3) = energy(iroot,3) + DCONJG(energy(iroot,3))
+                   end if
+               end do
+           end do
 
+           energy(iroot, 3) = energy(iroot, 3) + DCONJG(energy(iroot, 3))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 4            !
@@ -460,124 +453,121 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
 
-         do i = ninact+1, ninact+nact
-            do j = ninact+1, ninact+nact
-               do k = ninact+1, ninact+nact
-                  do l = ninact+1, ninact+nact
+           do i = ninact + 1, ninact + nact
+               do j = ninact + 1, ninact + nact
+                   do k = ninact + 1, ninact + nact
+                       do l = ninact + 1, ninact + nact
 !                  do l = i, ninact+nact
 
-                     i2r = 0.0d+00
-                     i2i = 0.0d+00
-                     dr = 0.0d+00
-                     di = 0.0d+00
-                     
-                     nint = ABS(indtwr(i,j,k,l))
+                           i2r = 0.0d+00
+                           i2i = 0.0d+00
+                           dr = 0.0d+00
+                           di = 0.0d+00
 
-                     nsign = SIGN(1,indtwr(i,j,k,l))
-                     i2r = int2r(nint)*nsign
+                           nint = ABS(indtwr(i, j, k, l))
 
-                     nsign = SIGN(1,indtwi(i,j,k,l))
-                     i2i = int2i(nint)*nsign
+                           nsign = SIGN(1, indtwr(i, j, k, l))
+                           i2r = int2r(nint)*nsign
 
-                     cmplxint = CMPLX(i2r, i2i, 16)
+                           nsign = SIGN(1, indtwi(i, j, k, l))
+                           i2i = int2i(nint)*nsign
 
+                           cmplxint = CMPLX(i2r, i2i, 16)
 
 !                     if((i == l)) cmplxint = cmplxint * (0.5d+00)
 
+                           if (realcvec) then
+                               ii = i - ninact
+                               jj = j - ninact
+                               kk = k - ninact
+                               ll = l - ninact
 
-                        if(realcvec) then
-                           ii = i - ninact
-                           jj = j - ninact
-                           kk = k - ninact
-                           ll = l - ninact
+                               Call dim2_density_R(ii, jj, kk, ll, dr)
+                               ii = i
+                               jj = j
+                               kk = k
+                               ll = l
 
-                           Call dim2_density_R (ii, jj, kk, ll, dr)
-                           ii = i
-                           jj = j
-                           kk = k
-                           ll = l
+                               energy(iroot, 4) = energy(iroot, 4) &
+                                                  + (0.5d+00)*dr*cmplxint
+                           else
+                               ii = i - ninact
+                               jj = j - ninact
+                               kk = k - ninact
+                               ll = l - ninact
 
-                           energy(iroot,4) = energy(iroot,4) &
-                                             + (0.5d+00)*dr*cmplxint
-                        else
-                           ii = i - ninact
-                           jj = j - ninact
-                           kk = k - ninact
-                           ll = l - ninact
+                               Call dim2_density(ii, jj, kk, ll, dr, di)
 
-                           Call dim2_density (ii, jj, kk, ll, dr, di)
+                               dens = CMPLX(dr, di, 16)
 
-                           dens = CMPLX(dr, di, 16)
+                               energy(iroot, 4) = energy(iroot, 4) &
+                                                  + (0.5d+00)*dens*cmplxint
+                           end if
 
-                           energy(iroot,4) = energy(iroot,4) &
-                                           + (0.5d+00)* dens * cmplxint
-                        endif
+                           if (j == k) then
 
-                     if(j == k) then
+                               dr = 0.0d+00
+                               di = 0.0d+00
 
-                        dr = 0.0d+00
-                        di = 0.0d+00
-                     
-                        if(realcvec) then
+                               if (realcvec) then
 
-                           ii = i - ninact
-                           ll = l - ninact
+                                   ii = i - ninact
+                                   ll = l - ninact
 
-                           Call dim1_density_R (ii, ll, dr)
-                           ii = i
-                           jj = j
-                           kk = k
-                           ll = l
+                                   Call dim1_density_R(ii, ll, dr)
+                                   ii = i
+                                   jj = j
+                                   kk = k
+                                   ll = l
 
-                           energy(iroot,4) = energy(iroot,4) &
-                                             - (0.5d+00)*dr* cmplxint
-                        else
+                                   energy(iroot, 4) = energy(iroot, 4) &
+                                                      - (0.5d+00)*dr*cmplxint
+                               else
 
-                           ii = i - ninact
-                           ll = l - ninact
+                                   ii = i - ninact
+                                   ll = l - ninact
 
-                           Call dim1_density (ii, ll, dr, di)
+                                   Call dim1_density(ii, ll, dr, di)
 
-                           ii = i
-                           jj = j
-                           kk = k
-                           ll = l
+                                   ii = i
+                                   jj = j
+                                   kk = k
+                                   ll = l
 
-                           dens = CMPLX(dr, di, 16)
-                           energy(iroot,4) = energy(iroot,4) &
-                                           - (0.5d+00) * dens * cmplxint
-                        endif
+                                   dens = CMPLX(dr, di, 16)
+                                   energy(iroot, 4) = energy(iroot, 4) &
+                                                      - (0.5d+00)*dens*cmplxint
+                               end if
 
+                           end if
 
-                     end if
+100                    end do        ! ll
+                   end do    ! kk
+               end do       ! jj
+           end do          ! ii
 
- 100              end do        ! ll
-               end do    ! kk
-            end do       ! jj
-         end do          ! ii
-
-         energy(iroot,4) = energy(iroot,4) 
+           energy(iroot, 4) = energy(iroot, 4)
 !         energy(iroot,4) = energy(iroot,4) + DCONJG(energy(iroot,4))
-
 
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
 
-          write(*,*)'energy 1 =',energy(iroot,1)
-          write(*,*)'energy 2 =',energy(iroot,2)
-          write(*,*)'energy 3 =',energy(iroot,3)
-          write(*,*)'energy 4 =',energy(iroot,4)
+           if (rank == 0) then
+               write (3000, *) 'energy 1 =', energy(iroot, 1)
+               write (3000, *) 'energy 2 =', energy(iroot, 2)
+               write (3000, *) 'energy 3 =', energy(iroot, 3)
+               write (3000, *) 'energy 4 =', energy(iroot, 4)
 
-          write(*,*)iroot, 't-energy(1-4)', &
-          energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4)
+               write (3000, *) iroot, 't-energy(1-4)', &
+                   energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-          write(*,*)iroot, 't-energy', &
-          eigen(iroot)-ecore
+               write (3000, *) iroot, 't-energy', &
+                   eigen(iroot) - ecore
 
-          write(*,*)'C the error ', &
-          eigen(iroot)-ecore &
-          -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
+               write (3000, *) 'C the error ', &
+                   eigen(iroot) - ecore &
+                   - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 !         else
 !            write(*,*)'C the error ', &
@@ -585,9 +575,7 @@
 !            -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
 !         end if
 
-
-      endif
-
+           end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -597,15 +585,11 @@
 
 !         write(*,*)'energy HF1 =',energyHF(1)
 !         write(*,*)'energy HF2 =',energyHF(2)
-         write(*,*)'energy HF  =',energyHF(1)+energyHF(2)+ecore
-
-
-
-
- 1000 continue 
-      deallocate(energy) ; Call memminus(KIND(energy),SIZE(energy),1)
-      write(*,*)'e0test end'
-      End subroutine e0test_v2
-
-
-
+           write (3000, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+       end if
+1000   continue
+       deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
+       if (rank == 0) then
+           write (3000, *) 'e0test end'
+       end if
+   End subroutine e0test_v2

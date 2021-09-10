@@ -21,11 +21,14 @@
 
        mat = 0.0d+00
 
-       write (*, *) 'Cas mat enter'
-
+       if (rank == 0) then
+           write (3000, *) 'Cas mat enter'
+       end if
        Allocate (oc(nelec))
        Allocate (vi(nact - nelec))
-       write (*, *) 'allocated oc and vi', rank
+       if (rank == 0) then
+           write (3000, *) 'allocated oc and vi', rank
+       end if
        Do i = 1, ndet
 
            occ = 0
@@ -251,8 +254,10 @@
 
        Deallocate (oc)
        Deallocate (vi)
-       write (*, '(A,I4)') 'end casmat', rank
-       write (*, '(A,I4)') 'Reduce mat(:,:)', rank
+       if (rank == 0) then
+           write (3000, '(A,I4)') 'end casmat', rank
+           write (3000, '(A,I4)') 'Reduce mat(:,:)', rank
+       end if
        call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 1000 end subroutine
 
