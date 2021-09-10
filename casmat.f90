@@ -7,7 +7,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        complex*16, intent(out) :: mat(ndet, ndet)
 
        integer              :: occ, vir, indr, inds, inda, indb
@@ -52,7 +52,7 @@
            !   diagonal term is same as Hartree-Fock's expression
 
            cmplxint = 0.0d+00
-
+           if (rank == 0) then
            Do i0 = 1, ninact
                ir = i0
                cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
@@ -65,7 +65,7 @@
                cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
                mat(i, i) = mat(i, i) + cmplxint
            End do
-
+           end if
            mat0 = 0.0d+00
 
            Do i0 = 1, ninact + nelec
@@ -133,10 +133,10 @@
 !                 write(*,*)'j=',j
 
                    If (j > i) then
-
-                       cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
-                       mat(i, j) = mat(i, j) + cmplxint
-
+                       if (rank == 0) then
+                           cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
+                           mat(i, j) = mat(i, j) + cmplxint
+                       end if
                        Do l0 = 1, ninact
                            is = l0
 
@@ -252,6 +252,8 @@
        Deallocate (oc)
        Deallocate (vi)
        write (*, '(A,I4)') 'end casmat', rank
+       write (*, '(A,I4)') 'Reduce mat(:,:)', rank
+       call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 1000 end subroutine
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

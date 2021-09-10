@@ -1,40 +1,40 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE rdiag (sr, dimn, dimm, w, thresd, cutoff)
-                           ! diagonalization of real symmetric matrix
-                           !  and remove linear dependency for any S matrix
+   SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
+       ! diagonalization of real symmetric matrix
+       !  and remove linear dependency for any S matrix
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+       use four_caspt2_module
 
-        Implicit NONE
-     
-        integer, intent(in) :: dimn
-        real*8, intent(in)  :: thresd
-        logical, intent(in) :: cutoff
+       Implicit NONE
 
-        real*8, intent(inout)  :: sr(dimn,dimn)
+       integer, intent(in) :: dimn
+       real*8, intent(in)  :: thresd
+       logical, intent(in) :: cutoff
 
-        integer, intent(out) :: dimm
-        real*8, intent(out)  ::  w(dimn)
+       real*8, intent(inout)  :: sr(dimn, dimn)
 
-        integer :: info,lda, lwork
-        character :: jobz*1, uplo*1
-        real*8, allocatable  ::  work(:)
-        integer :: j0, j, i, i0, i1
-        integer :: k0, l0, ii, jj, kk, ll
+       integer, intent(out) :: dimm
+       real*8, intent(out)  ::  w(dimn)
 
-        w(:) = 0.0d+00
-        jobz = 'V' ! calculate eigenvectors
-        uplo = 'U' ! calculate upper triangle matrix
+       integer :: info, lda, lwork
+       character :: jobz*1, uplo*1
+       real*8, allocatable  ::  work(:)
+       integer :: j0, j, i, i0, i1
+       integer :: k0, l0, ii, jj, kk, ll
+
+       w(:) = 0.0d+00
+       jobz = 'V' ! calculate eigenvectors
+       uplo = 'U' ! calculate upper triangle matrix
 
 !  N       (input) INTEGER
 !          The order of the matrix A.  N >= 0. = indxyz
 !*  LDA     (input) INTEGER
-!*          The leading dimension of the array A.  LDA >= max(1,N). 
+!*          The leading dimension of the array A.  LDA >= max(1,N).
 !*  LWORK   (input) INTEGER
 !*          The length of the array WORK.  LWORK >= max(1,3*N-1).
 !*          For optimal efficiency, LWORK >= (NB+2)*N,
@@ -46,84 +46,77 @@
 !*          message related to LWORK is issued by XERBLA.
 !*
 
-        lda =  max(1,dimn)
-        lwork = max(1,3*dimn-1)
+       lda = max(1, dimn)
+       lwork = max(1, 3*dimn - 1)
 
-        allocate(work(lwork))
+       allocate (work(lwork))
 
+       call dsyev(jobz, uplo, dimn, sr, lda, w, work, lwork, info)
 
-        call dsyev( jobz, uplo, dimn, sr, lda, w, work, lwork, info )
+       deallocate (work)
 
-        deallocate (work)
-
-        if (info/=0) then
-           write(*,*) 'error in diagonalization, info = ', info
+       if (info /= 0) then
+           write (*, *) 'error in diagonalization, info = ', info
            goto 1000
-        end if
+       end if
 
-        if (cutoff) then
+       if (cutoff) then
 
-           write(*,*) 'cut off threshold is ',thresd
-	
+           write (*, *) 'cut off threshold is ', thresd
+
            j0 = 0
            do i0 = 1, dimn
-              if( w(i0) >= thresd ) then
-                 j0 = j0+1
-              end if
+               if (w(i0) >= thresd) then
+                   j0 = j0 + 1
+               end if
            end do
-           
-           dimm = j0
-           
-        else
-           dimm = dimn
-        end if
-            
-         
 
- 1000   continue
+           dimm = j0
+
+       else
+           dimm = dimn
+       end if
+
+1000   continue
    end subroutine rdiag
 
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+   SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
+       ! diagonalization of complex symmetric matrix
+       !  and remove linear dependency for any S matrix
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE cdiag (c, dimn, dimm, w, thresd, cutoff)
-                           ! diagonalization of complex symmetric matrix
-                           !  and remove linear dependency for any S matrix
+       use four_caspt2_module
 
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+       Implicit NONE
 
-   use four_caspt2_module
+       integer, intent(in) :: dimn
+       real*8, intent(in)  :: thresd
+       logical, intent(in) :: cutoff
 
-        Implicit NONE
-     
-        integer, intent(in) :: dimn
-        real*8, intent(in)  :: thresd
-        logical, intent(in) :: cutoff
+       complex*16, intent(inout):: c(dimn, dimn)
 
-        complex*16, intent(inout):: c(dimn,dimn)
+       integer, intent(out) :: dimm
+       real*8, intent(out)  :: w(dimn)
 
-        integer, intent(out) :: dimm
-        real*8, intent(out)  :: w(dimn)
+       integer :: info, lda, lwork
+       character :: jobz*1, uplo*1
 
-        integer :: info,lda, lwork
-        character :: jobz*1, uplo*1
+       complex*16, allocatable  ::  work(:)
+       real*8, allocatable      ::  rwork(:)
+       integer :: j0, j, i, i0, i1
+       integer :: k0, l0, ii, jj, kk, ll
 
-        complex*16, allocatable  ::  work(:)
-        real*8, allocatable      ::  rwork(:)
-        integer :: j0, j, i, i0, i1
-        integer :: k0, l0, ii, jj, kk, ll
+       write (*, *) 'Enter cdiagonal part'
 
-        
-        write(*,*)'Enter cdiagonal part'
-        
-        w(:) = 0.0d+00
+       w(:) = 0.0d+00
 
-        jobz = 'V' ! calculate eigenvectors
-        uplo = 'U' ! calculate upper triangle matrix
-
+       jobz = 'V' ! calculate eigenvectors
+       uplo = 'U' ! calculate upper triangle matrix
 
 !zheev!     .. Scalar Arguments ..
 !zheev!      CHARACTER          JOBZ, UPLO
@@ -175,9 +168,9 @@
 !zheev!*  WORK    (workspace/output) COMPLEX*16 array, dimension (LWORK)
 !zheev!*          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 !zheev!*
-!zheev!*  LWORK   (input) INTEGER                                        ================================= 
+!zheev!*  LWORK   (input) INTEGER                                        =================================
 !zheev!*          The length of the array WORK.  LWORK >= max(1,2*N-1).  !<= 3*N-1 is better like dsyev.f
-!zheev!*          For optimal efficiency, LWORK >= (NB+1)*N,             ================================= 
+!zheev!*          For optimal efficiency, LWORK >= (NB+1)*N,             =================================
 !zheev!*          where NB is the blocksize for ZHETRD returned by ILAENV.
 !zheev!*
 !zheev!*          If LWORK = -1, then a workspace query is assumed; the routine
@@ -198,259 +191,241 @@
 !zheev!*
 !zheev!*
 
+       lda = max(1, dimn)
 
-        lda =  max(1,dimn)
+       lwork = max(1, 3*dimn - 1)
 
-        lwork = max(1,3*dimn-1)
+       allocate (work(lwork))
+       allocate (rwork(3*dimn - 2))
 
-        allocate(work(lwork))
-        allocate(rwork(3*dimn-2))
+       work = 0.0d+00
+       rwork = 0.0d+00
 
-        work = 0.0d+00
-        rwork = 0.0d+00
+       Call ZHEEV(JOBZ, UPLO, dimn, c, LDA, W, WORK, LWORK, RWORK, INFO)
 
+       deallocate (work)
+       deallocate (rwork)
 
-      Call ZHEEV  ( JOBZ, UPLO, dimn,  c, LDA, W, WORK, LWORK, RWORK, INFO )
+       write (*, *) 'Finish zheev info = ', info
 
-        deallocate (work)
-        deallocate (rwork)
-
-        write(*,*)'Finish zheev info = ',info
-
-        if (info/=0) then
-           write(*,*) 'error in diagonalization, info = ', info
+       if (info /= 0) then
+           write (*, *) 'error in diagonalization, info = ', info
            goto 1000
-        end if
+       end if
 
 !        Do i0 = 1, dimn
 !           write(*,'(I4,E20.10)')i0,w(i0)
 !        End do
 
-        if (cutoff) then
+       if (cutoff) then
 
-           write(*,*) 'cut off threshold is ',thresd
-	
+           write (*, *) 'cut off threshold is ', thresd
+
            j0 = 0
            do i0 = 1, dimn
-              if( ABS(w(i0)) >= thresd ) then
-                 j0 = j0+1
-              end if
+               if (ABS(w(i0)) >= thresd) then
+                   j0 = j0 + 1
+               end if
            end do
-           
-           dimm = j0
-           
-        else
-           dimm = dimn
-        end if
-            
-         
 
- 1000   continue
+           dimm = j0
+
+       else
+           dimm = dimn
+       end if
+
+       write (*, '(A,I8)') "end cdiag", rank
+
+1000   continue
    end subroutine cdiag
 
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+   SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE rdiag0(n, n0, n1, fa, w )
+       use four_caspt2_module
+
+       Implicit NONE
+       integer, intent(in)     ::  n, n0, n1
+
+       real*8, intent(out)     ::  fa(n0:n1, n0:n1)
+       real*8, intent(out)     ::  w(n0:n1)
+
+       logical                 ::  test, cutoff
+       integer                 ::  j, i, k, l, dimn, ncount(nsymrp)
+       integer                 ::  ii, jj, sym, isym
+       integer                 ::  nini, nend, ind(n, nsymrp)
+
+       real*8, allocatable     ::  mat(:, :), fasym(:, :)
+       real*8                  ::  wsym(n)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+!  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
+       write (*, *) 'rdiag0 start'
 
-        Implicit NONE
-        integer, intent(in)     ::  n, n0, n1
+       w = 0.0d+00
+       cutoff = .FALSE.
 
-        real*8, intent(out)     ::  fa(n0:n1,n0:n1)
-        real*8, intent(out)     ::  w(n0:n1)
-
-        logical                 ::  test, cutoff
-        integer                 ::  j, i, k, l, dimn, ncount(nsymrp)
-        integer                 ::  ii, jj, sym, isym
-        integer                 ::  nini, nend, ind(n, nsymrp)
-
-        real*8, allocatable     ::  mat(:,:), fasym(:,:)
-        real*8                  ::  wsym(n)
-
-
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
-!  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX 
-        write(*,*)'rdiag0 start'
-
-
-         w = 0.0d+00
-         cutoff = .FALSE.
-
-
-         fa(n0:n1,n0:n1) = 0.0d+00
-
+       fa(n0:n1, n0:n1) = 0.0d+00
 
 !        DAIGONALIZE IN EACH SYMMETRY
 !        FIRST, THE ELEMENTS ARE REORDERED BY SYMMETRIC ORDER
 
-
 ! SET NCOUNT(SYM) : DIMENSION OF EACH SYMMETRY
 
-         ncount = 0
+       ncount = 0
 
-         write(*,*)'nsymrp',nsymrp
+       write (*, *) 'nsymrp', nsymrp
 
-         Do sym = 1, nsymrp
+       Do sym = 1, nsymrp
 
-            Do i = n0, n1
+           Do i = n0, n1
                ii = i
                isym = irpmo(ii)
                if (isym == sym) then
-                  ncount(sym) = ncount(sym) + 1
-                  ind(ncount(sym),sym) = i
+                   ncount(sym) = ncount(sym) + 1
+                   ind(ncount(sym), sym) = i
                End if
-            End do
+           End do
 
-         End do
+       End do
 
-         write(*,*)'sym,ncount(sym)', (ncount(sym),sym= 1, nsymrp)
-                  
-         Do sym = 1, nsymrp
+       write (*, *) 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
 
-            Allocate(fasym( ncount(sym), ncount(sym)))
-            Do j = 1, ncount(sym)
+       Do sym = 1, nsymrp
+
+           Allocate (fasym(ncount(sym), ncount(sym)))
+           Do j = 1, ncount(sym)
                Do i = 1, ncount(sym)
-                  fasym(i, j) = f(ind(i,sym),ind(j,sym))
+                   fasym(i, j) = f(ind(i, sym), ind(j, sym))
                End do
-            End do
+           End do
 
-            dimn = ncount(sym)
+           dimn = ncount(sym)
 
-
-            Call rdiag (fasym, dimn, dimn, wsym, thres, cutoff)
+           Call rdiag(fasym, dimn, dimn, wsym, thres, cutoff)
 !      _________________________________________________________
 
+           Do j = 1, ncount(sym)
 
-            Do j = 1, ncount(sym)
-
-               w(ind(j,sym)) = wsym(j)
+               w(ind(j, sym)) = wsym(j)
 
                Do i = 1, ncount(sym)
-                  fa(ind(i,sym),ind(j,sym)) = fasym(i, j)
+                   fa(ind(i, sym), ind(j, sym)) = fasym(i, j)
                End do
 
-            End do
+           End do
 
-            Deallocate(fasym)
+           Deallocate (fasym)
 
-         End do ! sym
+       End do ! sym
 
+! NOW FA BECOMES TRANSFORM MATRIX   CONJG(Fa) Fbc Fa = W <= diagonal form!
 
-! NOW FA BECOMES TRANSFORM MATRIX   CONJG(Fa) Fbc Fa = W <= diagonal form! 
+       Allocate (mat(n, n))
+       mat = 0.0d+00
 
-         Allocate(mat(n,n))
-         mat = 0.0d+00
+       mat = TRANSPOSE(fa)
+       mat = MATMUL(mat, f)
+       mat = MATMUL(mat, fa)
 
-         mat = TRANSPOSE(fa)
-         mat = MATMUL(mat,f)
-         mat = MATMUL(mat,fa)
+       write (*, *) 'OFF DIAGONAL TERM OF U*FU'
+       do i = 1, n
+       do j = 1, n
+           if ((i /= j) .and. (ABS(mat(i, j)) > 1.0d-10)) then
+               write (*, '(2E13.5,2I3)') mat(i, j), i, j
+           end if
+       end do
+       end do
 
+       write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+       do i = 1, n
+           write (*, '(4E13.5)') mat(i, i), w(i), ABS(mat(i, i) - w(i))
+       end do
+       write (*, '(/)')
 
-         write(*,*) 'OFF DIAGONAL TERM OF U*FU'
-         do i= 1, n
-         do j= 1, n
-            if ((i /= j) .and. (ABS(mat(i,j)) > 1.0d-10)) then
-               write(*,'(2E13.5,2I3)')mat(i,j),i,j
-            endif
-         enddo
-         enddo
-         
-         write(*,*) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
-         do i= 1, n
-               write(*,'(4E13.5)')mat(i,i), w(i), ABS(mat(i,i) - w(i))
-         enddo
-         write(*,'(/)')
+       deallocate (mat)
 
-         deallocate (mat)
-
-      write(*,*)'rdiag0 end'
-      end
-
-
+       write (*, *) 'rdiag0 end'
+   end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE cdiag0(n, n0, n1, fac, wc )
+   SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+       use four_caspt2_module
 
-        Implicit NONE
-        integer, intent(in)     ::  n, n0, n1
+       Implicit NONE
+       integer, intent(in)     ::  n, n0, n1
 
-        complex*16, intent(out) ::  fac(n0:n1,n0:n1)
-        real*8, intent(out)     ::  wc(n0:n1)
+       complex*16, intent(out) ::  fac(n0:n1, n0:n1)
+       real*8, intent(out)     ::  wc(n0:n1)
 
-        logical                 ::  test, cutoff, fi
-        integer                 ::  j, i, k, l, dimn, ncount(nsymrpa)
-        integer                 ::  ii, jj, sym, isym
-        integer                 ::  nini, nend, ind(n, nsymrpa)
+       logical                 ::  test, cutoff, fi
+       integer                 ::  j, i, k, l, dimn, ncount(nsymrpa)
+       integer                 ::  ii, jj, sym, isym
+       integer                 ::  nini, nend, ind(n, nsymrpa)
 
-        complex*16, allocatable ::  matc(:,:), facsym(:,:), facsymo(:,:), itrfmo_sym(:,:,:)
-        real*8,allocatable      ::  wcsym(:)
-
+       complex*16, allocatable ::  matc(:, :), facsym(:, :), facsymo(:, :), itrfmo_sym(:, :, :)
+       real*8, allocatable      ::  wcsym(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-!  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX 
-        write(*,*)'cdiag0 start'
-         write(*,*)'nsymrpa',nsymrpa
+!  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
+       write (*, *) 'cdiag0 start'
+       write (*, *) 'nsymrpa', nsymrpa
 !         nsymrp = nsymrpa
 
-         wc = 0.0d+00
-         cutoff = .FALSE.
-         fi = .FALSE.
+       wc = 0.0d+00
+       cutoff = .FALSE.
+       fi = .FALSE.
 
-         Do i = n0, n1
-            Do j = n0, n1
-               if(ABS(DIMAG(f(i,j))) > 1.0d-10) fi = .TRUE.
-            End do
-         End do
-         write(*,*)'fi',fi
+       Do i = n0, n1
+           Do j = n0, n1
+               if (ABS(DIMAG(f(i, j))) > 1.0d-10) fi = .TRUE.
+           End do
+       End do
+       write (*, *) 'fi', fi
 
-         fac(n0:n1,n0:n1) = 0.0d+00
-
+       fac(n0:n1, n0:n1) = 0.0d+00
 
 !        DAIGONALIZE IN EACH SYMMETRY
 !        FIRST, THE ELEMENTS ARE REORDERED BY SYMMETRIC ORDER
 
-
 ! SET NCOUNT(SYM) : DIMENSION OF EACH SYMMETRY
 
-         ncount = 0
-         ind = 0
+       ncount = 0
+       ind = 0
 
-         Do sym = 1, nsymrpa
+       Do sym = 1, nsymrpa
 
-            Do i = n0, n1
+           Do i = n0, n1
                ii = i
                isym = irpmo(ii)
-               If ((nsymrpa==1).or. &
-                   (nsymrpa/=1.and.(isym == sym))) then
-                  ncount(sym) = ncount(sym) + 1
-                  ind(ncount(sym),sym) = i
+               If ((nsymrpa == 1) .or. &
+                   (nsymrpa /= 1 .and. (isym == sym))) then
+                   ncount(sym) = ncount(sym) + 1
+                   ind(ncount(sym), sym) = i
                End if
-            End do
+           End do
 !            write(*,*)(ind(j,sym),j=1,ncount(sym))
 
-         End do
+       End do
 
 !         write(*,*)'sym,ncount(sym)',(ncount(sym),sym=1,nsymrpa)
-                  
-         Do sym = 1, nsymrpa
+
+       Do sym = 1, nsymrpa
 
 !            Do i = 1, ncount(sym)
 !               Do j = i, ncount(sym)
@@ -461,7 +436,7 @@
 !                  Endif
 !               Enddo
 !            Enddo
-!                     
+!
 !            write(*,'("Difference of absolute values of Fock matrice ")')
 !            Do i = 1, ncount(sym)
 !               Do j = i, ncount(sym)
@@ -472,98 +447,93 @@
 !                  Endif
 !               Enddo
 !            Enddo
-                     
-            Allocate(facsym( ncount(sym), ncount(sym)))
-            facsym = 0.0d+00
 
-            Do j = 1, ncount(sym)
+           Allocate (facsym(ncount(sym), ncount(sym)))
+           facsym = 0.0d+00
+
+           Do j = 1, ncount(sym)
                Do i = j, ncount(sym)
-                  facsym(i, j) = f(ind(i,sym),ind(j,sym))
-                  facsym(j, i) = DCONJG(f(ind(i,sym),ind(j,sym))) ! HERMITE
+                   facsym(i, j) = f(ind(i, sym), ind(j, sym))
+                   facsym(j, i) = DCONJG(f(ind(i, sym), ind(j, sym))) ! HERMITE
                End do
-            End do
+           End do
 
-            dimn = ncount(sym)
+           dimn = ncount(sym)
 
-            Allocate(facsymo( ncount(sym), ncount(sym)))
-            facsymo = facsym
-            Allocate(wcsym( ncount(sym)))
-            wcsym = 0.0d+00
-            cutoff = .FALSE.
+           Allocate (facsymo(ncount(sym), ncount(sym)))
+           facsymo = facsym
+           Allocate (wcsym(ncount(sym)))
+           wcsym = 0.0d+00
+           cutoff = .FALSE.
 
-            Call cdiag (facsym, dimn, dimn, wcsym, thres, cutoff)
+           Call cdiag(facsym, dimn, dimn, wcsym, thres, cutoff)
 !      _________________________________________________________
 
-            facsym = DCONJG(facsym)
-            facsymo = MATMUL(TRANSPOSE(facsym), facsymo)
-            facsym = DCONJG(facsym)
-            facsymo = MATMUL(facsymo, facsym)
+           facsym = DCONJG(facsym)
+           facsymo = MATMUL(TRANSPOSE(facsym), facsymo)
+           facsym = DCONJG(facsym)
+           facsymo = MATMUL(facsymo, facsym)
 
-            Do i = 1, dimn
+           Do i = 1, dimn
                Do j = 1, dimn
-                  If( i/=j .and. ABS(facsymo(i,j)) > 1.0d-10) then
-                     write(*,'("sym=",3I4,2E20.10)') sym, i, j, facsymo(i,j)
-                  End if
+                   If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
+                       write (*, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
+                   End if
                End do
-            End do
-               
-            Do i = 1, dimn
-               If( ABS(facsymo(i,i)-wcsym(i)) > 1.0d-10) then
-                  write(*,'("sym=",2I4,3E20.10)') sym, i, facsymo(i,i),wcsym(i)
+           End do
+
+           Do i = 1, dimn
+               If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
+                   write (*, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
                End if
-            End do
+           End do
 
-            Deallocate(facsymo)
+           Deallocate (facsymo)
 
-            Do j = 1, ncount(sym)
+           Do j = 1, ncount(sym)
 
-               wc(ind(j,sym)) = wcsym(j)
+               wc(ind(j, sym)) = wcsym(j)
 
                Do i = 1, ncount(sym)
-                  fac(ind(i,sym),ind(j,sym)) = facsym(i, j)
+                   fac(ind(i, sym), ind(j, sym)) = facsym(i, j)
                End do
 
-            End do
+           End do
 
-            Deallocate(facsym)
-            Deallocate(wcsym)
+           Deallocate (facsym)
+           Deallocate (wcsym)
 
-         End do ! sym
+       End do ! sym
 
+! NOW FAC BECOMES TRANSFORM MATRIX   CONJG(Fac) Fbc Fac = W <= diagonal form!
 
-! NOW FAC BECOMES TRANSFORM MATRIX   CONJG(Fac) Fbc Fac = W <= diagonal form! 
+       Allocate (matc(n0:n1, n0:n1))
+       matc = 0.0d+00
 
-         Allocate(matc(n0:n1,n0:n1))
-         matc = 0.0d+00
+       fac = DCONJG(fac)
+       matc = TRANSPOSE(fac)
+       matc = MATMUL(matc(n0:n1, n0:n1), f(n0:n1, n0:n1))
+       fac = DCONJG(fac)
+       matc = MATMUL(matc, fac)
 
-         fac  = DCONJG(fac)
-         matc = TRANSPOSE(fac)
-         matc = MATMUL(matc(n0:n1,n0:n1),f(n0:n1,n0:n1))
-         fac  = DCONJG(fac)
-         matc = MATMUL(matc,fac)
+       write (*, *) 'OFF DIAGONAL TERM OF U*FU'
+       do i = n0, n1
+       do j = n0, n1
+           if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
+               write (*, '(2E13.5,2I3)') matc(i, j), i, j
+           end if
+       end do
+       end do
 
+       write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+       do i = n0, n1
+           if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
+               write (*, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
+           End if
+       end do
+       write (*, '(/)')
 
-         write(*,*) 'OFF DIAGONAL TERM OF U*FU'
-         do i= n0, n1
-         do j= n0, n1
-            if ((i /= j) .and. (ABS(matc(i,j)) > 1.0d-10)) then
-               write(*,'(2E13.5,2I3)')matc(i,j),i,j
-            endif
-         enddo
-         enddo
-         
-         write(*,*) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
-         do i= n0, n1
-               if(ABS(matc(i,i) - wc(i)) > 1.0d-10) then
-                  write(*,'(4E13.5)')matc(i,i), wc(i), ABS(matc(i,i) - wc(i))
-               Endif
-         enddo
-         write(*,'(/)')
+       deallocate (matc)
 
-         deallocate (matc)
-
-      write(*,*)'cdiag0 end'
-      end
-
-
-
+       write (*, *) 'cdiag0 end'
+   end

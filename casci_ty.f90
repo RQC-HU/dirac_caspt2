@@ -28,18 +28,18 @@
 
        Call casmat(mat)
        !    call MPI_Reduce(mat)
-       if (rank == 0) then
-           write (*, *) 'before allocate ecas(ndet)'
-           Allocate (ecas(ndet))
-           write (*, *) 'allocate ecas(ndet)'
-           ecas = 0.0d+00
-           thresd = 1.0d-15
-           cutoff = .FALSE.
+       write (*, *) 'before allocate ecas(ndet)'
+       Allocate (ecas(ndet))
+       write (*, *) 'allocate ecas(ndet)'
+       ecas = 0.0d+00
+       thresd = 1.0d-15
+       cutoff = .FALSE.
 
-           Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
+       Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
+       !    if (rank == 0) then
 
 ! Print out CI matrix!
-
+       if (rank == 0) then
            write (*, *) 'debug1'
 
            cimat = 10
@@ -65,25 +65,25 @@
            write (10) ecas(1:ndet)
            write (10) mat(1:ndet, 1:ndet)
            close (10)
-
+       end if
 ! Print out C1 matrix!
 
-           write (*, *) 'debug3'
+       write (*, *) 'debug3'
 
-           Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
-           Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
-           Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
+       Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
+       Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
+       Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
-           eigen(:) = 0.0d+00
-           cir(:, :) = 0.0d+00
-           cii(:, :) = 0.0d+00
+       eigen(:) = 0.0d+00
+       cir(:, :) = 0.0d+00
+       cii(:, :) = 0.0d+00
 
-           eigen(1:nroot) = ecas(1:nroot) + ecore
-           cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
-           cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
+       eigen(1:nroot) = ecas(1:nroot) + ecore
+       cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
+       cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
 
-           Deallocate (ecas)
-
+       Deallocate (ecas)
+       if (rank == 0) then
            write (*, *) 'debug4'
 
            write (*, '("CASCI ENERGY FOR ",I2," STATE")') totsym

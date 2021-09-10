@@ -40,113 +40,113 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
     write (*, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
-    if (rank == 0) then
-        write (*, *) ''
-        write (*, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
-        write (*, *) ''
-
-        tmem = 0.0d+00
-
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
-        val = 0
-        Call DATE_AND_TIME(VALUES=val)
-        Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-
-        totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
-        initdate = val(3)
-        inittime = totalsec
-
-        write (*, *) inittime
-
-        Call timing(val(3), totalsec, date0, tsec)
-!     end if
-        open (5 + rank, file='active.inp', form='formatted', status='old')
-        read (5 + rank, '(I4)') ninact
-        read (5 + rank, '(I4)') nact
-        read (5 + rank, '(I4)') nsec
-        read (5 + rank, '(I4)') nelec
-        read (5 + rank, '(I4)') nroot
-        read (5 + rank, '(I4)') selectroot
-        read (5 + rank, '(I4)') totsym
-        read (5 + rank, '(I4)') ncore
-        read (5 + rank, '(I4)') nbas
-        read (5 + rank, '(E8.2)') eshift
-        read (5 + rank, '(A6)') ptgrp
-        close (5 + rank)
-
-        write (*, *) 'ninact     =', ninact
-        write (*, *) 'nact       =', nact
-        write (*, *) 'nsec       =', nsec
-        write (*, *) 'nelec      =', nelec
-        write (*, *) 'nroot      =', nroot
-        write (*, *) 'selectroot =', selectroot
-        write (*, *) 'totsym     =', totsym
-        write (*, *) 'ncore      =', ncore
-        write (*, *) 'nbas       =', nbas
-        write (*, *) 'eshift     =', eshift
-        write (*, *) 'ptgrp      =', ptgrp
 !     if (rank == 0) then
+    write (*, *) ''
+    write (*, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
+    write (*, *) ''
+
+    tmem = 0.0d+00
+
+    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+
+    val = 0
+    Call DATE_AND_TIME(VALUES=val)
+    Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
+    Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
+
+    totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
+    initdate = val(3)
+    inittime = totalsec
+
+    write (*, *) inittime
+
+    Call timing(val(3), totalsec, date0, tsec)
+!     end if
+    open (5 + rank, file='active.inp', form='formatted', status='old')
+    read (5 + rank, '(I4)') ninact
+    read (5 + rank, '(I4)') nact
+    read (5 + rank, '(I4)') nsec
+    read (5 + rank, '(I4)') nelec
+    read (5 + rank, '(I4)') nroot
+    read (5 + rank, '(I4)') selectroot
+    read (5 + rank, '(I4)') totsym
+    read (5 + rank, '(I4)') ncore
+    read (5 + rank, '(I4)') nbas
+    read (5 + rank, '(E8.2)') eshift
+    read (5 + rank, '(A6)') ptgrp
+    close (5 + rank)
+
+    write (*, *) 'ninact     =', ninact
+    write (*, *) 'nact       =', nact
+    write (*, *) 'nsec       =', nsec
+    write (*, *) 'nelec      =', nelec
+    write (*, *) 'nroot      =', nroot
+    write (*, *) 'selectroot =', selectroot
+    write (*, *) 'totsym     =', totsym
+    write (*, *) 'ncore      =', ncore
+    write (*, *) 'nbas       =', nbas
+    write (*, *) 'eshift     =', eshift
+    write (*, *) 'ptgrp      =', ptgrp
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        filename = 'MRCONEE'
+    filename = 'MRCONEE'
 
-        call readorb_enesym_co(filename)
-        call read1mo_co(filename)
+    call readorb_enesym_co(filename)
+    call read1mo_co(filename)
 
-        write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
+    write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        call get_mdcint_filename
+    call get_mdcint_filename
 
-        !Iwamuro create new ikr for dirac
-        Call create_newmdcint
-        write (*, *) 'Before readint2_casci_co', rank
-        ! if (rank == 0) then
-        filename = 'MDCINTNEW'
+    !Iwamuro create new ikr for dirac
+    Call create_newmdcint
+    write (*, *) 'Before readint2_casci_co', rank
+    ! if (rank == 0) then
+    filename = 'MDCINTNEW'
 
-        ! Call readint2_casci_co(filename, nuniq)
-        Call readint2_casci_co(mdcintnew, nuniq)
+    ! Call readint2_casci_co(filename, nuniq)
+    Call readint2_casci_co(mdcintnew, nuniq)
 
 !        Allocate(sp(1:nmo)) ;  Call memplus(KIND(sp),SIZE(sp),1)
 !        sp( 1               : ninact           )    = 1
 !        sp( ninact+1        : ninact+nact      )    = 2
 !        sp( ninact+nact+1   : ninact+nact+nsec )    = 3
 !        sp( ninact+nact+nsec: nmo              )    = 4
-        write (*, *) 'nmo        =', nmo
+    write (*, *) 'nmo        =', nmo
 
-        nmo = ninact + nact + nsec
+    nmo = ninact + nact + nsec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        write (*, *) "iwamuro modify"
+    write (*, *) "iwamuro modify"
 
-        If (mod(nelec, 2) == 0) then
-            inisym = nsymrp + 1
-            endsym = 2*nsymrp
-        Else
-            inisym = 1
-            endsym = nsymrp
-        End if
+    If (mod(nelec, 2) == 0) then
+        inisym = nsymrp + 1
+        endsym = 2*nsymrp
+    Else
+        inisym = 1
+        endsym = nsymrp
+    End if
 
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
 !   Do totsym = inisym, inisym
 !   Do totsym = inisym, endsym
 
 !      totsym = 4
 
-        write (*, *) ' '
-        write (*, *) '*******************************'
-        write (*, *) ' '
-        write (*, *) 'IREP IS ', repna(totsym)
-        write (*, *) ' '
-        write (*, *) '*******************************'
-        write (*, *) ' '
+    write (*, *) ' '
+    write (*, *) '*******************************'
+    write (*, *) ' '
+    write (*, *) 'IREP IS ', repna(totsym)
+    write (*, *) ' '
+    write (*, *) '*******************************'
+    write (*, *) ' '
 
-        realcvec = .TRUE.
+    realcvec = .TRUE.
 
-        Call casci_ty(totsym)
+    Call casci_ty(totsym)
+    if (rank == 0) then
 
 !      goto 1000
 

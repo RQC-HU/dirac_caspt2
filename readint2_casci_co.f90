@@ -41,7 +41,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     nmoc = ninact + nact
     nmom = ninact + nact + nsec
-
+    write(*,'(A,I8)') "Enter readint2_casci_co",rank
     Allocate (int2rs(0:nmoc**4)); Call memplus(KIND(int2rs), SIZE(int2rs), 1)
     Allocate (int2is(0:nmoc**4)); Call memplus(KIND(int2is), SIZE(int2is), 1)
 
