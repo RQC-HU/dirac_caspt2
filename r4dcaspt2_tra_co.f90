@@ -39,22 +39,26 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
 
-    write (*, *) ''
-    write (*, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
-    write (*, *) ''
+    if (rank == 0) then ! Process limits for output
+        write (*, *) ''
+        write (*, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
+        write (*, *) ''
+    end if
     tmem = 0.0d+00
 
     val = 0
     Call DATE_AND_TIME(VALUES=val)
-    Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-    Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-
+    if (rank == 0) then ! Process limits for output
+        Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
+        Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
+    end if
     totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
     initdate = val(3)
     inittime = totalsec
 
-    write (*, *) inittime
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) inittime
+    end if
     Call timing(val(3), totalsec, date0, tsec)
 
     eshift = 0.0d+00
@@ -112,11 +116,10 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, *) ' ENTER READ MDCINT'
     end if
     filename = 'MDCINTNEW'
-    
+
     ! Get MDCINTNEWX's filename and subspace filename
     call get_mdcint_filename
     call get_subspace_filename
-
 
     Call readint2_ord_co(mdcintnew)
 
@@ -407,4 +410,3 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 1000 continue
 END program r4dcaspt2_tra_co
-
