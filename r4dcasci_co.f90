@@ -242,11 +242,12 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !            write(*,*)i0*2-1,i0*2,eps(i0*2-1),eps(i0*2)
 !         Endif
 !      Enddo
-
-    open (5, file='EPS', form='unformatted', status='unknown')
-    write (5) nmo
-    write (5) eps(1:nmo)
-    close (5)
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        open (5, file='EPS', form='unformatted', status='unknown')
+        write (5) nmo
+        write (5) eps(1:nmo)
+        close (5)
+    end if
     ! end if
     deallocate (sp); Call memplus(KIND(sp), SIZE(sp), 1)
     deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)

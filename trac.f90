@@ -329,11 +329,12 @@
        ci = MATMUL(ds, ci)
        cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
        cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
-
-       open (5, file='NEWCICOEFF', status='unknown', form='unformatted')
-       write (5) ci(1:ndet)
+       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+           open (5, file='NEWCICOEFF', status='unknown', form='unformatted')
+           write (5) ci(1:ndet)
 !        write(*,'("ci",2E20.10)') ci(1:ndet)
-       close (5)
+           close (5)
+       end if
 
        Deallocate (ci)
 

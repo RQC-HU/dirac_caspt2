@@ -132,7 +132,7 @@
 !
 !         Enddo
 !         Enddo
-       if (rank == 0) then
+       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
            open (5, file='TRANSFOCK', status='unknown', form='unformatted')
            write (5) nmo
            write (5) f(1:nmo, 1:nmo)

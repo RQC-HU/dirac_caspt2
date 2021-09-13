@@ -42,9 +42,8 @@
        !    if (rank == 0) then
 
 ! Print out CI matrix!
-       if (rank == 0) then ! Process limits for output
+       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
            write (3000, *) 'debug1'
-
            cimat = 10
            filename = 'CIMAT'
            open (10, file='CIMAT', status='unknown', form='unformatted')

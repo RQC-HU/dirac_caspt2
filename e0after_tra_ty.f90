@@ -30,9 +30,9 @@
        debug = .FALSE.
        thres = 1.0d-15
 !        thres = 0.0d+00
-
-       open (5, file='e0after', status='unknown', form='unformatted')
-
+       if (rank == 0) then
+           open (5, file='e0after', status='unknown', form='unformatted')
+       end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
        write (*, *) 'iroot = ', iroot
@@ -241,7 +241,7 @@
                            dens = CMPLX(dr, di, 16)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                           if (iroot == 1) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens)
+                           if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
 
                            energy(iroot, 4) = energy(iroot, 4) &
                                               + (0.5d+00)*dens*cmplxint
@@ -318,9 +318,9 @@
        write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
 
 !!###   end do ! about type
-
-       close (5)
-
+       if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+           close (5)
+       end if
 1000   continue
        deallocate (energy)
        write (*, *) 'e0aftertra end'
@@ -337,6 +337,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include "mpif.h"
 
        integer :: ii, jj, kk, ll, typetype
        integer :: j0, j, i, k, l, i0, i1, nuniq
@@ -356,9 +357,9 @@
        debug = .FALSE.
        thres = 1.0d-15
 !        thres = 0.0d+00
-
-       open (5, file='e0after', status='unknown', form='unformatted')
-
+       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+           open (5, file='e0after', status='unknown', form='unformatted')
+       end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
        if (rank == 0) then
@@ -436,7 +437,8 @@
        end do
 
        energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
-
+       call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        if (rank == 0) then
            write (3000, *) 'energyHF(2)', energyHF(2)
        end if
@@ -594,7 +596,7 @@
                            dens = CMPLX(dr, di, 16)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                           if (iroot == 1) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens)
+                           if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
 
                            energy(iroot, 4) = energy(iroot, 4) &
                                               + (0.5d+00)*dens*cmplxint
@@ -638,6 +640,10 @@
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then
            write (3000, *) 'energy 1 =', energy(iroot, 1)
@@ -676,9 +682,9 @@
            write (3000, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
        end if
 !!###   end do ! about type
-
-       close (5)
-
+       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+           close (5)
+       end if
 1000   continue
        deallocate (energy)
 !      write(*,*)'e0aftertrac end'
