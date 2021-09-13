@@ -21,7 +21,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'fockdiag start'
        end if
        REALF = .TRUE.
@@ -67,7 +67,7 @@
            n1 = nspace(2, i0)
            n = nspace(3, i0)
 
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                if (i0 == 1) write (3000, *) 'FOR INACTIVE-INACTIVE ROTATION !'
                if (i0 == 2) write (3000, *) 'FOR ACTIVE-ACTIVE ROTATION !'
                if (i0 == 3) write (3000, *) 'FOR SECONDARY-SECONDARY ROTATION !'
@@ -78,7 +78,7 @@
 
                write (5) n0, n1, n
                write (5) fa(n0:n1, n0:n1)
-               if (rank == 0) then
+               if (rank == 0) then ! Process limits for output
                    write (3000, *) n0, n1, n
 
                    write (3000, *) 'fa '
@@ -132,18 +132,19 @@
 !
 !         Enddo
 !         Enddo
-
-       open (5, file='TRANSFOCK', status='unknown', form='unformatted')
-       write (5) nmo
-       write (5) f(1:nmo, 1:nmo)
-       close (5)
+       if (rank == 0) then
+           open (5, file='TRANSFOCK', status='unknown', form='unformatted')
+           write (5) nmo
+           write (5) f(1:nmo, 1:nmo)
+           close (5)
+       end if
 
        goto 1000
-10     if (rank == 0) then
+10     if (rank == 0) then ! Process limits for output
            write (3000, *) 'reading err in orbcoeff'
        end if
 1000   continue
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (3000, *) 'fockdiag end'
        end if
    end subroutine fockdiag_ty

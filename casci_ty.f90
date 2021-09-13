@@ -24,11 +24,9 @@
            write (3000, *) 'ndet', ndet
        end if
        Call casdet_ty(totsym)
-       ! ndet : 配置の数(n determinant)
        Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
 
        Call casmat(mat)
-       !    call MPI_Reduce(mat)
        if (rank == 0) then ! Process limits for output
            write (3000, *) 'before allocate ecas(ndet)'
        end if

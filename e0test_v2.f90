@@ -9,6 +9,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
        integer :: ii, jj, kk, ll, typetype
        integer :: j0, j, i, k, l, i0, i1, nuniq
        integer :: k0, l0, nint
@@ -23,10 +24,12 @@
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
+       if (rank == 0) then
+           write (3000, *) "enter e0test"
+       end if
        Allocate (energy(nroot, 4)); Call memplus(KIND(energy), SIZE(energy), 1)
-       energy(1:nroot, 1:4) = 0.0d+00
-
+    !    energy(1:nroot, 1:4) = 0.0d+00
+       energy = 0.0d+00
        debug = .TRUE.
 
        if (realc) then
@@ -44,10 +47,15 @@
 
            do i = 1, ninact
                ii = i
-               energy(iroot, 1) = energy(iroot, 1) + oner(ii, ii)
+                !! Adding one-electron integral to the fock matrics is executed only by the master process
+                !! because DIRAC's one-electron integral file (MRCONEE) is not
+                !! devided even if DIRAC is executed in parallel (MPI).
+               if (rank == 0) then
+                   energy(iroot, 1) = energy(iroot, 1) + oner(ii, ii)
+               end if
            end do
 
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                write (3000, *) 'energy 1 =', energy(iroot, 1)
            end if
 
@@ -92,8 +100,9 @@
 
                end do
            end do
+           call MPI_Reduce(energy(iroot, 2), energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                write (3000, *) 'energy 2 =', energy(iroot, 2)
            end if
 
@@ -143,17 +152,22 @@
 
                    if (realcvec) then
                        Call dim1_density_R(ii, jj, dr)
-                       energy(iroot, 3) = energy(iroot, 3) &
-                                          + (oner(ii, jj) + oneeff)*dr
+                       if (rank == 0) then
+                           energy(iroot, 3) = energy(iroot, 3) &
+                                              + (oner(ii, jj) + oneeff)*dr
+                       end if
                    else
                        Call dim1_density(ii, jj, dr, di)
-                       energy(iroot, 3) = energy(iroot, 3) &
-                                          + (oner(ii, jj) + oneeff)*DCMPLX(dr, di)
+                       if (rank == 0) then
+                           energy(iroot, 3) = energy(iroot, 3) &
+                                              + (oner(ii, jj) + oneeff)*DCMPLX(dr, di)
+                       end if
                    end if
                end do
            end do
+           call MPI_Reduce(energy(iroot, 3), energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                write (3000, *) 'energy 3 =', energy(iroot, 3)
            end if
 
@@ -220,8 +234,9 @@
                    end do    ! kk
                end do       ! jj
            end do          ! ii
+           call MPI_Reduce(energy(iroot, 4), energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                write (3000, *) 'energy 4 =', energy(iroot, 4)
 
                write (3000, *) iroot, 't-energy(1-4)', &
@@ -249,7 +264,12 @@
            ii = 0
            do i = 1, ninact + nelec
                cmplxint = 0.0d+00
-               cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+                !! Adding one-electron integral to the fock matrics is executed only by the master process
+                !! because DIRAC's one-electron integral file (MRCONEE) is not
+                !! devided even if DIRAC is executed in parallel (MPI).
+               if (rank == 0) then
+                   cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+               end if
 !            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
                energyHF(1) = energyHF(1) + cmplxint
            end do
@@ -322,7 +342,9 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
            do i = 1, ninact
-               cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+                if (rank == 0) then
+                    cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+                end if
                energy(iroot, 1) = energy(iroot, 1) + cmplxint
            end do
 
@@ -414,9 +436,9 @@
                        oneeff = oneeff - cmplxint
 
 300                end do           ! kk
-
-                   cmplxint = CMPLX(oner(i, j), onei(i, j), 16)
-
+                   if (rank == 0) then
+                       cmplxint = CMPLX(oner(i, j), onei(i, j), 16)
+                   end if
                    oneeff = oneeff + cmplxint
 
                    if (i == j) oneeff = oneeff*(0.5d+00)
@@ -552,8 +574,16 @@
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
+              call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+              call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+              call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+              call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+              call MPI_Allreduce (MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+              call MPI_Allreduce (MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+              
+        !    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 4, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                write (3000, *) 'energy 1 =', energy(iroot, 1)
                write (3000, *) 'energy 2 =', energy(iroot, 2)
                write (3000, *) 'energy 3 =', energy(iroot, 3)

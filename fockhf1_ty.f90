@@ -9,6 +9,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
        integer :: ii, jj, kk, ll
        integer :: j, i, k, l
        integer :: nint, n
@@ -79,6 +80,7 @@
 
            End do       ! j
        End do          ! i
+       call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then ! Process limits for output
            write (3000, *) ' '

@@ -7,7 +7,7 @@ MODULE four_caspt2_module
     Implicit NONE
 
     real*8       :: thres, tmem
-    integer      :: norb, ndet, nelec, nroot, iroot, selectroot
+    integer      :: norb, ndet, nelec, nroot, iroot, selectroot ! ndet: the number of determinant
     integer      :: ninact, nact, nsec ! ninact: the number of inactive spinors, nact: active, nsec: secondary
     integer      :: ncore, nbas
     character    :: date*8, time*10, ptgrp*6
@@ -35,8 +35,8 @@ MODULE four_caspt2_module
 !   character :: repn(50)*14, repna(50)*4, repn_ty(50)*6
 !   integer, allocatable :: irpmo(:), irpamo(:), indmo(:), indmor(:)
     integer, allocatable :: irpmo(:), irpamo(:)
-    integer, allocatable :: indmo(:), indmor(:)
-    real*8, allocatable  :: oner(:, :), onei(:, :)
+    integer, allocatable :: indmo(:), indmor(:) ! index of MO
+    real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
     real*8, allocatable  :: orbmo(:), orb(:)
     real*8, allocatable  :: orbmocas(:), orbcas(:)
 

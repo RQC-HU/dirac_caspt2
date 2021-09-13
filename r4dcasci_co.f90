@@ -233,9 +233,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     Call fockdiag_ty
 
     if (rank == 0) then ! Process limits for output
-    Do i0 = 1, nmo
-        write (3000, *) 'eps(', i0, ')=', eps(i0)
-    End do
+        Do i0 = 1, nmo
+            write (3000, *) 'eps(', i0, ')=', eps(i0)
+        End do
     end if
 !      Do i0 = 1, nmo/2
 !         if(ABS(eps(i0*2)-eps(i0*2-1)) > 1.0d-10) then
