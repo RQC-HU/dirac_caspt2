@@ -7,7 +7,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        character*50, intent(in) :: filename
 
        character  :: datex*10, timex*8
@@ -23,10 +23,19 @@
 
        real*8, allocatable :: rklr(:), rkli(:)
 
-       logical :: breit
+       logical  :: breit
 
+       !   Unit numbers for subspace files
+       INTEGER  :: unit_a1, unit_a2, unit_b, unit_c1, unit_c2, unit_c3, &
+                   unit_d1, unit_d2, unit_d3, unit_e, unit_f, unit_g, unit_h
 !Iwamuro modify
 !        integer :: ikr, jkr, kkr, lkr
+       !  Initialization of Unit numbers for subspace files
+       unit_a1 = rank + 100; unit_a2 = rank + 200; unit_b = rank + 300
+       unit_c1 = rank + 400; unit_c2 = rank + 500; unit_c3 = rank + 600
+       unit_d1 = rank + 700; unit_d2 = rank + 800; unit_d3 = rank + 900
+       unit_e = rank + 1000; unit_f = rank + 1100; unit_g = rank + 1200; unit_h = rank + 1300
+
        Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
        kr(:) = 0
 
@@ -35,6 +44,7 @@
        Allocate (rklr((nmo/2)**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
        Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
        if (rank == 0) then ! Process limits for output
+           write (*, *) "enter readint2_ord_co"
            write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
        end if
        indk(:) = 0
@@ -44,19 +54,19 @@
 
        totalint = 0
 
-       open (rank + 100, file=a1int, form='unformatted', status='unknown')
-       open (rank + 200, file=a2int, form='unformatted', status='unknown')
-       open (rank + 300, file=bint, form='unformatted', status='unknown')
-       open (rank + 400, file=c1int, form='unformatted', status='unknown')
-       open (rank + 500, file=c2int, form='unformatted', status='unknown')
-       open (rank + 600, file=c3int, form='unformatted', status='unknown')
-       open (rank + 700, file=d1int, form='unformatted', status='unknown')
-       open (rank + 800, file=d2int, form='unformatted', status='unknown')
-       open (rank + 900, file=d3int, form='unformatted', status='unknown')
-       open (rank + 1000, file=eint, form='unformatted', status='unknown')
-       open (rank + 1100, file=fint, form='unformatted', status='unknown')
-       open (rank + 1200, file=gint, form='unformatted', status='unknown')
-       open (rank + 1300, file=hint, form='unformatted', status='unknown')
+       open (unit_a1, file=a1int, form='unformatted', status='unknown')
+       open (unit_a2, file=a2int, form='unformatted', status='unknown')
+       open (unit_b, file=bint, form='unformatted', status='unknown')
+       open (unit_c1, file=c1int, form='unformatted', status='unknown')
+       open (unit_c2, file=c2int, form='unformatted', status='unknown')
+       open (unit_c3, file=c3int, form='unformatted', status='unknown')
+       open (unit_d1, file=d1int, form='unformatted', status='unknown')
+       open (unit_d2, file=d2int, form='unformatted', status='unknown')
+       open (unit_d3, file=d3int, form='unformatted', status='unknown')
+       open (unit_e, file=eint, form='unformatted', status='unknown')
+       open (unit_f, file=fint, form='unformatted', status='unknown')
+       open (unit_g, file=gint, form='unformatted', status='unknown')
+       open (unit_h, file=hint, form='unformatted', status='unknown')
 
        !    open (11, file='A1int', form='unformatted', status='unknown')
        !    open (12, file='A2int', form='unformatted', status='unknown')
@@ -72,17 +82,19 @@
        !    open (7, file='Gint', form='unformatted', status='unknown')
        !    open (8, file='Hint', form='unformatted', status='unknown')
 
-       mdcint = 15
+       mdcint = 1500
+       !    mdcint = 15
 
-       open (mdcint, file=trim(filename), form='unformatted', status='old', err=10)
+       open (mdcint + rank, file=trim(filename), form='unformatted', status='old', err=10)
 
-       Read (mdcint, err=20, end=30) datex, timex, nkr, &
+       Read (mdcint + rank, err=20, end=30) datex, timex, nkr, &
            (kr(i0), kr(-1*i0), i0=1, nkr)
 
-       write (*, *) datex, timex
-       write (*, *) 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
-
-60     read (mdcint, ERR=40, END=50) i, j, nz, &
+       if (rank == 0) then ! Process limits for output
+           write (*, *) datex, timex
+           write (*, *) 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
+       end if
+60     read (mdcint + rank, ERR=40, END=50) i, j, nz, &
            (indk(inz), indl(inz), inz=1, nz), &
            (rklr(inz), rkli(inz), inz=1, nz)
 !                  write(*,'(3I4)')i,j,nz
@@ -129,12 +141,12 @@
 
                if (k > l) then ! (22|21) => (21|22)
 
-                   write (11) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_a1) k, l, i, j, rklr(inz), rkli(inz)
 !                           write(*,'("A1int1",4I4,2E20.10)')k  ,l  ,i  ,j  ,  rklr(inz),         rkli(inz)
 
                else    ! (22|12) => (22|21)* => (21|22)*
 
-                   write (11) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
+                   write (unit_a1) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
 !                           write(*,'("A1int2",4I4,2E20.10)')l  ,k  ,j  ,i  ,  rklr(inz), -1.0d+00*rkli(inz)
                end if
 
@@ -144,12 +156,12 @@
 
                if (i > j) then ! (21|22) => (21|22)
 
-                   write (11) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_a1) i, j, k, l, rklr(inz), rkli(inz)
 !                           write(*,'("A1int3",4I4,2E20.10)')i  ,j  ,k  ,l  ,  rklr(inz),         rkli(inz)
 
                else    ! (12|22) => (21|22)*
 
-                   write (11) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
+                   write (unit_a1) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
 !                           write(*,'("A1int4",4I4,2E20.10)')j  ,i  ,l  ,k  ,  rklr(inz),-1.0d+00*rkli(inz)
 
                end if
@@ -159,12 +171,12 @@
 
                if (i > j) then ! (21|11) => (21|11)
 
-                   write (12) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_a2) i, j, k, l, rklr(inz), rkli(inz)
 !                           write(*,'("A2int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                else    ! (12|11) => (21|11)* => (21|11)*
 
-                   write (12) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
+                   write (unit_a2) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
 !                           write(*,'("A2int2",4I4,2E20.10)')j  ,i  ,l  ,k  ,         rklr(inz), -1.0d+00*rkli(inz)
                end if
 
@@ -173,12 +185,12 @@
 
                if (k > l) then   ! (11|21) => (21|11)
 
-                   write (12) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_a2) k, l, i, j, rklr(inz), rkli(inz)
 !                           write(*,'("A2int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 
                else    ! (11|12) => (11|21)* => (21|11)*
 
-                   write (12) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
+                   write (unit_a2) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
 !                           write(*,'("A2int4",4I4,2E20.10)')l  ,k  ,j  ,i  ,         rklr(inz), -1.0d+00*rkli(inz)
 
                end if
@@ -191,19 +203,19 @@
 
                if (i > j .and. k > l) then   ! (21|21) => (21|21)
 
-                   write (2) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_b) i, j, k, l, rklr(inz), rkli(inz)
 
                elseif (i < j .and. k > l) then ! (12|21) => (21|21)
 
-                   write (2) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_b) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (21|12) => (21|21)
 
-                   write (2) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_b) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (12|12) => (21|21)*
 
-                   write (2) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_b) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                end if
 
@@ -215,13 +227,13 @@
 
                if (i > j) then ! (32|22)=>(32|22)
 
-                   write (31) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_c1) i, j, k, l, rklr(inz), rkli(inz)
 !Iwamuro modify
 !                           write(*,'("C1int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                else    ! (23|22)=>(32|22)
 
-                   write (31) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_c1) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 !Iwamuro modify
 !                           write(*,'("C1int2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
                end if
@@ -230,12 +242,12 @@
 
                if (k > l) then ! (22|32)=>(32|22)
 
-                   write (31) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_c1) k, l, i, j, rklr(inz), rkli(inz)
 !Iwamuro modify
 !                           write(*,'("C1int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
                else    ! (22|23)=>(32|22)
 
-                   write (31) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_c1) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 !Iwamuro modify
 !                          write(*,'("C1int4",4I4,2E20.10)')ltr,ktr,i  ,j  ,  SignKL*rklr(inz),  SignKL*rkli(inz)
                end if
@@ -248,11 +260,11 @@
 
                if (i > j) then ! (32|11)=>(32|11)
 
-                   write (32) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_c2) i, j, k, l, rklr(inz), rkli(inz)
 
                else    ! (23|11)=>(32|11)
 
-                   write (32) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_c2) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                end if
 
@@ -260,11 +272,11 @@
 
                if (k > l) then ! (11|32)=>(32|11)
 
-                   write (32) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_c2) k, l, i, j, rklr(inz), rkli(inz)
 
                else    ! (11|23)=>(32|11)
 
-                   write (32) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_c2) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 
                end if
 
@@ -275,40 +287,40 @@
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then ! (31|21)=>(31|12)
 
                if (i > j .and. l > k) then ! (31|12)=>(31|21) For E
-                   write (5) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (33) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_e) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_c3) i, j, k, l, rklr(inz), rkli(inz)
 
                elseif (j > i .and. l > k) then ! (13|12)=>(31|21) For E
-                   write (5) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (33) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_e) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_c3) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                elseif (i > j .and. k > l) then ! (31|21)=>(31|21) For E
-                   write (5) i, j, k, l, rklr(inz), rkli(inz)
-                   write (33) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_e) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_c3) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
 
                elseif (i < j .and. k > l) then ! (13|21)=>(31|21) For E
-                   write (5) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (33) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_e) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_c3) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                end if
 
            elseif (max1 == 2 .and. min1 == 1 .and. max2 == 3 .and. min2 == 1) then ! (21|31)=>(31|12)
 
                if (i > j .and. l > k) then ! (21|13)=>(31|21) For E
-                   write (5) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (33) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_e) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_c3) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                elseif (j > i .and. l > k) then ! (12|13)=>(31|21) For E
-                   write (5) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (33) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_e) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_c3) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 
                elseif (i > j .and. k > l) then ! (21|31)=>(31|21) For E
-                   write (5) k, l, i, j, rklr(inz), rkli(inz)
-                   write (33) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_e) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_c3) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                elseif (i < j .and. k > l) then ! (12|31)=>(31|21) For E
-                   write (5) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (33) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_e) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_c3) k, l, i, j, rklr(inz), rkli(inz)
 
                end if
 
@@ -320,11 +332,11 @@
 
                if (i > j) then ! (31|22)=>(31|22)
 
-                   write (4) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_d1) i, j, k, l, rklr(inz), rkli(inz)
 
                else    ! (13|22)=>(31|22)
 
-                   write (4) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_d1) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                end if
 
@@ -332,11 +344,11 @@
 
                if (k > l) then ! (22|31)=>(31|22)
 
-                   write (4) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_d1) k, l, i, j, rklr(inz), rkli(inz)
 
                else    ! (22|13)=>(31|22)
 
-                   write (4) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_d1) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 
                end if
 
@@ -348,19 +360,19 @@
 
                if (i > j .and. k > l) then ! (32|21)=>(32|21)
 
-                   write (41) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_d2) i, j, k, l, rklr(inz), rkli(inz)
 
                elseif (i < j .and. k > l) then ! (23|21)=>(32|21)
 
-                   write (41) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_d2) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (32|12)=>(32|21)
 
-                   write (41) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_d2) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (23|12)=>(32|21)
 
-                   write (41) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_d2) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                end if
 
@@ -368,19 +380,19 @@
 
                if (i > j .and. k > l) then ! (21|32)=>(32|21)
 
-                   write (41) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_d2) k, l, i, j, rklr(inz), rkli(inz)
 
                elseif (i < j .and. k > l) then ! (12|32)=>(32|21)
 
-                   write (41) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_d2) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (21|23)=>(32|21)
 
-                   write (41) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_d2) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (12|23)=>(32|21)
 
-                   write (41) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_d2) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                end if
 
@@ -392,11 +404,11 @@
 
                if (i > j) then ! (ai|jk) (31|11)=>(31|11)
 
-                   write (42) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_d3) i, j, k, l, rklr(inz), rkli(inz)
 
                else    ! (i~a~|kk) (13|11)=>(31|11)
 
-                   write (42) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_d3) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                end if
 
@@ -404,11 +416,11 @@
 
                if (k > l) then ! (jk|ai) (31|11)=>(31|11)
 
-                   write (42) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_d3) k, l, i, j, rklr(inz), rkli(inz)
 
                else  ! (jk|i~a~)=>( ai|kk) (11|13)=>(31|11)
 
-                   write (42) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_d3) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 
                end if
 
@@ -420,19 +432,19 @@
 
                if (i > j .and. k > l) then   ! (32|32) => (32|32)
 
-                   write (9) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_f) i, j, k, l, rklr(inz), rkli(inz)
 
                elseif (i < j .and. k > l) then ! (23|32) => (32|32)
 
-                   write (9) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_f) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (32|23) => (32|32)
 
-                   write (9) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_f) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (23|23) => (32|32)
 
-                   write (9) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_f) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                end if
 
@@ -443,19 +455,19 @@
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 3 .and. min2 == 2) then ! (31|32)=>(31|32)
 
                if (i > j .and. l > k) then ! (31|23)=>(31|32)
-                   write (7) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_g) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
 !                           write(*,'("Gint1",4I4,2E20.10)')i  ,j  ,ltr,ktr,   SignKL*rklr(inz),  SignKL*rkli(inz)
 
                elseif (j > i .and. l > k) then ! (13|23)=>(31|32)
-                   write (7) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_g) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 !                           write(*,'("Gint2",4I4,2E20.10)')jtr,itr,ltr,ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                elseif (i > j .and. k > l) then ! (31|32)=>(31|32)
-                   write (7) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_g) i, j, k, l, rklr(inz), rkli(inz)
 !                           write(*,'("Gint3",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (13|32)=>(31|32)
-                   write (7) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_g) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 !                           write(*,'("Gint4",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz), SignIJ*rkli(inz)
 
                end if
@@ -463,19 +475,19 @@
            elseif (max1 == 3 .and. min1 == 2 .and. max2 == 3 .and. min2 == 1) then ! (32|31)=>(31|32)
 
                if (i > j .and. l > k) then ! (32|13)=>(31|32)
-                   write (7) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_g) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
 !                           write(*,'("Gint5",4I4,2E20.10)')ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
 
                elseif (j > i .and. l > k) then ! (23|13)=>(31|32)
-                   write (7) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (*, '("Gint6",4I4,2E20.10)') ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_g) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   !    write (*, '("Gint6",4I4,2E20.10)') ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                elseif (i > j .and. k > l) then ! (32|31)=>(31|32)
-                   write (7) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_g) k, l, i, j, rklr(inz), rkli(inz)
 !                           write(*,'("Gint7",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (23|31)=>(31|32)
-                   write (7) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_g) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
 !                           write(*,'("Gint8",4I4,2E20.10)')k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
                end if
@@ -488,25 +500,25 @@
 
                if (i > j .and. k > l) then   ! (31|31) => (31|31)
 
-                   write (8) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_h) i, j, k, l, rklr(inz), rkli(inz)
 !                           write(*,'("Hint1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 !                           write(*,*)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (13|31) => (31|31)
 
-                   write (8) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_h) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
 !                           write(*,'("Hint2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 !                           write(*,*)jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (31|13) => (31|31)
 
-                   write (8) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_h) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
 !                           write(*,'("Hint3",4I4,2E20.10)')i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
 !                           write(*,*)i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (13|13) => (31|31)
 
-                   write (8) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                   write (unit_h) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 !                           write(*,'("Hint4",4I4,2E20.10)')jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
 !                           write(*,*)jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
 
@@ -525,15 +537,15 @@
 
        Goto 60
 
-10     write (*, *) 'error for opening mdcint 10'
+10     if (rank == 0) write (*, *) 'error for opening mdcint 10' ! Process limits for output
        go to 100
-20     write (*, *) 'error for reading mdcint 20'
+20     if (rank == 0) write (*, *) 'error for reading mdcint 20' ! Process limits for output
        go to 100
-30     write (*, *) 'end mdcint 30'
+30     if (rank == 0) write (*, *) 'end mdcint 30' ! Process limits for output
        go to 100
-40     write (*, *) 'error for reading mdcint 40'
+40     if (rank == 0) write (*, *) 'error for reading mdcint 40' ! Process limits for output
        go to 100
-50     write (*, *) 'end mdcint 50 normal'
+50     if (rank == 0) write (*, *) 'end mdcint 50 normal' ! Process limits for output
        go to 100
 
 100    continue
@@ -554,23 +566,38 @@
 !         write(7 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
 !         write(8 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
 
-       close (11)
-       close (12)
-       close (2)
-       close (31)
-       close (32)
-       close (33)
-       close (4)
-       close (41)
-       close (42)
-       close (5)
-       close (9)
-       close (7)
-       close (8)
-
+       !    close (11)
+       !    close (12)
+       !    close (2)
+       !    close (31)
+       !    close (32)
+       !    close (33)
+       !    close (4)
+       !    close (41)
+       !    close (42)
+       !    close (5)
+       !    close (9)
+       !    close (7)
+       !    close (8)
+       close (unit_a1)
+       close (unit_a2)
+       close (unit_b)
+       close (unit_c1)
+       close (unit_c2)
+       close (unit_c3)
+       close (unit_d1)
+       close (unit_d2)
+       close (unit_d3)
+       close (unit_e)
+       close (unit_f)
+       close (unit_g)
+       close (unit_h)
        deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
        deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
        deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
        deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
        deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
+       if (rank == 0) then ! Process limits for output
+           write (*, '(A,I4)') "end readint2_ord_co", rank
+       end if
    end subroutine readint2_ord_co
