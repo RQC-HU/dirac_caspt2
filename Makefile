@@ -126,7 +126,7 @@ R4DCASPT2O_CO = four_caspt2_module.o nbitsa.o readvec.o \
 	solvall_G_ord_ty.o \
 	solvall_H_ord_ty.o \
 	uramda_s_half.o \
-	checkdgc.o e0test_v2.o r4dcaspt2_tra_co.o
+	checkdgc.o e0test_v2.o r4dcaspt2_tra_co.o get_filename.o
 
 R4DIVO_CO = four_caspt2_module.o nbitsa.o \
         read1mo_co.o \

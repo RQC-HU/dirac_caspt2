@@ -78,6 +78,9 @@ MODULE four_caspt2_module
     ! ierr:
     integer         :: ierr, nprocs, rank
 
-    ! Run on r4dcasci_co.f90 to get the filenames for each process
+    ! Run on r4dcasci_co.f90 to get the MDCINT filenames for each process
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
+
+    ! Run on r4dcaspt2_tra_co.f90 to get the subspace filenames for each process
+    character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
 end MODULE four_caspt2_module
