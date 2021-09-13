@@ -7,8 +7,8 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
     Implicit NONE
+    include 'mpif.h'
     integer                 :: ii, jj, kk, ll, typetype, i0
     integer                 ::  j, i, k, l, nuniq
     integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
@@ -33,6 +33,11 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
+
+!   MPI initialization and get the number of MPI processes (nprocs) and own process number.
+    call MPI_INIT(ierr)
+    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
 
     write (*, *) ''
     write (*, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
@@ -68,19 +73,19 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     read (5, '(E8.2)') eshift
     read (5, '(A6)') ptgrp
     close (5)
-
-    write (*, *) 'ninact     =', ninact
-    write (*, *) 'nact       =', nact
-    write (*, *) 'nsec       =', nsec
-    write (*, *) 'nelec      =', nelec
-    write (*, *) 'nroot      =', nroot
-    write (*, *) 'selectroot =', selectroot
-    write (*, *) 'totsym     =', totsym
-    write (*, *) 'ncore      =', ncore
-    write (*, *) 'nbas       =', nbas
-    write (*, *) 'eshift     =', eshift
-    write (*, *) 'ptgrp      =', ptgrp
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'ninact     =', ninact
+        write (*, *) 'nact       =', nact
+        write (*, *) 'nsec       =', nsec
+        write (*, *) 'nelec      =', nelec
+        write (*, *) 'nroot      =', nroot
+        write (*, *) 'selectroot =', selectroot
+        write (*, *) 'totsym     =', totsym
+        write (*, *) 'ncore      =', ncore
+        write (*, *) 'nbas       =', nbas
+        write (*, *) 'eshift     =', eshift
+        write (*, *) 'ptgrp      =', ptgrp
+    end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     If (mod(nelec, 2) == 0) then
@@ -90,26 +95,29 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     End if
 
 !        write(*,*)' ENTER READ r4dmoint1'
-    write (*, *) ' ENTER READ MRCONEE'
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) ' ENTER READ MRCONEE'
+    end if
     filename = 'MRCONEE'
 
     call readorb_enesym_co(filename)
     call read1mo_co(filename)
 
 !       write(*,*)' EXIT READ r4dmoint1'
-    write (*, *) ' EXIT READ MRCONEE'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) ' EXIT READ MRCONEE'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    write (*, *) ' ENTER READ MDCINT'
-
+        write (*, *) ' ENTER READ MDCINT'
+    end if
     filename = 'MDCINTNEW'
 
     Call readint2_ord_co(filename)
 
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
+    if (rank == 0) then ! Process limits for output
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     nmo = ninact + nact + nsec
@@ -134,7 +142,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    write (*, *) ' ENTER READ NEWCICOEFF', ndet
+    if (rank == 0) then ! Process limits for output
+        write (*, *) ' ENTER READ NEWCICOEFF', ndet
+    end if
 
     Allocate (ci(1:ndet))
     ci = 0.0d+00
@@ -164,7 +174,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 !        write(*,*)cir(1:ndet,selectroot)
 !        write(*,*)cii(1:ndet,selectroot)
 
-    write (*, *) ' EXIT READ NEWCICOEFF'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) ' EXIT READ NEWCICOEFF'
+    end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -192,28 +204,31 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    write (*, *) ' '
-    write (*, *) '*******************************'
-    write (*, *) ' '
-    write (*, *) 'IREP IS ', repna(totsym)
-    write (*, *) ' '
-    write (*, *) '*******************************'
-    write (*, *) ' '
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) ' '
+        write (*, *) '*******************************'
+        write (*, *) ' '
+        write (*, *) 'IREP IS ', repna(totsym)
+        write (*, *) ' '
+        write (*, *) '*******************************'
+        write (*, *) ' '
+    end if
     realcvec = .TRUE.
 
 !    This is test for bug fix about realc part
 
-    write (*, *) realc, 'realc'
-    write (*, *) realcvec, 'realcvec'
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) realc, 'realc'
+        write (*, *) realcvec, 'realcvec'
+    end if
     realc = .FALSE.      !!!      realc =.TRUE.
     realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
-    write (*, *) 'FOR TEST WE DO (F,F)'
-    write (*, *) realc, 'realc'
-    write (*, *) realcvec, 'realcvec'
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'FOR TEST WE DO (F,F)'
+        write (*, *) realc, 'realc'
+        write (*, *) realcvec, 'realcvec'
+    end if
 !!=============================================!
 !                                              !
     iroot = selectroot                       !
@@ -236,15 +251,23 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = date0
     tsec1 = tsec0
 
-    write (*, *) 'Enter intra3 A1int'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'Enter intra3 A1int'
+    end if
     Call intra_3(2, 1, 2, 2, 'A1int')
-    write (*, *) 'Enter intra3 A2int'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'Enter intra3 A2int'
+    end if
     Call intra_3(2, 1, 1, 1, 'A2int')
     sumc2local = 0.0d+00
-    write (*, *) 'Enter solvA'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'Enter solvA'
+    end if
     Call solvA_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
 
     date1 = date0
     tsec1 = tsec0
@@ -255,7 +278,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     sumc2local = 0.0d+00
     Call solvB_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
 
     date1 = date0
     tsec1 = tsec0
@@ -329,14 +354,17 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
 
-    write (*, '("c^2 ",F30.15)') sumc2
+    if (rank == 0) then ! Process limits for output
+        write (*, '("c^2 ",F30.15)') sumc2
+    end if
     weight0 = 1.0d+00/(1.0d+00 + sumc2)
-    write (*, '("weight of 0th wave function is",F30.15)') weight0
+    if (rank == 0) then ! Process limits for output
+        write (*, '("weight of 0th wave function is",F30.15)') weight0
 
-    write (*, '("Total second order energy is ",F30.15," a.u.")') e2all - eshift*sumc2
-    write (*, '(" ")')
-    write (*, '("Total energy is ",F30.15," a.u.")') e2all + eigen(iroot) - eshift*sumc2
-
+        write (*, '("Total second order energy is ",F30.15," a.u.")') e2all - eshift*sumc2
+        write (*, '(" ")')
+        write (*, '("Total energy is ",F30.15," a.u.")') e2all + eigen(iroot) - eshift*sumc2
+    end if
     deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
     deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
     deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
@@ -360,7 +388,10 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
     Call timing(val(3), totalsec, date0, tsec0)
-    write (*, *) 'End r4dcaspt2_tra_ty'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'End r4dcaspt2_tra_ty'
+    end if
+    call MPI_FINALIZE(ierr)
 
 1000 continue
 END program r4dcaspt2_tra_co
