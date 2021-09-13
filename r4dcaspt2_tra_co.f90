@@ -121,7 +121,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     nmo = ninact + nact + nsec
-    write (*, *) 'nmo        =', nmo
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'nmo        =', nmo
+    end if
 
     open (10, file='CIMAT', form='unformatted', status='old')
 
@@ -304,8 +306,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     sumc2local = 0.0d+00
     Call solvD_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -315,8 +318,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     sumc2local = 0.0d+00
     Call solvE_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -326,8 +330,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     sumc2local = 0.0d+00
     Call solvF_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -337,8 +342,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     sumc2local = 0.0d+00
     Call solvG_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -348,8 +354,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     sumc2local = 0.0d+00
     Call solvH_ord_ty(e0, e2)
     e2all = e2all + e2
-    write (*, *) e2all
-
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
