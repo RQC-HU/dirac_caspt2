@@ -3,6 +3,16 @@ subroutine get_mdcint_filename
     implicit none
     character(50)   :: mdcint_basename, chr_rank, digit_x_padding
     ! Rename the MDCINT to open according to the process number.
+    ! if (rank == 0) then
+    !     mdcint_filename = "MDCINT"
+    !     mdcintnew = "MDCINTNEW1"
+    !     mdcint_debug = "MDCINT_debug1"
+    !     mdcint_int = "MDCINT_int1"
+    ! else if (rank == 1) then
+    !     mdcint_filename = "MDCINT"
+    !     mdcintnew = "MDCINTNEW"
+    !     mdcint_debug = "MDCINT_debug"
+    !     mdcint_int = "MDCINT_int"
     if (rank == 0) then
         mdcint_filename = "MDCINT"
         mdcintnew = "MDCINTNEW"

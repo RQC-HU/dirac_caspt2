@@ -24,6 +24,7 @@
         integer :: ii, ji, ki, li,  ie, je, ke, le
         integer :: inz, nmx, ini(3), end(3), isp, isym, imo, nmaxint, ired
 
+        logical :: is_opened
         thresd = 1.0d-15
 
         ini(1) = 1
@@ -400,8 +401,12 @@
         close(1)
 
         goto 100
- 10     write(*,*)'error opening file' ; goto 1000
-
+!  10     write(*,*)'error opening file' ; goto 1000
+ 10     write(*,*)'error opening file'
+        inquire(1, opened=is_opened)
+        if (is_opened .eq. .true.) then
+            close(1)
+        end if
 
  100    deallocate(i); Call memminus(KIND(i),SIZE(i),1)
         deallocate(j); Call memminus(KIND(j),SIZE(j),1)
@@ -445,6 +450,7 @@
         integer :: ii, ji, ki, li,  ie, je, ke, le, lkr0, kkr0
         integer :: inz, nmx, ini(3), end(3), isp, isym, imo, nmaxint, ired, save
 
+        logical :: is_opened
         thresd = 1.0d-15
 
         if(.not.(spi==spk.and.spj==spl)) then
@@ -902,8 +908,12 @@
         close(1)
 
         goto 100
- 10     write(*,*)'error opening file' ; goto 1000
-
+!  10     write(*,*)'error opening file' ; goto 1000
+ 10     write(*,*)'error opening file'
+        inquire(1, opened=is_opened)
+        if (is_opened .eq. .true.) then
+            close(1)
+        end if
 
  100    deallocate(i); Call memminus(KIND(i),SIZE(i),1)
         deallocate(j); Call memminus(KIND(j),SIZE(j),1)
@@ -947,6 +957,7 @@
         integer :: ii, ji, ki, li,  ie, je, ke, le, lkr0, kkr0
         integer :: inz, nmx, ini(3), end(3), isp, isym, imo, nmaxint, ired, save
 
+        logical :: is_opened
         thresd = 1.0d-15
 
         if(.not.(spk==spl)) then
@@ -1391,8 +1402,12 @@
         close(1)
 
         goto 100
- 10     write(*,*)'error opening file' ; goto 1000
-
+!  10     write(*,*)'error opening file' ; goto 1000
+ 10     write(*,*)'error opening file'
+        inquire(1, opened=is_opened)
+        if (is_opened .eq. .true.) then
+            close(1)
+        end if
 
  100    deallocate(i); Call memminus(KIND(i),SIZE(i),1)
         deallocate(j); Call memminus(KIND(j),SIZE(j),1)

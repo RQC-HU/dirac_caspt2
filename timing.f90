@@ -1,7 +1,7 @@
 !
         SUBROUTINE timing(date0, tsec0, date, tsec)
 !
-
+            use four_caspt2_module, only: rank
             integer, intent(in)  :: date0
             real*8, intent(in)   :: tsec0
             integer, intent(out) :: date
@@ -61,5 +61,6 @@
             if (rank == 0) then
                 write (3000, '("computational time = ",I3,"day",I3,"h ",I3, &
                 &"min",F7.3,"sec")') day, hour, min, sec
+                write (3000, '(A,I4)') 'rank', rank
             end if
 100     end subroutine timing
