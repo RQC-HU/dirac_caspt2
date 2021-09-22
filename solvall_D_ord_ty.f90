@@ -308,12 +308,12 @@
            deallocate (wb)
            Deallocate (bc1)
 
-1000       write (*, '("e2d(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+1000       write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym),rank
            e2d = e2d + e2(isym)
 
        End do                  ! isym
 
-       write (*, '("e2d      = ",E20.10,"a.u.")') e2d
+       write (*, '("e2d      = ",E20.10,"a.u.",I4)') e2d,rank
 
        write (*, '("sumc2,d  = ",E20.10)') sumc2local
        sumc2 = sumc2 + sumc2local

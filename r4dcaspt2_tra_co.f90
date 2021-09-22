@@ -373,7 +373,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Call intra_2(3, 1, 3, 1, 'Hint ')
 
     sumc2local = 0.0d+00
-    write(*,*)'enter solveH_ord_ty'
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'enter solveH_ord_ty'
+    end if
     Call solvH_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
@@ -387,6 +389,11 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, '("c^2 ",F30.15)') sumc2
     end if
     weight0 = 1.0d+00/(1.0d+00 + sumc2)
+    ! if (rank == 0) then
+    !     call MPI_Reduce(MPI_IN_PLACE, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+    ! else
+    !     call MPI_Reduce(e2all, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+    ! end if
     if (rank == 0) then ! Process limits for output
         write (*, '("weight of 0th wave function is",F30.15)') weight0
 
@@ -420,7 +427,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (rank == 0) then ! Process limits for output
         write (*, *) 'End r4dcaspt2_tra_ty'
     end if
-    call MPI_Barrier(MPI_COMM_WORLD,ierr)
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
     call MPI_FINALIZE(ierr)
 
 1000 continue
