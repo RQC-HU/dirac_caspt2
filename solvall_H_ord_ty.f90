@@ -98,7 +98,8 @@
        Allocate (v(nab, nij))
        v = 0.0d+00
 
-       open (1, file='Hint', status='old', form='unformatted')
+      !  open (1, file='Hint', status='old', form='unformatted')
+       open (1, file=hint, status='old', form='unformatted')
 30     read (1, err=10, end=20) i, j, k, l, cint2
        count = 0
 

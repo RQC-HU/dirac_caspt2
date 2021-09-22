@@ -569,7 +569,8 @@
 
         v = 0.0d+00
 
-        open(1, file ='Bint', status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+      !   open(1, file ='Bint', status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+        open(1, file =bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
 
  30     read(1, err=10, end=20) i,j,k,l,cint2                    !  (ij|kl)
 

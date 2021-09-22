@@ -601,8 +601,8 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=a1int, status='old', form='unformatted')
        !   open(1, file ='A1int', status='old', form='unformatted')
+       open (1, file=a1int, status='old', form='unformatted')
 
        write (*, *) 'open A1int'
 
@@ -652,8 +652,8 @@
        date1 = date0
        tsec1 = tsec0
 
-       open (1, file=a2int, status='old', form='unformatted') ! TYPE 2 integrals
        !  open (1, file='A2int', status='old', form='unformatted') ! TYPE 2 integrals
+       open (1, file=a2int, status='old', form='unformatted') ! TYPE 2 integrals
 
 300    read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
        count = 0

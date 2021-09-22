@@ -487,7 +487,8 @@
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
-        open(1, file ='Eint', status='old', form='unformatted')  !  (31|21) stored
+      !   open(1, file ='Eint', status='old', form='unformatted')  !  (31|21) stored
+        open(1, file =eint, status='old', form='unformatted')  !  (31|21) stored
  30          read(1, err=10, end=20) i,j,k,l,cint2
 
         if(j == l) goto 30

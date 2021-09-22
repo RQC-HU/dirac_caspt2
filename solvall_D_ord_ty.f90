@@ -509,7 +509,8 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file='D1int', status='old', form='unformatted')
+      !  open (1, file='D1int', status='old', form='unformatted')
+       open (1, file=d1int, status='old', form='unformatted')
 
 30     read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
@@ -547,7 +548,8 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file='D2int', status='old', form='unformatted')
+      !  open (1, file='D2int', status='old', form='unformatted')
+       open (1, file=d2int, status='old', form='unformatted')
 
 31     read (1, err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
        ja = i
@@ -572,7 +574,8 @@
 21     close (1)
        write (*, *) 'reading D2int2 is over'
 
-       open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
+      !  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
+       open (1, file=d3int, status='old', form='unformatted') ! (ai|jk) is stored
 
 300    read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
 !        write(*,*)'D1int', i,j,k,l ,cint2

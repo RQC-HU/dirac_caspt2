@@ -513,7 +513,8 @@
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
-        open(1, file ='Fint', status='old', form='unformatted')  !  (32|32) stored  a > b
+      !   open(1, file ='Fint', status='old', form='unformatted')  !  (32|32) stored  a > b
+        open(1, file =fint, status='old', form='unformatted')  !  (32|32) stored  a > b
  30     read(1, err=10, end=20) i,j,k,l,cint2
 
         if(i <= k) goto 30
