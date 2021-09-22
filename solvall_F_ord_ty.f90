@@ -43,7 +43,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !      SPACE F IS NOW CALCULATED
-!      
+!
 !     EatEbu|0>
 !
 !   DRAS1 =0   DRAS2 = -2   DRAS3 = +2
@@ -111,7 +111,7 @@
 
 !     Do isym = nsymrpa+1, 2*nsymrpa
      Do isym = 1, nsymrpa
-        
+
         dimn = 0
         Do it = 1, nact
            jt = it + ninact
@@ -121,9 +121,9 @@
 
 !     EatEbu|0>
 
-              syma = MULTB_D (irpmo(ju)-(-1)**(mod(irpmo(ju),2)), irpmo(jt))  
+              syma = MULTB_D (irpmo(ju)-(-1)**(mod(irpmo(ju),2)), irpmo(jt))
 
-              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then             
+              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then
                  dimn = dimn + 1
               End if
            End do               ! iu
@@ -134,7 +134,7 @@
         If(dimn == 0) goto 1000
 
         Allocate(indsym(2, dimn))
-        
+
         dimn = 0
         Do it = 1, nact
            jt = it + ninact
@@ -144,9 +144,9 @@
 
 !     EatEbu|0>
 
-              syma = MULTB_D (irpmo(ju)-(-1)**(mod(irpmo(ju),2)), irpmo(jt))  
+              syma = MULTB_D (irpmo(ju)-(-1)**(mod(irpmo(ju),2)), irpmo(jt))
 
-              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then             
+              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then
                  dimn = dimn + 1
                  indsym(1,dimn) = it
                  indsym(2,dimn) = iu
@@ -164,7 +164,7 @@
            write(*,*)'sc matrix is obtained normally'
 
            Allocate(ws(dimn))
-           
+
            cutoff = .TRUE.
 !           thresd = 1.0d-15
 
@@ -199,7 +199,7 @@
            Allocate(bc(dimn,dimn))                                 ! bc N*N
            bc = 0.0d+00
 
-       Call bFmat (dimn, sc0, indsym, bc)               
+       Call bFmat (dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
            write(*,*)'bc matrix is obtained normally'
@@ -227,7 +227,7 @@
            Allocate(bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
-           Allocate(bc1(dimm, dimm))                      ! bc1 M*M 
+           Allocate(bc1(dimm, dimm))                      ! bc1 M*M
            bc1 = 0.0d+00
            bc1 = MATMUL(bc0, uc)
 
@@ -281,10 +281,10 @@
            jb = ib0(i0)
 
 !     EatEbu|0>
-           
-           syma = MULTB_D (irpmo(ja), irpmo(jb)-(-1)**(mod(irpmo(jb),2)))  
+
+           syma = MULTB_D (irpmo(ja), irpmo(jb)-(-1)**(mod(irpmo(jb),2)))
            syma = MULTB_S (syma, isym)
-  
+
            If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == 1))) then
 
               Allocate(vc(dimn))
@@ -303,14 +303,14 @@
 
               Do j = 1, dimm
                  e = (ABS(vc1(j))**2.0d+00)/(alpha+wb(j))
-                 sumc2local = sumc2local + e/(alpha+wb(j))           
+                 sumc2local = sumc2local + e/(alpha+wb(j))
                  e2(isym) = e2(isym) - e
               End do
 
               deallocate(vc1)
 
            End if
-                
+
         End do                  !i0
 
 
@@ -334,7 +334,7 @@
         deallocate(ib0)
         deallocate(v)
 
-      continue 
+      continue
       write(*,*)'end solve_ord'
    end
 
@@ -358,7 +358,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)      :: dimn, indsym(2, dimn)
         complex*16, intent(out)  :: sc(dimn,dimn)
 
@@ -392,12 +392,12 @@
               End if
 
               sc(j,i) =  DCONJG(sc(i,j))
-              
+
            End do               !j
         End do                  !i
 
         End subroutine sFmat
-        
+
 
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -414,7 +414,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in) :: dimn, indsym(2,dimn)
         complex*16, intent(in)  :: sc(dimn,dimn)
         complex*16, intent(out) :: bc(dimn,dimn)
@@ -424,7 +424,7 @@
 
         integer :: it, iu, iv, ix, iy, iz, iw
         integer :: jt, ju, jv, jx, jw, i, j
-        
+
 
         bc(:,:) = 0.0d+00
 
@@ -466,7 +466,7 @@
                  End if
 
               End do
-   
+
               bc(i, j) = bc(i, j) + sc(i, j)*e
 
               bc(j, i) = DCONJG(bc(i, j))
@@ -495,8 +495,8 @@
    use four_caspt2_module
 
         Implicit NONE
-     
-        
+
+
         integer, intent(in)     :: nab, &
 
         & iab(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec)
@@ -538,7 +538,7 @@
 !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
 !
 !                             p=j, q=l loop for t and u             u=j, p=l loop for t
-!                
+!
         Do it = 1, nact
            jt = it + ninact
            Do iu = 1, it-1
@@ -565,6 +565,3 @@
 
 
    end subroutine vFmat_ord
-
-
-

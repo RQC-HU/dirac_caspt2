@@ -420,6 +420,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (rank == 0) then ! Process limits for output
         write (*, *) 'End r4dcaspt2_tra_ty'
     end if
+    call MPI_Barrier(MPI_COMM_WORLD,ierr)
     call MPI_FINALIZE(ierr)
 
 1000 continue

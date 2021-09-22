@@ -43,7 +43,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !      SPACE B IS NOW CALCULATED
-!      
+!
 !     EtiEuj|0>
 !
 !   DRAS1 = -2   DRAS2 = 2   DRAS3 = 0
@@ -62,9 +62,9 @@
 !  a(i,j)       = -eps(i) - eps(j) - e0
 !
 ! V(i,j) =  SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)
-!          
+!
 !           + SIGUMA_p:active[<0|Ept|0> {(pj|ui) - (uj|pi)}  - <0|Epu|0> (ti|pj)]
-!          
+!
 !           + (uj|ti)  - (tj|ui)
 !
 !
@@ -114,16 +114,16 @@
 !     EtiEuj|0>
 
      Do isym = 1, nsymrpa
-        
+
         dimn = 0
         Do it = 1, nact
            jt = it + ninact
            Do iu = 1, it-1
               ju = iu + ninact
-              
+
               syma = MULTB_D (irpmo(jt), irpmo(ju)-(-1)**(mod(irpmo(ju),2)))
-                                             
-              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then             
+
+              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then
                  dimn = dimn + 1
               End if
            End do               ! iu
@@ -134,17 +134,17 @@
         If(dimn == 0) goto 1000
 
         Allocate(indsym(2, dimn)) ;   Call memplus(KIND(indsym),SIZE(indsym),1)
-        
+
         dimn = 0
         Do it = 1, nact
            jt = it + ninact
            Do iu = 1, it-1
               ju = iu + ninact
 
-              
+
               syma = MULTB_D (irpmo(jt), irpmo(ju)-(-1)**(mod(irpmo(ju),2)))
-                                             
-              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then             
+
+              if (nsymrpa == 1 .or. (nsymrpa /=1 .and. syma == isym)) then
                  dimn = dimn + 1
                  indsym(1,dimn) = it
                  indsym(2,dimn) = iu
@@ -161,7 +161,7 @@
        write(*,*)'sc matrix is obtained normally'
 
            Allocate(ws(dimn));  Call memplus(KIND(ws),SIZE(ws),1)
-           
+
            cutoff = .TRUE.
            thresd = 1.0d-08
 
@@ -183,7 +183,7 @@
            Allocate(bc(dimn,dimn)) ; Call memplus(KIND(bc),SIZE(bc),2)   ! br N*N
            bc = 0.0d+00
 
-       Call bBmat (e0, dimn, sc0, indsym, bc)               
+       Call bBmat (e0, dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
            write(*,*)'bc matrix is obtained normally'
@@ -283,7 +283,7 @@
 
                  syma = MULTB_D ( irpmo(ji)-(-1)**(mod(irpmo(ji),2)),irpmo(jj))
                  syma = MULTB_S ( syma, isym)
-  
+
                  If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == 1))) then
 
                     Allocate(vc(dimn)) ; Call memplus(KIND(vc),SIZE(vc),2)
@@ -339,7 +339,7 @@
            deallocate(v)   ; Call memminus(KIND(v),SIZE(v),2)
 
 
-           continue 
+           continue
            write(*,*)'end solvB_ord_ty'
            end
 
@@ -360,7 +360,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)      :: dimn, indsym(2, dimn)
         complex*16, intent(out)  :: sc(dimn,dimn)
 
@@ -416,12 +416,12 @@
 
 
               sc(j,i) =  DCONJG(sc(i,j))
-              
+
            End do               !j
         End do                  !i
 
         End subroutine sBmat
-        
+
 
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -440,7 +440,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in) :: dimn, indsym(2,dimn)
         complex*16, intent(in)  :: sc(dimn,dimn)
         complex*16, intent(out) :: bc(dimn,dimn)
@@ -451,7 +451,7 @@
 
         integer :: it, iu, iv, ix, iy, iz, iw
         integer :: jt, ju, jy, jx, jw, i, j
-        
+
 
         bc(:,:) = 0.0d+00
 
@@ -511,7 +511,7 @@
                  End if
 
               End do
-   
+
 !              +{d(tx)d(uy)-d(ty)d(ux)}*e0      +S(xy,tu){eps(t)+eps(u)}
 
               If((it == ix) .and.(iu == iy)) then
@@ -555,7 +555,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
 
         integer, intent(in)     :: nij, iij(ninact,ninact)
 
@@ -588,48 +588,48 @@
 !------------------------------------------------------------------------------------------------
 
         tij = iij(j, l)
- 
+
 !        write(*,'(5I4,2E20.10)')i,j,k,l,tij,cint2
 
  ! Term 3 !        + (ti|uj)  - (ui|tj)  (i > j)
- 
+
         v(tij, i, k) = v(tij, i, k) + cint2 !  + (ti|uj)
         v(tij, k, i) = v(tij, k, i) - cint2 !  - (ui|tj)
- 
- 
- ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]      
+
+
+ ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
  !                             ===========================      ================
  !                                loop for t                     loop for u(variable u is renamed to t)
         Do it = 1, nact
            jt = it + ninact
- 
+
            Call dim1_density (k-ninact, it, dr, di)
            dens = DCMPLX(dr, di)
            v(tij,jt,i) = v(tij,jt,i) + cint2*dens
            v(tij,i,jt) = v(tij,i,jt) - cint2*dens
- 
- 
+
+
            Call dim1_density (i-ninact, it, dr, di)
            dens = DCMPLX(dr, di)
            v(tij,jt,k) = v(tij,jt,k) - cint2*dens
- 
- 
+
+
  ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
  !                             ==================
  !                              loop for t and u
- 
+
            Do iu = 1, it -1
               ju = iu + ninact
               Call dim2_density (i-ninact, it, k-ninact, iu, dr, di)
               dens = DCMPLX(dr, di)
               v(tij,jt,ju) = v(tij,jt,ju) + cint2*dens
            End do
- 
+
         End do
 
         goto 30
 
- 20     close(1) 
+ 20     close(1)
         write(*,*)'reading int2 is over'
         goto 100
 
@@ -639,6 +639,3 @@
 
 
    end subroutine vBmat_ord_ty
-
-
-
