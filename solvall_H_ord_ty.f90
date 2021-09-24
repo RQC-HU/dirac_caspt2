@@ -99,8 +99,8 @@
        v = 0.0d+00
 
       !  open (1, file='Hint', status='old', form='unformatted')
-       open (1, file=hint, status='old', form='unformatted')
-30     read (1, err=10, end=20) i, j, k, l, cint2
+       open (1, file=hint, status='old', form='formatted')
+30     read (1,  '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
        count = 0
 
 40     if (i <= k .or. j == l) goto 30

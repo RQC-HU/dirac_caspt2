@@ -510,9 +510,9 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       !  open (1, file='D1int', status='old', form='unformatted')
-       open (1, file=d1int, status='old', form='unformatted')
+       open (1, file=d1int, status='old', form='formatted')
 
-30     read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
+30     read (1,  '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -549,9 +549,9 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
       !  open (1, file='D2int', status='old', form='unformatted')
-       open (1, file=d2int, status='old', form='unformatted')
+       open (1, file=d2int, status='old', form='formatted')
 
-31     read (1, err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
+31     read (1,  '(4I4, 2e20.10)', err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
        ja = i
        ji = l
        tai = iai(ja, ji)
@@ -575,9 +575,9 @@
        write (*, *) 'reading D2int2 is over'
 
       !  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
-       open (1, file=d3int, status='old', form='unformatted') ! (ai|jk) is stored
+       open (1, file=d3int, status='old', form='formatted') ! (ai|jk) is stored
 
-300    read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
+300    read (1,  '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
 !        write(*,*)'D1int', i,j,k,l ,cint2
 
        if (j /= k .and. k == l) then !(ai|kk)

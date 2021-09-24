@@ -570,9 +570,9 @@
         v = 0.0d+00
 
       !   open(1, file ='Bint', status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
-        open(1, file =bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+        open(1, file =bint, status='old', form='formatted')  !  (21|21) stored (ti|uj) i > j
 
- 30     read(1, err=10, end=20) i,j,k,l,cint2                    !  (ij|kl)
+ 30     read(1, '(4I4, 2e20.10)',  err=10, end=20) i,j,k,l,cint2                    !  (ij|kl)
 
         if(j <= l) goto 30
 !        write(*,'(4I4,2E20.10)')i,j,k,l,cint2

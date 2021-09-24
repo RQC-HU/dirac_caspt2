@@ -477,8 +477,8 @@
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
 
       !   open(1, file ='Gint', status='old', form='unformatted')  !  (31|32) stored
-        open(1, file =gint, status='old', form='unformatted')  !  (31|32) stored
- 30     read(1, err=10, end=20) i,j,k,l,cint2
+        open(1, file =gint, status='old', form='formatted')  !  (31|32) stored
+ 30     read(1,  '(4I4, 2e20.10)', err=10, end=20) i,j,k,l,cint2
 
         if(i == k) goto 30
 !        write(*,*) i,j,k,l,tabi,cint2

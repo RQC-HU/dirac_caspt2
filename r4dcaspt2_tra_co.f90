@@ -128,267 +128,269 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    nmo = ninact + nact + nsec
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'nmo        =', nmo
-    end if
+!     nmo = ninact + nact + nsec
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) 'nmo        =', nmo
+!     end if
 
-    open (10, file='CIMAT', form='unformatted', status='old')
+!     open (10, file='CIMAT', form='unformatted', status='old')
 
-    read (10) ndet
-    Allocate (idet(1:ndet)); Call memplus(KIND(idet), SIZE(idet), 1)
-    Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
+!     read (10) ndet
+!     Allocate (idet(1:ndet)); Call memplus(KIND(idet), SIZE(idet), 1)
+!     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
 
-    read (10) idet(1:ndet)
-    read (10) ecas(1:ndet)
+!     read (10) idet(1:ndet)
+!     read (10) ecas(1:ndet)
 
-    close (10)
+!     close (10)
 
-    Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
-    eigen = 0.0d+00
-    eigen(1:nroot) = ecas(1:nroot) + ecore
+!     Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
+!     eigen = 0.0d+00
+!     eigen(1:nroot) = ecas(1:nroot) + ecore
 
-    Deallocate (ecas)
+!     Deallocate (ecas)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) ' ENTER READ NEWCICOEFF', ndet
-    end if
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) ' ENTER READ NEWCICOEFF', ndet
+!     end if
 
-    Allocate (ci(1:ndet))
-    ci = 0.0d+00
+!     Allocate (ci(1:ndet))
+!     ci = 0.0d+00
 
-    open (10, file='NEWCICOEFF', form='unformatted', status='old')
+!     open (10, file='NEWCICOEFF', form='unformatted', status='old')
 
-    read (10) ci(1:ndet)
+!     read (10) ci(1:ndet)
 
-    close (10)
+!     close (10)
 
-    Allocate (cir(1:ndet, selectroot:selectroot))
-    Allocate (cii(1:ndet, selectroot:selectroot))
+!     Allocate (cir(1:ndet, selectroot:selectroot))
+!     Allocate (cii(1:ndet, selectroot:selectroot))
 
-    cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
-    cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
+!     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
+!     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
 
-!        Do i0 = 1, ndet
-!           write(*,'(2E20.10)')cir(i0,selectroot),cii(i0,selectroot)
-!        End do
+! !        Do i0 = 1, ndet
+! !           write(*,'(2E20.10)')cir(i0,selectroot),cii(i0,selectroot)
+! !        End do
 
-!        Do i0 = 1, ndet
-!           write(*,'(2E20.10)')ci(i0)
-!        End do
+! !        Do i0 = 1, ndet
+! !           write(*,'(2E20.10)')ci(i0)
+! !        End do
 
-    deallocate (ci)
+!     deallocate (ci)
 
-!        write(*,*)cir(1:ndet,selectroot)
-!        write(*,*)cii(1:ndet,selectroot)
+! !        write(*,*)cir(1:ndet,selectroot)
+! !        write(*,*)cii(1:ndet,selectroot)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) ' EXIT READ NEWCICOEFF'
-    end if
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) ' EXIT READ NEWCICOEFF'
+!     end if
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    open (10, file='EPS', form='unformatted', status='old')
+!     open (10, file='EPS', form='unformatted', status='old')
 
-    read (10) nmo
-    Allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
-    eps = 0.0d+00
-    read (10) eps(1:nmo)
+!     read (10) nmo
+!     Allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
+!     eps = 0.0d+00
+!     read (10) eps(1:nmo)
 
-    close (10)
-!        Do i = 1, nmo
-!           write(*,*)'eps(',i,')= ',eps(i)
-!        Enddo
+!     close (10)
+! !        Do i = 1, nmo
+! !           write(*,*)'eps(',i,')= ',eps(i)
+! !        Enddo
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    open (10, file='TRANSFOCK', form='unformatted', status='old')
+!     open (10, file='TRANSFOCK', form='unformatted', status='old')
 
-    read (10) nmo
-    Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
-    read (10) f
+!     read (10) nmo
+!     Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
+!     read (10) f
 
-    close (10)
+!     close (10)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) ' '
-        write (*, *) '*******************************'
-        write (*, *) ' '
-        write (*, *) 'IREP IS ', repna(totsym)
-        write (*, *) ' '
-        write (*, *) '*******************************'
-        write (*, *) ' '
-    end if
-    realcvec = .TRUE.
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) ' '
+!         write (*, *) '*******************************'
+!         write (*, *) ' '
+!         write (*, *) 'IREP IS ', repna(totsym)
+!         write (*, *) ' '
+!         write (*, *) '*******************************'
+!         write (*, *) ' '
+!     end if
+!     realcvec = .TRUE.
 
-!    This is test for bug fix about realc part
+! !    This is test for bug fix about realc part
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
-    end if
-    realc = .FALSE.      !!!      realc =.TRUE.
-    realcvec = .FALSE.   !!!      realcvec =.TRUE.
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) realc, 'realc'
+!         write (*, *) realcvec, 'realcvec'
+!     end if
+!     realc = .FALSE.      !!!      realc =.TRUE.
+!     realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'FOR TEST WE DO (F,F)'
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
-    end if
-!!=============================================!
-!                                              !
-    iroot = selectroot                       !
-!                                              !
-!!=============================================!
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) 'FOR TEST WE DO (F,F)'
+!         write (*, *) realc, 'realc'
+!         write (*, *) realcvec, 'realcvec'
+!     end if
+! !!=============================================!
+! !                                              !
+!     iroot = selectroot                       !
+! !                                              !
+! !!=============================================!
 
-!      write(*,*)'RECALCULATION OF CASCI ENERGY'
-!      Call e0test_v2
+! !      write(*,*)'RECALCULATION OF CASCI ENERGY'
+! !      Call e0test_v2
 
-    e2 = 0.0d+00
+!     e2 = 0.0d+00
 
-    Call calce0(e0)
+!     Call calce0(e0)
 
-    e2all = 0.0d+00
+!     e2all = 0.0d+00
 
-    date1 = initdate
-    tsec1 = totalsec
+!     date1 = initdate
+!     tsec1 = totalsec
 
-    Call timing(date1, tsec1, date0, tsec0)
-    date1 = date0
-    tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
+!     date1 = date0
+!     tsec1 = tsec0
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter intra3 A1int'
-    end if
-    Call intra_3(2, 1, 2, 2, a1int)
-    ! Call intra_3(2, 1, 2, 2, 'A1int')
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter intra3 A2int'
-    end if
-    Call intra_3(2, 1, 1, 1, a2int)
-    ! Call intra_3(2, 1, 1, 1, 'A2int')
-    sumc2local = 0.0d+00
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter solvA'
-    end if
-    Call solvA_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) 'Enter intra3 A1int'
+!     end if
+!     call MPI_Barrier(MPI_COMM_WORLD,ierr)
+!     write (*, *) 'A1int filename name : ', trim(a1int), ' rank', rank
+!     Call intra_3(2, 1, 2, 2, a1int)
+!     ! Call intra_3(2, 1, 2, 2, 'A1int')
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) 'Enter intra3 A2int'
+!     end if
+!     Call intra_3(2, 1, 1, 1, a2int)
+!     ! Call intra_3(2, 1, 1, 1, 'A2int')
+!     sumc2local = 0.0d+00
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) 'Enter solvA'
+!     end if
+!     Call solvA_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
 
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_2(2, 1, 2, 1, bint)
-    ! Call intra_2(2, 1, 2, 1, 'Bint ')
+!     Call intra_2(2, 1, 2, 1, bint)
+!     ! Call intra_2(2, 1, 2, 1, 'Bint ')
 
-    sumc2local = 0.0d+00
-    Call solvB_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
+!     sumc2local = 0.0d+00
+!     Call solvB_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
 
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_3(3, 2, 2, 2, c1int)
-    Call intra_3(3, 2, 1, 1, c2int)
-    Call intra_1(3, 1, 1, 2, c3int)
-    ! Call intra_3(3, 2, 2, 2, 'C1int')
-    ! Call intra_3(3, 2, 1, 1, 'C2int')
-    ! Call intra_1(3, 1, 1, 2, 'C3int')
-    sumc2local = 0.0d+00
-    Call solvC_ord_ty(e0, e2)
-    e2all = e2all + e2
-!      write(*,*) 'e2c is not added at while'
+!     Call intra_3(3, 2, 2, 2, c1int)
+!     Call intra_3(3, 2, 1, 1, c2int)
+!     Call intra_1(3, 1, 1, 2, c3int)
+!     ! Call intra_3(3, 2, 2, 2, 'C1int')
+!     ! Call intra_3(3, 2, 1, 1, 'C2int')
+!     ! Call intra_1(3, 1, 1, 2, 'C3int')
+!     sumc2local = 0.0d+00
+!     Call solvC_ord_ty(e0, e2)
+!     e2all = e2all + e2
+! !      write(*,*) 'e2c is not added at while'
 
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_3(3, 1, 2, 2, d1int)
-    Call intra_1(3, 2, 2, 1, d2int)
-    Call intra_3(3, 1, 1, 1, d3int)
-    ! Call intra_3(3, 1, 2, 2, 'D1int')
-    ! Call intra_1(3, 2, 2, 1, 'D2int')
-    ! Call intra_3(3, 1, 1, 1, 'D3int')
-    sumc2local = 0.0d+00
-    Call solvD_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     Call intra_3(3, 1, 2, 2, d1int)
+!     Call intra_1(3, 2, 2, 1, d2int)
+!     Call intra_3(3, 1, 1, 1, d3int)
+!     ! Call intra_3(3, 1, 2, 2, 'D1int')
+!     ! Call intra_1(3, 2, 2, 1, 'D2int')
+!     ! Call intra_3(3, 1, 1, 1, 'D3int')
+!     sumc2local = 0.0d+00
+!     Call solvD_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_1(3, 1, 2, 1, eint)
-    ! Call intra_1(3, 1, 2, 1, 'Eint')
+!     Call intra_1(3, 1, 2, 1, eint)
+!     ! Call intra_1(3, 1, 2, 1, 'Eint')
 
-    sumc2local = 0.0d+00
-    Call solvE_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     sumc2local = 0.0d+00
+!     Call solvE_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_2(3, 2, 3, 2, fint)
-    ! Call intra_2(3, 2, 3, 2, 'Fint ')
+!     Call intra_2(3, 2, 3, 2, fint)
+!     ! Call intra_2(3, 2, 3, 2, 'Fint ')
 
-    sumc2local = 0.0d+00
-    Call solvF_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     sumc2local = 0.0d+00
+!     Call solvF_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_1(3, 1, 3, 2, gint)
-    ! Call intra_1(3, 1, 3, 2, 'Gint ')
+!     Call intra_1(3, 1, 3, 2, gint)
+!     ! Call intra_1(3, 1, 3, 2, 'Gint ')
 
-    sumc2local = 0.0d+00
-    Call solvG_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     sumc2local = 0.0d+00
+!     Call solvG_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_2(3, 1, 3, 1, hint)
-    ! Call intra_2(3, 1, 3, 1, 'Hint ')
+!     Call intra_2(3, 1, 3, 1, hint)
+!     ! Call intra_2(3, 1, 3, 1, 'Hint ')
 
-    sumc2local = 0.0d+00
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'enter solveH_ord_ty'
-    end if
-    Call solvH_ord_ty(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
-    end if
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+!     sumc2local = 0.0d+00
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) 'enter solveH_ord_ty'
+!     end if
+!     Call solvH_ord_ty(e0, e2)
+!     e2all = e2all + e2
+!     if (rank == 0) then ! Process limits for output
+!         write (*, *) e2all
+!     end if
+!     date1 = date0
+!     tsec1 = tsec0
+!     Call timing(date1, tsec1, date0, tsec0)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, '("c^2 ",F30.15)') sumc2
-    end if
-    weight0 = 1.0d+00/(1.0d+00 + sumc2)
+!     if (rank == 0) then ! Process limits for output
+!         write (*, '("c^2 ",F30.15)') sumc2
+!     end if
+!     weight0 = 1.0d+00/(1.0d+00 + sumc2)
     ! if (rank == 0) then
     !     call MPI_Reduce(MPI_IN_PLACE, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     ! else
