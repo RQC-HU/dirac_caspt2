@@ -580,10 +580,10 @@
            End do
        End do
 
-      !  open (1, file='C1int', status='old', form='unformatted')
+       !  open (1, file='C1int', status='old', form='unformatted')
        open (1, file=c1int, status='old', form='formatted')
 
-30     read (1,  '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
+30     read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
 !           write(*,'("TYPE 1  ",4I4,2E20.10)')i,j,k,l,cint2
 
@@ -625,10 +625,10 @@
 20     close (1)
        write (*, *) 'reading C1int2 is over'
 
-      !  open (1, file='C2int', status='old', form='unformatted') ! TYPE 2 integrals
+       !  open (1, file='C2int', status='old', form='unformatted') ! TYPE 2 integrals
        open (1, file=c2int, status='old', form='formatted') ! TYPE 2 integrals
 
-300    read (1,  '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2
+300    read (1, '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2
 
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -647,10 +647,10 @@
 200    close (1)
        write (*, *) 'reading C2int2 is over'
 
-      !  open (1, file='C3int', status='old', form='unformatted') ! TYPE 3 integrals
+       !  open (1, file='C3int', status='old', form='unformatted') ! TYPE 3 integrals
        open (1, file=c3int, status='old', form='formatted') ! TYPE 3 integrals
 
-3000   read (1,  '(4I4, 2e20.10)', err=10, end=2000) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
+3000   read (1, '(4I4, 2e20.10)', err=10, end=2000) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
 
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
