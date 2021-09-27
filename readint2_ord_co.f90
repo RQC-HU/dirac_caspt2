@@ -1124,12 +1124,14 @@
        if (rank == 0) then
            write (*, *) 'caspt2_simple_loop sum : ', simple_loop
        end if
+        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
                write (*, *) 'a1_cnt : ', rank, a1_cnt
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1137,6 +1139,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1144,6 +1147,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1151,6 +1155,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1158,6 +1163,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1165,6 +1171,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1172,6 +1179,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1179,6 +1187,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1186,6 +1195,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1193,6 +1203,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1200,6 +1211,7 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
@@ -1207,12 +1219,14 @@
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
                write (*, *) 'h_cnt : ', rank, h_cnt
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then
            call MPI_Reduce(MPI_IN_PLACE, a1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)

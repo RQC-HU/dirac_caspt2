@@ -9,7 +9,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        integer, intent(in)        :: spi, spj, spk, spl
        character*5, intent(in)    :: fname
 
@@ -23,6 +23,7 @@
        integer :: ii, ji, ki, li, ie, je, ke, le
        integer :: inz, nmx, ini(3), end(3), isp, isym, imo, nmaxint, ired
 
+       integer :: n_cnt
        logical :: is_opened
        thresd = 1.0d-15
 
@@ -151,6 +152,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -158,14 +161,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -222,6 +226,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -229,14 +235,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -292,6 +299,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -299,14 +308,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -362,6 +372,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -369,14 +381,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -416,7 +429,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        integer, intent(in)        :: spi, spj, spk, spl
        character*5, intent(in)    :: fname
 
@@ -430,6 +443,7 @@
        integer :: ii, ji, ki, li, ie, je, ke, le, lkr0, kkr0
        integer :: inz, nmx, ini(3), end(3), isp, isym, imo, nmaxint, ired, save
 
+       integer :: n_cnt
        logical :: is_opened
        thresd = 1.0d-15
 
@@ -633,6 +647,8 @@
 53     End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -640,14 +656,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -706,6 +723,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -713,14 +732,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -776,6 +796,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -783,14 +805,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -848,6 +871,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -855,14 +880,15 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
        open (1, file=trim(fname), status='old', form='formatted')
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -1105,6 +1131,8 @@
 51     End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -1115,15 +1143,16 @@
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 1, li, le, ki, ke, ji, je, ii, ie
 
-        n_cnt = 0
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                    if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt,nprocs)==rank) then
-                        write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                    end if
-                    n_cnt = n_cnt + 1
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                       end if
+                       n_cnt = n_cnt + 1
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -1184,6 +1213,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -1192,14 +1223,15 @@
        open (1, file=trim(fname), status='old', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 2, li, le, ki, ke, ji, je, ii, ie
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -1255,6 +1287,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -1264,14 +1298,15 @@
        open (1, file=trim(fname), status='old', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 3, li, le, ki, ke, ji, je, ii, ie
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
@@ -1327,6 +1362,8 @@
        End do
 
        close (1)
+       call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -1336,14 +1373,15 @@
        open (1, file=trim(fname), status='old', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 4, li, le, ki, ke, ji, je, ii, ie
-
+       n_cnt = 0
        Do l0 = li, le
            Do k0 = ki, ke
                Do j0 = ji, je
                    Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd) then
+                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
                        end if
+                       n_cnt = n_cnt + 1
                    End do
                End do
            End do
