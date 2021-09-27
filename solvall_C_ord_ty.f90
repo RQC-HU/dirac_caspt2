@@ -477,7 +477,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        complex*16, intent(out) :: v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
                          &          ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
@@ -493,6 +493,7 @@
        integer :: it, iu, iv, iw, ia, ip, iq, ir, ik
        integer :: jt, ju, jv, jw, ja, jp, jq, jr, jk
        integer :: i0
+       integer :: loopcnt
 
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 !  V(a,t,u,v)   = Siguma_p [h'ap - Siguma_w(aw|wp)]<0|EvuEtp|0> + Siguma_pqr<0|EvuEtrEpq|0>(ar|pq)
@@ -566,20 +567,20 @@
 !        Do isym = 1, nsymrpa
 !           write(*,*)dim(isym),isym
 !        Enddo
+       if (rank == 0) then
+           Do ia = 1, nsec
+               ja = ia + ninact + nact
+               Do it = 1, nact
+                   jt = it + ninact
 
-       Do ia = 1, nsec
-           ja = ia + ninact + nact
-           Do it = 1, nact
-               jt = it + ninact
+                   Call tramo1_ty(ja, jt, cint1)
 
-               Call tramo1_ty(ja, jt, cint1)
+                   effh(ja, jt) = cint1
+                   !              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
 
-               effh(ja, jt) = cint1
-!              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
-
+               End do
            End do
-       End do
-
+       end if
        !  open (1, file='C1int', status='old', form='unformatted')
        open (1, file=c1int, status='old', form='formatted')
 
@@ -646,6 +647,16 @@
 
 200    close (1)
        write (*, *) 'reading C2int2 is over'
+       !    effh(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact)
+       call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + nact + 1, ninact + 1), nsec*nact, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    !    do loopcnt = 0, nprocs - 1
+    !        if (rank == loopcnt) then
+    !            write (*, *) 'effh(after),rank:', rank, effh
+    !        end if
+    !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+    !    end do
+    !    call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        !  open (1, file='C3int', status='old', form='unformatted') ! TYPE 3 integrals
        open (1, file=c3int, status='old', form='formatted') ! TYPE 3 integrals
@@ -713,5 +724,9 @@
        Call timing(date1, tsec1, date0, tsec0)
        date1 = date0
        tsec1 = tsec0
+       !    Allocate (v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
+       !    &          ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+       call MPI_Allreduce(MPI_IN_PLACE, v(ninact + nact + 1, ninact + 1, ninact + 1, ninact + 1), nsec*nact**3, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
    end subroutine vCmat_ord_ty

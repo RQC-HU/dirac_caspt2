@@ -307,10 +307,10 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Call intra_3(3, 2, 2, 2, 'C1int')
     ! Call intra_3(3, 2, 1, 1, 'C2int')
     ! Call intra_1(3, 1, 1, 2, 'C3int')
-!     sumc2local = 0.0d+00
-!     Call solvC_ord_ty(e0, e2)
-!     e2all = e2all + e2
-! !      write(*,*) 'e2c is not added at while'
+    sumc2local = 0.0d+00
+    Call solvC_ord_ty(e0, e2)
+    e2all = e2all + e2
+!      write(*,*) 'e2c is not added at while'
 
     date1 = date0
     tsec1 = tsec0

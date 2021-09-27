@@ -152,14 +152,9 @@
        End do
 
        close (1)
-       if (index(fname, "D") == 1) then
-           write (*, *) "intra1,d,1"
-       end if
+
        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (index(fname, "D") == 1) then
-           write (*, *) "intra1,d,2"
-       end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
@@ -234,9 +229,7 @@
        close (1)
        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (index(fname, "D") == 1) then
-           write (*, *) "intra1,d,3"
-       end if
+
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
 !
@@ -309,9 +302,7 @@
        close (1)
        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (index(fname, "D") == 1) then
-           write (*, *) "intra1,d,4"
-       end if
+
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Storing integrals to disk
 !
