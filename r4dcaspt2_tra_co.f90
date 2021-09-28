@@ -388,7 +388,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, *) e2all
     end if
 
-
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)

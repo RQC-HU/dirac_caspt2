@@ -178,6 +178,9 @@ F90C = mpiifort
 # Use this flags if normally
  F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
 
+# Use this flags if you want to use gprof
+# F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg
+
 # Use this flags when debugging (list out of range access)
 # F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2
 
