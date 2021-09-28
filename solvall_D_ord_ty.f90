@@ -308,12 +308,12 @@
            deallocate (wb)
            Deallocate (bc1)
 
-1000       write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym),rank
+1000       write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
            e2d = e2d + e2(isym)
 
        End do                  ! isym
 
-       write (*, '("e2d      = ",E20.10,"a.u.",I4)') e2d,rank
+       write (*, '("e2d      = ",E20.10,"a.u.",I4)') e2d, rank
 
        write (*, '("sumc2,d  = ",E20.10)') sumc2local
        sumc2 = sumc2 + sumc2local
@@ -459,7 +459,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        integer, intent(in)     :: nai, iai(ninact + nact + 1:ninact + nact + nsec, ninact)
 
        complex*16, intent(out) :: v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
@@ -482,17 +482,18 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !
+       if (rank == 0) then
 
-       Do ia = 1, nsec
-           ja = ia + ninact + nact
-           Do ii = 1, ninact
-               ji = ii
-               Call tramo1_ty(ja, ji, cint1)
-               effh(ja, ji) = cint1
+           Do ia = 1, nsec
+               ja = ia + ninact + nact
+               Do ii = 1, ninact
+                   ji = ii
+                   Call tramo1_ty(ja, ji, cint1)
+                   effh(ja, ji) = cint1
 !              if(ja==19.and.ji==1) write(*,'("effh int1 ",2I4,2E20.10)')ja,ji,cint1
+               End do
            End do
-       End do
-
+       end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
 !
@@ -509,10 +510,10 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      !  open (1, file='D1int', status='old', form='unformatted')
+       !  open (1, file='D1int', status='old', form='unformatted')
        open (1, file=d1int, status='old', form='formatted')
 
-30     read (1,  '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
+30     read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -548,10 +549,10 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      !  open (1, file='D2int', status='old', form='unformatted')
+       !  open (1, file='D2int', status='old', form='unformatted')
        open (1, file=d2int, status='old', form='formatted')
 
-31     read (1,  '(4I4, 2e20.10)', err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
+31     read (1, '(4I4, 2e20.10)', err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
        ja = i
        ji = l
        tai = iai(ja, ji)
@@ -574,10 +575,10 @@
 21     close (1)
        write (*, *) 'reading D2int2 is over'
 
-      !  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
+       !  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
        open (1, file=d3int, status='old', form='formatted') ! (ai|jk) is stored
 
-300    read (1,  '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
+300    read (1, '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
 !        write(*,*)'D1int', i,j,k,l ,cint2
 
        if (j /= k .and. k == l) then !(ai|kk)
@@ -594,6 +595,17 @@
 
 200    close (1)
        write (*, *) 'reading D3int2 is over'
+    !    effh(ninact + nact + 1:ninact + nact + nsec, ninact)
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, effh(ninact + nact + 1, 1), nsec*ninact, &
+                           MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(effh(ninact + nact + 1, 1), effh(ninact + nact + 1, 1), nsec*ninact, &
+                           MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank /= 0) then
+        effh(:,:) = 0
+       end if
 
        Do ia = 1, nsec
            ja = ia + ninact + nact
@@ -622,5 +634,7 @@
 10     write (*, *) 'error while opening file Dint'; goto 100
 
 100    write (*, *) 'vDmat_ord_ty is ended'
-
+       !  v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+       call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nai*nact**2, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
    end subroutine vDmat_ord_ty

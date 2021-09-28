@@ -1095,6 +1095,243 @@
        if (rank == 0) then ! Process limits for output
            write (*, '(A,I4)') "end readint2_ord_co", rank
        end if
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'caspt2_mdcint_cnt : ', rank, caspt2_mdcint_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, caspt2_mdcint_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(caspt2_mdcint_cnt, caspt2_mdcint_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'caspt2_mdcint_cnt sum : ', caspt2_mdcint_cnt
+       end if
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'caspt2_simple_loop : ', rank, simple_loop
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, simple_loop, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(simple_loop, simple_loop, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'caspt2_simple_loop sum : ', simple_loop
+       end if
+        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'a1_cnt : ', rank, a1_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'a2_cnt : ', rank, a2_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'b_cnt : ', rank, b_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'c1_cnt : ', rank, c1_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'c2_cnt : ', rank, c2_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'c3_cnt : ', rank, c3_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'd1_cnt : ', rank, d1_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'd2_cnt : ', rank, d2_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'd3_cnt : ', rank, d3_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'e_cnt : ', rank, e_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'f_cnt : ', rank, f_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'g_cnt : ', rank, g_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) 'h_cnt : ', rank, h_cnt
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, a1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(a1_cnt, a1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'a1_cnt sum : ', a1_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, a2_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(a2_cnt, a2_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'a2_cnt sum : ', a2_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, b_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(b_cnt, b_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'b_cnt sum : ', b_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, c1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(c1_cnt, c1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'c1_cnt sum : ', c1_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, c2_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(c2_cnt, c2_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'c2_cnt sum : ', c2_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, c3_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(c3_cnt, c3_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'c3_cnt sum : ', c3_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, d1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(d1_cnt, d1_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'd1_cnt sum : ', d1_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, d2_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(d2_cnt, d2_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'd2_cnt sum : ', d2_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, d3_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(d3_cnt, d3_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'd3_cnt sum : ', d3_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, e_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(e_cnt, e_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'e_cnt sum : ', e_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, f_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(f_cnt, f_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'f_cnt sum : ', f_cnt
+       end if
+
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, g_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(g_cnt, g_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'g_cnt sum : ', g_cnt
+       end if
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, h_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(h_cnt, h_cnt, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then
+           write (*, *) 'h_cnt sum : ', h_cnt
+       end if
        !! TODO A1のみで行けるか確認 formattedで行けるか確認  intra3のerror時のgotoを変える(将来的に0000をEOFと認識させるようにするなどの対策をとる?)
    end subroutine readint2_ord_co

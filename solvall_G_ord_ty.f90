@@ -455,24 +455,24 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+      use four_caspt2_module
 
-        Implicit NONE
+      Implicit NONE
+      include 'mpif.h'
 
+      integer, intent(in)     :: nabi, &
 
-        integer, intent(in)     :: nabi, &
+      & iabi(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec,1:ninact)
 
-        & iabi(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec,1:ninact)
+      complex*16, intent(out) :: v(nabi, ninact+1:ninact+nact)
 
-        complex*16, intent(out) :: v(nabi, ninact+1:ninact+nact)
+      real*8                  :: dr, di, signij, signkl
+      complex*16              :: cint2, dens
 
-        real*8                  :: dr, di, signij, signkl
-        complex*16              :: cint2, dens
+      integer :: i, j, k, l, tabi
+      integer :: it, jt, il
 
-        integer :: i, j, k, l, tabi
-        integer :: it, jt, il
-
-        v = 0.0d+00
+      v = 0.0d+00
 
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
 
@@ -506,4 +506,7 @@
 
  100    write(*,*)'vGmat_ord_ty is ended'
 
+      !   v(nabi, ninact+1:ninact+nact)
+       call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), nabi*nact, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
    end subroutine vGmat_ord_ty

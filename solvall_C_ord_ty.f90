@@ -648,15 +648,23 @@
 200    close (1)
        write (*, *) 'reading C2int2 is over'
        !    effh(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact)
-       call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + nact + 1, ninact + 1), nsec*nact, &
-                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-    !    do loopcnt = 0, nprocs - 1
-    !        if (rank == loopcnt) then
-    !            write (*, *) 'effh(after),rank:', rank, effh
-    !        end if
-    !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    !    end do
-    !    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, effh(ninact + nact + 1, ninact + 1), nsec*nact, &
+                           MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(effh(ninact + nact + 1, ninact + 1), effh(ninact + nact + 1, ninact + 1), nsec*nact, &
+                           MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank /= 0) then
+           effh(:, :) = 0
+       end if
+       do loopcnt = 0, nprocs - 1
+           if (rank == loopcnt) then
+               write (*, *) 'effh(after),rank:', rank, effh
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        !  open (1, file='C3int', status='old', form='unformatted') ! TYPE 3 integrals
        open (1, file=c3int, status='old', form='formatted') ! TYPE 3 integrals
@@ -680,7 +688,6 @@
        write (*, *) 'reading C3int2 is over'
 
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
-
        Do ia = 1, nsec
            ja = ia + ninact + nact
 !              write(*,'("effh  ",2I4,2E20.10)')ja, jp, effh(ja,jp)

@@ -9,6 +9,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
 
        real*8, intent(in) :: e0
        real*8, intent(out):: e2h
@@ -98,9 +99,9 @@
        Allocate (v(nab, nij))
        v = 0.0d+00
 
-      !  open (1, file='Hint', status='old', form='unformatted')
+       !  open (1, file='Hint', status='old', form='unformatted')
        open (1, file=hint, status='old', form='formatted')
-30     read (1,  '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
+30     read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
        count = 0
 
 40     if (i <= k .or. j == l) goto 30
@@ -130,7 +131,9 @@
        goto 30
 
 20     close (1)
-
+       !    Allocate (v(nab, nij))
+       call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        write (*, *) 'reading int2 is over'
 
        Do i0 = 1, nab
@@ -173,4 +176,5 @@
 10     continue                !write(*,*)'error about opening Hint file' ;stop
 100    continue
        write (*, *) 'end solvh_ord'
+
    End SUBROUTINE solvH_ord_ty

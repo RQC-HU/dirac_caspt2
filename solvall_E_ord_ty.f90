@@ -113,7 +113,7 @@
            End do
         End do
 
-       Allocate(v(naij, ninact+1:ninact+nact))
+        Allocate(v(naij, ninact+1:ninact+nact))
         v = 0.0d+00
 
         Call vEmat_ord_ty (naij, iaij, v)
@@ -302,7 +302,7 @@
  1000      write(*,'("e2e(",I3,") = ",E20.10,"a.u.")')isym,e2(isym)
            e2e = e2e + e2(isym)
 
-        End do                  ! isym
+   End do                  ! isym
 
         write(*,'("e2e      = ",E20.10,"a.u.")')e2e
 
@@ -467,23 +467,24 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+      use four_caspt2_module
 
-        Implicit NONE
+      Implicit NONE
+      include 'mpif.h'
 
-        integer, intent(in)     :: naij, &
+      integer, intent(in)     :: naij, &
 
-        & iaij(ninact+nact+1:ninact+nact+nsec,1:ninact,1:ninact)
+      & iaij(ninact+nact+1:ninact+nact+nsec,1:ninact,1:ninact)
 
-        complex*16, intent(out) :: v(naij, ninact+1:ninact+nact)
+      complex*16, intent(out) :: v(naij, ninact+1:ninact+nact)
 
-        real*8                  :: dr, di
-        complex*16              :: cint2, dens
+      real*8                  :: dr, di
+      complex*16              :: cint2, dens
 
-        integer :: i, j, k, l, taij
-        integer :: it, jt, ik
+      integer :: i, j, k, l, taij
+      integer :: it, jt, ik
 
-        v = 0.0d+00
+      v = 0.0d+00
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
@@ -544,5 +545,7 @@
  10               write(*,*) 'error while opening file Eint' ; goto 100
 
  100                  write(*,*)'vEmat_ord_ty is ended'
-
+      !  v(naij, ninact+1:ninact+nact)
+        call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), naij*nact, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
    end subroutine vEmat_ord_ty

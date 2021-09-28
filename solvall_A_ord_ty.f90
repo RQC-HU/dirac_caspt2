@@ -9,7 +9,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        real*8, intent(in) :: e0
        real*8, intent(out):: e2a
 
@@ -32,6 +32,7 @@
        integer :: jx, jy, jz, ji, it
 
        real*8  :: thresd
+       integer :: loopcnt
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -295,8 +296,14 @@
            e2a = e2a + e2(isym)
 
 1000   End do                  ! isym
-
-       write (*, '("e2a      = ",E20.10,"a.u.")') e2a
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       do loopcnt = 0, nprocs - 1
+           if (rank == loopcnt) then
+               write (*, '("e2a      = ",E20.10," a.u.",I4)') e2a, rank
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        write (*, '("sumc2,a  = ",E20.10)') sumc2local
        sumc2 = sumc2 + sumc2local
@@ -476,6 +483,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
 
        complex*16, intent(out) ::  &
        & v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
@@ -492,6 +500,8 @@
        integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
        integer, allocatable :: ind2u(:, :), ind2v(:, :)
        logical :: test
+
+       integer :: loopcnt, idx
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  V(tuv,i)=  - SIGUMA_p,q,r:act <0|EvuEptEqr|0>(pi|qr)
@@ -577,19 +587,20 @@
        Do isym = 1, nsymrpa
            write (*, '(2I4)') dim2(isym), isym
        End do
+       if (rank == 0) then
+           Do ii = 1, ninact
+               ji = ii
+               Do it = 1, nact
+                   jt = it + ninact
 
-       Do ii = 1, ninact
-           ji = ii
-           Do it = 1, nact
-               jt = it + ninact
+                   Call tramo1_ty(jt, ji, cint1)
+                   effh(jt, ji) = cint1
+                   !              if(jt==11.and.ji==1) write(*,'("eff 1int",2I4,2E20.10)') jt,ji,cint1
+                   !              if(jt==11.and.ji==1) write(*,'("eff 1int",2E20.10)') effh(jt,ji)
 
-               Call tramo1_ty(jt, ji, cint1)
-               effh(jt, ji) = cint1
-!              if(jt==11.and.ji==1) write(*,'("eff 1int",2I4,2E20.10)') jt,ji,cint1
-!              if(jt==11.and.ji==1) write(*,'("eff 1int",2E20.10)') effh(jt,ji)
-
+               End do
            End do
-       End do
+       end if
 
 !      write(*,*)'effh(11,1)',effh(11,1)
 
@@ -606,7 +617,7 @@
 
        write (*, *) 'open A1int'
 
-30     read (1,  '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
+30     read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  V(tuv,i)=  - SIGUMA_p,q,r:act <0|EvuEptEqr|0>(pi|qr)
@@ -655,7 +666,7 @@
        !  open (1, file='A2int', status='old', form='unformatted') ! TYPE 2 integrals
        open (1, file=a2int, status='old', form='formatted') ! TYPE 2 integrals
 
-300    read (1, '(4I4, 2e20.10)',  err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
+300    read (1, '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
        count = 0
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -679,6 +690,30 @@
 
 200    close (1)
        write (*, *) 'reading A2int2 is over'
+       !    effh(ninact + 1:ninact + nact, ninact)
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) "effh(before), rank :", rank, effh
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, &
+                           MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(effh(ninact + 1, 1), effh(ninact + 1, 1), nact*ninact, &
+                           MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank /= 0) then
+           effh(:, :) = 0
+       end if
+       !    call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       if (rank == 0) then
+           write (*, *) "effh(after), rank :", rank, effh
+       end if
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        Call timing(date1, tsec1, date0, tsec0)
        date1 = date0
@@ -736,5 +771,18 @@
        Call timing(date1, tsec1, date0, tsec0)
        date1 = date0
        tsec1 = tsec0
-
+       !    v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       do loopcnt = 0, nprocs - 1
+           if (loopcnt == rank) then
+               write (*, *) "v(before), rank :", rank, v
+           end if
+           call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       end do
+       call MPI_Allreduce(MPI_IN_PLACE, v(ninact, ninact + 1, ninact + 1, ninact + 1), ninact*nact*nact*nact, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       if (rank == 0) then
+           write (*, *) "v(after), rank :", rank, v
+       end if
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
    end subroutine vAmat_ord_ty

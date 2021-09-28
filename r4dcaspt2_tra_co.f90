@@ -257,14 +257,14 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = initdate
     tsec1 = totalsec
 
-    Call timing(date1, tsec1, date0, tsec0)
-    date1 = date0
-    tsec1 = tsec0
+    ! Call timing(date1, tsec1, date0, tsec0)
+    ! date1 = date0
+    ! tsec1 = tsec0
 
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter intra3 A1int'
     end if
-    call MPI_Barrier(MPI_COMM_WORLD,ierr)
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
     write (*, *) 'A1int filename name : ', trim(a1int), ' rank', rank
     Call intra_3(2, 1, 2, 2, a1int)
     ! Call intra_3(2, 1, 2, 2, 'A1int')
@@ -273,29 +273,30 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     Call intra_3(2, 1, 1, 1, a2int)
     ! Call intra_3(2, 1, 1, 1, 'A2int')
-!     sumc2local = 0.0d+00
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) 'Enter solvA'
-!     end if
-!     Call solvA_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
 
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    sumc2local = 0.0d+00
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'Enter solvA'
+    end if
+    Call solvA_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
+
+    ! date1 = date0
+    ! tsec1 = tsec0
+    ! Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_2(2, 1, 2, 1, bint)
     ! Call intra_2(2, 1, 2, 1, 'Bint ')
 
-!     sumc2local = 0.0d+00
-!     Call solvB_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
+    sumc2local = 0.0d+00
+    Call solvB_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
 
     date1 = date0
     tsec1 = tsec0
@@ -307,10 +308,10 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Call intra_3(3, 2, 2, 2, 'C1int')
     ! Call intra_3(3, 2, 1, 1, 'C2int')
     ! Call intra_1(3, 1, 1, 2, 'C3int')
+
     sumc2local = 0.0d+00
     Call solvC_ord_ty(e0, e2)
     e2all = e2all + e2
-!      write(*,*) 'e2c is not added at while'
 
     date1 = date0
     tsec1 = tsec0
@@ -322,12 +323,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Call intra_3(3, 1, 2, 2, 'D1int')
     ! Call intra_1(3, 2, 2, 1, 'D2int')
     ! Call intra_3(3, 1, 1, 1, 'D3int')
-!     sumc2local = 0.0d+00
-!     Call solvD_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
+    sumc2local = 0.0d+00
+    Call solvD_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
 
     date1 = date0
     tsec1 = tsec0
@@ -336,12 +337,13 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call intra_1(3, 1, 2, 1, eint)
     ! Call intra_1(3, 1, 2, 1, 'Eint')
 
-!     sumc2local = 0.0d+00
-!     Call solvE_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
+    sumc2local = 0.0d+00
+    Call solvE_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
+
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -349,12 +351,13 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call intra_2(3, 2, 3, 2, fint)
     ! Call intra_2(3, 2, 3, 2, 'Fint ')
 
-!     sumc2local = 0.0d+00
-!     Call solvF_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
+    sumc2local = 0.0d+00
+    Call solvF_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
+
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -362,12 +365,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call intra_1(3, 1, 3, 2, gint)
     ! Call intra_1(3, 1, 3, 2, 'Gint ')
 
-!     sumc2local = 0.0d+00
-!     Call solvG_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
+    sumc2local = 0.0d+00
+    Call solvG_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
@@ -375,56 +378,58 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call intra_2(3, 1, 3, 1, hint)
     ! Call intra_2(3, 1, 3, 1, 'Hint ')
 
-!     sumc2local = 0.0d+00
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) 'enter solveH_ord_ty'
-!     end if
-!     Call solvH_ord_ty(e0, e2)
-!     e2all = e2all + e2
-!     if (rank == 0) then ! Process limits for output
-!         write (*, *) e2all
-!     end if
-!     date1 = date0
-!     tsec1 = tsec0
-!     Call timing(date1, tsec1, date0, tsec0)
+    sumc2local = 0.0d+00
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'enter solveH_ord_ty'
+    end if
+    Call solvH_ord_ty(e0, e2)
+    e2all = e2all + e2
+    if (rank == 0) then ! Process limits for output
+        write (*, *) e2all
+    end if
 
-!     if (rank == 0) then ! Process limits for output
-!         write (*, '("c^2 ",F30.15)') sumc2
-!     end if
-!     weight0 = 1.0d+00/(1.0d+00 + sumc2)
+
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
+    if (rank == 0) then ! Process limits for output
+        write (*, '("c^2 ",F30.15)') sumc2
+    end if
+    weight0 = 1.0d+00/(1.0d+00 + sumc2)
     ! if (rank == 0) then
     !     call MPI_Reduce(MPI_IN_PLACE, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     ! else
     !     call MPI_Reduce(e2all, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     ! end if
-    ! if (rank == 0) then ! Process limits for output
-    !     write (*, '("weight of 0th wave function is",F30.15)') weight0
+    if (rank == 0) then ! Process limits for output
+        write (*, '("weight of 0th wave function is",F30.15)') weight0
 
-    !     write (*, '("Total second order energy is ",F30.15," a.u.")') e2all - eshift*sumc2
-    !     write (*, '(" ")')
-    !     write (*, '("Total energy is ",F30.15," a.u.")') e2all + eigen(iroot) - eshift*sumc2
-    ! end if
-    if(allocated(cir)) deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
-    if(allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
-    if(allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
-    if(allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
-    if(allocated(idet)) deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
+        write (*, '("Total second order energy is ",F30.15," a.u.")') e2all - eshift*sumc2
+        write (*, '(" ")')
+        write (*, '("Total energy is ",F30.15," a.u.")') e2all + eigen(iroot) - eshift*sumc2
+    end if
+    if (allocated(cir)) deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
+    if (allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
+    if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
+    if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
+    if (allocated(idet)) deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
 
 !    End do  ! totsym
-    if(allocated(sp)) deallocate (sp); Call memminus(KIND(sp), SIZE(sp), 1)
-    if(allocated(orb)) deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
-    if(allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
-    if(allocated(irpamo)) deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
-    if(allocated(indmo)) deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
-    if(allocated(indmor)) deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
-    if(allocated(oner)) deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-    if(allocated(onei)) deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-    if(allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
-    if(allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
-    if(allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
-    if(allocated(MULTB_DF)) deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
-    if(allocated(MULTB_DB)) deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
-    if(allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
+    if (allocated(sp)) deallocate (sp); Call memminus(KIND(sp), SIZE(sp), 1)
+    if (allocated(orb)) deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
+    if (allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
+    if (allocated(irpamo)) deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
+    if (allocated(indmo)) deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
+    if (allocated(indmor)) deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
+    if (allocated(oner)) deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
+    if (allocated(onei)) deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
+    if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
+    if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
+    if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
+    if (allocated(MULTB_DF)) deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
+    if (allocated(MULTB_DB)) deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
+    if (allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
     Call timing(val(3), totalsec, date0, tsec0)
     if (rank == 0) then ! Process limits for output

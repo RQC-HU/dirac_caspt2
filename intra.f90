@@ -161,20 +161,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -235,20 +236,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -308,20 +310,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -381,20 +384,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -657,20 +661,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -733,20 +738,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -806,20 +812,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -881,20 +888,21 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+       open (1, file=trim(fname), status='replace', form='formatted')
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -1141,24 +1149,24 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
+       open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 1, li, le, ki, ke, ji, je, ii, ie
-
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -1222,22 +1230,23 @@
 ! Storing integrals to disk
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-       open (1, file=trim(fname), status='old', form='formatted')
+       open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 2, li, le, ki, ke, ji, je, ii, ie
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -1297,22 +1306,23 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
+       open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 3, li, le, ki, ke, ji, je, ii, ie
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -1372,22 +1382,23 @@
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-       open (1, file=trim(fname), status='old', form='formatted')
+       open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 4, li, le, ki, ke, ji, je, ii, ie
-       n_cnt = 0
-       Do l0 = li, le
-           Do k0 = ki, ke
-               Do j0 = ji, je
-                   Do i0 = ii, ie
-                       if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-                           write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
-                       end if
-                       n_cnt = n_cnt + 1
-                   End do
-               End do
-           End do
-       End do
+    !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+          n_cnt = 0
+          Do l0 = li, le
+              Do k0 = ki, ke
+                  Do j0 = ji, je
+                      Do i0 = ii, ie
+                          if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+                              write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+                          end if
+                          n_cnt = n_cnt + 1
+                      End do
+                  End do
+              End do
+          End do
 
        close (1)
 
@@ -1413,3 +1424,25 @@
        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
 1000 end subroutine intra_3
+
+!    subroutine write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
+!        use four_caspt2_module, only: nprocs, rank
+!        implicit none
+!        include 'mpif.h'
+!        integer                  :: n_cnt, i0, j0, k0, l0
+!        integer, intent(in)      :: ii, ie, ji, je, ki, ke, li, le, thresd
+!        complex(16), intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
+!        n_cnt = 0
+!        Do l0 = li, le
+!            Do k0 = ki, ke
+!                Do j0 = ji, je
+!                    Do i0 = ii, ie
+!                        if (ABS(traint2(i0, j0, k0, l0)) > thresd .and. mod(n_cnt, nprocs) == rank) then
+!                            write (1, '(4I4, 2e20.10)') i0, j0, k0, l0, traint2(i0, j0, k0, l0)
+!                        end if
+!                        n_cnt = n_cnt + 1
+!                    End do
+!                End do
+!            End do
+!        End do
+!    end subroutine write_traint2

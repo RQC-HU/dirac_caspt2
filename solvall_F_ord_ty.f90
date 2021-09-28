@@ -492,24 +492,24 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+      use four_caspt2_module
 
-        Implicit NONE
+      Implicit NONE
+      include 'mpif.h'
 
+      integer, intent(in)     :: nab, &
 
-        integer, intent(in)     :: nab, &
+      & iab(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec)
 
-        & iab(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec)
+      complex*16, intent(out) :: v(nab,ninact+1:ninact+nact,ninact+1:ninact+nact)
 
-        complex*16, intent(out) :: v(nab,ninact+1:ninact+nact,ninact+1:ninact+nact)
+      real*8                  :: dr, di
+      complex*16              :: cint2, dens
 
-        real*8                  :: dr, di
-        complex*16              :: cint2, dens
+      integer :: i, j, k, l, tab, ip, iq, save
+      integer :: it, jt, ju, iu
 
-        integer :: i, j, k, l, tab, ip, iq, save
-        integer :: it, jt, ju, iu
-
-        v = 0.0d+00
+      v = 0.0d+00
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
@@ -564,5 +564,8 @@
 
  100    write(*,*)'vFmat_ord is ended'
 
+      !  v(nab, ninact+1:ninact+nact, ninact+1:ninact+nact)
+      call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nab*nact**2, &
+                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
    end subroutine vFmat_ord
