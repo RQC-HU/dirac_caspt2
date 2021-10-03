@@ -129,14 +129,14 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     open (rank + 100, file=mdcint_filename, form='unformatted', status='unknown')
     open (rank + 200, file=mdcintNew, form='unformatted', status='unknown')
-    open (rank + 300, file=mdcint_debug, form='formatted', status='unknown')
+    ! open (rank + 300, file=mdcint_debug, form='formatted', status='unknown')
     ! open(30, file=mdcint_int, form='formatted', status='unknown')
     ! write (3000, *) "before read day,time,kr. rank=", rank
     read (rank + 100)
     ! write (3000, *) "end read day,time,kr. rank=", rank
 
     write (rank + 200) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-    write (rank + 300, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+    ! write (rank + 300, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
     nnkr = nkr
     kkr(:) = kr(:)
 
@@ -280,7 +280,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
-                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                ! write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
                 casci_mdcint_cnt = casci_mdcint_cnt + 1
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
                 ! else
@@ -296,7 +296,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
-                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                ! write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
                 casci_mdcint_cnt = casci_mdcint_cnt + 1
 
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
@@ -313,7 +313,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
-                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                ! write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
                 casci_mdcint_cnt = casci_mdcint_cnt + 1
 
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
@@ -330,7 +330,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !                    write(28) -ikr,-jkr,nnz,-(indk(inz)),-(indl(inz)),rklr(inz),-(rkli(inz))
 !                    write(28) -iikr,-jjkr,nnz,-kkkr,-llkr,rklr8(inz),-(rkli8(inz))
                 write (rank + 200) iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
-                write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
+                ! write (rank + 300, '(5I4,2E32.16)') iiit, jjjt, nnz, kkkt, lllt, rklr8(inz), -(rkli8(inz))
                 casci_mdcint_cnt = casci_mdcint_cnt + 1
 
                 ! write(29,'(5I4,2E32.16)') -iikr,-jjkr,nnz,-kkkr,-llkr,rklr(inz),-(rkli(inz))
@@ -361,7 +361,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 1000 close (rank + 100)
     close (rank + 200)
-    close (rank + 300)
+    ! close (rank + 300)
     ! close(30)
     deallocate (indk)
     deallocate (indl)

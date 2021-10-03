@@ -692,12 +692,14 @@
        write (*, *) 'reading A2int2 is over'
        !    effh(ninact + 1:ninact + nact, ninact)
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
        do loopcnt = 0, nprocs - 1
            if (loopcnt == rank) then
                write (*, *) "effh(before), rank :", rank, effh
            end if
            call MPI_Barrier(MPI_COMM_WORLD, ierr)
        end do
+
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        if (rank == 0) then
            call MPI_Reduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, &
@@ -706,6 +708,7 @@
            call MPI_Reduce(effh(ninact + 1, 1), effh(ninact + 1, 1), nact*ninact, &
                            MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
        end if
+
        if (rank /= 0) then
            effh(:, :) = 0
        end if

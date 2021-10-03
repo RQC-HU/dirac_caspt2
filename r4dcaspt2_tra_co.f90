@@ -22,7 +22,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     real*8, allocatable      :: ecas(:)
 
     character*50            :: filename
-
+    real(16)                :: time0, time1
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -36,6 +36,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
     call MPI_INIT(ierr)
+    time0 = MPI_Wtime()
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
 
@@ -435,6 +436,8 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, *) 'End r4dcaspt2_tra_ty'
     end if
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
+    time1 = MPI_Wtime()
+    write(*,"(a,I4,a,e16.6)") "MPI_Wtime, rank:",rank,"time",time1-time0
     call MPI_FINALIZE(ierr)
 
 1000 continue

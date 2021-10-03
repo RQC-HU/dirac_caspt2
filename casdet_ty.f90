@@ -22,7 +22,7 @@
        ndet = 0
 
        Do i = 1, 2**nact - 1
-           if (nbitsa(i) == nelec) then
+           if (POPCNT(i) == nelec) then
                if (trim(ptgrp) == 'C1') then
                    ndet = ndet + 1
                    idet0(ndet) = i
