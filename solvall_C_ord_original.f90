@@ -41,10 +41,10 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !      SPACE C IS NOW CALCULATED
-!      
+!
 !     EatEuv|0>
 !
-!   DRAS1 = 0   DRAS2 = -1   DRAS3 = +1 
+!   DRAS1 = 0   DRAS2 = -1   DRAS3 = +1
 !
 !
 !  S(xyz,tuv) = <0|EzyExtEuv|0>
@@ -54,7 +54,7 @@
 !  a(a)       = eps(a) - Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
 !
 !  V(tuv,a)   = Siguma_p [h'ap - Siguma_q(aq|qp)]<0|EvuEtp|0> + Siguma_pqr<0|EvuEtrEpq|0>(ar|pq)
-!   
+!
 !  where h'ap = hap + Siguma_k(is oqqupied)[(ap|kk)-(ak|kp)]
 !
 ! Indices are restricted as t > v, x > z
@@ -84,7 +84,7 @@
 
        ixyz = 0
 
-       Do ix = 1, nact           
+       Do ix = 1, nact
           Do iy = 1, nact
              Do iz = 1, nact
 !             Do iz = 1, ix-1
@@ -99,18 +99,18 @@
 !Iwamuro think
 !               syma = MULTB(irpmo(jx), isym)
 !               symb = MULTB2(irpmo(jz), nsymrpa + 1)
-!               symc = MULTB(irpmo(jy), symb)      
+!               symc = MULTB(irpmo(jy), symb)
 !Iwamuro modify
 !                write(*,*)"syma1",syma
 !Iwamuro modify
-                If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == symc))) then  
+                If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == symc))) then
 !                If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == isym))) then
                    ixyz = ixyz + 1
                 End if
 !Iwamuro modify
 !                write(*,*)"ixyz1", ixyz
 
-  
+
  100         End do
           End do
         End do
@@ -128,7 +128,7 @@
               Do iz = 1, nact
 !              Do iz = 1, ix-1
                 if(ix == iz) goto 200
-  
+
                 jx = ix+ninact
                 jy = iy+ninact
                 jz = iz+ninact
@@ -136,7 +136,7 @@
                 syma = MULTB (irpmo(jy), syma)
                 syma = MULTB2(irpmo(jx), syma)
 !Iwamuro modify
-!                write(*,*)"syma2",syma  
+!                write(*,*)"syma2",syma
 
                 If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == isym))) then
                    ixyz = ixyz + 1
@@ -144,7 +144,7 @@
                    indsym(2,ixyz) = iy
                    indsym(3,ixyz) = iz
                 End if
-  
+
  200         End do
           End do
         End do
@@ -197,7 +197,7 @@
            Allocate(bc(dimn,dimn))                                 ! br N*N
            bc = 0.0d+00
 
-       Call bCmat (dimn, sc0, indsym, bc)               
+       Call bCmat (dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
            deallocate (sc0)
@@ -230,7 +230,7 @@
            Allocate(bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
-           Allocate(bc1(dimm, dimm))                      ! bc1 M*M 
+           Allocate(bc1(dimm, dimm))                      ! bc1 M*M
            bc1 = 0.0d+00
            bc1 = MATMUL(bc0, uc)
 
@@ -355,7 +355,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)      :: dimn, indsym(3, dimn)
         complex*16, intent(out)  :: sc(dimn,dimn)
 
@@ -396,7 +396,7 @@
         End do                  !i
 
         End subroutine sCmat
-        
+
 
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -423,10 +423,10 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer :: it, iu, iv, ix, iy, iz, iw, i, j
         integer :: jt, ju, jv, jx, jy, jz, jw
-        
+
         integer, intent(in) :: dimn, indsym(3,dimn)
         complex*16, intent(in)  :: sc(dimn,dimn)
         complex*16, intent(out) :: bc(dimn,dimn)
@@ -469,7 +469,7 @@
                  bc(i,j) = bc(i,j) + den*eps(jw)
 
               End do
-   
+
               bc(i, j) = bc(i, j) + sc(i, j)*e
 
               bc(j, i) = DCONJG(bc(i, j))
@@ -508,8 +508,8 @@
    use four_caspt2_module
 
         Implicit NONE
-     
-        
+
+
         complex*16, intent(out) :: v(ninact+nact+1:ninact+nact+nsec, ninact+1:ninact+nact,  &
                           &          ninact+1:ninact+nact,           ninact+1:ninact+nact)
 
@@ -664,7 +664,7 @@
 
         open(1, file ='C2int', status='old', form='unformatted') ! TYPE 2 integrals
 
- 300    read(1, err=10, end=200) i,j,k,l,cint2 
+ 300    read(1, err=10, end=200) i,j,k,l,cint2
 
 !           write(*,'("TYPE 2  ",4I4,2E20.10)')i,j,k,l,cint2
 !
@@ -672,7 +672,7 @@
 !  effh(a,p) =  hap + Siguma_k(is oqqupied)[(ap|kk)-(ak|kp)] - Siguma_w(aw|wp)
 !                                          ========
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
+
         if(k==l) then
 
            effh(i,j) = effh(i,j) + cint2
@@ -680,7 +680,7 @@
         endif
 
         goto 300
-           
+
  200    close(1)
         write(*,*)'reading C2int2 is over'
 
@@ -696,7 +696,7 @@
 !                                                  =========
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if(j==k) then
-        
+
            effh(i,l) = effh(i,l) - cint2
 
         endif
@@ -745,7 +745,7 @@
 
 
  10     write(*,*) 'error while opening file Cint' ; goto 101
-        
+
  101    write(*,*)'vCmat_ord is ended'
 
         deallocate(indt)

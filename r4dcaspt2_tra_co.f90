@@ -23,6 +23,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     character*50            :: filename
     real(16)                :: time0, time1
+    integer                 :: access ! caspt2.outが存在するか確認するための変数 0:存在する
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -39,26 +40,31 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     time0 = MPI_Wtime()
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-
     if (rank == 0) then ! Process limits for output
-        write (*, *) ''
-        write (*, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
-        write (*, *) ''
+        ! caspt2.outが存在するかどうか確認,あれば追記,なければ新規追加する
+        if (access( "./caspt2.out", " ") == 0) then
+            open(normaloutput,file='caspt2.out',status='old',form='formatted',position='append')
+        else
+            open(normaloutput,file='caspt2.out',status='new',form='formatted')
+        end if
+        write (normaloutput, *) ''
+        write (normaloutput, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
+        write (normaloutput, *) ''
     end if
     tmem = 0.0d+00
 
     val = 0
     Call DATE_AND_TIME(VALUES=val)
     if (rank == 0) then ! Process limits for output
-        Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
+        Write (normaloutput, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
+        Write (normaloutput, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
     end if
     totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
     initdate = val(3)
     inittime = totalsec
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) inittime
+        write (normaloutput, *) inittime
     end if
     Call timing(val(3), totalsec, date0, tsec)
 
@@ -79,17 +85,17 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     read (5, '(A6)') ptgrp
     close (5)
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'ninact     =', ninact
-        write (*, *) 'nact       =', nact
-        write (*, *) 'nsec       =', nsec
-        write (*, *) 'nelec      =', nelec
-        write (*, *) 'nroot      =', nroot
-        write (*, *) 'selectroot =', selectroot
-        write (*, *) 'totsym     =', totsym
-        write (*, *) 'ncore      =', ncore
-        write (*, *) 'nbas       =', nbas
-        write (*, *) 'eshift     =', eshift
-        write (*, *) 'ptgrp      =', ptgrp
+        write (normaloutput, *) 'ninact     =', ninact
+        write (normaloutput, *) 'nact       =', nact
+        write (normaloutput, *) 'nsec       =', nsec
+        write (normaloutput, *) 'nelec      =', nelec
+        write (normaloutput, *) 'nroot      =', nroot
+        write (normaloutput, *) 'selectroot =', selectroot
+        write (normaloutput, *) 'totsym     =', totsym
+        write (normaloutput, *) 'ncore      =', ncore
+        write (normaloutput, *) 'nbas       =', nbas
+        write (normaloutput, *) 'eshift     =', eshift
+        write (normaloutput, *) 'ptgrp      =', ptgrp
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -154,7 +160,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) ' ENTER READ NEWCICOEFF', ndet
+        write (normaloutput, *) ' ENTER READ NEWCICOEFF', ndet
     end if
 
     Allocate (ci(1:ndet))
@@ -186,7 +192,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 !        write(*,*)cii(1:ndet,selectroot)
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) ' EXIT READ NEWCICOEFF'
+        write (normaloutput, *) ' EXIT READ NEWCICOEFF'
     end if
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -216,29 +222,29 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) ' '
-        write (*, *) '*******************************'
-        write (*, *) ' '
-        write (*, *) 'IREP IS ', repna(totsym)
-        write (*, *) ' '
-        write (*, *) '*******************************'
-        write (*, *) ' '
+        write (normaloutput, *) ' '
+        write (normaloutput, *) '*******************************'
+        write (normaloutput, *) ' '
+        write (normaloutput, *) 'IREP IS ', repna(totsym)
+        write (normaloutput, *) ' '
+        write (normaloutput, *) '*******************************'
+        write (normaloutput, *) ' '
     end if
     realcvec = .TRUE.
 
 !    This is test for bug fix about realc part
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
+        write (normaloutput, *) realc, 'realc'
+        write (normaloutput, *) realcvec, 'realcvec'
     end if
     realc = .FALSE.      !!!      realc =.TRUE.
     realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'FOR TEST WE DO (F,F)'
-        write (*, *) realc, 'realc'
-        write (*, *) realcvec, 'realcvec'
+        write (normaloutput, *) 'FOR TEST WE DO (F,F)'
+        write (normaloutput, *) realc, 'realc'
+        write (normaloutput, *) realcvec, 'realcvec'
     end if
 !!=============================================!
 !                                              !
@@ -263,26 +269,26 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! tsec1 = tsec0
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter intra3 A1int'
+        write (normaloutput, *) 'Enter intra3 A1int'
     end if
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    write (*, *) 'A1int filename name : ', trim(a1int), ' rank', rank
+    write (normaloutput, *) 'A1int filename name : ', trim(a1int), ' rank', rank
     Call intra_3(2, 1, 2, 2, a1int)
     ! Call intra_3(2, 1, 2, 2, 'A1int')
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter intra3 A2int'
+        write (normaloutput, *) 'Enter intra3 A2int'
     end if
     Call intra_3(2, 1, 1, 1, a2int)
     ! Call intra_3(2, 1, 1, 1, 'A2int')
 
     sumc2local = 0.0d+00
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter solvA'
+        write (normaloutput, *) 'Enter solvA'
     end if
     Call solvA_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
 
     ! date1 = date0
@@ -328,7 +334,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call solvD_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
 
     date1 = date0
@@ -342,7 +348,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call solvE_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
 
     date1 = date0
@@ -356,7 +362,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call solvF_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
 
     date1 = date0
@@ -370,7 +376,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call solvG_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
     date1 = date0
     tsec1 = tsec0
@@ -381,12 +387,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     sumc2local = 0.0d+00
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'enter solveH_ord_ty'
+        write (normaloutput, *) 'enter solveH_ord_ty'
     end if
     Call solvH_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
 
     date1 = date0
@@ -394,7 +400,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     if (rank == 0) then ! Process limits for output
-        write (*, '("c^2 ",F30.15)') sumc2
+        write (normaloutput, '("c^2 ",F30.15)') sumc2
     end if
     weight0 = 1.0d+00/(1.0d+00 + sumc2)
     ! if (rank == 0) then
@@ -403,11 +409,11 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     !     call MPI_Reduce(e2all, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     ! end if
     if (rank == 0) then ! Process limits for output
-        write (*, '("weight of 0th wave function is",F30.15)') weight0
+        write (normaloutput, '("weight of 0th wave function is",F30.15)') weight0
 
-        write (*, '("Total second order energy is ",F30.15," a.u.")') e2all - eshift*sumc2
-        write (*, '(" ")')
-        write (*, '("Total energy is ",F30.15," a.u.")') e2all + eigen(iroot) - eshift*sumc2
+        write (normaloutput, '("Total second order energy is ",F30.15," a.u.")') e2all - eshift*sumc2
+        write (normaloutput, '(" ")')
+        write (normaloutput, '("Total energy is ",F30.15," a.u.")') e2all + eigen(iroot) - eshift*sumc2
     end if
     if (allocated(cir)) deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
     if (allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
@@ -433,7 +439,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     Call timing(val(3), totalsec, date0, tsec0)
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'End r4dcaspt2_tra_ty'
+        write (normaloutput, *) 'End r4dcaspt2_tra_ty'
     end if
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
     time1 = MPI_Wtime()

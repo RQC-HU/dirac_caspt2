@@ -112,7 +112,7 @@
        integer :: k0, l0, ii, jj, kk, ll
 
        if (rank == 0) then
-           write (3000, *) 'Enter cdiagonal part'
+           write (normaloutput, *) 'Enter cdiagonal part'
        end if
        w(:) = 0.0d+00
 
@@ -208,11 +208,11 @@
        deallocate (rwork)
 
        if (rank == 0) then
-           write (3000, *) 'Finish zheev info = ', info
+           write (normaloutput, *) 'Finish zheev info = ', info
        end if
        if (info /= 0) then
            if (rank == 0) then
-               write (3000, *) 'error in diagonalization, info = ', info
+               write (normaloutput, *) 'error in diagonalization, info = ', info
            end if
            goto 1000
        end if
@@ -224,7 +224,7 @@
        if (cutoff) then
 
            if (rank == 0) then
-               write (3000, *) 'cut off threshold is ', thresd
+               write (normaloutput, *) 'cut off threshold is ', thresd
            end if
 
            j0 = 0
@@ -241,7 +241,7 @@
        end if
 
        if (rank == 0) then
-           write (3000, '(A,I8)') "end cdiag", rank
+           write (normaloutput, '(A,I8)') "end cdiag", rank
        end if
 1000   continue
    end subroutine cdiag
@@ -390,8 +390,8 @@
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
        if (rank == 0) then
-           write (3000, *) 'cdiag0 start'
-           write (3000, *) 'nsymrpa', nsymrpa
+           write (normaloutput, *) 'cdiag0 start'
+           write (normaloutput, *) 'nsymrpa', nsymrpa
        end if
 !         nsymrp = nsymrpa
 
@@ -406,7 +406,7 @@
        End do
 
        if (rank == 0) then
-           write (3000, *) 'fi', fi
+           write (normaloutput, *) 'fi', fi
        end if
 
        fac(n0:n1, n0:n1) = 0.0d+00
@@ -489,7 +489,7 @@
                Do j = 1, dimn
                    If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
                        if (rank == 0) then
-                           write (3000, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
+                           write (normaloutput, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
                        end if
                    End if
                End do
@@ -498,7 +498,7 @@
            Do i = 1, dimn
                If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
                    if (rank == 0) then
-                       write (3000, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
+                       write (normaloutput, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
                    end if
                End if
            End do
@@ -532,32 +532,32 @@
        matc = MATMUL(matc, fac)
 
        if (rank == 0) then
-           write (3000, *) 'OFF DIAGONAL TERM OF U*FU'
+           write (normaloutput, *) 'OFF DIAGONAL TERM OF U*FU'
        end if
        do i = n0, n1
        do j = n0, n1
            if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
-               write (3000, '(2E13.5,2I3)') matc(i, j), i, j
+               write (normaloutput, '(2E13.5,2I3)') matc(i, j), i, j
            end if
        end do
        end do
 
        if (rank == 0) then
-           write (3000, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+           write (normaloutput, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
        end if
        do i = n0, n1
            if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
                if (rank == 0) then
-                   write (3000, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
+                   write (normaloutput, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
                end if
            End if
        end do
        if (rank == 0) then
-           write (3000, '(/)')
+           write (normaloutput, '(/)')
        end if
        deallocate (matc)
 
        if (rank == 0) then
-           write (3000, *) 'cdiag0 end'
+           write (normaloutput, *) 'cdiag0 end'
        end if
    end

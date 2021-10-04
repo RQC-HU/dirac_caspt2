@@ -363,7 +363,7 @@
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
        if (rank == 0) then
-           write (3000, *) 'iroot = ', iroot
+           write (normaloutput, *) 'iroot = ', iroot
        end if
 
 !        Do iroot = 1, nroot
@@ -440,12 +440,12 @@
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        if (rank == 0) then
-           write (3000, *) 'energyHF(2)', energyHF(2)
+           write (normaloutput, *) 'energyHF(2)', energyHF(2)
        end if
 
 !Iwamuro modify
        if (rank == 0) then
-           write (3000, *) 'Iwamuro modify'
+           write (normaloutput, *) 'Iwamuro modify'
        end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
@@ -646,25 +646,25 @@
        call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then
-           write (3000, *) 'energy 1 =', energy(iroot, 1)
-           write (3000, *) 'energy 2 =', energy(iroot, 2)
-           write (3000, *) 'energy 3 =', energy(iroot, 3)
-           write (3000, *) 'energy 4 =', energy(iroot, 4)
+           write (normaloutput, *) 'energy 1 =', energy(iroot, 1)
+           write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
+           write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
+           write (normaloutput, *) 'energy 4 =', energy(iroot, 4)
 
-           write (3000, *) iroot, 't-energy(1-4)', &
+           write (normaloutput, *) iroot, 't-energy(1-4)', &
                energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-           write (3000, *) iroot, 't-energy', &
+           write (normaloutput, *) iroot, 't-energy', &
                eigen(iroot) - ecore
-           write (3000, *) iroot, 'eigen e0', &
+           write (normaloutput, *) iroot, 'eigen e0', &
                eigen(iroot)
 
-           write (3000, *) 'C the error ', &
+           write (normaloutput, *) 'C the error ', &
                eigen(iroot) - ecore &
                - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 ! Iwamuro modify
-           write (3000, *) 'Iwamuro modify'
+           write (normaloutput, *) 'Iwamuro modify'
 
 !         else
 !            write(*,*)'C the error ', &
@@ -678,8 +678,8 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           write (3000, *) 'CAUTION! HF energy may not be obtained correctly '
-           write (3000, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+           write (normaloutput, *) 'CAUTION! HF energy may not be obtained correctly '
+           write (normaloutput, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
        end if
 !!###   end do ! about type
        if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
@@ -690,6 +690,6 @@
 !      write(*,*)'e0aftertrac end'
 ! Iwamuro modify
        if (rank == 0) then
-           write (3000, *) 'e0aftertrac_ty end'
+           write (normaloutput, *) 'e0aftertrac_ty end'
        end if
    End subroutine e0aftertrac_ty

@@ -1,5 +1,5 @@
 subroutine get_mdcint_filename
-    use four_caspt2_module, only: rank, mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
+    use four_caspt2_module, only: rank, mdcint_filename, mdcintnew, mdcint_debug, mdcint_int, normaloutput
     implicit none
     character(50)   :: mdcint_basename, chr_rank, digit_x_padding
     ! Rename the MDCINT to open according to the process number.
@@ -42,11 +42,11 @@ subroutine get_mdcint_filename
         mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(chr_rank))
     end if
     if (rank == 0) then
-      write (3000, *) "get filename : ", trim(mdcint_filename), " ", trim(mdcintnew), " ", trim(mdcint_debug), " ", trim(mdcint_int)
+      write (normaloutput, *) "get filename : ", trim(mdcint_filename), " ", trim(mdcintnew), " ", trim(mdcint_debug), " ", trim(mdcint_int)
     end if
 end subroutine get_mdcint_filename
 subroutine get_subspace_filename
-    use four_caspt2_module, only: rank, a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
+    use four_caspt2_module, only: rank, a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint, normaloutput
     implicit none
     character(50) :: chr_rank
     if (rank == 0) then

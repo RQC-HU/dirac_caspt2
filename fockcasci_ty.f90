@@ -27,7 +27,7 @@
        f = 0.0d+00
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'enter building fock matrix'
+           write (normaloutput, *) 'enter building fock matrix'
        end if
        do i = 1, ninact + nact
            do j = i, ninact + nact
@@ -133,6 +133,6 @@
        call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'fockcasci end'
+           write (normaloutput, *) 'fockcasci end'
        end if
    end

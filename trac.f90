@@ -26,7 +26,7 @@
 
        occ = 0
        if (rank == 0) then
-           write (3000, *) 'Enter TRACI'
+           write (normaloutput, *) 'Enter TRACI'
        end if
 
        Do i0 = 1, ndet
@@ -105,7 +105,7 @@
 ! for a while !        End do
 
        if (rank == 0) then
-           write (3000, *) 'Obtain inverse of ds matrix'
+           write (normaloutput, *) 'Obtain inverse of ds matrix'
        end if
 
        Allocate (IPIV(ndet))
@@ -115,14 +115,14 @@
 
        Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
        if (rank == 0) then
-           write (3000, *) 'info', info
+           write (normaloutput, *) 'info', info
        end if
 
        Allocate (work(ndet))
 
        Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
        if (rank == 0) then
-           write (3000, *) 'info', info
+           write (normaloutput, *) 'info', info
        end if
 
 ! for a while !      write(*,'(/,"REAL")')
@@ -153,7 +153,7 @@
        Deallocate (work)
        Deallocate (IPIV)
        if (rank == 0) then
-           write (3000, *) 'Check whether inverese matrix is really so'
+           write (normaloutput, *) 'Check whether inverese matrix is really so'
        end if
 
        error = .FALSE.
@@ -165,12 +165,12 @@
            If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                error = .TRUE.
                if (rank == 0) then
-                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                   write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                error = .TRUE.
                if (rank == 0) then
-                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                   write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            End if
 
@@ -178,7 +178,7 @@
        End do
 
        if (rank == 0) then
-           If (.not. error) write (3000, *) 'Inverse matrix is obtained correclty'
+           If (.not. error) write (normaloutput, *) 'Inverse matrix is obtained correclty'
        end if
        Deallocate (dsold)
 
@@ -238,7 +238,7 @@
 
        occ = 0
        if (rank == 0) then
-           write (3000, *) 'Enter TRACI'
+           write (normaloutput, *) 'Enter TRACI'
        end if
        Do i0 = 1, ndet
            i = 0
@@ -272,7 +272,7 @@
        End do
 
        if (rank == 0) then
-           write (3000, *) 'Obtain inverse of ds matrix'
+           write (normaloutput, *) 'Obtain inverse of ds matrix'
        end if
        Allocate (IPIV(ndet))
        Allocate (dsold(ndet, ndet))
@@ -281,18 +281,18 @@
 
        Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
        if (rank == 0) then
-           write (3000, *) 'info', info
+           write (normaloutput, *) 'info', info
        end if
        Allocate (work(ndet))
 
        Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
        if (rank == 0) then
-           write (3000, *) 'info', info
+           write (normaloutput, *) 'info', info
        end if
        Deallocate (work)
        Deallocate (IPIV)
        if (rank == 0) then
-           write (3000, *) 'Check whether inverese matrix is really so'
+           write (normaloutput, *) 'Check whether inverese matrix is really so'
        end if
        error = .FALSE.
 
@@ -303,12 +303,12 @@
            If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                error = .TRUE.
                if (rank == 0) then
-                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                   write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                error = .TRUE.
                if (rank == 0) then
-                   write (3000, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                   write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            End if
 
@@ -316,7 +316,7 @@
        End do
 
        if (rank == 0) then
-           If (.not. error) write (3000, *) 'Inverse matrix is obtained correclty'
+           If (.not. error) write (normaloutput, *) 'Inverse matrix is obtained correclty'
        end if
        Deallocate (dsold)
 

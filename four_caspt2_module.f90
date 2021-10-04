@@ -90,4 +90,7 @@ MODULE four_caspt2_module
 
     ! Test for MDCINT_READ_COUNT
     integer :: casci_mdcint_cnt, caspt2_mdcint_cnt, caspt2_mdcint_cnt2, simple_loop
+
+    ! Unit number for normal output (caspt2.out)
+    integer,parameter :: normaloutput = 3000
 end MODULE four_caspt2_module

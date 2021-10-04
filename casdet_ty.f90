@@ -15,7 +15,7 @@
        integer, allocatable  :: idet0(:)
 
        if (rank == 0) then
-           write (3000, *) 'Enter casdet_ty'
+           write (normaloutput, *) 'Enter casdet_ty'
        end if
        Allocate (idet0(ndet))
        idet0 = 0
@@ -39,8 +39,8 @@
        Allocate (idet(ndet))
        idet(1:ndet) = idet0(1:ndet)
        if (rank == 0) then
-           write (3000, *) 'totsym = ', totsym
-           write (3000, *) 'ndet   = ', ndet
+           write (normaloutput, *) 'totsym = ', totsym
+           write (normaloutput, *) 'ndet   = ', ndet
        end if
 !        write(*,*)idet(1:ndet)
        Deallocate (idet0)
@@ -72,20 +72,20 @@
                if (mod(ielec, 2) == 1) then
                    isym1 = MULTB_DS(jsym, isym) ! isym will be double irrep: odd number of electron
                    if (rank == 0) then
-                       if (isym1 > nsymrp) write (3000, *) 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
+                       if (isym1 > nsymrp) write (normaloutput, *) 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
                    end if
                    isym = isym1
                else
                    if (mod(jsym, 2) == 1) then
                        isym1 = MULTB_D(jsym + 1, isym) ! isym will be single irrep: even number of electron !MULTB_D is (fai*|fai)
                        if (rank == 0) then
-                           if (isym1 > nsymrp) write (3000, *) 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
+                           if (isym1 > nsymrp) write (normaloutput, *) 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
                        end if
                        isym = isym1
                    else
                        isym1 = MULTB_D(jsym - 1, isym) ! isym will be single irrep: even number of electron
                        if (rank == 0) then
-                           if (isym1 > nsymrp) write (3000, *) 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
+                           if (isym1 > nsymrp) write (normaloutput, *) 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
                        end if
                        isym = isym1
                    end if

@@ -36,8 +36,8 @@
        open (mrconee, file=trim(filename), form='unformatted', status='old', err=10)
        Read (mrconee) NMO, BREIT, ECORE  ! NMO is nbas - ncore
        if (rank == 0) then
-           write (3000, *) 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
-           write (3000, *) NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
+           write (normaloutput, *) 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
+           write (normaloutput, *) NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
        end if
 !Iwamuro modify
        scfru = 1
@@ -60,13 +60,13 @@
        Read (mrconee) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
 
        if (rank == 0) then
-           write (3000, *) ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
-           write (3000, *) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
+           write (normaloutput, *) ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
+           write (normaloutput, *) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
        end if
 !Iwamuro modify
        Read (mrconee) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
        if (rank == 0) then
-           write (3000, *) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+           write (normaloutput, *) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
        end if
        allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
        allocate (MULTB_D(1:NSYMRPA, 1:NSYMRPA))  ! dagger
@@ -117,18 +117,18 @@
        End do
 
        if (rank == 0) then
-           write (3000, *) 'MULTB'
+           write (normaloutput, *) 'MULTB'
 
            Do i0 = 1, 2*nsymrpa
-               write (3000, '(400I3)') (MULTB(i0, j0), j0=1, 2*nsymrpa)
+               write (normaloutput, '(400I3)') (MULTB(i0, j0), j0=1, 2*nsymrpa)
            End do
 
-           write (3000, *) 'MULTB2'
+           write (normaloutput, *) 'MULTB2'
 
            Do i0 = 1, 2*nsymrpa
-               write (3000, '(400I3)') (MULTB2(i0, j0), j0=1, 2*nsymrpa)
+               write (normaloutput, '(400I3)') (MULTB2(i0, j0), j0=1, 2*nsymrpa)
            End do
-           write (3000, *) 'end multb1,2'
+           write (normaloutput, *) 'end multb1,2'
        end if
 ! create MULTB_S, MULTB_D
 
@@ -143,16 +143,16 @@
        MULTB_D = MULTB_D - nsymrpa
 
        if (rank == 0) then
-           write (3000, *) 'MULTB_S'
+           write (normaloutput, *) 'MULTB_S'
 
            Do i0 = 1, nsymrpa
-               write (3000, '(200I3)') (MULTB_S(i0, j0), j0=1, nsymrpa)
+               write (normaloutput, '(200I3)') (MULTB_S(i0, j0), j0=1, nsymrpa)
            End do
 
-           write (3000, *) 'MULTB_D'
+           write (normaloutput, *) 'MULTB_D'
 
            Do i0 = 1, nsymrpa
-               write (3000, '(200I3)') (MULTB_D(i0, j0), j0=1, nsymrpa)
+               write (normaloutput, '(200I3)') (MULTB_D(i0, j0), j0=1, nsymrpa)
            End do
        end if
 
@@ -168,7 +168,7 @@
        sp(ninact + nact + nsec + 1:nmo) = 4
 
        if (rank == 0) then
-           write (3000, *) 'moint1 is closed.'
+           write (normaloutput, *) 'moint1 is closed.'
        end if
 !     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1
 
@@ -178,7 +178,7 @@
 
 !Iwamuro modify
        if (rank == 0) then
-           write (3000, *) 'if pgsym=c1, this route does not go through. '
+           write (normaloutput, *) 'if pgsym=c1, this route does not go through. '
        end if
 
        Do jsym = 1, nsymrpa
@@ -203,19 +203,19 @@
        End do
 
        if (rank == 0) then
-           write (3000, *) 'MULTB_SB'
+           write (normaloutput, *) 'MULTB_SB'
            Do I = 1, nsymrpa
-               write (3000, '(50I3)') (MULTB_SB(I, J), J=1, NSYMRPA)
+               write (normaloutput, '(50I3)') (MULTB_SB(I, J), J=1, NSYMRPA)
            End do
 
-           write (3000, *) 'MULTB_DF'
+           write (normaloutput, *) 'MULTB_DF'
            Do I = 1, nsymrpa
-               write (3000, '(50I3)') (MULTB_DF(I, J), J=1, NSYMRPA)
+               write (normaloutput, '(50I3)') (MULTB_DF(I, J), J=1, NSYMRPA)
            End do
 
-           write (3000, *) 'MULTB_DB'
+           write (normaloutput, *) 'MULTB_DB'
            Do I = 1, nsymrpa
-               write (3000, '(50I3)') (MULTB_DB(I, J), J=1, NSYMRPA)
+               write (normaloutput, '(50I3)') (MULTB_DB(I, J), J=1, NSYMRPA)
            End do
        end if
 !     Write(*,'("UTCHEMIMO1",50I3)') (UTCHEMIMO1(IMO,1),IMO=1,nmo)
@@ -306,7 +306,7 @@
        go to 72
 
 71     if (rank == 0) then
-           write (3000, *) 'If pgsym=c1, this route goes through.'
+           write (normaloutput, *) 'If pgsym=c1, this route goes through.'
        end if
        NSYMRP = 1
        NSYMRPA = 1
@@ -320,9 +320,9 @@
 72     If (trim(ptgrp) /= 'C1') nsymrp = nsymrpa
 
        if (rank == 0) then
-           write (3000, *) 'MULTB_SD'
+           write (normaloutput, *) 'MULTB_SD'
            Do i = 1, nsymrpa
-               write (3000, '(50I3)') (SD(i, j), j=1, nsymrpa)
+               write (normaloutput, '(50I3)') (SD(i, j), j=1, nsymrpa)
            End do
        end if
        Do i = 1, nsymrpa
@@ -332,9 +332,9 @@
        End do
 
        if (rank == 0) then
-           write (3000, *) 'MULTB_DS'
+           write (normaloutput, *) 'MULTB_DS'
            Do i = 1, nsymrpa
-               write (3000, '(50I3)') (DS(i, j), j=1, nsymrpa)
+               write (normaloutput, '(50I3)') (DS(i, j), j=1, nsymrpa)
            End do
        end if
        MULTB_DS(:, :) = DS(:, :)
@@ -393,7 +393,7 @@
 !        write(*,*) "Modify irpmo"
 
        if (rank == 0) then
-           write (3000, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
+           write (normaloutput, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
        end if
 !        orbmo(:) = 0.0d+00
        orb = orbmo
@@ -439,7 +439,7 @@
 
        if (rank == 0) then
        do i0 = 1, nmo
-           write (3000, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
+           write (normaloutput, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
        end do
        end if
        orbmo = orb
@@ -453,21 +453,21 @@
        end do
 
        if (rank == 0) then
-           write (3000, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
+           write (normaloutput, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
 
-           write (3000, *) 'inactive'
+           write (normaloutput, *) 'inactive'
            do i0 = 1, ninact
-               write (3000, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+               write (normaloutput, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
            end do
 
-           write (3000, *) 'active'
+           write (normaloutput, *) 'active'
            do i0 = ninact + 1, ninact + nact
-               write (3000, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+               write (normaloutput, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
            end do
 
-           write (3000, *) 'secondary'
+           write (normaloutput, *) 'secondary'
            do i0 = ninact + nact + 1, ninact + nact + nsec
-               write (3000, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+               write (normaloutput, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
            end do
        end if
 !        do i0 = 1, nmo
@@ -479,23 +479,23 @@
        goto 1000
 
 10     if (rank == 0) then
-           write (3000, *) 'err 0'
+           write (normaloutput, *) 'err 0'
        end if
        go to 1000
 11     if (rank == 0) then
-           write (3000, *) 'err 1'
+           write (normaloutput, *) 'err 1'
        end if
        go to 1000
 12     if (rank == 0) then
-           write (3000, *) 'err 2'
+           write (normaloutput, *) 'err 2'
        end if
        go to 1000
 13     if (rank == 0) then
-           write (3000, *) 'err 3'
+           write (normaloutput, *) 'err 3'
        end if
        go to 1000
 14     if (rank == 0) then
-           write (3000, *) 'err 4'
+           write (normaloutput, *) 'err 4'
        end if
        go to 1000
 100    go to 1000
