@@ -24,7 +24,7 @@
 
 !        write(*,*)tsec, tsec0, difsec
 
-            if (rank == 0) then
+            if (rank == 0) then ! Process limits for output
                 write (normaloutput, '("Present time is")')
                 write (normaloutput, '("year  = ",I4,"month = ",I4,"date  = ",I4 )') val(1), val(2), val(3)
                 write (normaloutput, '(14X,I4,"h   ",I4,"min  ",I2,".",I3,"sec  " )')&
@@ -58,7 +58,7 @@
             sec = resd
 
 !        write(*,'("computational time = ", F20.10,"sec")')difsec
-            if (rank == 0) then
+            if (rank == 0) then ! Process limits for output
                 write (normaloutput, '("computational time = ",I3,"day",I3,"h ",I3, &
                 &"min",F7.3,"sec")') day, hour, min, sec
                 write (normaloutput, '(A,I4)') 'rank', rank

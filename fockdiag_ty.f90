@@ -35,7 +35,7 @@
        End do
 
        REALF = .FALSE.
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'REALF', REALF
        end if
 

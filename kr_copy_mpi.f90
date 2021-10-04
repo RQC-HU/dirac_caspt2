@@ -40,7 +40,7 @@ program kr_copy_mpi
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         ! open (8, file="debug", form="formatted", status="unknown")
         ! write (8, *) "debug open: rank=", rank
         write (*, *) "This is the serial execution area."

@@ -41,7 +41,7 @@ program create_newmdcint_mpi
     kr = 0
     call get_mdcint_filename
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         ! open (8, file="debug", form="formatted", status="unknown")
         open (10, file="MDCINT", form="unformatted", status="unknown")
         read (10) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
@@ -90,7 +90,7 @@ program create_newmdcint_mpi
     nnz = 1
 
     ! ! Rename the MDCINT to open according to the process number.
-    ! if (rank == 0) then
+    ! if (rank == 0) then ! Process limits for output
     !     mdcint_filename = "MDCINT"
     !     mdcintNew = "MDCINTNEW"
     !     mdcint_debug = "MDCINT_debug"
@@ -108,7 +108,7 @@ program create_newmdcint_mpi
     ! mdcint=11
     ! tid = omp_get_thread_num()
     open (rank + 100, file=mdcint_filename, form='unformatted', status='unknown')
-!     if (rank == 0) then
+!     if (rank == 0) then ! Process limits for output
 !         read (rank + 100) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 !     else
     read (rank + 100)

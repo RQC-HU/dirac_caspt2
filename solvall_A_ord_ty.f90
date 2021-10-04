@@ -78,7 +78,9 @@
        Allocate (v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact))
        Call memplus(KIND(v), SIZE(v), 2)
 
-       write (*, *) 'before vAmat'
+       if (rank == 0) then ! Process limits for output
+           write (*, *) 'before vAmat'
+       end if
 
        Call vAmat_ord_ty(v)
 
@@ -137,15 +139,18 @@
                End do
            End do
 
-           write (*, *) 'isym, dimn', isym, dimn
-
+           if (rank == 0) then ! Process limits for output
+               write (*, *) 'isym, dimn', isym, dimn
+           end if
            Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
            sc = 0.0d+00            ! sr N*N
 
            Call sAmat(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'sc matrix is obtained normally'
+           if (rank == 0) then ! Process limits for output
+            write (*, *) 'sc matrix is obtained normally'
+           end if
 
            Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 

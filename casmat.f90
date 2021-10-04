@@ -58,7 +58,7 @@
             !! Adding one-electron integral to mat is executed only by the master process
             !! because DIRAC's one-electron integral file (MRCONEE) is not
             !! devided even if DIRAC is executed in parallel (MPI).
-           if (rank == 0) then
+           if (rank == 0) then ! Process limits for output
                Do i0 = 1, ninact
                    ir = i0
                    cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
@@ -142,7 +142,7 @@
                         !! Adding one-electron integral to mat is executed only by the master process
                         !! because DIRAC's one-electron integral file (MRCONEE) is not
                         !! devided even if DIRAC is executed in parallel (MPI).
-                       if (rank == 0) then
+                       if (rank == 0) then ! Process limits for output
                            cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
                            mat(i, j) = mat(i, j) + cmplxint
                        end if

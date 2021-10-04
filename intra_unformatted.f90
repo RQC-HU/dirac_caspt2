@@ -961,7 +961,7 @@
         thresd = 1.0d-15
 
         if(.not.(spk==spl)) then
-           write(*,*)'error intra_3',spi,spj,spk,spl
+           if (rank == 0) write(*,*)'error intra_3',spi,spj,spk,spl
            stop
         endif
 
@@ -1004,8 +1004,9 @@
 !        write(*,'("intra_3",8I4)')ii,ie,ji,je,ki,ke,li,le
 
         traint2 = 0.0d+00
+        if (rank == 0) then ! Process limits for output
         write(*,'("Current Memory is ",F10.2,"MB")')tmem/1024/1024
-
+        end if
 
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
@@ -1013,11 +1014,15 @@
         nmaxint = AINT(5.00d+10 - tmem)/48 ! one integrals required four integer and one complex values
 ! Abe modified 2016. 11.11
 
-        write(*,*) 'nmaxint = ', nmaxint
+        if (rank == 0) then ! Process limits for output
+         write(*,*) 'nmaxint = ', nmaxint
         write(*,*)'tmem, nmaxint*48',tmem, nmaxint*48
+        end if
         IF (nmaxint < 0) stop
 
-        write(*,*) 'nmaxint = ', nmaxint
+        if (rank == 0) then ! Process limits for output
+         write(*,*) 'nmaxint = ', nmaxint
+        end if
 
         Allocate(i(nmaxint)); Call memplus(KIND(i),SIZE(i),1)
         Allocate(j(nmaxint)); Call memplus(KIND(j),SIZE(j),1)

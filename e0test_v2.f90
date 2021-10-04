@@ -24,7 +24,7 @@
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) "enter e0test"
        end if
        Allocate (energy(nroot, 4)); Call memplus(KIND(energy), SIZE(energy), 1)
@@ -132,7 +132,7 @@
                        nsign = SIGN(1, indtwr(kk, kk, ii, jj))
                        i2r = int2r(nint)*nsign
 
-                       if (rank == 0) then
+                       if (rank == 0) then ! Process limits for output
                            write (normaloutput, '(4I3,F5.1,I6)') kk, kk, ii, jj, nsign, nint
                        end if
 
@@ -142,7 +142,7 @@
                        nsign = SIGN(1, indtwr(kk, jj, ii, kk))
                        i2r = int2r(nint)*nsign
 
-                       if (rank == 0) then
+                       if (rank == 0) then ! Process limits for output
                            write (normaloutput, '(4I3,F5.1,I6)') kk, jj, ii, kk, nsign, nint
                        end if
 

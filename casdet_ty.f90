@@ -14,7 +14,7 @@
        integer :: i, isym
        integer, allocatable  :: idet0(:)
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Enter casdet_ty'
        end if
        Allocate (idet0(ndet))
@@ -38,7 +38,7 @@
 
        Allocate (idet(ndet))
        idet(1:ndet) = idet0(1:ndet)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'totsym = ', totsym
            write (normaloutput, *) 'ndet   = ', ndet
        end if
@@ -71,20 +71,20 @@
                jsym = irpamo(j)
                if (mod(ielec, 2) == 1) then
                    isym1 = MULTB_DS(jsym, isym) ! isym will be double irrep: odd number of electron
-                   if (rank == 0) then
+                   if (rank == 0) then ! Process limits for output
                        if (isym1 > nsymrp) write (normaloutput, *) 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
                    end if
                    isym = isym1
                else
                    if (mod(jsym, 2) == 1) then
                        isym1 = MULTB_D(jsym + 1, isym) ! isym will be single irrep: even number of electron !MULTB_D is (fai*|fai)
-                       if (rank == 0) then
+                       if (rank == 0) then ! Process limits for output
                            if (isym1 > nsymrp) write (normaloutput, *) 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
                        end if
                        isym = isym1
                    else
                        isym1 = MULTB_D(jsym - 1, isym) ! isym will be single irrep: even number of electron
-                       if (rank == 0) then
+                       if (rank == 0) then ! Process limits for output
                            if (isym1 > nsymrp) write (normaloutput, *) 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
                        end if
                        isym = isym1

@@ -122,7 +122,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     goto 201
 
 200 realonly = .true.
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (normaloutput, *) "realonly = ", realonly, rank
     end if
 201 close (rank + 100)
@@ -180,7 +180,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !        Do inz = 1,nz
 
     if (ikr < 0) then
-        if (rank == 0) then
+        if (rank == 0) then ! Process limits for output
             write (normaloutput, *) "ikr<0. rank=", rank, "ikr=", ikr
         end if
         go to 100
@@ -376,7 +376,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     !! out next line.
     ! deallocate (indmor)
 
-    if (rank == 0) then
+    if (rank == 0) then ! Process limits for output
         write (normaloutput, *) 'end create_binmdcint. rank=', rank
     end if
     ! Debug output for casci_mdcint_cnt

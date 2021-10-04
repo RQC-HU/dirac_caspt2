@@ -362,7 +362,7 @@
        end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'iroot = ', iroot
        end if
 
@@ -439,12 +439,12 @@
        energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'energyHF(2)', energyHF(2)
        end if
 
 !Iwamuro modify
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Iwamuro modify'
        end if
 
@@ -645,7 +645,7 @@
        call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'energy 1 =', energy(iroot, 1)
            write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
            write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
@@ -689,7 +689,7 @@
        deallocate (energy)
 !      write(*,*)'e0aftertrac end'
 ! Iwamuro modify
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'e0aftertrac_ty end'
        end if
    End subroutine e0aftertrac_ty

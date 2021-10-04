@@ -25,7 +25,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
        occ = 0
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Enter TRACI'
        end if
 
@@ -104,7 +104,7 @@
 ! for a while !        End do
 ! for a while !        End do
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Obtain inverse of ds matrix'
        end if
 
@@ -114,14 +114,14 @@
        dsold = ds
 
        Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'info', info
        end if
 
        Allocate (work(ndet))
 
        Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'info', info
        end if
 
@@ -152,7 +152,7 @@
 
        Deallocate (work)
        Deallocate (IPIV)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Check whether inverese matrix is really so'
        end if
 
@@ -164,12 +164,12 @@
 
            If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                error = .TRUE.
-               if (rank == 0) then
+               if (rank == 0) then ! Process limits for output
                    write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                error = .TRUE.
-               if (rank == 0) then
+               if (rank == 0) then ! Process limits for output
                    write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            End if
@@ -177,7 +177,7 @@
        End do
        End do
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            If (.not. error) write (normaloutput, *) 'Inverse matrix is obtained correclty'
        end if
        Deallocate (dsold)
@@ -237,7 +237,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
        occ = 0
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Enter TRACI'
        end if
        Do i0 = 1, ndet
@@ -271,7 +271,7 @@
            End do
        End do
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Obtain inverse of ds matrix'
        end if
        Allocate (IPIV(ndet))
@@ -280,18 +280,18 @@
        dsold = ds
 
        Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'info', info
        end if
        Allocate (work(ndet))
 
        Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'info', info
        end if
        Deallocate (work)
        Deallocate (IPIV)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'Check whether inverese matrix is really so'
        end if
        error = .FALSE.
@@ -302,12 +302,12 @@
 
            If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                error = .TRUE.
-               if (rank == 0) then
+               if (rank == 0) then ! Process limits for output
                    write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                error = .TRUE.
-               if (rank == 0) then
+               if (rank == 0) then ! Process limits for output
                    write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                end if
            End if
@@ -315,7 +315,7 @@
        End do
        End do
 
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            If (.not. error) write (normaloutput, *) 'Inverse matrix is obtained correclty'
        end if
        Deallocate (dsold)

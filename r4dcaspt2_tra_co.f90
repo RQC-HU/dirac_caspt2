@@ -65,8 +65,8 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     if (rank == 0) then ! Process limits for output
         write (normaloutput, *) inittime
+        Call timing(val(3), totalsec, date0, tsec)
     end if
-    Call timing(val(3), totalsec, date0, tsec)
 
     eshift = 0.0d+00
     ieshift = 0
