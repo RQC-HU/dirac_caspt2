@@ -79,7 +79,7 @@
        Call memplus(KIND(v), SIZE(v), 2)
 
        if (rank == 0) then ! Process limits for output
-           write (*, *) 'before vAmat'
+           write (normaloutput, *) 'before vAmat'
        end if
 
        Call vAmat_ord_ty(v)
@@ -140,7 +140,7 @@
            End do
 
            if (rank == 0) then ! Process limits for output
-               write (*, *) 'isym, dimn', isym, dimn
+               write (normaloutput, *) 'isym, dimn', isym, dimn
            end if
            Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
@@ -149,7 +149,7 @@
            Call sAmat(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
-            write (*, *) 'sc matrix is obtained normally'
+               write (normaloutput, *) 'sc matrix is obtained normally'
            end if
 
            Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
@@ -162,8 +162,9 @@
 
            Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'after sc cdiag'
-
+           if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'after sc cdiag'
+           end if
            If (dimm == 0) then
                deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
                deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
@@ -174,21 +175,27 @@
 
            If (debug) then
 
-               write (*, *) 'Check whether U*SU is diagonal'
-
+           if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'Check whether U*SU is diagonal'
+           end if
                Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               write (*, *) 'Check whether U*SU is diagonal END'
+           if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'Check whether U*SU is diagonal END'
+           end if
            End if
 
-           write (*, *) 'OK cdiag', dimn, dimm
+           if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'OK cdiag', dimn, dimm
+           end if
 
            Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
            bc = 0.0d+00
            Call bAmat(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'bc matrix is obtained normally'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bc matrix is obtained normally'
+           end if
            deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
 
            Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
@@ -198,7 +205,9 @@
 
            Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'OK ccutoff'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'OK ccutoff'
+           end if
            deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
            deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
 
@@ -206,7 +215,9 @@
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            deallocate (wsnew); Call memminus(KIND(wsnew), SIZE(wsnew), 1)
 
-           write (*, *) 'ucrams half OK'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'ucrams half OK'
+           end if
            Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -217,16 +228,17 @@
 
            If (debug) then
 
-               write (*, *) 'Check whether bc1 is hermite or not'
-               Do i = 1, dimm
-                   Do j = i, dimm
-                       if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
-                           write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
-                       End if
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether bc1 is hermite or not'
+                   Do i = 1, dimm
+                       Do j = i, dimm
+                           if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
+                               write (normaloutput, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
+                           End if
+                       End do
                    End do
-               End do
-               write (*, *) 'Check whether bc1 is hermite or not END'
-
+                   write (normaloutput, *) 'Check whether bc1 is hermite or not END'
+               end if
            End if
 
            deallocate (bc); Call memminus(KIND(bc), SIZE(bc), 2)
@@ -236,7 +248,9 @@
 
            Allocate (wb(dimm)); Call memplus(KIND(wb), SIZE(wb), 1)
 
-           write (*, *) 'bC matrix is transrated to bc1(M*M matrix)!'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bC matrix is transrated to bc1(M*M matrix)!'
+           end if
 
            Allocate (bc0(dimm, dimm)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*M
            bc0 = bc1
@@ -246,16 +260,22 @@
 
 !  If(debug) then
 
-           write (*, *) 'Check whether bc is really diagonalized or not'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'Check whether bc is really diagonalized or not'
+           end if
 
            Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'Check whether bc is really diagonalized or not END'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'Check whether bc is really diagonalized or not END'
+           end if
 
 !  End if
            deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
 
-           write (*, *) 'bC1 matrix is diagonalized!'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bC1 matrix is diagonalized!'
+           end if
 
            e2 = 0.0d+00
 
@@ -290,8 +310,9 @@
                End if
 
            End do
-
-           write (*, '("e2a(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, '("e2a(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+           end if
 
            Deallocate (bc1); Call memminus(KIND(bc1), SIZE(bc1), 2)
            Deallocate (uc); Call memminus(KIND(uc), SIZE(uc), 2)
@@ -301,22 +322,27 @@
            e2a = e2a + e2(isym)
 
 1000   End do                  ! isym
-       call MPI_Barrier(MPI_COMM_WORLD, ierr)
-       do loopcnt = 0, nprocs - 1
-           if (rank == loopcnt) then
-               write (*, '("e2a      = ",E20.10," a.u.",I4)') e2a, rank
-           end if
-           call MPI_Barrier(MPI_COMM_WORLD, ierr)
-       end do
-       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       !    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       !    do loopcnt = 0, nprocs - 1
+       !        if (rank == loopcnt) then
+       !            write (*, '("e2a      = ",E20.10," a.u.",I4)') e2a, rank
+       !        end if
+       !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       !    end do
+       !    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("e2a      = ",E20.10," a.u.",I4)') e2a, rank
 
-       write (*, '("sumc2,a  = ",E20.10)') sumc2local
+           write (normaloutput, '("sumc2,a  = ",E20.10)') sumc2local
+       end if
        sumc2 = sumc2 + sumc2local
 
        Deallocate (v); Call memminus(KIND(v), SIZE(v), 2)
 
        continue
-       write (*, *) 'end solva'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'end solva'
+       end if
    end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -462,8 +488,9 @@
            End do               !i
        End do                  !j
 
-       write (*, *) 'bAmat is ended'
-
+       if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'bAmat is ended'
+       end if
    End subroutine bAmat
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -590,7 +617,7 @@
        End do
 
        Do isym = 1, nsymrpa
-           write (*, '(2I4)') dim2(isym), isym
+           if (rank == 0) write (normaloutput, '(2I4)') dim2(isym), isym
        End do
        if (rank == 0) then
            Do ii = 1, ninact
@@ -619,8 +646,9 @@
 
        !   open(1, file ='A1int', status='old', form='unformatted')
        open (1, file=a1int, status='old', form='formatted')
-
-       write (*, *) 'open A1int'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'open A1int'
+       end if
 
 30     read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
@@ -694,17 +722,18 @@
        goto 300
 
 200    close (1)
-       write (*, *) 'reading A2int2 is over'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading A2int2 is over'
+       end if
+
+       !    do loopcnt = 0, nprocs - 1
+       !        if (loopcnt == rank) then
+       !            write (*, *) "effh(before), rank :", rank, effh
+       !        end if
+       !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       !    end do
+
        !    effh(ninact + 1:ninact + nact, ninact)
-       call MPI_Barrier(MPI_COMM_WORLD, ierr)
-
-       do loopcnt = 0, nprocs - 1
-           if (loopcnt == rank) then
-               write (*, *) "effh(before), rank :", rank, effh
-           end if
-           call MPI_Barrier(MPI_COMM_WORLD, ierr)
-       end do
-
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
        if (rank == 0) then
            call MPI_Reduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, &
@@ -717,9 +746,9 @@
        if (rank /= 0) then
            effh(:, :) = 0
        end if
-       !    call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (rank == 0) then
-           write (*, *) "effh(after), rank :", rank, effh
+
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) "effh(after), rank :", rank, effh
        end if
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
@@ -765,10 +794,10 @@
 
        goto 100
 
-10     write (*, *) 'error while opening file Aint'; goto 1000
+10     if (rank == 0) write (normaloutput, *) 'error while opening file Aint'; goto 1000
 100    continue
 
-1000   write (*, *) 'vAmat_ord_ty is ended'
+1000   if (rank == 0) write (normaloutput, *) 'vAmat_ord_ty is ended'
 
        deallocate (indt); Call memminus(KIND(indt), SIZE(indt), 1)
        deallocate (indu); Call memminus(KIND(indu), SIZE(indu), 1)
@@ -781,16 +810,16 @@
        tsec1 = tsec0
        !    v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-       do loopcnt = 0, nprocs - 1
-           if (loopcnt == rank) then
-               write (*, *) "v(before), rank :", rank, v
-           end if
-           call MPI_Barrier(MPI_COMM_WORLD, ierr)
-       end do
+       !    do loopcnt = 0, nprocs - 1
+       !        if (loopcnt == rank) then
+       !            write (*, *) "v(before), rank :", rank, v
+       !        end if
+       !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       !    end do
        call MPI_Allreduce(MPI_IN_PLACE, v(ninact, ninact + 1, ninact + 1, ninact + 1), ninact*nact*nact*nact, &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (rank == 0) then
-           write (*, *) "v(after), rank :", rank, v
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) "v(after), rank :", rank, v
        end if
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
    end subroutine vAmat_ord_ty

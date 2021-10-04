@@ -40,12 +40,12 @@
        caspt2_mdcint_cnt = 0; simple_loop = 0
        a1_cnt = 0; a2_cnt = 0; b_cnt = 0; c1_cnt = 0; c2_cnt = 0; c3_cnt = 0
        d1_cnt = 0; d2_cnt = 0; d3_cnt = 0; e_cnt = 0; f_cnt = 0; g_cnt = 0; h_cnt = 0
-       do loopcnt = 0, nprocs - 1
-           if (loopcnt == rank) then
-               write (*, *) 'rank:', rank, 'sp(1:nmo)->', (sp(sp_cnt), sp_cnt=1, nmo)
-           end if
-           call MPI_Barrier(MPI_COMM_WORLD, ierr)
-       end do
+    !    do loopcnt = 0, nprocs - 1
+    !        if (loopcnt == rank) then
+    !            writenormaloutput, *) 'rank:', rank, 'sp(1:nmo)->', (sp(sp_cnt), sp_cnt=1, nmo)
+    !        end if
+    !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+    !    end do
        Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
        kr(:) = 0
 
@@ -54,8 +54,8 @@
        Allocate (rklr((nmo/2)**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
        Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
        if (rank == 0) then ! Process limits for output
-           write (*, *) "enter readint2_ord_co"
-           write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+           write (normaloutput, *) "enter readint2_ord_co"
+           write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
        end if
        indk(:) = 0
        indl(:) = 0
@@ -1093,7 +1093,7 @@
        deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
        deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
        if (rank == 0) then ! Process limits for output
-           write (*, '(A,I4)') "end readint2_ord_co", rank
+           write (normaloutput, '(A,I4)') "end readint2_ord_co", rank
        end if
 
        !! TODO A1のみで行けるか確認 formattedで行けるか確認  intra3のerror時のgotoを変える(将来的に0000をEOFと認識させるようにするなどの対策をとる?)

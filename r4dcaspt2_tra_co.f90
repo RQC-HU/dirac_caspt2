@@ -105,22 +105,22 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         evenelec = .false.
     End if
 
-!        write(*,*)' ENTER READ r4dmoint1'
+!        write(normaloutput,*)' ENTER READ r4dmoint1'
     if (rank == 0) then ! Process limits for output
-        write (*, *) ' ENTER READ MRCONEE'
+        write (normaloutput, *) ' ENTER READ MRCONEE'
     end if
     filename = 'MRCONEE'
 
     call readorb_enesym_co(filename)
     call read1mo_co(filename)
 
-!       write(*,*)' EXIT READ r4dmoint1'
+!       write(normaloutput,*)' EXIT READ r4dmoint1'
     if (rank == 0) then ! Process limits for output
-        write (*, *) ' EXIT READ MRCONEE'
+        write (normaloutput, *) ' EXIT READ MRCONEE'
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        write (*, *) ' ENTER READ MDCINT'
+        write (normaloutput, *) ' ENTER READ MDCINT'
     end if
     filename = 'MDCINTNEW'
 
@@ -131,13 +131,13 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call readint2_ord_co(mdcintnew)
 
     if (rank == 0) then ! Process limits for output
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     nmo = ninact + nact + nsec
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'nmo        =', nmo
+        write (normaloutput, *) 'nmo        =', nmo
     end if
 
     open (10, file='CIMAT', form='unformatted', status='old')
@@ -443,7 +443,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
     time1 = MPI_Wtime()
-    write(*,"(a,I4,a,e16.6)") "MPI_Wtime, rank:",rank,"time",time1-time0
+    if (rank == 0) then ! Process limits for output
+        write(normaloutput,"(a,I4,a,e16.6)") "MPI_Wtime, rank:",rank,"time",time1-time0
+    end if
     call MPI_FINALIZE(ierr)
 
 1000 continue
