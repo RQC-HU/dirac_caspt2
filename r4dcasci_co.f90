@@ -157,7 +157,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     realcvec = .TRUE.
 
     Call casci_ty(totsym)
-    ! if (rank == 0) then
 
 !      goto 1000
 
@@ -217,9 +216,19 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
 
     f(:, :) = 0.0d+00
-
+    if (rank == 0) then
+        write(normaloutput,*)'before building fock'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
     Call fockcasci_ty
-
+    if (rank == 0) then
+        write(normaloutput,*)'end building fock'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 !      debug = .TRUE.
     debug = .FALSE.
     if (rank == 0) then ! Process limits for output

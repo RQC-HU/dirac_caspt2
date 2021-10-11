@@ -18,8 +18,8 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     real*8                  :: i2r, i2i, dr, di, nsign, e0, e2, e2all, weight0
     complex*16              ::  cmplxint, dens, trace1, trace2
-    complex*16, allocatable  :: ci(:)
-    real*8, allocatable      :: ecas(:)
+    complex*16, allocatable :: ci(:)
+    real*8, allocatable     :: ecas(:)
 
     character*50            :: filename
     real(16)                :: time0, time1
@@ -291,9 +291,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (normaloutput, *) e2all
     end if
 
-    ! date1 = date0
-    ! tsec1 = tsec0
-    ! Call timing(date1, tsec1, date0, tsec0)
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_2(2, 1, 2, 1, bint)
     ! Call intra_2(2, 1, 2, 1, 'Bint ')
