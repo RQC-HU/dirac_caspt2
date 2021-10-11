@@ -617,11 +617,13 @@
 
 !         write(*,*)'energy HF1 =',energyHF(1)
 !         write(*,*)'energy HF2 =',energyHF(2)
-           write (normaloutput, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+           end if
        end if
 1000   continue
        deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
-       if (rank == 0) then
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'e0test end'
        end if
    End subroutine e0test_v2

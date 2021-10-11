@@ -434,9 +434,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 100 continue
 
     close (mdcint)
-
-    write (normaloutput, *) nuniq, totalint
-
+    if (rank == 0) then
+        write (normaloutput, *) nuniq, totalint
+    end if
 !         write(*,*) "debug1"
 
     Allocate (int2r(0:nuniq)); Call memplus(KIND(int2r), SIZE(int2r), 1)

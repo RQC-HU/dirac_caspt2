@@ -210,12 +210,14 @@
        Call bFmat (dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-           write(normaloutput,*)'bc matrix is obtained normally'
-
+           if (rank == 0) then ! Process limits for output
+               write(normaloutput,*)'bc matrix is obtained normally'
+           end if
            deallocate (sc0)
 
-           write(normaloutput,*)'OK cdiag',dimn,dimm
-
+            if (rank == 0) then ! Process limits for output
+               write(normaloutput,*)'OK cdiag',dimn,dimm
+            end if
            Allocate(uc(dimn,dimm))                                 ! uc N*M
            Allocate(wsnew(dimm))                                  ! wnew M
            uc(:,:) = 0.0d+00
@@ -354,7 +356,7 @@
 
       continue
       if (rank == 0) then ! Process limits for output
-         write(normaloutput,*)'end solve_ord'
+         write(normaloutput,*)'end solvF_ord_ty'
       end if
    end
 

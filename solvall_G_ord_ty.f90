@@ -344,7 +344,7 @@
 
       continue
       if (rank == 0) then ! Process limits for output
-         write(normaloutput,*)'end solvg_ord_ty'
+         write(normaloutput,*)'end solvG_ord_ty'
       end if
    end
 

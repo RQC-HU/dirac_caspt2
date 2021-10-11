@@ -66,8 +66,9 @@
 !        write(*,'("C1int",8I4)')ii,ie,ji,je,ki,ke,li,le
 
        traint2 = 0.0d+00
-       write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+       end if
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
 ! Abe modified 2016. 11.11  100 GB is the max memory
@@ -497,8 +498,9 @@
 !        write(*,*)ii,ie,ji,je,ki,ke,li,le
 
        traint2 = 0.0d+00
-       write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+       end if
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
 ! Abe modified 2016. 11.11  100 GB is the max memory
@@ -1005,8 +1007,9 @@
 !        write(*,'("intra_3",8I4)')ii,ie,ji,je,ki,ke,li,le
 
        traint2 = 0.0d+00
-       write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+       end if
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
 ! Abe modified 2016. 11.11  100 GB is the max memory
@@ -1244,7 +1247,7 @@
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
        open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    !    write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 2, li, le, ki, ke, ji, je, ii, ie
+       !    write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 2, li, le, ki, ke, ji, je, ii, ie
        !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
        n_cnt = 0
        Do l0 = li, le
@@ -1320,7 +1323,7 @@
 
        open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    !    write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 3, li, le, ki, ke, ji, je, ii, ie
+       !    write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 3, li, le, ki, ke, ji, je, ii, ie
        !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
        n_cnt = 0
        Do l0 = li, le
@@ -1396,7 +1399,7 @@
 
        open (1, file=trim(fname), status='replace', form='formatted')
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    !    write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 4, li, le, ki, ke, ji, je, ii, ie
+       !    write (*, '(a,a,10i4)') trim(fname), ' storing integrals to disk', rank, 4, li, le, ki, ke, ji, je, ii, ie
        !    call write_traint2(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
        n_cnt = 0
        Do l0 = li, le

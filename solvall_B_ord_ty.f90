@@ -333,8 +333,8 @@
        End do               ! isym
 
        if (rank == 0) then ! Process limits for output
-            write (normaloutput, '("e2b      = ",E20.10,"a.u.")') e2b
-            write (normaloutput, '("sumc2,b  = ",E20.10)') sumc2local
+           write (normaloutput, '("e2b      = ",E20.10,"a.u.")') e2b
+           write (normaloutput, '("sumc2,b  = ",E20.10)') sumc2local
        end if
        sumc2 = sumc2 + sumc2local
 
@@ -345,7 +345,7 @@
 
        continue
        if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'end solvB_ord_ty'
+           write (normaloutput, *) 'end solvB_ord_ty'
        end if
    end
 
@@ -452,7 +452,7 @@
        bc(:, :) = 0.0d+00
 
        if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'B space Bmat iroot=', iroot
+           write (normaloutput, *) 'B space Bmat iroot=', iroot
        end if
        Do i = 1, dimn
 
@@ -526,7 +526,7 @@
        End do                  !j
 
        if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'bBmat is ended'
+           write (normaloutput, *) 'bBmat is ended'
        end if
    End subroutine bBmat
 
@@ -621,11 +621,11 @@
 
 20     close (1)
        if (rank == 0) then ! Process limits for output
-       write (normaloutput, *) 'reading int2 is over'
+           write (normaloutput, *) 'reading int2 is over'
        end if
        goto 100
 
-10    write (*, *) 'error while opening file Bint'; goto 100
+10     write (*, *) 'error while opening file Bint'; goto 100
 
 100    if (rank == 0) write (normaloutput, *) 'vBmat_ord_ty is ended'
 

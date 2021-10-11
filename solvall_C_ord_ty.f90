@@ -338,7 +338,7 @@
 
        continue
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'end solvc'
+           write (normaloutput, *) 'end solvC_ord_ty'
        end if
    end
 

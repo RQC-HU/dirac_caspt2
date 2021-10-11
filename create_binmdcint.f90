@@ -45,10 +45,10 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         ! open (8, file="debug", form="formatted", status="unknown")
         open (10, file="MDCINT", form="unformatted", status="unknown")
         read (10) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-        open (11, file="firstline_mdcint", form="formatted", status="unknown")
-        write (11, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+        ! open (11, file="firstline_mdcint", form="formatted", status="unknown")
+        ! write (11, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
         ! write (11, *) size(kr)
-        close (11)
+        ! close (11)
         close (10)
     end if
     Allocate (indk(nmo**2))

@@ -264,24 +264,33 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = initdate
     tsec1 = totalsec
 
-    ! Call timing(date1, tsec1, date0, tsec0)
+    Call timing(date1, tsec1, date0, tsec0)
     ! date1 = date0
     ! tsec1 = tsec0
 
-    if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'Enter intra3 A1int'
-    end if
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+
     if (rank == 0) then
         write (normaloutput, *) 'A1int filename : ', trim(a1int), ' rank', rank
     end if
-    Call intra_3(2, 1, 2, 2, a1int)
+
     ! Call intra_3(2, 1, 2, 2, 'A1int')
+    Call intra_3(2, 1, 2, 2, a1int)
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'Enter intra3 A2int'
+        write (normaloutput, *) 'End intra3 A1int'
     end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
     Call intra_3(2, 1, 1, 1, a2int)
     ! Call intra_3(2, 1, 1, 1, 'A2int')
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_3 A2int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
 
     sumc2local = 0.0d+00
     if (rank == 0) then ! Process limits for output
@@ -299,6 +308,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     Call intra_2(2, 1, 2, 1, bint)
     ! Call intra_2(2, 1, 2, 1, 'Bint ')
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_2 Bint'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
 
     sumc2local = 0.0d+00
     Call solvB_ord_ty(e0, e2)
@@ -312,8 +327,29 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_3(3, 2, 2, 2, c1int)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_3 C1int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
     Call intra_3(3, 2, 1, 1, c2int)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_3 C2int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
     Call intra_1(3, 1, 1, 2, c3int)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 C3int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
     ! Call intra_3(3, 2, 2, 2, 'C1int')
     ! Call intra_3(3, 2, 1, 1, 'C2int')
     ! Call intra_1(3, 1, 1, 2, 'C3int')
@@ -327,8 +363,28 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_3(3, 1, 2, 2, d1int)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 C3int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
     Call intra_1(3, 2, 2, 1, d2int)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 D2int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
+
     Call intra_3(3, 1, 1, 1, d3int)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 D3int'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
     ! Call intra_3(3, 1, 2, 2, 'D1int')
     ! Call intra_1(3, 2, 2, 1, 'D2int')
     ! Call intra_3(3, 1, 1, 1, 'D3int')
@@ -344,6 +400,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_1(3, 1, 2, 1, eint)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 Eint'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
     ! Call intra_1(3, 1, 2, 1, 'Eint')
 
     sumc2local = 0.0d+00
@@ -358,6 +420,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_2(3, 2, 3, 2, fint)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 Fint'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
     ! Call intra_2(3, 2, 3, 2, 'Fint ')
 
     sumc2local = 0.0d+00
@@ -372,6 +440,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_1(3, 1, 3, 2, gint)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 Gint'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
     ! Call intra_1(3, 1, 3, 2, 'Gint ')
 
     sumc2local = 0.0d+00
@@ -385,6 +459,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_2(3, 1, 3, 1, hint)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'End intra_1 Hint'
+    end if
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
     ! Call intra_2(3, 1, 3, 1, 'Hint ')
 
     sumc2local = 0.0d+00

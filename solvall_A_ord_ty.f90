@@ -163,7 +163,7 @@
            Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'after sc cdiag'
+               write (normaloutput, *) 'after sc cdiag'
            end if
            If (dimm == 0) then
                deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -175,18 +175,18 @@
 
            If (debug) then
 
-           if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'Check whether U*SU is diagonal'
-           end if
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether U*SU is diagonal'
+               end if
                Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'Check whether U*SU is diagonal END'
-           end if
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether U*SU is diagonal END'
+               end if
            End if
 
            if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'OK cdiag', dimn, dimm
+               write (normaloutput, *) 'OK cdiag', dimn, dimm
            end if
 
            Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
@@ -341,7 +341,7 @@
 
        continue
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'end solva'
+           write (normaloutput, *) 'end solvA_ord_ty'
        end if
    end
 
@@ -489,7 +489,7 @@
        End do                  !j
 
        if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'bAmat is ended'
+           write (normaloutput, *) 'bAmat is ended'
        end if
    End subroutine bAmat
 
@@ -617,7 +617,9 @@
        End do
 
        Do isym = 1, nsymrpa
-           if (rank == 0) write (normaloutput, '(2I4)') dim2(isym), isym
+           if (rank == 0) then
+               write (normaloutput, '(2I4)') dim2(isym), isym
+           end if
        End do
        if (rank == 0) then
            Do ii = 1, ninact

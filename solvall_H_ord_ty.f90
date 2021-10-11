@@ -179,6 +179,6 @@
 10     continue                !write(*,*)'error about opening Hint file' ;stop
 100    continue
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'end solvh_ord'
+           write (normaloutput, *) 'end solvH_ord_ty'
        end if
    End SUBROUTINE solvH_ord_ty

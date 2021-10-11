@@ -350,7 +350,7 @@
 
        continue
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'end solvD_ord'
+           write (normaloutput, *) 'end solvD_ord_ty'
        end if
    end
 
