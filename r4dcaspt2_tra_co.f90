@@ -42,10 +42,10 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
     if (rank == 0) then ! Process limits for output
         ! caspt2.outが存在するかどうか確認,あれば追記,なければ新規追加する
-        if (access( "./caspt2.out", " ") == 0) then
-            open(normaloutput,file='caspt2.out',status='old',form='formatted',position='append')
+        if (access("./caspt2.out", " ") == 0) then
+            open (normaloutput, file='caspt2.out', status='old', form='formatted', position='append')
         else
-            open(normaloutput,file='caspt2.out',status='new',form='formatted')
+            open (normaloutput, file='caspt2.out', status='new', form='formatted')
         end if
         write (normaloutput, *) ''
         write (normaloutput, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
@@ -272,7 +272,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (normaloutput, *) 'Enter intra3 A1int'
     end if
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    write (normaloutput, *) 'A1int filename name : ', trim(a1int), ' rank', rank
+    if (rank == 0) then
+        write (normaloutput, *) 'A1int filename : ', trim(a1int), ' rank', rank
+    end if
     Call intra_3(2, 1, 2, 2, a1int)
     ! Call intra_3(2, 1, 2, 2, 'A1int')
     if (rank == 0) then ! Process limits for output
@@ -444,7 +446,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
     time1 = MPI_Wtime()
     if (rank == 0) then ! Process limits for output
-        write(normaloutput,"(a,I4,a,e16.6)") "MPI_Wtime, rank:",rank,"time",time1-time0
+        write (normaloutput, "(a,I4,a,e16.6)") "MPI_Wtime, rank:", rank, "time", time1 - time0
     end if
     call MPI_FINALIZE(ierr)
 
