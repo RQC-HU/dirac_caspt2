@@ -77,9 +77,10 @@
        dimn = 0
        syma = 0
 
-       write (*, *) ' ENTER solv D part'
-       write (*, *) ' nsymrpa', nsymrpa
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) ' ENTER solv D part'
+           write (normaloutput, *) ' nsymrpa', nsymrpa
+       end if
        i0 = 0
        Do ia = 1, nsec
            Do ii = 1, ninact
@@ -108,8 +109,9 @@
 
        Call vDmat_ord_ty(nai, iai, v)
 
-       write (*, *) 'come'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'come'
+       end if
        Do isym = 1, nsymrpa
 
            dimn = 0
@@ -155,7 +157,9 @@
            Call sDmat(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-           write (*, *) 'sc matrix is obtained normally'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'sc matrix is obtained normally'
+           end if
            Allocate (ws(dimn))
            ws = 0.0d+00
            cutoff = .TRUE.
@@ -167,7 +171,9 @@
 
            Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'after s cdiag'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'after s cdiag'
+           end if
 !           Do i0 = 1, dimn
 !           write(*,'(E20.10)') ws(i0)
 !           End do
@@ -182,11 +188,14 @@
 
            If (debug) then
 
-               write (*, *) 'Check whether U*SU is diagonal'
-
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether U*SU is diagonal'
+               end if
                Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               write (*, *) 'Check whether U*SU is diagonal END'
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether U*SU is diagonal END'
+               end if
 
            End if
 
@@ -196,11 +205,14 @@
            Call bDmat(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-           write (*, *) 'bc matrix is obtained normally'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bc matrix is obtained normally'
+           end if
            deallocate (sc0)
 
-           write (*, *) 'OK cdiag', dimn, dimm
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'OK cdiag', dimn, dimm
+           end if
 
            Allocate (uc(dimn, dimm))                                 ! uc N*M
            Allocate (wsnew(dimm))                                  ! wnew M
@@ -209,7 +221,9 @@
 
            Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'OK ccutoff'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'OK ccutoff'
+           end if
            deallocate (ws)
            deallocate (sc)
 
@@ -217,7 +231,9 @@
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            deallocate (wsnew)
 
-           write (*, *) 'ucrams half OK'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'ucrams half OK'
+           end if
            Allocate (bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -225,19 +241,21 @@
            bc1 = 0.0d+00
            bc1 = MATMUL(bc0, uc)
 
-           IF (debug) then
+           if (rank == 0) then ! Process limits for output
+               IF (debug) then
 
-               write (*, *) 'Check whether bc1 is hermite or not'
-               Do i = 1, dimm
-                   Do j = i, dimm
-                       if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
-                           write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
-                       End if
+                   write (normaloutput, *) 'Check whether bc1 is hermite or not'
+                   Do i = 1, dimm
+                       Do j = i, dimm
+                           if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
+                               write (normaloutput, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
+                           End if
+                       End do
                    End do
-               End do
-               write (*, *) 'Check whether bc1 is hermite or not END'
+                   write (normaloutput, *) 'Check whether bc1 is hermite or not END'
 
-           End if
+               End if
+           end if
 
            deallocate (bc)
            deallocate (bc0)
@@ -247,8 +265,9 @@
            Allocate (wb(dimm))
            wb = 0.0d+00
 
-           write (*, *) 'bC matrix is transrated to bc1(M*M matrix)!'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bC matrix is transrated to bc1(M*M matrix)!'
+           end if
            Allocate (bc0(dimm, dimm))
            bc0 = bc1
 
@@ -256,17 +275,21 @@
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            If (debug) then
 
-               write (*, *) 'Check whether bc is really diagonalized or not'
-
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether bc is really diagonalized or not'
+               end if
                Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               write (*, *) 'Check whether bc is really diagonalized or not END'
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether bc is really diagonalized or not END'
+               end if
            End if
 
            deallocate (bc0)
 
-           write (*, *) 'bC1 matrix is diagonalized!'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bC1 matrix is diagonalized!'
+           end if
            e2 = 0.0d+00
            Do i0 = 1, nai
                ja = ia0(i0)
@@ -308,14 +331,16 @@
            deallocate (wb)
            Deallocate (bc1)
 
-1000       write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
+1000       if (rank == 0) write (normaloutput, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
            e2d = e2d + e2(isym)
 
        End do                  ! isym
 
-       write (*, '("e2d      = ",E20.10,"a.u.",I4)') e2d, rank
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("e2d      = ",E20.10,"a.u.",I4)') e2d, rank
 
-       write (*, '("sumc2,d  = ",E20.10)') sumc2local
+           write (normaloutput, '("sumc2,d  = ",E20.10)') sumc2local
+       end if
        sumc2 = sumc2 + sumc2local
 
        deallocate (iai)
@@ -324,7 +349,9 @@
        deallocate (v)
 
        continue
-       write (*, *) 'end solvD_ord'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'end solvD_ord'
+       end if
    end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -402,8 +429,9 @@
 
        bc(:, :) = 0.0d+00
 
-       write (*, *) 'F space Bmat iroot=', iroot
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'F space Bmat iroot=', iroot
+       end if
        Do i = 1, dimn
 
            ix = indsym(1, i)
@@ -439,8 +467,9 @@
            End do               !i
        End do                  !j
 
-       write (*, *) 'bDmat is ended'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'bDmat is ended'
+       end if
    End subroutine bDmat
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -540,8 +569,9 @@
 
        goto 30
 20     close (1)
-       write (*, *) 'reading D2int2 is over'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading D2int2 is over'
+       end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
 !
@@ -573,8 +603,9 @@
        goto 31
 
 21     close (1)
-       write (*, *) 'reading D2int2 is over'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading D2int2 is over'
+       end if
        !  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
        open (1, file=d3int, status='old', form='formatted') ! (ai|jk) is stored
 
@@ -594,8 +625,10 @@
        goto 300
 
 200    close (1)
-       write (*, *) 'reading D3int2 is over'
-    !    effh(ninact + nact + 1:ninact + nact + nsec, ninact)
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading D3int2 is over'
+       end if
+       !    effh(ninact + nact + 1:ninact + nact + nsec, ninact)
        if (rank == 0) then
            call MPI_Reduce(MPI_IN_PLACE, effh(ninact + nact + 1, 1), nsec*ninact, &
                            MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
@@ -604,7 +637,7 @@
                            MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
        end if
        if (rank /= 0) then
-        effh(:,:) = 0
+           effh(:, :) = 0
        end if
 
        Do ia = 1, nsec
@@ -633,7 +666,7 @@
 
 10     write (*, *) 'error while opening file Dint'; goto 100
 
-100    write (*, *) 'vDmat_ord_ty is ended'
+100    if (rank == 0) write (normaloutput, *) 'vDmat_ord_ty is ended'
        !  v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
        call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nai*nact**2, &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)

@@ -100,7 +100,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     kkr = 0
     nnkr = 0
 
-    ! Do i=1,8 ! TODO MDCINTファイルの数に応じてloopの数を変更する
     realonly = .false.
     cutoff = 0.25D-12
     nnz = 1
@@ -187,7 +186,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     end if
     if (ikr == 0) then
         if (rank == 0) then ! Process limits for output
-            write (20, *) ikr, jkr, nz, mdcint_debug
+            write (normaloutput, *) ikr, jkr, nz, mdcint_debug
         end if
         ! write (rank + 200) 0, 0, 0
         ! write(29,'(3I4)') 0, 0, 0

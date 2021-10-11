@@ -134,7 +134,9 @@
        !    Allocate (v(nab, nij))
        call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       write (*, *) 'reading int2 is over'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading int2 is over'
+       end if
 
        Do i0 = 1, nab
            ia = ia0(i0)
@@ -160,9 +162,10 @@
            End do
        End do
 
-       write (*, '("e2h      = ",E20.10,"a.u.")') e2h
-
-       write (*, '("sumc2,h  = ",E20.10)') sumc2local
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("e2h      = ",E20.10,"a.u.")') e2h
+           write (normaloutput, '("sumc2,h  = ",E20.10)') sumc2local
+       end if
        sumc2 = sumc2 + sumc2local
 
        deallocate (v)
@@ -175,6 +178,7 @@
 
 10     continue                !write(*,*)'error about opening Hint file' ;stop
 100    continue
-       write (*, *) 'end solvh_ord'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'end solvh_ord'
+       end if
    End SUBROUTINE solvH_ord_ty
