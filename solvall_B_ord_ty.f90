@@ -625,7 +625,7 @@
        end if
        goto 100
 
-10    if (rank == 0) write (normaloutput, *) 'error while opening file Bint'; goto 100
+10    write (*, *) 'error while opening file Bint'; goto 100
 
 100    if (rank == 0) write (normaloutput, *) 'vBmat_ord_ty is ended'
 

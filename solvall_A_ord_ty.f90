@@ -794,7 +794,7 @@
 
        goto 100
 
-10     if (rank == 0) write (normaloutput, *) 'error while opening file Aint'; goto 1000
+10     write (*, *) 'error while opening file Aint'; goto 1000
 100    continue
 
 1000   if (rank == 0) write (normaloutput, *) 'vAmat_ord_ty is ended'
