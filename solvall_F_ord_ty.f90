@@ -436,6 +436,7 @@
    use four_caspt2_module
 
         Implicit NONE
+        include 'mpif.h'
 
         integer, intent(in) :: dimn, indsym(2,dimn)
         complex*16, intent(in)  :: sc(dimn,dimn)
@@ -455,7 +456,8 @@
         end if
         
         !$OMP parallel do private(iv,jv,ix,jx,j,it,jt,iu,ju,e,iw,jw,denr,deni,den)
-        Do i = 1, dimn
+        Do i = rank + 1, dimn, nprocs
+         ! Do i = 1, dimn
 
            iv = indsym(1,i)
            jv = iv + ninact
@@ -500,7 +502,11 @@
            End do               !i
         End do                  !j
 
-
+        if (rank == 0) then
+         call MPI_Reduce (MPI_IN_PLACE, bc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+        else
+         call MPI_Reduce (bc(1,1), bc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+        end if
         if (rank == 0) then ! Process limits for output
             write(normaloutput,*)'bFmat is ended'
         end if

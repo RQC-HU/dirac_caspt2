@@ -500,8 +500,12 @@
 !           write(*,*)'sc0',sc(5,5)
 
        bc(:, :) = 0.0d+00
+       if (rank == 0) then
+           write (normaloutput, *) 'bAmat loop: rank, nprocs, dimn', rank, nprocs, dimn
+       end if
        !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
-       Do i = 1, dimn
+       Do i = rank + 1, dimn, nprocs
+           !    Do i = 1, dimn
            ! Do i = rank+1, dimn, nprocs
            ix = indsym(1, i)
            iy = indsym(2, i)
@@ -548,6 +552,18 @@
 
            End do               !i
        End do                  !j
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       if (rank == 0) then
+           write (normaloutput, *) 'bc reduce'
+       end if
+
+       ! Noda : なぜかMPI_Reduce ver.だとisym=2のsAmatで実行が止まるのでMPI_Allreduce
+       call MPI_Allreduce (MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    !    if (rank == 0) then
+    !        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+    !    else
+    !        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+    !    end if
 
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'bAmat is ended'
@@ -881,8 +897,8 @@
        !    end do
        call MPI_Allreduce(MPI_IN_PLACE, v(ninact, ninact + 1, ninact + 1, ninact + 1), ninact*nact*nact*nact, &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) "v(after), rank :", rank, v
-       end if
-       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+       !    if (rank == 0) then ! Process limits for output
+       !        write (normaloutput, *) "v(after), rank :", rank, v
+       !    end if
+       !    call MPI_Barrier(MPI_COMM_WORLD, ierr)
    end subroutine vAmat_ord_ty

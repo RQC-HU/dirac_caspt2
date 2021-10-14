@@ -422,6 +422,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
 
        integer :: it, iu, iv, ix, iy, iz, iw, i, j
        integer :: jt, ju, jv, jx, jy, jz, jw
@@ -439,8 +440,9 @@
            write (normaloutput, *) 'C space Bmat iroot=', iroot
        end if
        !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
-       Do i = 1, dimn
-           ix = indsym(1, i)
+       Do i = rank + 1, dimn, nprocs
+        ! Do i = 1, dimn
+            ix = indsym(1, i)
            iy = indsym(2, i)
            iz = indsym(3, i)
            jx = ix + ninact
@@ -476,7 +478,11 @@
 
            End do               !i
        End do                  !j
-
+       if (rank == 0) then
+        call MPI_Reduce (MPI_IN_PLACE, bc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+        call MPI_Reduce (bc(1,1), bc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'bCmat is ended'
        end if
