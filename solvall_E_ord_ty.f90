@@ -38,6 +38,7 @@
         integer                  :: naij
 
         real*8  :: thresd
+        integer :: datetmp0, datetmp1, tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -121,7 +122,10 @@
         if (rank == 0) then ! Process limits for output
          write(normaloutput,*)'come'
         end if
-
+        Call timing(date1, tsec1, date0, tsec0)
+        date1 = date0
+        tsec1 = tsec0
+        tsectmp0=tsec0; tsectmp1=tsec1; datetmp0=date0; datetmp1=date1
 
      Do isym = 1, nsymrpa
 
@@ -141,13 +145,21 @@
 
         Allocate(sc(dimn,dimn))
         sc = 0.0d+00            ! sc N*N
-
+        if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'before sEmat'
+        end if
+        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+        datetmp1 = datetmp0
+        tsectmp1 = tsectmp0
        Call sEmat (dimn, indt(1:dimn), sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
          if (rank == 0) then ! Process limits for output
             write(normaloutput,*)'sc matrix is obtained normally'
          end if
+         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+         datetmp1 = datetmp0
+         tsectmp1 = tsectmp0
            Allocate(ws(dimn))
 
            cutoff = .TRUE.
@@ -155,12 +167,20 @@
 
            Allocate(sc0(dimn,dimn))
            sc0 = sc
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before cdiag'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
        Call cdiag (sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          if (rank == 0) then ! Process limits for output
             write(normaloutput,*)'after s cdiag, new dimension is', dimm
          end if
+         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+         datetmp1 = datetmp0
+         tsectmp1 = tsectmp0
            If(dimm == 0) then
               deallocate(sc0)
               deallocate(sc)
@@ -182,13 +202,20 @@
 
            Allocate(bc(dimn,dimn))                                 ! bc N*N
            bc = 0.0d+00
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before bEmat'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
        Call bEmat (e0, dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          if (rank == 0) then ! Process limits for output
             write(normaloutput,*)'bc matrix is obtained normally'
          end if
-
+         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+         datetmp1 = datetmp0
+         tsectmp1 = tsectmp0
          deallocate (sc0)
 
          if (rank == 0) then ! Process limits for output
@@ -198,15 +225,28 @@
          Allocate(wsnew(dimm))                                  ! wnew M
          uc(:,:) = 0.0d+00
          wsnew(:) = 0.0d+00
-
+         if (rank == 0) then ! Process limits for output
+             write (normaloutput, *) 'before ccutoff'
+         end if
+         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+         datetmp1 = datetmp0
+         tsectmp1 = tsectmp0
        Call ccutoff (sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          if (rank == 0) then ! Process limits for output
             write(normaloutput,*)'OK ccutoff'
          end if
+         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+         datetmp1 = datetmp0
+         tsectmp1 = tsectmp0
            deallocate (ws)
            deallocate (sc)
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before ucramda_s_half'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
        Call ucramda_s_half (uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            deallocate(wsnew)
@@ -214,6 +254,9 @@
            if (rank == 0) then ! Process limits for output
             write(normaloutput,*)'ucrams half OK'
            end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Allocate(bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -249,9 +292,20 @@
             end if
            Allocate(bc0(dimm,dimm))
            bc0 = bc1
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before cdiag'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
        Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'end cdiag'
+       end if
+       Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+       datetmp1 = datetmp0
+       tsectmp1 = tsectmp0
    If (debug) then
          if (rank == 0) then ! Process limits for output
            write(normaloutput,*)'Check whether bc is really diagonalized or not'
@@ -319,7 +373,12 @@
 
  1000      if (rank == 0) write(normaloutput,'("e2e(",I3,") = ",E20.10,"a.u.")')isym,e2(isym)
            e2e = e2e + e2(isym)
-
+           if (rank == 0) then ! Process limits for output
+            write (normaloutput, *) 'End e2(isym) add'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
    End do                  ! isym
 
          if (rank == 0) then ! Process limits for output

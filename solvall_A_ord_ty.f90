@@ -33,6 +33,7 @@
 
        real*8  :: thresd
        integer :: loopcnt
+       integer :: datetmp0, datetmp1, tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -83,7 +84,7 @@
        end if
 
        Call vAmat_ord_ty(v)
-
+       tsectmp0 = tsec0; tsectmp1 = tsec1; datetmp0 = date0; datetmp1 = date1
 !         ExjEyz
 ! Noda : Probably need to paralellize it under this
        Do isym = 1, nsymrpa
@@ -148,17 +149,17 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'before sAmat'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call sAmat(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'sc matrix is obtained normally'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 
            cutoff = .TRUE.
@@ -169,17 +170,17 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'before cdiag'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'after sc cdiag'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
 
            If (dimm == 0) then
                deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -210,17 +211,17 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'before bAmat'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call bAmat(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'bc matrix is obtained normally'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
 
            Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
@@ -231,26 +232,26 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'before ccutoff'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'OK ccutoff'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
            deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
 
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'before ucramda_s_half'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            deallocate (wsnew); Call memminus(KIND(wsnew), SIZE(wsnew), 1)
@@ -258,9 +259,9 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'ucrams half OK'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -300,36 +301,36 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'before cdiag'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
 
            Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'end cdiag'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
 
 !  If(debug) then
 
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'Check whether bc is really diagonalized or not'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
 
            Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'Check whether bc is really diagonalized or not END'
            end if
-           Call timing(date1, tsec1, date0, tsec0)
-           date1 = date0
-           tsec1 = tsec0
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
 
 !  End if
            deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
@@ -381,7 +382,12 @@
            Deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 2)
 
            e2a = e2a + e2(isym)
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'End e2(isym) add'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
 1000   End do                  ! isym
        !    call MPI_Barrier(MPI_COMM_WORLD, ierr)
        !    do loopcnt = 0, nprocs - 1
@@ -558,12 +564,12 @@
        end if
 
        ! Noda : なぜかMPI_Reduce ver.だとisym=2のsAmatで実行が止まるのでMPI_Allreduce
-       call MPI_Allreduce (MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-    !    if (rank == 0) then
-    !        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    !    else
-    !        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    !    end if
+       call MPI_Allreduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       !    if (rank == 0) then
+       !        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       !    else
+       !        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       !    end if
 
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'bAmat is ended'
