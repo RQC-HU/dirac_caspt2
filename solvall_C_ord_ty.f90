@@ -438,6 +438,7 @@
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'C space Bmat iroot=', iroot
        end if
+       !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
        Do i = 1, dimn
            ix = indsym(1, i)
            iy = indsym(2, i)

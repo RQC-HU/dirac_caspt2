@@ -441,6 +441,7 @@
          write(normaloutput,*)'E space Bmat iroot=',iroot
         end if
 
+        !$OMP parallel do private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
         Do i = 1, dimn
            iu = indt(i)
            ju = iu + ninact

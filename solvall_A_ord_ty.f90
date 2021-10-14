@@ -85,7 +85,7 @@
        Call vAmat_ord_ty(v)
 
 !         ExjEyz
-
+! Noda : Probably need to paralellize it under this
        Do isym = 1, nsymrpa
 
            ixyz = 0
@@ -145,13 +145,20 @@
            Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
            sc = 0.0d+00            ! sr N*N
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before sAmat'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Call sAmat(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'sc matrix is obtained normally'
            end if
-
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 
            cutoff = .TRUE.
@@ -159,12 +166,21 @@
 
            Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
            sc0 = sc
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before cdiag'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'after sc cdiag'
            end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
+
            If (dimm == 0) then
                deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
                deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
@@ -191,11 +207,20 @@
 
            Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
            bc = 0.0d+00
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before bAmat'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Call bAmat(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'bc matrix is obtained normally'
            end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
 
            Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
@@ -203,14 +228,29 @@
            uc(:, :) = 0.0d+00
            wsnew(:) = 0.0d+00
 
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before ccutoff'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'OK ccutoff'
            end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
            deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
 
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before ucramda_s_half'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            deallocate (wsnew); Call memminus(KIND(wsnew), SIZE(wsnew), 1)
@@ -218,6 +258,9 @@
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'ucrams half OK'
            end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
            Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -254,21 +297,39 @@
 
            Allocate (bc0(dimm, dimm)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*M
            bc0 = bc1
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before cdiag'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
 
            Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'end cdiag'
+           end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
 
 !  If(debug) then
 
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'Check whether bc is really diagonalized or not'
            end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
 
            Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'Check whether bc is really diagonalized or not END'
            end if
+           Call timing(date1, tsec1, date0, tsec0)
+           date1 = date0
+           tsec1 = tsec0
 
 !  End if
            deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
@@ -425,7 +486,7 @@
        use four_caspt2_module
 
        Implicit NONE
-
+       include 'mpif.h'
        integer :: it, iu, iv, ix, iy, iz, iw
        integer :: jt, ju, jv, jx, jy, jz, jw
        integer :: i, j
@@ -434,14 +495,14 @@
        complex*16, intent(in)  :: sc(dimn, dimn)
        complex*16, intent(out) :: bc(dimn, dimn)
 
-       real*8              :: e, denr, deni
-       complex*16          :: den
-
+       real*8               :: e, denr, deni
+       complex*16           :: den
 !           write(*,*)'sc0',sc(5,5)
 
        bc(:, :) = 0.0d+00
-
+       !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
        Do i = 1, dimn
+           ! Do i = rank+1, dimn, nprocs
            ix = indsym(1, i)
            iy = indsym(2, i)
            iz = indsym(3, i)
