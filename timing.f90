@@ -61,6 +61,5 @@
             if (rank == 0) then ! Process limits for output
                 write (normaloutput, '("computational time = ",I3,"day",I3,"h ",I3, &
                 &"min",F7.3,"sec")') day, hour, min, sec
-                write (normaloutput, '(A,I4)') 'rank', rank
             end if
 100     end subroutine timing
