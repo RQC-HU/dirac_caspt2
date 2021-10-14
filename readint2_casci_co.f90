@@ -81,8 +81,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     indl(:) = 0
     rklr(:) = 0.0d+00
     rkli(:) = 0.0d+00
-    int2r(:) = 0.0d+00
-    int2i(:) = 0.0d+00
+    int2rs(:) = 0.0d+00
+    int2is(:) = 0.0d+00
     indtwr = 0
     indtwi = 0
     int2r_f1 = 0.0d+00
