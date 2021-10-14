@@ -176,7 +176,7 @@ F90C = mpiifort
 # F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 
 # Use this flags if normally
- F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
+ F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -qopenmp
 
 # Use this flags if you want to use gprof
 # F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg
