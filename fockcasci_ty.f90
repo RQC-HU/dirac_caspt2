@@ -29,6 +29,7 @@
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'enter building fock matrix'
        end if
+       !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
        do i = 1, ninact + nact
            do j = i, ninact + nact
                 !! Adding one-electron integral to the fock matrics is executed only by the master process
@@ -77,6 +78,7 @@
            end do       ! j
        end do          ! i
 
+       !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
        do i = ninact + nact + 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
                if (rank == 0) then
