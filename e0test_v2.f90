@@ -73,12 +73,13 @@
                    ii = i
                    jj = j
 
-                   nint = ABS(indtwr(ii, ii, jj, jj))
-                   nsign = SIGN(1, indtwr(ii, ii, jj, jj))
+                !    nint = ABS(indtwr(ii, ii, jj, jj))
+                !    nsign = SIGN(1, indtwr(ii, ii, jj, jj))
 
 !               write(*,'(4I3,F5.1,I6)')ii,ii,jj,jj,nsign,nint
 
-                   i2r = int2r(nint)*nsign
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(ii, ii, jj, jj)
 
 !               if (iroot == 1) then
 !                  write(*,*)' (',ii,ii,'|',jj,jj,')'
@@ -89,12 +90,13 @@
 
                    energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*i2r
 
-                   nint = ABS(indtwr(ii, jj, jj, ii))
-                   nsign = SIGN(1, indtwr(ii, jj, jj, ii))
+                !    nint = ABS(indtwr(ii, jj, jj, ii))
+                !    nsign = SIGN(1, indtwr(ii, jj, jj, ii))
 
 !               write(*,'(4I3,F5.1,I6)')ii,jj,jj,ii,nsign,nint
 
-                   i2r = int2r(nint)*nsign
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(ii, jj, jj, ii)
 
                    energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*i2r
 
@@ -128,9 +130,10 @@
                    do k = 1, ninact            ! kk is inactive spinor
                        kk = k
 
-                       nint = ABS(indtwr(kk, kk, ii, jj))
-                       nsign = SIGN(1, indtwr(kk, kk, ii, jj))
-                       i2r = int2r(nint)*nsign
+                    !    nint = ABS(indtwr(kk, kk, ii, jj))
+                    !    nsign = SIGN(1, indtwr(kk, kk, ii, jj))
+                    !    i2r = int2r(nint)*nsign
+                       i2r = inttwr(kk, kk, ii, jj)
 
                        if (rank == 0) then ! Process limits for output
                            write (normaloutput, '(4I3,F5.1,I6)') kk, kk, ii, jj, nsign, nint
@@ -138,9 +141,10 @@
 
                        oneeff = oneeff + i2r
 
-                       nint = ABS(indtwr(kk, jj, ii, kk))
-                       nsign = SIGN(1, indtwr(kk, jj, ii, kk))
-                       i2r = int2r(nint)*nsign
+                    !    nint = ABS(indtwr(kk, jj, ii, kk))
+                    !    nsign = SIGN(1, indtwr(kk, jj, ii, kk))
+                    !    i2r = int2r(nint)*nsign
+                       i2r = inttwr(kk, jj, ii, kk)
 
                        if (rank == 0) then ! Process limits for output
                            write (normaloutput, '(4I3,F5.1,I6)') kk, jj, ii, kk, nsign, nint
@@ -195,11 +199,12 @@
                            dr = 0.0d+00
                            di = 0.0d+00
 
-                           nint = ABS(indtwr(ii, jj, kk, ll))
-                           nsign = SIGN(1, indtwr(ii, jj, kk, ll))
+                        !    nint = ABS(indtwr(ii, jj, kk, ll))
+                        !    nsign = SIGN(1, indtwr(ii, jj, kk, ll))
                            !                write(*,'(4I3,F5.1,I6)')ii,jj,kk,ll,nsign,nint
 
-                           i2r = int2r(nint)*nsign
+                        !    i2r = int2r(nint)*nsign
+                           i2r = inttwr(ii, jj, kk, ll)
 
                            if (realcvec) then
                                Call dim2_density_R(ii, jj, kk, ll, dr)
@@ -295,13 +300,15 @@
                    i2i = 0.0d+00
                    nsign = 0.0d+00
 
-                   nint = ABS(indtwr(i, i, j, j))
+                !    nint = ABS(indtwr(i, i, j, j))
 
-                   nsign = SIGN(1, indtwr(i, i, j, j))
-                   i2r = int2r(nint)*nsign
+                !    nsign = SIGN(1, indtwr(i, i, j, j))
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(i, i, j, j)
 
-                   nsign = SIGN(1, indtwi(i, i, j, j))
-                   i2i = int2i(nint)*nsign
+                !    nsign = SIGN(1, indtwi(i, i, j, j))
+                !    i2i = int2i(nint)*nsign
+                   i2i = inttwi(i, i, j, j)
 
                    cmplxint = CMPLX(i2r, i2i, 16)
                    energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
@@ -312,15 +319,17 @@
                    nsign = 0.0d+00
                    nint = 0
 
-                   nint = ABS(indtwr(i, j, j, i))
+                !    nint = ABS(indtwr(i, j, j, i))
 
-                   nsign = SIGN(1, indtwr(i, j, j, i))
-                   i2r = int2r(nint)*nsign
+                !    nsign = SIGN(1, indtwr(i, j, j, i))
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(i, j, j, i)
 
-                   nsign = 0.0d+00
+                !    nsign = 0.0d+00
 
-                   nsign = SIGN(1, indtwi(i, j, j, i))
-                   i2i = int2i(nint)*nsign
+                !    nsign = SIGN(1, indtwi(i, j, j, i))
+                !    i2i = int2i(nint)*nsign
+                   i2i = inttwi(i, j, j, i)
 
                    cmplxint = CMPLX(i2r, i2i, 16)
                    energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
@@ -362,12 +371,14 @@
                    i2r = 0.0d+00
                    i2i = 0.0d+00
 
-                   nint = ABS(indtwr(i, i, j, j))
-                   nsign = SIGN(1, indtwr(i, i, j, j))
-                   i2r = int2r(nint)*nsign
+                !    nint = ABS(indtwr(i, i, j, j))
+                !    nsign = SIGN(1, indtwr(i, i, j, j))
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(i, i, j, j)
 
-                   nsign = SIGN(1, indtwi(i, i, j, j))
-                   i2i = int2i(nint)*nsign
+                !    nsign = SIGN(1, indtwi(i, i, j, j))
+                !    i2i = int2i(nint)*nsign
+                   i2i = inttwi(i, i, j, j)
 
                    cmplxint = CMPLX(i2r, i2i, 16)
                    energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
@@ -375,13 +386,15 @@
                    i2r = 0.0d+00
                    i2i = 0.0d+00
 
-                   nint = ABS(indtwr(i, j, j, i))
+                !    nint = ABS(indtwr(i, j, j, i))
 
-                   nsign = SIGN(1, indtwr(i, j, j, i))
-                   i2r = int2r(nint)*nsign
+                !    nsign = SIGN(1, indtwr(i, j, j, i))
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(i, j, j, i)
 
-                   nsign = SIGN(1, indtwi(i, j, j, i))
-                   i2i = int2i(nint)*nsign
+                !    nsign = SIGN(1, indtwi(i, j, j, i))
+                !    i2i = int2i(nint)*nsign
+                   i2i = inttwi(i, j, j, i)
 
                    cmplxint = CMPLX(i2r, i2i, 16)
                    energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
@@ -412,25 +425,29 @@
                        i2r = 0.0d+00
                        i2i = 0.0d+00
 
-                       nint = ABS(indtwr(i, j, k, k))
-                       nsign = SIGN(1, indtwr(i, j, k, k))
+                    !    nint = ABS(indtwr(i, j, k, k))
+                    !    nsign = SIGN(1, indtwr(i, j, k, k))
 
-                       i2r = int2r(nint)*nsign
+                    !    i2r = int2r(nint)*nsign
+                       i2r = inttwr(i, j, k, k)
 
-                       nsign = SIGN(1, indtwi(i, j, k, k))
-                       i2i = int2i(nint)*nsign
+                    !    nsign = SIGN(1, indtwi(i, j, k, k))
+                    !    i2i = int2i(nint)*nsign
+                       i2i = inttwi(i, j, k, k)
 
                        cmplxint = CMPLX(i2r, i2i, 16)
                        oneeff = oneeff + cmplxint
 
                        i2r = 0.0d+00
                        i2i = 0.0d+00
-                       nint = ABS(indtwr(i, k, k, j))
-                       nsign = SIGN(1, indtwr(i, k, k, j))
-                       i2r = int2r(nint)*nsign
+                    !    nint = ABS(indtwr(i, k, k, j))
+                    !    nsign = SIGN(1, indtwr(i, k, k, j))
+                    !    i2r = int2r(nint)*nsign
+                       i2r = inttwr(i, k, k, j)
 
-                       nsign = SIGN(1, indtwi(i, k, k, j))
-                       i2i = int2i(nint)*nsign
+                    !    nsign = SIGN(1, indtwi(i, k, k, j))
+                    !    i2i = int2i(nint)*nsign
+                       i2i = inttwi(i, k, k, j)
 
                        cmplxint = CMPLX(i2r, i2i, 16)
                        oneeff = oneeff - cmplxint
@@ -488,13 +505,15 @@
                            dr = 0.0d+00
                            di = 0.0d+00
 
-                           nint = ABS(indtwr(i, j, k, l))
+                        !    nint = ABS(indtwr(i, j, k, l))
 
-                           nsign = SIGN(1, indtwr(i, j, k, l))
-                           i2r = int2r(nint)*nsign
+                        !    nsign = SIGN(1, indtwr(i, j, k, l))
+                        !    i2r = int2r(nint)*nsign
+                           i2r = inttwr(i, j, k, l)
 
-                           nsign = SIGN(1, indtwi(i, j, k, l))
-                           i2i = int2i(nint)*nsign
+                        !    nsign = SIGN(1, indtwi(i, j, k, l))
+                        !    i2i = int2i(nint)*nsign
+                           i2i = inttwi(i, j, k, l)
 
                            cmplxint = CMPLX(i2r, i2i, 16)
 

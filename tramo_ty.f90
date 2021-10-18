@@ -147,11 +147,13 @@
                    count = count + 1
                    cmplxint = 0.0d+00
 
-                   nint = ABS(indtwr(i0, j0, k0, l0))
-                   nsign = SIGN(1, indtwr(i0, j0, k0, l0))
-                   i2r = int2r(nint)*nsign
-                   nsign2 = SIGN(1, indtwi(i0, j0, k0, l0))
-                   i2i = int2i(nint)*nsign2
+                !    nint = ABS(indtwr(i0, j0, k0, l0))
+                !    nsign = SIGN(1, indtwr(i0, j0, k0, l0))
+                !    i2r = int2r(nint)*nsign
+                   i2r = inttwr(i0, j0, k0, l0)
+                !    nsign2 = SIGN(1, indtwi(i0, j0, k0, l0))
+                !    i2i = int2i(nint)*nsign2
+                   i2i = inttwi(i0, j0, k0, l0)
 
                    cmplxint = CMPLX(i2r, i2i, 16)
 

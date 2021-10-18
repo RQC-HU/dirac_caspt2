@@ -17,6 +17,7 @@ MODULE four_caspt2_module
     real*8, allocatable :: int2r(:), int2i(:), int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
     real*8, allocatable :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
     integer, allocatable :: indtwr(:, :, :, :), indtwi(:, :, :, :)
+    real(8), allocatable :: inttwr(:, :, :, :), inttwi(:, :, :, :)
     logical :: realc, realcvec, debug, realf, evenelec
 
     integer                 ::  val(8), initdate, date0, date1
