@@ -549,7 +549,9 @@
        do i = n0, n1
        do j = n0, n1
            if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
-               write (normaloutput, '(2E13.5,2I3)') matc(i, j), i, j
+                if (rank == 0) then ! Process limits for output
+                    write (normaloutput, '(2E13.5,2I3)') matc(i, j), i, j
+                end if
            end if
        end do
        end do
