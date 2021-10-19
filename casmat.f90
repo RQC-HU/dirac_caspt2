@@ -29,7 +29,8 @@
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'allocated oc and vi', rank
        end if
-       Do i = 1, ndet
+       Do i = rank + 1, ndet, nprocs
+           !    Do i = 1, ndet
 
            occ = 0
            oc = 0
@@ -58,20 +59,20 @@
             !! Adding one-electron integral to mat is executed only by the master process
             !! because DIRAC's one-electron integral file (MRCONEE) is not
             !! devided even if DIRAC is executed in parallel (MPI).
-           if (rank == 0) then ! Process limits for output
-               Do i0 = 1, ninact
-                   ir = i0
-                   cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
-                   mat(i, i) = mat(i, i) + cmplxint
-               End do
+           !    if (rank == 0) then ! Process limits for output
+           Do i0 = 1, ninact
+               ir = i0
+               cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
+               mat(i, i) = mat(i, i) + cmplxint
+           End do
 
-               Do i0 = 1, nelec
-                   indr = oc(i0)
-                   ir = indr + ninact
-                   cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
-                   mat(i, i) = mat(i, i) + cmplxint
-               End do
-           end if
+           Do i0 = 1, nelec
+               indr = oc(i0)
+               ir = indr + ninact
+               cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
+               mat(i, i) = mat(i, i) + cmplxint
+           End do
+           !    end if
            mat0 = 0.0d+00
 
            Do i0 = 1, ninact + nelec
@@ -93,12 +94,12 @@
                        is = inds + ninact
                    End if
 
-                !    nint = ABS(indtwr(ir, ir, is, is))
-                !    nsign = SIGN(1, indtwr(ir, ir, is, is))
-                !    i2r = int2r(nint)*nsign
+                   !    nint = ABS(indtwr(ir, ir, is, is))
+                   !    nsign = SIGN(1, indtwr(ir, ir, is, is))
+                   !    i2r = int2r(nint)*nsign
                    i2r = inttwr(ir, ir, is, is)
-                !    nsign = SIGN(1, indtwi(ir, ir, is, is))
-                !    i2i = int2i(nint)*nsign
+                   !    nsign = SIGN(1, indtwi(ir, ir, is, is))
+                   !    i2i = int2i(nint)*nsign
                    i2i = inttwi(ir, ir, is, is)
                    cmplxint = CMPLX(i2r, i2i, 16)
 !                 write(*,*)ir,is,cmplxint
@@ -106,12 +107,12 @@
                    mat0 = mat0 + 0.5d+00*cmplxint
 !                 mat(i,i) = mat(i,i) + 0.5d+00*cmplxint
 
-                !    nint = ABS(indtwr(ir, is, is, ir))
-                !    nsign = SIGN(1, indtwr(ir, is, is, ir))
-                !    i2r = int2r(nint)*nsign
+                   !    nint = ABS(indtwr(ir, is, is, ir))
+                   !    nsign = SIGN(1, indtwr(ir, is, is, ir))
+                   !    i2r = int2r(nint)*nsign
                    i2r = inttwr(ir, is, is, ir)
-                !    nsign = SIGN(1, indtwi(ir, is, is, ir))
-                !    i2i = int2i(nint)*nsign
+                   !    nsign = SIGN(1, indtwi(ir, is, is, ir))
+                   !    i2i = int2i(nint)*nsign
                    i2i = inttwi(ir, is, is, ir)
                    cmplxint = CMPLX(i2r, i2i, 16)
 !                 write(*,*)ir,is,cmplxint
@@ -146,30 +147,30 @@
                         !! Adding one-electron integral to mat is executed only by the master process
                         !! because DIRAC's one-electron integral file (MRCONEE) is not
                         !! devided even if DIRAC is executed in parallel (MPI).
-                       if (rank == 0) then ! Process limits for output
-                           cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
-                           mat(i, j) = mat(i, j) + cmplxint
-                       end if
+                       !    if (rank == 0) then ! Process limits for output
+                       cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
+                       mat(i, j) = mat(i, j) + cmplxint
+                       !    end if
                        Do l0 = 1, ninact
                            is = l0
 
-                        !    nint = ABS(indtwr(ir, ia, is, is))
-                        !    nsign = SIGN(1, indtwr(ir, ia, is, is))
-                        !    i2r = int2r(nint)*nsign
+                           !    nint = ABS(indtwr(ir, ia, is, is))
+                           !    nsign = SIGN(1, indtwr(ir, ia, is, is))
+                           !    i2r = int2r(nint)*nsign
                            i2r = inttwr(ir, ia, is, is)
-                        !    nsign = SIGN(1, indtwi(ir, ia, is, is))
-                        !    i2i = int2i(nint)*nsign
+                           !    nsign = SIGN(1, indtwi(ir, ia, is, is))
+                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, ia, is, is)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
                            mat(i, j) = mat(i, j) + cmplxint
 
-                        !    nint = ABS(indtwr(ir, is, is, ia))
-                        !    nsign = SIGN(1, indtwr(ir, is, is, ia))
-                        !    i2r = int2r(nint)*nsign
+                           !    nint = ABS(indtwr(ir, is, is, ia))
+                           !    nsign = SIGN(1, indtwr(ir, is, is, ia))
+                           !    i2r = int2r(nint)*nsign
                            i2r = inttwr(ir, is, is, ia)
-                        !    nsign = SIGN(1, indtwi(ir, is, is, ia))
-                        !    i2i = int2i(nint)*nsign
+                           !    nsign = SIGN(1, indtwi(ir, is, is, ia))
+                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, is, is, ia)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
@@ -180,23 +181,23 @@
                            inds = oc(l0)
                            is = inds + ninact
 
-                        !    nint = ABS(indtwr(ir, ia, is, is))
-                        !    nsign = SIGN(1, indtwr(ir, ia, is, is))
-                        !    i2r = int2r(nint)*nsign
+                           !    nint = ABS(indtwr(ir, ia, is, is))
+                           !    nsign = SIGN(1, indtwr(ir, ia, is, is))
+                           !    i2r = int2r(nint)*nsign
                            i2r = inttwr(ir, ia, is, is)
-                        !    nsign = SIGN(1, indtwi(ir, ia, is, is))
-                        !    i2i = int2i(nint)*nsign
+                           !    nsign = SIGN(1, indtwi(ir, ia, is, is))
+                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, ia, is, is)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
                            mat(i, j) = mat(i, j) + cmplxint
 
-                        !    nint = ABS(indtwr(ir, is, is, ia))
-                        !    nsign = SIGN(1, indtwr(ir, is, is, ia))
-                        !    i2r = int2r(nint)*nsign
+                           !    nint = ABS(indtwr(ir, is, is, ia))
+                           !    nsign = SIGN(1, indtwr(ir, is, is, ia))
+                           !    i2r = int2r(nint)*nsign
                            i2r = inttwr(ir, is, is, ia)
-                        !    nsign = SIGN(1, indtwi(ir, is, is, ia))
-                        !    i2i = int2i(nint)*nsign
+                           !    nsign = SIGN(1, indtwi(ir, is, is, ia))
+                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, is, is, ia)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
@@ -240,23 +241,23 @@
                                if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
                                if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
 
-                            !    nint = ABS(indtwr(ir, ia, is, ib))
-                            !    nsign = SIGN(1, indtwr(ir, ia, is, ib))
-                            !    i2r = int2r(nint)*nsign
+                               !    nint = ABS(indtwr(ir, ia, is, ib))
+                               !    nsign = SIGN(1, indtwr(ir, ia, is, ib))
+                               !    i2r = int2r(nint)*nsign
                                i2r = inttwr(ir, ia, is, ib)
-                            !    nsign = SIGN(1, indtwi(ir, ia, is, ib))
-                            !    i2i = int2i(nint)*nsign
+                               !    nsign = SIGN(1, indtwi(ir, ia, is, ib))
+                               !    i2i = int2i(nint)*nsign
                                i2i = inttwi(ir, ia, is, ib)
                                cmplxint = CMPLX(i2r, i2i, 16)
 
                                mat(i, j) = cmplxint
 
-                            !    nint = ABS(indtwr(ir, ib, is, ia))
-                            !    nsign = SIGN(1, indtwr(ir, ib, is, ia))
-                            !    i2r = int2r(nint)*nsign
+                               !    nint = ABS(indtwr(ir, ib, is, ia))
+                               !    nsign = SIGN(1, indtwr(ir, ib, is, ia))
+                               !    i2r = int2r(nint)*nsign
                                i2r = inttwr(ir, ib, is, ia)
-                            !    nsign = SIGN(1, indtwi(ir, ib, is, ia))
-                            !    i2i = int2i(nint)*nsign
+                               !    nsign = SIGN(1, indtwi(ir, ib, is, ia))
+                               !    i2i = int2i(nint)*nsign
                                i2i = inttwi(ir, ib, is, ia)
                                cmplxint = CMPLX(i2r, i2i, 16)
 
