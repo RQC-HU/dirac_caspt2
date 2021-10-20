@@ -102,7 +102,7 @@
 
                end do
            end do
-           call MPI_Reduce(energy(iroot, 2), energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+        !    call MPI_Reduce(energy(iroot, 2), energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
@@ -169,7 +169,7 @@
                    end if
                end do
            end do
-           call MPI_Reduce(energy(iroot, 3), energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+        !    call MPI_Reduce(energy(iroot, 3), energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
@@ -239,7 +239,7 @@
                    end do    ! kk
                end do       ! jj
            end do          ! ii
-           call MPI_Reduce(energy(iroot, 4), energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+        !    call MPI_Reduce(energy(iroot, 4), energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
            if (rank == 0) then ! Process limits for output
                write (normaloutput, *) 'energy 4 =', energy(iroot, 4)
@@ -595,12 +595,12 @@
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
-           call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-           call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-           call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-           call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-           call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-           call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+        !    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+        !    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+        !    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+        !    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+        !    call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+        !    call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
            !    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 4, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
