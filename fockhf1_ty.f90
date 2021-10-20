@@ -80,7 +80,7 @@
 
            End do       ! j
        End do          ! i
-       call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    !    call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) ' '
