@@ -45,7 +45,6 @@
 
                    !    f(i, j) = f(i, j) + cmplxint
                    f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k), 16)
-
                    !    Call intmo2_ty(i, k, k, j, cmplxint)
 
                    !    f(i, j) = f(i, j) - cmplxint
@@ -59,11 +58,10 @@
                            Call dim1_density_R(k - ninact, l - ninact, dr)
                            !    Call intmo2_ty(i, j, k, l, cmplxint)
                            !    f(i, j) = f(i, j) + dr*cmplxint
-                           f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
+                           f(i, j) = f(i, j) + dr*CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
                            !    Call intmo2_ty(i, l, k, j, cmplxint)
                            !    f(i, j) = f(i, j) - dr*cmplxint
-                           f(i, j) = f(i, j) - CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
-
+                           f(i, j) = f(i, j) - dr*CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
                        Else
                            dr = 0.0d+00
                            Call dim1_density(k - ninact, l - ninact, dr, di)
@@ -71,10 +69,11 @@
                            dens = CMPLX(dr, di, 16)
                            !    Call intmo2_ty(i, j, k, l, cmplxint)
                            !    f(i, j) = f(i, j) + dens*cmplxint
-                           f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
+                           f(i, j) = f(i, j) + dens*CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
+
                            !    Call intmo2_ty(i, l, k, j, cmplxint)
                            !    f(i, j) = f(i, j) - dens*cmplxint
-                           f(i, j) = f(i, j) - CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
+                           f(i, j) = f(i, j) - dens*CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
 
                        End if
 

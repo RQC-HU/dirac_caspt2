@@ -512,7 +512,6 @@
        !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
        Do i = rank + 1, dimn, nprocs
            !    Do i = 1, dimn
-           ! Do i = rank+1, dimn, nprocs
            ix = indsym(1, i)
            iy = indsym(2, i)
            iz = indsym(3, i)

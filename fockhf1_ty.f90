@@ -36,14 +36,16 @@
        n = 0
        f = 0.0d+00
 
-       do i = 1, ninact + nact
+       !$OMP parallel do private(j,k,cmplxint)
+       do i = rank + 1, ninact + nact, nprocs
+           ! do i = 1, ninact + nact
            do j = i, ninact + nact
             !! Adding one-electron integral to the fock matrics is executed only by the master process
             !! because DIRAC's one-electron integral file (MRCONEE) is not
             !! devided even if DIRAC is executed in parallel (MPI).
-               if (rank == 0) then
-                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               end if
+               !    if (rank == 0) then
+               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               !    end if
                do k = 1, ninact + nelec
 
                    Call intmo2_ty(i, j, k, k, cmplxint)
@@ -62,11 +64,13 @@
            End do       ! j
        End do          ! i
 
-       do i = ninact + nact + 1, ninact + nact + nsec
+       !$OMP parallel do private(j,k)
+       do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs
+           ! do i = ninact + nact + 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
-               if (rank == 0) then
-                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               end if
+               !    if (rank == 0) then
+               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               !    end if
                do k = 1, ninact + nelec
 
                    f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
