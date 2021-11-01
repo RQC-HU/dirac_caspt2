@@ -35,7 +35,6 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 !        real*8, allocatable  :: int2rs(:), int2is(:)
 !        double precision, allocatable  :: rklr(:), rkli(:)
     logical :: breit
-    character(50)   :: chr_indtwr, idx_indtwr
 ! Iwamuro modify
     realonly = .false.
 
@@ -469,31 +468,10 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
     deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
 
-    write (idx_indtwr, '(I4)') rank
-    chr_indtwr = "inttwr_"//trim(adjustl(idx_indtwr))
-    open (rank + 12345, file=trim(chr_indtwr), form="formatted", status="unknown")
-    do i = 1, nmoc
-        do j = 1, nmoc
-            do k = 1, nmoc
-                do l = 1, nmoc
-                    if (inttwr(i, j, k, l) >= 1.0d-15) then
-                        ! write (rank + 12345, '(4I5,E20.20)') i, j, k, l, inttwr(i, j, k, l)
-                        write (rank + 12345, '(4I5)') i, j, k, l
-                    end if
-                end do
-            end do
-        end do
-    end do
-    close (rank + 12345)
-
     call MPI_Allreduce(MPI_IN_PLACE, inttwr(1, 1, 1, 1), &
                        nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
     call MPI_Allreduce(MPI_IN_PLACE, inttwi(1, 1, 1, 1), &
                        nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    ! call MPI_Allreduce(MPI_IN_PLACE, indtwr(1, 1, 1, 1), &
-    !                    nmoc**4, MPI_INTEGER8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    ! call MPI_Allreduce(MPI_IN_PLACE, indtwi(1, 1, 1, 1), &
-    !                    nmoc**4, MPI_INTEGER8, MPI_SUM, MPI_COMM_WORLD, ierr)
     call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
                        nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
     call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &

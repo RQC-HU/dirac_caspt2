@@ -30,15 +30,9 @@
            write (normaloutput, *) 'enter building fock matrix'
        end if
        !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
-       do i = rank + 1, ninact + nact, nprocs
-           !    do i = 1, ninact + nact
+       do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
            do j = i, ninact + nact
-                !! Adding one-electron integral to the fock matrics is executed only by the master process
-                !! because DIRAC's one-electron integral file (MRCONEE) is not
-                !! devided even if DIRAC is executed in parallel (MPI).
-               !    if (rank == 0) then
                f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               !    end if
                do k = 1, ninact
 
                    !    Call intmo2_ty(i, j, k, k, cmplxint)

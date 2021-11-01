@@ -37,15 +37,10 @@
        f = 0.0d+00
 
        !$OMP parallel do private(j,k,cmplxint)
-       do i = rank + 1, ninact + nact, nprocs
+       do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
            ! do i = 1, ninact + nact
            do j = i, ninact + nact
-            !! Adding one-electron integral to the fock matrics is executed only by the master process
-            !! because DIRAC's one-electron integral file (MRCONEE) is not
-            !! devided even if DIRAC is executed in parallel (MPI).
-               !    if (rank == 0) then
                f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               !    end if
                do k = 1, ninact + nelec
 
                    Call intmo2_ty(i, j, k, k, cmplxint)
@@ -65,8 +60,7 @@
        End do          ! i
 
        !$OMP parallel do private(j,k)
-       do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs
-           ! do i = ninact + nact + 1, ninact + nact + nsec
+       do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
            do j = i, ninact + nact + nsec
                !    if (rank == 0) then
                f(i, j) = DCMPLX(oner(i, j), onei(i, j))
@@ -84,7 +78,7 @@
 
            End do       ! j
        End do          ! i
-    !    call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       !    call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) ' '

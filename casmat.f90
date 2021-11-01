@@ -29,8 +29,7 @@
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'allocated oc and vi', rank
        end if
-       Do i = rank + 1, ndet, nprocs
-           !    Do i = 1, ndet
+       Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
            occ = 0
            oc = 0
@@ -56,10 +55,6 @@
            !   diagonal term is same as Hartree-Fock's expression
 
            cmplxint = 0.0d+00
-            !! Adding one-electron integral to mat is executed only by the master process
-            !! because DIRAC's one-electron integral file (MRCONEE) is not
-            !! devided even if DIRAC is executed in parallel (MPI).
-           !    if (rank == 0) then ! Process limits for output
            Do i0 = 1, ninact
                ir = i0
                cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
@@ -72,7 +67,6 @@
                cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
                mat(i, i) = mat(i, i) + cmplxint
            End do
-           !    end if
            mat0 = 0.0d+00
 
            Do i0 = 1, ninact + nelec
@@ -144,13 +138,8 @@
 !                 write(*,*)'j=',j
 
                    If (j > i) then
-                        !! Adding one-electron integral to mat is executed only by the master process
-                        !! because DIRAC's one-electron integral file (MRCONEE) is not
-                        !! devided even if DIRAC is executed in parallel (MPI).
-                       !    if (rank == 0) then ! Process limits for output
                        cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
                        mat(i, j) = mat(i, j) + cmplxint
-                       !    end if
                        Do l0 = 1, ninact
                            is = l0
 
