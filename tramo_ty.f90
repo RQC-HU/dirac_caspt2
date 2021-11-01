@@ -44,12 +44,7 @@
            do i0 = n(1, 1), n(1, 2)
            do j0 = n(2, 1), n(2, 2)
                If (irpamo(i0) == sym1 .and. irpamo(j0) == sym2) then
-                  !! Adding one-electron integral to the fock matrics is executed only by the master process
-                  !! because DIRAC's one-electron integral file (MRCONEE) is not
-                  !! devided even if DIRAC is executed in parallel (MPI).
-                   if (rank == 0) then
-                       int1 = int1 + DCONJG(f(i0, i))*CMPLX(oner(i0, j0), onei(i0, j0), 16)*f(j0, j)
-                   end if
+                   int1 = int1 + DCONJG(f(i0, i))*CMPLX(oner(i0, j0), onei(i0, j0), 16)*f(j0, j)
                End if
            end do
            end do
@@ -147,12 +142,12 @@
                    count = count + 1
                    cmplxint = 0.0d+00
 
-                !    nint = ABS(indtwr(i0, j0, k0, l0))
-                !    nsign = SIGN(1, indtwr(i0, j0, k0, l0))
-                !    i2r = int2r(nint)*nsign
+                   !    nint = ABS(indtwr(i0, j0, k0, l0))
+                   !    nsign = SIGN(1, indtwr(i0, j0, k0, l0))
+                   !    i2r = int2r(nint)*nsign
                    i2r = inttwr(i0, j0, k0, l0)
-                !    nsign2 = SIGN(1, indtwi(i0, j0, k0, l0))
-                !    i2i = int2i(nint)*nsign2
+                   !    nsign2 = SIGN(1, indtwi(i0, j0, k0, l0))
+                   !    i2i = int2i(nint)*nsign2
                    i2i = inttwi(i0, j0, k0, l0)
 
                    cmplxint = CMPLX(i2r, i2i, 16)
