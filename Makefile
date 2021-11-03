@@ -28,7 +28,7 @@
 	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_ty.o
 
 R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
-	readorb_enesym_co.f \
+	readorb_enesym_co.f90 \
 	one_e_exct.o dim.o diag.o cutoff.o \
 	readint2_casci_co.o prtoutfock.o fockhf1_ty.o fockcasci_ty.o \
 	tramo_ty.o e0after_tra_ty.o trac.o sdet.o \
@@ -38,7 +38,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
 	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_co.o \
-	create_binmdcint.o
+	create_binmdcint.o get_filename.o
 
 #R4DIVO = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
 	readorb_enesym.o \
@@ -170,22 +170,31 @@ MKLROOT = /local/apl/lx/intel2020update2/mkl
 #LAPACKMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/lapack95.mod
 #INC = -I$(BLASMOD) -I$(LAPACKMOD)
 INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
-F90C = ifort
+# F90C = ifort
+F90C = mpiifort
 # F90FLAGS = $(INC) -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
-F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
+# F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 
+# Use this flags if normally
+ F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
+
+# Use this flags when debugging (list out of range access)
+# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2
+
+# Use this flags when debugging
+# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -check
 
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe
 all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 
-#.f.o:
-#	$(FORTRAN) $(OPTS) -c $*.f
+#f.o:
+#	$(FORTRAN) $(OPTS) -c $*.f90
 
-.SUFFIXES: .f .o
-.f.o:
-	$(F90C) $(F90FLAGS) -c $*.f
-#	$(F90C) $(F90FLAGS) -I$(MKLROOT)/include -c $*.f
+.SUFFIXES: .f90 .o
+.f90.o:
+	$(F90C) $(F90FLAGS) -c $*.f90
+#	$(F90C) $(F90FLAGS) -I$(MKLROOT)/include -c $*.f90
 #	$(F90C) $(F90FLAGS) -c $< :
 
 

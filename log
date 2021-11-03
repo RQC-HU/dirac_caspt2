@@ -1,0 +1,12 @@
+create_binmdcint_mpi.f90(18): リマーク #7712: この変数は使用されていません。   [MDCINT]
+    integer :: i0, mdcint, inz, nnz
+-------------------^
+create_binmdcint_mpi.f90(32): リマーク #7712: この変数は使用されていません。   [PROCS]
+    integer         :: ierr, nprocs, rank, procs = 8 !! TODO MPI PROCS を動的に?設定する
+-------------------------------------------^
+create_binmdcint_mpi.f90(33): リマーク #7712: この変数は使用されていません。   [TIME_START]
+    real            :: time_start, time_end
+-----------------------^
+create_binmdcint_mpi.f90(33): リマーク #7712: この変数は使用されていません。   [TIME_END]
+    real            :: time_start, time_end
+-----------------------------------^
