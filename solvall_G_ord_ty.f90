@@ -42,10 +42,10 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !      SPACE G IS NOW CALCULATED
-!      
+!
 !     EaiEbt|0>
 !
-!   DRAS1 =-1   DRAS2 = -1   DRAS3 = +2 
+!   DRAS1 =-1   DRAS2 = -1   DRAS3 = +2
 !
 !   c > d, a > b, and impose that c >= a (or a >= c)
 !
@@ -62,7 +62,7 @@
 !  e0 = Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
 !
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
-!   
+!
 !
 !  E2 = SIGUMA_iab, dimm |V1(t,iab)|^2|/{(alpha(iab) + wb(t)}
 !
@@ -78,7 +78,7 @@
         write(*,*)' nsymrpa', nsymrpa
 
         i0 = 0
-        Do ia = 1, nsec              
+        Do ia = 1, nsec
            ja = ia+ninact+nact
            Do ib = 1, ia-1
               jb = ib+ninact+nact
@@ -92,12 +92,12 @@
         nabi = i0
         Allocate(iabi(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec,1:ninact))
         iabi = 0
-        Allocate(ia0(nabi)) 
-        Allocate(ib0(nabi)) 
-        Allocate(ii0(nabi)) 
+        Allocate(ia0(nabi))
+        Allocate(ib0(nabi))
+        Allocate(ii0(nabi))
 
         i0 = 0
-        Do ia = 1, nsec              
+        Do ia = 1, nsec
            ja = ia+ninact+nact
            Do ib = 1, ia-1
               jb = ib+ninact+nact
@@ -121,7 +121,7 @@
 
 
      Do isym = 1, nsymrpa
-        
+
         dimn = 0
         Do it = 1, nact
            jt = it + ninact
@@ -143,7 +143,7 @@
            write(*,*)'sG matrix is obtained normally'
 
            Allocate(ws(dimn))
-           
+
            cutoff = .TRUE.
 !           thresd = 1.0d-15
 
@@ -174,7 +174,7 @@
            Allocate(bc(dimn,dimn))                                 ! bc N*N
            bc = 0.0d+00
 
-       Call bGmat (dimn, sc0, indt(1:dimn), bc)               
+       Call bGmat (dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
            write(*,*)'bC matrix is obtained normally'
@@ -202,7 +202,7 @@
            Allocate(bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
-           Allocate(bc1(dimm, dimm))                      ! bc1 M*M 
+           Allocate(bc1(dimm, dimm))                      ! bc1 M*M
            bc1 = 0.0d+00
            bc1 = MATMUL(bc0, uc)
 
@@ -252,17 +252,17 @@
 
 
 
-        Do i0 = 1, nabi            
+        Do i0 = 1, nabi
            ja = ia0(i0)
            jb = ib0(i0)
            ji = ii0(i0)
-                 
+
 !     EaiEbt|0>
 
            syma = MULTB_D (irpmo(jb), isym)
            symb = MULTB_D (irpmo(ja), irpmo(ji))
            syma = MULTB_S (syma, symb)
-  
+
            If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == 1))) then
 
               Allocate(vc(dimn))
@@ -290,10 +290,10 @@
               deallocate(vc1)
 
            End if
-                
+
         End do
 
-           
+
 
            deallocate(uc)
            deallocate(wb)
@@ -318,7 +318,7 @@
 
 
 
-      continue 
+      continue
       write(*,*)'end solvg_ord_ty'
    end
 
@@ -333,14 +333,14 @@
 
 
 !  S(u,t) = <0|Eut|0>
-!    
+!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)      :: dimn, indt(dimn)
         complex*16, intent(out)  :: sc(dimn,dimn)
 
@@ -371,7 +371,7 @@
         End do                  !i
 
         End subroutine sGmat
-        
+
 
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -391,10 +391,10 @@
    use four_caspt2_module
 
         Implicit NONE
-    
+
         integer :: it, iu, iw, jt, ju, jw
         integer :: i, j
-        
+
         integer, intent(in) :: dimn, indt(dimn)
         complex*16, intent(in)  :: sc(dimn,dimn)
         complex*16, intent(out) :: bc(dimn,dimn)
@@ -427,7 +427,7 @@
                  bc(i,j) = bc(i,j) + den*eps(jw)
 
               End do
-   
+
 !              bc(i, j) = bc(i, j) - sc(i, j)*eps(jt)
               bc(i, j) = bc(i, j) - sc(i, j)*eps(ju)
 
@@ -455,29 +455,30 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+      use four_caspt2_module
 
-        Implicit NONE
-     
-        
-        integer, intent(in)     :: nabi, &
+      Implicit NONE
+      include 'mpif.h'
 
-        & iabi(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec,1:ninact)
+      integer, intent(in)     :: nabi, &
 
-        complex*16, intent(out) :: v(nabi, ninact+1:ninact+nact)
+      & iabi(ninact+nact+1:ninact+nact+nsec,ninact+nact+1:ninact+nact+nsec,1:ninact)
 
-        real*8                  :: dr, di, signij, signkl
-        complex*16              :: cint2, dens
+      complex*16, intent(out) :: v(nabi, ninact+1:ninact+nact)
 
-        integer :: i, j, k, l, tabi
-        integer :: it, jt, il
+      real*8                  :: dr, di, signij, signkl
+      complex*16              :: cint2, dens
 
-        v = 0.0d+00
+      integer :: i, j, k, l, tabi
+      integer :: it, jt, il
+
+      v = 0.0d+00
 
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
 
-        open(1, file ='Gint', status='old', form='unformatted')  !  (31|32) stored
- 30     read(1, err=10, end=20) i,j,k,l,cint2
+      !   open(1, file ='Gint', status='old', form='unformatted')  !  (31|32) stored
+        open(1, file =gint, status='old', form='formatted')  !  (31|32) stored
+ 30     read(1,  '(4I4, 2e20.10)', err=10, end=20) i,j,k,l,cint2
 
         if(i == k) goto 30
 !        write(*,*) i,j,k,l,tabi,cint2
@@ -505,7 +506,7 @@
 
  100    write(*,*)'vGmat_ord_ty is ended'
 
+      !   v(nabi, ninact+1:ninact+nact)
+       call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), nabi*nact, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
    end subroutine vGmat_ord_ty
-
-
-

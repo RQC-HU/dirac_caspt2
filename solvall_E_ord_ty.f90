@@ -43,10 +43,10 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !      SPACE E IS NOW CALCULATED
-!      
+!
 !     EtiEaj|0>
 !
-!   DRAS1 =-2   DRAS2 = +1   DRAS3 = +1 
+!   DRAS1 =-2   DRAS2 = +1   DRAS3 = +1
 !
 !   i > j
 !
@@ -64,7 +64,7 @@
 !
 !  e0 = Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
 !
-!  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] + (aj|ti) - (ai|tj)   
+!  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] + (aj|ti) - (ai|tj)
 !
 !  E2 = SIGUMA_iab, dimm |V1(t,ija)|^2|/{(alpha(ija) + wb(t)}
 !
@@ -113,7 +113,7 @@
            End do
         End do
 
-       Allocate(v(naij, ninact+1:ninact+nact))
+        Allocate(v(naij, ninact+1:ninact+nact))
         v = 0.0d+00
 
         Call vEmat_ord_ty (naij, iaij, v)
@@ -122,7 +122,7 @@
 
 
      Do isym = 1, nsymrpa
-        
+
         dimn = 0
         Do it = 1, nact
            jt = it + ninact
@@ -145,7 +145,7 @@
            write(*,*)'sc matrix is obtained normally'
 
            Allocate(ws(dimn))
-           
+
            cutoff = .TRUE.
 !           thresd = 1.0d-15
 
@@ -176,7 +176,7 @@
            Allocate(bc(dimn,dimn))                                 ! bc N*N
            bc = 0.0d+00
 
-       Call bEmat (e0, dimn, sc0, indt(1:dimn), bc)               
+       Call bEmat (e0, dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            write(*,*)'bc matrix is obtained normally'
 
@@ -204,7 +204,7 @@
            Allocate(bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
-           Allocate(bc1(dimm, dimm))                      ! bc1 M*M 
+           Allocate(bc1(dimm, dimm))                      ! bc1 M*M
            bc1 = 0.0d+00
            bc1 = MATMUL(bc0, uc)
 
@@ -262,7 +262,7 @@
            syma = MULTB_D (irpmo(ja),irpmo(jj))
            symb = MULTB_D (isym, irpmo(ji))
            syma = MULTB_S (symb, syma)
-  
+
            If(nsymrpa==1.or.(nsymrpa/=1.and.(syma == 1))) then
 
               Allocate(vc(dimn))
@@ -290,10 +290,10 @@
               deallocate(vc1)
 
            End if
-                
+
         End do
 
-           
+
 
            deallocate(uc)
            deallocate(wb)
@@ -302,7 +302,7 @@
  1000      write(*,'("e2e(",I3,") = ",E20.10,"a.u.")')isym,e2(isym)
            e2e = e2e + e2(isym)
 
-        End do                  ! isym
+   End do                  ! isym
 
         write(*,'("e2e      = ",E20.10,"a.u.")')e2e
 
@@ -318,7 +318,7 @@
 
 
 
-      continue 
+      continue
       write(*,*)'end solveE_ord_ty'
    end
 
@@ -333,14 +333,14 @@
 
 
 ! S(u,t) = d(ut) - <0|Etu|0>
-!    
+!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)      :: dimn, indt(dimn)
         complex*16, intent(out)  :: sc(dimn,dimn)
 
@@ -378,7 +378,7 @@
         End do                  !i
 
         End subroutine sEmat
-        
+
 
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -400,10 +400,10 @@
    use four_caspt2_module
 
         Implicit NONE
-    
+
         integer :: it, iu, iw, jt, ju, jw
         integer :: i, j
-        
+
         integer, intent(in) :: dimn, indt(dimn)
         complex*16, intent(in)  :: sc(dimn,dimn)
         complex*16, intent(out) :: bc(dimn,dimn)
@@ -467,28 +467,30 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+      use four_caspt2_module
 
-        Implicit NONE
-     
-        integer, intent(in)     :: naij, &
+      Implicit NONE
+      include 'mpif.h'
 
-        & iaij(ninact+nact+1:ninact+nact+nsec,1:ninact,1:ninact)
+      integer, intent(in)     :: naij, &
 
-        complex*16, intent(out) :: v(naij, ninact+1:ninact+nact)
+      & iaij(ninact+nact+1:ninact+nact+nsec,1:ninact,1:ninact)
 
-        real*8                  :: dr, di
-        complex*16              :: cint2, dens
+      complex*16, intent(out) :: v(naij, ninact+1:ninact+nact)
 
-        integer :: i, j, k, l, taij
-        integer :: it, jt, ik
+      real*8                  :: dr, di
+      complex*16              :: cint2, dens
 
-        v = 0.0d+00
-        
+      integer :: i, j, k, l, taij
+      integer :: it, jt, ik
+
+      v = 0.0d+00
+
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
-        open(1, file ='Eint', status='old', form='unformatted')  !  (31|21) stored 
- 30          read(1, err=10, end=20) i,j,k,l,cint2
+      !   open(1, file ='Eint', status='old', form='unformatted')  !  (31|21) stored
+        open(1, file =eint, status='old', form='formatted')  !  (31|21) stored
+ 30          read(1,  '(4I4, 2e20.10)', err=10, end=20) i,j,k,l,cint2
 
         if(j == l) goto 30
 
@@ -543,9 +545,7 @@
  10               write(*,*) 'error while opening file Eint' ; goto 100
 
  100                  write(*,*)'vEmat_ord_ty is ended'
-
+      !  v(naij, ninact+1:ninact+nact)
+        call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), naij*nact, &
+                          MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
    end subroutine vEmat_ord_ty
-
-
-
-

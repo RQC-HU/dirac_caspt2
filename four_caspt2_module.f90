@@ -47,12 +47,12 @@ MODULE four_caspt2_module
 
     real*8, allocatable :: eps(:)
 
-    complex*16, allocatable :: f(:, :), itrfmo(:, :, :)
+    complex*16, allocatable :: f(:, :), itrfmo(:, :, :) ! f: fock matrix
 
 ! Iwamuro modify
 !   integer :: nelecd(64)
     integer :: nelecd(64), nfsym, nz1, norbt
-    logical :: spfr, sfform, realonly
+    logical :: spfr, sfform, realonly ! realonly : If it is true, only real numbers are written in MDCINT.
 
 ! Old Dirac
 !       Write(UT_sys_ftmp) NMO,BREIT,ETOTAL
@@ -73,11 +73,21 @@ MODULE four_caspt2_module
 !       Write (IRPMO(IMO),IRPAMO(IMO),ORBMO(IMO),IMO=1,NMO)
 !       Write ((ONER(IMO,JMO), ONEI(IMO,JMO), JMO=1, NMO), IMO=1, NMO)
 
-    ! Valiables for MPI
-    ! params
-    ! ierr:
+    !! ---------------------------
+    !! Valiables for MPI
+    !! ---------------------------
+    ! @params
+    ! ierr   : Error code. if ierr is not 0, the MPI method is not working properly.
+    ! nprocs : The number of processes in MPI
+    ! rank   : Process number of MPI
     integer         :: ierr, nprocs, rank
 
-    ! Run on r4dcasci_co.f90 to get the filenames for each process
+    ! Run on r4dcasci_co.f90 and r4dcaspt2_tra_co.f90 to get the MDCINT filenames for each process
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
+
+    ! Run on r4dcaspt2_tra_co.f90 to get the subspace filenames for each process
+    character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
+
+    ! Test for MDCINT_READ_COUNT
+    integer :: casci_mdcint_cnt, caspt2_mdcint_cnt, caspt2_mdcint_cnt2, simple_loop
 end MODULE four_caspt2_module

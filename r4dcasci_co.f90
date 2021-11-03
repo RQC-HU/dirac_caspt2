@@ -287,7 +287,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     call MPI_FINALIZE(ierr)
     if (rank == 0) then ! Process limits for output
         write (3000, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
-        close (50)
+        close (3000)
     end if
 1000 continue
 END program r4dcasci_co
