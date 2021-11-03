@@ -27,25 +27,22 @@
        f = 0.0d+00
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'enter building fock matrix'
+           write (normaloutput, *) 'enter building fock matrix'
        end if
-       do i = 1, ninact + nact
+       !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
+       do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
            do j = i, ninact + nact
-                !! Adding one-electron integral to the fock matrics is executed only by the master process
-                !! because DIRAC's one-electron integral file (MRCONEE) is not
-                !! devided even if DIRAC is executed in parallel (MPI).
-               if (rank == 0) then
-                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               end if
+               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
                do k = 1, ninact
 
-                   Call intmo2_ty(i, j, k, k, cmplxint)
+                   !    Call intmo2_ty(i, j, k, k, cmplxint)
 
-                   f(i, j) = f(i, j) + cmplxint
+                   !    f(i, j) = f(i, j) + cmplxint
+                   f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k), 16)
+                   !    Call intmo2_ty(i, k, k, j, cmplxint)
 
-                   Call intmo2_ty(i, k, k, j, cmplxint)
-
-                   f(i, j) = f(i, j) - cmplxint
+                   !    f(i, j) = f(i, j) - cmplxint
+                   f(i, j) = f(i, j) - CMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j), 16)
 
                End do           ! k
                do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
@@ -53,20 +50,24 @@
 
                        If (realcvec) then
                            Call dim1_density_R(k - ninact, l - ninact, dr)
-                           Call intmo2_ty(i, j, k, l, cmplxint)
-                           f(i, j) = f(i, j) + dr*cmplxint
-                           Call intmo2_ty(i, l, k, j, cmplxint)
-                           f(i, j) = f(i, j) - dr*cmplxint
-
+                           !    Call intmo2_ty(i, j, k, l, cmplxint)
+                           !    f(i, j) = f(i, j) + dr*cmplxint
+                           f(i, j) = f(i, j) + dr*CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
+                           !    Call intmo2_ty(i, l, k, j, cmplxint)
+                           !    f(i, j) = f(i, j) - dr*cmplxint
+                           f(i, j) = f(i, j) - dr*CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
                        Else
                            dr = 0.0d+00
                            Call dim1_density(k - ninact, l - ninact, dr, di)
 
                            dens = CMPLX(dr, di, 16)
-                           Call intmo2_ty(i, j, k, l, cmplxint)
-                           f(i, j) = f(i, j) + dens*cmplxint
-                           Call intmo2_ty(i, l, k, j, cmplxint)
-                           f(i, j) = f(i, j) - dens*cmplxint
+                           !    Call intmo2_ty(i, j, k, l, cmplxint)
+                           !    f(i, j) = f(i, j) + dens*cmplxint
+                           f(i, j) = f(i, j) + dens*CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
+
+                           !    Call intmo2_ty(i, l, k, j, cmplxint)
+                           !    f(i, j) = f(i, j) - dens*cmplxint
+                           f(i, j) = f(i, j) - dens*CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
 
                        End if
 
@@ -77,12 +78,14 @@
            end do       ! j
        end do          ! i
 
-       do i = ninact + nact + 1, ninact + nact + nsec
+       !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
+       do i = ninact + nact + 1 + rank, ninact + nact + nsec, nprocs
+           !    do i = ninact + nact + 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
-               if (rank == 0) then
-                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               !    if (rank == 0) then
+               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
 !               if(i==19.and.j==19)write(*,'("int1 ",2I4,2E20.10)')i,j,f(i,j)
-               end if
+               !    end if
                do k = 1, ninact
 
                    f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
@@ -133,6 +136,6 @@
        call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'fockcasci end'
+           write (normaloutput, *) 'fockcasci end'
        end if
    end

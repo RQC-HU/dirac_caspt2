@@ -176,16 +176,16 @@ F90C = mpiifort
 # F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 
 # Use this flags if normally
- F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
+ F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -qopenmp
 
 # Use this flags if you want to use gprof
-# F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg
+# F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg -qopenmp
 
 # Use this flags when debugging (list out of range access)
-# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2
+# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2 -qopenmp
 
 # Use this flags when debugging
-# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -check
+# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -check -qopenmp
 
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe

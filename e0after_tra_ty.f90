@@ -362,8 +362,8 @@
        end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
-       if (rank == 0) then
-           write (3000, *) 'iroot = ', iroot
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'iroot = ', iroot
        end if
 
 !        Do iroot = 1, nroot
@@ -379,7 +379,8 @@
 !"""""""""""""""""""""""""""""
        energyHF(1) = 0.0d+00
 
-       do i = 1, ninact + nelec
+       do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = 1, ninact + nelec
 
            cmplxint = 0.0d+00
 
@@ -388,7 +389,8 @@
            energyHF(1) = energyHF(1) + cmplxint
 
        end do
-
+       call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       write (normaloutput, *) 'energyHF(1)', energyHF(1)
 !         do i = 1, ninact
 !
 !            cmplxint = 0.0d+00
@@ -422,7 +424,8 @@
 !"""""""""""""""""""""""""""""
        energyHF(2) = 0.0d+00
 
-       do i = 1, ninact + nelec
+       do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = 1, ninact + nelec
            do j = i, ninact + nelec
 
                Call tramo2_ty(i, i, j, j, cmplxint)
@@ -437,15 +440,14 @@
        end do
 
        energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
-       call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       if (rank == 0) then
-           write (3000, *) 'energyHF(2)', energyHF(2)
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'energyHF(2)', energyHF(2)
        end if
 
 !Iwamuro modify
-       if (rank == 0) then
-           write (3000, *) 'Iwamuro modify'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'Iwamuro modify'
        end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
@@ -457,7 +459,8 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = 1, ninact
+       do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = 1, ninact
 
            Call tramo1_ty(i, i, cmplxint)
 
@@ -474,7 +477,8 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = 1, ninact
+       do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = 1, ninact
            do j = i, ninact
 
                Call tramo2_ty(i, i, j, j, cmplxint)
@@ -501,7 +505,8 @@
 !                             !          k
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = ninact + 1, ninact + nact
+       do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = ninact + 1, ninact + nact
            do j = i, ninact + nact
 
                oneeff = 0.0d+00
@@ -560,7 +565,8 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
 
-       do i = ninact + 1, ninact + nact
+       do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = ninact + 1, ninact + nact
            do j = ninact + 1, ninact + nact
                do k = ninact + 1, ninact + nact
                    do l = i, ninact + nact
@@ -640,31 +646,31 @@
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
-       if (rank == 0) then
-           write (3000, *) 'energy 1 =', energy(iroot, 1)
-           write (3000, *) 'energy 2 =', energy(iroot, 2)
-           write (3000, *) 'energy 3 =', energy(iroot, 3)
-           write (3000, *) 'energy 4 =', energy(iroot, 4)
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'energy 1 =', energy(iroot, 1)
+           write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
+           write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
+           write (normaloutput, *) 'energy 4 =', energy(iroot, 4)
 
-           write (3000, *) iroot, 't-energy(1-4)', &
+           write (normaloutput, *) iroot, 't-energy(1-4)', &
                energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-           write (3000, *) iroot, 't-energy', &
+           write (normaloutput, *) iroot, 't-energy', &
                eigen(iroot) - ecore
-           write (3000, *) iroot, 'eigen e0', &
+           write (normaloutput, *) iroot, 'eigen e0', &
                eigen(iroot)
 
-           write (3000, *) 'C the error ', &
+           write (normaloutput, *) 'C the error ', &
                eigen(iroot) - ecore &
                - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 ! Iwamuro modify
-           write (3000, *) 'Iwamuro modify'
+           write (normaloutput, *) 'Iwamuro modify'
 
 !         else
 !            write(*,*)'C the error ', &
@@ -678,8 +684,8 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           write (3000, *) 'CAUTION! HF energy may not be obtained correctly '
-           write (3000, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+           write (normaloutput, *) 'CAUTION! HF energy may not be obtained correctly '
+           write (normaloutput, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
        end if
 !!###   end do ! about type
        if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
@@ -689,7 +695,7 @@
        deallocate (energy)
 !      write(*,*)'e0aftertrac end'
 ! Iwamuro modify
-       if (rank == 0) then
-           write (3000, *) 'e0aftertrac_ty end'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'e0aftertrac_ty end'
        end if
    End subroutine e0aftertrac_ty

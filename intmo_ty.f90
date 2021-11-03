@@ -52,7 +52,7 @@
 
         integer     :: sym1, sym2, sym3, sym4, syma, symb, symc
         integer     :: nint
-                    
+
         real*8      :: i2r, i2i, nsign
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -62,18 +62,20 @@
      sym2 = irpamo(j)
      sym3 = irpamo(k)
      sym4 = irpamo(l)
-     syma = MULTB_D(sym1,sym2) 
-     symb = MULTB_D(sym3,sym4) 
-     symc = MULTB_S(syma,symb) 
-   
+     syma = MULTB_D(sym1,sym2)
+     symb = MULTB_D(sym3,sym4)
+     symc = MULTB_S(syma,symb)
+
      If(symc == 1) then
 
-        nint = ABS(indtwr(i, j, k, l))
-        nsign = SIGN(1,indtwr(i, j, k, l))
-        i2r = int2r(nint)*nsign
-        nsign = SIGN(1,indtwi(i, j, k, l))
-        i2i = int2i(nint)*nsign
-        
+      !   nint = ABS(indtwr(i, j, k, l))
+      !   nsign = SIGN(1,indtwr(i, j, k, l))
+      !   i2r = int2r(nint)*nsign
+        i2r = inttwr(i, j, k, l)
+      !   nsign = SIGN(1,indtwi(i, j, k, l))
+      !   i2i = int2i(nint)*nsign
+        i2i = inttwi(i, j, k, l)
+
         int2 = CMPLX(i2r, i2i, 16)
 
 !Iwamuro modify
@@ -87,5 +89,3 @@
       Endif
 
       End subroutine intmo2_ty
-
-

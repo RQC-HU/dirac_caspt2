@@ -30,20 +30,17 @@
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
        if (rank == 0) then ! Process limits for output
-           write (3000, *) ' '
-           write (3000, *) 'FOR TEST, FOCK MATRIX OF HF STATE IS CALCULATED '
+           write (normaloutput, *) ' '
+           write (normaloutput, *) 'FOR TEST, FOCK MATRIX OF HF STATE IS CALCULATED '
        end if
        n = 0
        f = 0.0d+00
 
-       do i = 1, ninact + nact
+       !$OMP parallel do private(j,k,cmplxint)
+       do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+           ! do i = 1, ninact + nact
            do j = i, ninact + nact
-            !! Adding one-electron integral to the fock matrics is executed only by the master process
-            !! because DIRAC's one-electron integral file (MRCONEE) is not
-            !! devided even if DIRAC is executed in parallel (MPI).
-               if (rank == 0) then
-                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               end if
+               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
                do k = 1, ninact + nelec
 
                    Call intmo2_ty(i, j, k, k, cmplxint)
@@ -62,11 +59,12 @@
            End do       ! j
        End do          ! i
 
-       do i = ninact + nact + 1, ninact + nact + nsec
+       !$OMP parallel do private(j,k)
+       do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
            do j = i, ninact + nact + nsec
-               if (rank == 0) then
-                   f(i, j) = DCMPLX(oner(i, j), onei(i, j))
-               end if
+               !    if (rank == 0) then
+               f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+               !    end if
                do k = 1, ninact + nelec
 
                    f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
@@ -80,29 +78,29 @@
 
            End do       ! j
        End do          ! i
-       call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       !    call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) ' '
-           write (3000, *) 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
-           write (3000, *) ' '
+           write (normaloutput, *) ' '
+           write (normaloutput, *) 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
+           write (normaloutput, *) ' '
            do i = 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
                if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-6)) then
 !            if(i/=j)then
-                   write (3000, '(2I4,2E20.10)') i, j, f(i, j)
+                   write (normaloutput, '(2I4,2E20.10)') i, j, f(i, j)
                end if
            end do
            end do
-           write (3000, *) ' '
-           write (3000, *) 'THESE DIAGONAL ELEMENTS SHOULD BE CORESPOND TO HF SPINOR ENERGY '
-           write (3000, *) ' '
-           write (3000, *) '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
+           write (normaloutput, *) ' '
+           write (normaloutput, *) 'THESE DIAGONAL ELEMENTS SHOULD BE CORESPOND TO HF SPINOR ENERGY '
+           write (normaloutput, *) ' '
+           write (normaloutput, *) '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
            &, 'Spinor Energy (HF)        ERROR'
            do i = 1, ninact + nact + nsec
-               write (3000, '(I4,4E20.10)') i, f(i, i), orbmo(i), orbmo(i) - dble(f(i, i))
+               write (normaloutput, '(I4,4E20.10)') i, f(i, i), orbmo(i), orbmo(i) - dble(f(i, i))
            end do
 
-           write (3000, *) 'fockhf end'
+           write (normaloutput, *) 'fockhf end'
        end if
    end SUBROUTINE fockhf1_ty

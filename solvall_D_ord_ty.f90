@@ -35,6 +35,7 @@
        integer :: ja, jt, ji, ju
 
        real*8  :: thresd
+       integer :: datetmp0, datetmp1, tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -77,9 +78,10 @@
        dimn = 0
        syma = 0
 
-       write (*, *) ' ENTER solv D part'
-       write (*, *) ' nsymrpa', nsymrpa
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) ' ENTER solv D part'
+           write (normaloutput, *) ' nsymrpa', nsymrpa
+       end if
        i0 = 0
        Do ia = 1, nsec
            Do ii = 1, ninact
@@ -108,8 +110,13 @@
 
        Call vDmat_ord_ty(nai, iai, v)
 
-       write (*, *) 'come'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'come'
+       end if
+       Call timing(date1, tsec1, date0, tsec0)
+       date1 = date0
+       tsec1 = tsec0
+       tsectmp0 = tsec0; tsectmp1 = tsec1; datetmp0 = date0; datetmp1 = date1
        Do isym = 1, nsymrpa
 
            dimn = 0
@@ -151,11 +158,21 @@
 
            Allocate (sc(dimn, dimn))
            sc = 0.0d+00            ! sc N*N
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before sDmat'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call sDmat(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-           write (*, *) 'sc matrix is obtained normally'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'sc matrix is obtained normally'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Allocate (ws(dimn))
            ws = 0.0d+00
            cutoff = .TRUE.
@@ -164,10 +181,17 @@
 
            Allocate (sc0(dimn, dimn))
            sc0 = sc
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before cdiag'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'after s cdiag'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'after s cdiag'
+           end if
 !           Do i0 = 1, dimn
 !           write(*,'(E20.10)') ws(i0)
 !           End do
@@ -182,42 +206,76 @@
 
            If (debug) then
 
-               write (*, *) 'Check whether U*SU is diagonal'
-
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether U*SU is diagonal'
+               end if
                Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               write (*, *) 'Check whether U*SU is diagonal END'
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether U*SU is diagonal END'
+               end if
 
            End if
 
            Allocate (bc(dimn, dimn))                                 ! bc N*N
            bc = 0.0d+00
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before bDmat'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call bDmat(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-           write (*, *) 'bc matrix is obtained normally'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bc matrix is obtained normally'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            deallocate (sc0)
 
-           write (*, *) 'OK cdiag', dimn, dimm
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'OK cdiag', dimn, dimm
+           end if
 
            Allocate (uc(dimn, dimm))                                 ! uc N*M
            Allocate (wsnew(dimm))                                  ! wnew M
            uc(:, :) = 0.0d+00
            wsnew(:) = 0.0d+00
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before ccutoff'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           write (*, *) 'OK ccutoff'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'OK ccutoff'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            deallocate (ws)
            deallocate (sc)
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before ucramda_s_half'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            deallocate (wsnew)
 
-           write (*, *) 'ucrams half OK'
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'ucrams half OK'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Allocate (bc0(dimm, dimn))                       ! bc0 M*N
            bc0 = 0.0d+00
            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -225,19 +283,21 @@
            bc1 = 0.0d+00
            bc1 = MATMUL(bc0, uc)
 
-           IF (debug) then
+           if (rank == 0) then ! Process limits for output
+               IF (debug) then
 
-               write (*, *) 'Check whether bc1 is hermite or not'
-               Do i = 1, dimm
-                   Do j = i, dimm
-                       if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
-                           write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
-                       End if
+                   write (normaloutput, *) 'Check whether bc1 is hermite or not'
+                   Do i = 1, dimm
+                       Do j = i, dimm
+                           if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
+                               write (normaloutput, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
+                           End if
+                       End do
                    End do
-               End do
-               write (*, *) 'Check whether bc1 is hermite or not END'
+                   write (normaloutput, *) 'Check whether bc1 is hermite or not END'
 
-           End if
+               End if
+           end if
 
            deallocate (bc)
            deallocate (bc0)
@@ -247,26 +307,42 @@
            Allocate (wb(dimm))
            wb = 0.0d+00
 
-           write (*, *) 'bC matrix is transrated to bc1(M*M matrix)!'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bC matrix is transrated to bc1(M*M matrix)!'
+           end if
            Allocate (bc0(dimm, dimm))
            bc0 = bc1
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'before cdiag'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'end cdiag'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
            If (debug) then
 
-               write (*, *) 'Check whether bc is really diagonalized or not'
-
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether bc is really diagonalized or not'
+               end if
                Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               write (*, *) 'Check whether bc is really diagonalized or not END'
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, *) 'Check whether bc is really diagonalized or not END'
+               end if
            End if
 
            deallocate (bc0)
 
-           write (*, *) 'bC1 matrix is diagonalized!'
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'bC1 matrix is diagonalized!'
+           end if
            e2 = 0.0d+00
            Do i0 = 1, nai
                ja = ia0(i0)
@@ -308,14 +384,21 @@
            deallocate (wb)
            Deallocate (bc1)
 
-1000       write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
+1000       if (rank == 0) write (normaloutput, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
            e2d = e2d + e2(isym)
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'End e2(isym) add'
+           end if
+           Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+           datetmp1 = datetmp0
+           tsectmp1 = tsectmp0
        End do                  ! isym
 
-       write (*, '("e2d      = ",E20.10,"a.u.",I4)') e2d, rank
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '("e2d      = ",E20.10,"a.u.",I4)') e2d, rank
 
-       write (*, '("sumc2,d  = ",E20.10)') sumc2local
+           write (normaloutput, '("sumc2,d  = ",E20.10)') sumc2local
+       end if
        sumc2 = sumc2 + sumc2local
 
        deallocate (iai)
@@ -324,7 +407,9 @@
        deallocate (v)
 
        continue
-       write (*, *) 'end solvD_ord'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'end solvD_ord_ty'
+       end if
    end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -389,6 +474,7 @@
        use four_caspt2_module
 
        Implicit NONE
+       include 'mpif.h'
 
        integer, intent(in) :: dimn, indsym(2, dimn)
        complex*16, intent(in)  :: sc(dimn, dimn)
@@ -402,9 +488,12 @@
 
        bc(:, :) = 0.0d+00
 
-       write (*, *) 'F space Bmat iroot=', iroot
-
-       Do i = 1, dimn
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'F space Bmat iroot=', iroot
+       end if
+       !$OMP parallel do private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
+       Do i = rank + 1, dimn, nprocs
+           ! Do i = 1, dimn
 
            ix = indsym(1, i)
            jx = ix + ninact
@@ -438,9 +527,14 @@
 
            End do               !i
        End do                  !j
-
-       write (*, *) 'bDmat is ended'
-
+       if (rank == 0) then
+           call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       else
+           call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
+       end if
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'bDmat is ended'
+       end if
    End subroutine bDmat
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -526,6 +620,7 @@
        tai = iai(ja, ji)
 !           write(*,'("type1 (31|22)",4I4,2E20.10)')i,j,k,l,cint2
 
+       !$OMP parallel do private(it,jt,iu,ju,dr,di,d)
        Do it = 1, nact
            jt = it + ninact
            Do iu = 1, nact
@@ -540,8 +635,9 @@
 
        goto 30
 20     close (1)
-       write (*, *) 'reading D2int2 is over'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading D1int2 is over'
+       end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
 !
@@ -556,7 +652,7 @@
        ja = i
        ji = l
        tai = iai(ja, ji)
-
+       !$OMP parallel do private(it,jt,iu,ju,dr,di,d)
        Do it = 1, nact
            jt = it + ninact
            Do iu = 1, nact
@@ -573,8 +669,9 @@
        goto 31
 
 21     close (1)
-       write (*, *) 'reading D2int2 is over'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading D2int2 is over'
+       end if
        !  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
        open (1, file=d3int, status='old', form='formatted') ! (ai|jk) is stored
 
@@ -594,8 +691,10 @@
        goto 300
 
 200    close (1)
-       write (*, *) 'reading D3int2 is over'
-    !    effh(ninact + nact + 1:ninact + nact + nsec, ninact)
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'reading D3int2 is over'
+       end if
+       !    effh(ninact + nact + 1:ninact + nact + nsec, ninact)
        if (rank == 0) then
            call MPI_Reduce(MPI_IN_PLACE, effh(ninact + nact + 1, 1), nsec*ninact, &
                            MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
@@ -604,9 +703,10 @@
                            MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
        end if
        if (rank /= 0) then
-        effh(:,:) = 0
+           effh(:, :) = 0
        end if
 
+       !$OMP parallel do private(ia,ja,ii,ji,tai,it,jt,iu,ju,dr,di,d)
        Do ia = 1, nsec
            ja = ia + ninact + nact
            Do ii = 1, ninact
@@ -633,7 +733,7 @@
 
 10     write (*, *) 'error while opening file Dint'; goto 100
 
-100    write (*, *) 'vDmat_ord_ty is ended'
+100    if (rank == 0) write (normaloutput, *) 'vDmat_ord_ty is ended'
        !  v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
        call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nai*nact**2, &
                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)

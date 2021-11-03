@@ -45,7 +45,7 @@
 ! Iwamuro modify
           do i0 = 1, nmo
           do j0 =1, nmo
-!             Write(*,'(2I4,2X,2F8.4)') i0, j0, RONER(i0,j0),RONEI(i0,j0)
+!             Wrpite(*,'(2I4,2X,2F8.4)') i0, j0, RONER(i0,j0),RONEI(i0,j0)
           end do
        end do
     	close (mrconee)

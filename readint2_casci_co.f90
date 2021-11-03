@@ -7,7 +7,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     use four_caspt2_module
 
     Implicit NONE
-
+    include 'mpif.h'
     character*50, intent(in) :: filename
 
     character  :: datex*10, timex*8
@@ -35,14 +35,13 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 !        real*8, allocatable  :: int2rs(:), int2is(:)
 !        double precision, allocatable  :: rklr(:), rkli(:)
     logical :: breit
-
 ! Iwamuro modify
     realonly = .false.
 
     nmoc = ninact + nact
     nmom = ninact + nact + nsec
-    if (rank == 0) then
-        write (3000, '(A,I8)') "Enter readint2_casci_co", rank
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, '(A,I8)') "Enter readint2_casci_co", rank
     end if
     Allocate (int2rs(0:nmoc**4)); Call memplus(KIND(int2rs), SIZE(int2rs), 1)
     Allocate (int2is(0:nmoc**4)); Call memplus(KIND(int2is), SIZE(int2is), 1)
@@ -58,6 +57,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     Allocate (indtwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(indtwr), SIZE(indtwr), 1)
     Allocate (indtwi(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(indtwi), SIZE(indtwi), 1)
+    Allocate (inttwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(indtwr), SIZE(indtwr), 1)
+    Allocate (inttwi(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(indtwi), SIZE(indtwi), 1)
 
 !        Allocate(indk((nmo/2)**2)); Call memplus(KIND(indk),SIZE(indk),1)
 !        Allocate(indl((nmo/2)**2)); Call memplus(KIND(indl),SIZE(indl),1)
@@ -72,8 +73,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 !Iwamuro modify
     Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
-    if (rank == 0) then
-        write (3000, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 
     nuniq = 0
@@ -81,10 +82,12 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     indl(:) = 0
     rklr(:) = 0.0d+00
     rkli(:) = 0.0d+00
-    int2r(:) = 0.0d+00
-    int2i(:) = 0.0d+00
+    int2rs(:) = 0.0d+00
+    int2is(:) = 0.0d+00
     indtwr = 0
     indtwi = 0
+    inttwr = 0.0d+00
+    inttwi = 0.0d+00
     int2r_f1 = 0.0d+00
     int2i_f1 = 0.0d+00
     int2r_f2 = 0.0d+00
@@ -98,9 +101,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     read (mdcint, err=20, end=30) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
-    if (rank == 0) then
-        write (3000, *) datex, timex
-        write (3000, *) 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) datex, timex
+        write (normaloutput, *) 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
     end if
 60  read (mdcint, END=50) i, j, nz, &
         (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
@@ -156,41 +159,41 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 !Iwamuro debug
 !        write(*,*) 'debug6'
             !=-> Original integral plus time-reversed partners
-            INDTWR(I, J, K, L) = NUNIQ
-            INDTWR(JTR, ITR, K, L) = NUNIQ*SignIJ
-            INDTWR(I, J, LTR, KTR) = NUNIQ*SignKL
-            INDTWR(JTR, ITR, LTR, KTR) = NUNIQ*SignIJ*SignKL
-            INDTWI(I, J, K, L) = NUNIQ
-            INDTWI(JTR, ITR, K, L) = NUNIQ*SignIJ
-            INDTWI(I, J, LTR, KTR) = NUNIQ*SignKL
-            INDTWI(JTR, ITR, LTR, KTR) = NUNIQ*SignIJ*SignKL
+            INTTWR(I, J, K, L) = rklr(inz)
+            INTTWR(JTR, ITR, K, L) = rklr(inz)*SignIJ
+            INTTWR(I, J, LTR, KTR) = rklr(inz)*SignKL
+            INTTWR(JTR, ITR, LTR, KTR) = rklr(inz)*SignIJ*SignKL
+            INTTWI(I, J, K, L) = rkli(inz)
+            INTTWI(JTR, ITR, K, L) = rkli(inz)*SignIJ
+            INTTWI(I, J, LTR, KTR) = rkli(inz)*SignKL
+            INTTWI(JTR, ITR, LTR, KTR) = rkli(inz)*SignIJ*SignKL
             !=-> Complex conjugate plus time-reversed partners
-            INDTWR(J, I, L, K) = NUNIQ
-            INDTWR(ITR, JTR, L, K) = NUNIQ*SignIJ
-            INDTWR(J, I, KTR, LTR) = NUNIQ*SignKL
-            INDTWR(ITR, JTR, KTR, LTR) = NUNIQ*SignIJ*SignKL
-            INDTWI(J, I, L, K) = -NUNIQ
-            INDTWI(ITR, JTR, L, K) = -NUNIQ*SignIJ
-            INDTWI(J, I, KTR, LTR) = -NUNIQ*SignKL
-            INDTWI(ITR, JTR, KTR, LTR) = -NUNIQ*SignIJ*SignKL
+            INTTWR(J, I, L, K) = rklr(inz)
+            INTTWR(ITR, JTR, L, K) = rklr(inz)*SignIJ
+            INTTWR(J, I, KTR, LTR) = rklr(inz)*SignKL
+            INTTWR(ITR, JTR, KTR, LTR) = rklr(inz)*SignIJ*SignKL
+            INTTWI(J, I, L, K) = -rkli(inz)
+            INTTWI(ITR, JTR, L, K) = -rkli(inz)*SignIJ
+            INTTWI(J, I, KTR, LTR) = -rkli(inz)*SignKL
+            INTTWI(ITR, JTR, KTR, LTR) = -rkli(inz)*SignIJ*SignKL
             !=-> Particle interchanged plus time-reversed partners
-            INDTWR(K, L, I, J) = NUNIQ
-            INDTWR(LTR, KTR, I, J) = NUNIQ*SignKL
-            INDTWR(K, L, JTR, ITR) = NUNIQ*SignIJ
-            INDTWR(LTR, KTR, JTR, ITR) = NUNIQ*SignIJ*SignKL
-            INDTWI(K, L, I, J) = NUNIQ
-            INDTWI(LTR, KTR, I, J) = NUNIQ*SignKL
-            INDTWI(K, L, JTR, ITR) = NUNIQ*SignIJ
-            INDTWI(LTR, KTR, JTR, ITR) = NUNIQ*SignIJ*SignKL
+            INTTWR(K, L, I, J) = rklr(inz)
+            INTTWR(LTR, KTR, I, J) = rklr(inz)*SignKL
+            INTTWR(K, L, JTR, ITR) = rklr(inz)*SignIJ
+            INTTWR(LTR, KTR, JTR, ITR) = rklr(inz)*SignIJ*SignKL
+            INTTWI(K, L, I, J) = rkli(inz)
+            INTTWI(LTR, KTR, I, J) = rkli(inz)*SignKL
+            INTTWI(K, L, JTR, ITR) = rkli(inz)*SignIJ
+            INTTWI(LTR, KTR, JTR, ITR) = rkli(inz)*SignIJ*SignKL
             !=-> Particle interchanged and complex conjugated plus time-reversed partners
-            INDTWR(L, K, J, I) = NUNIQ
-            INDTWR(KTR, LTR, J, I) = NUNIQ*SignKL
-            INDTWR(L, K, ITR, JTR) = NUNIQ*SignIJ
-            INDTWR(KTR, LTR, ITR, JTR) = NUNIQ*SignIJ*SignKL
-            INDTWI(L, K, J, I) = -NUNIQ
-            INDTWI(KTR, LTR, J, I) = -NUNIQ*SignKL
-            INDTWI(L, K, ITR, JTR) = -NUNIQ*SignIJ
-            INDTWI(KTR, LTR, ITR, JTR) = -NUNIQ*SignIJ*SignKL
+            INTTWR(L, K, J, I) = rklr(inz)
+            INTTWR(KTR, LTR, J, I) = rklr(inz)*SignKL
+            INTTWR(L, K, ITR, JTR) = rklr(inz)*SignIJ
+            INTTWR(KTR, LTR, ITR, JTR) = rklr(inz)*SignIJ*SignKL
+            INTTWI(L, K, J, I) = -rkli(inz)
+            INTTWI(KTR, LTR, J, I) = -rkli(inz)*SignKL
+            INTTWI(L, K, ITR, JTR) = -rkli(inz)*SignIJ
+            INTTWI(KTR, LTR, ITR, JTR) = -rkli(inz)*SignIJ*SignKL
 
             int2rs(nuniq) = rklr(inz)
             int2is(nuniq) = rkli(inz)
@@ -404,28 +407,28 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     Goto 60
 
-    if (rank == 0) then
-        write (3000, *) 'error for opening mdcint 10'
+    if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'error for opening mdcint 10'
     end if
     go to 100
-20  if (rank == 0) then
-        write (3000, *) 'error for reading mdcint 20'
+20  if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'error for reading mdcint 20'
     end if
     go to 100
-30  if (rank == 0) then
-        write (3000, *) 'end mdcint 30'
+30  if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'end mdcint 30'
     end if
     go to 100
-40  if (rank == 0) then
-        write (3000, *) 'error for reading mdcint 40'
+40  if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'error for reading mdcint 40'
     end if
     go to 100
-50  if (rank == 0) then
-        write (3000, *) 'end mdcint 50 normal'
+50  if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'end mdcint 50 normal'
     end if
     go to 100
-41  if (rank == 0) then
-        write (3000, *) 'error for reading mdcint 41'
+41  if (rank == 0) then ! Process limits for output
+        write (normaloutput, *) 'error for reading mdcint 41'
     end if
     go to 100
 ! 56      write(*,*)'error for reading mdcint 56'
@@ -434,14 +437,14 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 100 continue
 
     close (mdcint)
-
-    write (3000, *) nuniq, totalint
-
+    if (rank == 0) then
+        write (normaloutput, *) nuniq, totalint
+    end if
 !         write(*,*) "debug1"
 
     Allocate (int2r(0:nuniq)); Call memplus(KIND(int2r), SIZE(int2r), 1)
 
-    int2r(0:nuniq) = int2rs(0:nuniq)
+    ! int2r(0:nuniq) = int2rs(0:nuniq)
 
 !         write(*,*) "debug2"
 
@@ -451,7 +454,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     Allocate (int2i(0:nuniq)); Call memplus(KIND(int2i), SIZE(int2i), 1)
 
-    int2i(0:nuniq) = int2is(0:nuniq)
+    ! int2i(0:nuniq) = int2is(0:nuniq)
 
 !         write(*,*) "debug4"
 
@@ -465,6 +468,18 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
     deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
 
+    call MPI_Allreduce(MPI_IN_PLACE, inttwr(1, 1, 1, 1), &
+                       nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, inttwi(1, 1, 1, 1), &
+                       nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
+                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
+                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
+                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
+                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
 !         write(*,*) "debug6"
 
 end subroutine readint2_casci_co

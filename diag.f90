@@ -55,15 +55,16 @@
 
        deallocate (work)
 
-       if (info /= 0) then
-           write (*, *) 'error in diagonalization, info = ', info
+       if (info /= 0 .and. rank == 0) then
+           write (normaloutput, *) 'error in diagonalization, info = ', info
            goto 1000
        end if
 
        if (cutoff) then
 
-           write (*, *) 'cut off threshold is ', thresd
-
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'cut off threshold is ', thresd
+           end if
            j0 = 0
            do i0 = 1, dimn
                if (w(i0) >= thresd) then
@@ -111,8 +112,8 @@
        integer :: j0, j, i, i0, i1
        integer :: k0, l0, ii, jj, kk, ll
 
-       if (rank == 0) then
-           write (3000, *) 'Enter cdiagonal part'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'Enter cdiagonal part'
        end if
        w(:) = 0.0d+00
 
@@ -207,12 +208,12 @@
        deallocate (work)
        deallocate (rwork)
 
-       if (rank == 0) then
-           write (3000, *) 'Finish zheev info = ', info
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'Finish zheev info = ', info
        end if
        if (info /= 0) then
-           if (rank == 0) then
-               write (3000, *) 'error in diagonalization, info = ', info
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'error in diagonalization, info = ', info
            end if
            goto 1000
        end if
@@ -223,8 +224,8 @@
 
        if (cutoff) then
 
-           if (rank == 0) then
-               write (3000, *) 'cut off threshold is ', thresd
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, *) 'cut off threshold is ', thresd
            end if
 
            j0 = 0
@@ -240,8 +241,8 @@
            dimm = dimn
        end if
 
-       if (rank == 0) then
-           write (3000, '(A,I8)') "end cdiag", rank
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '(A,I8)') "end cdiag", rank
        end if
 1000   continue
    end subroutine cdiag
@@ -274,7 +275,9 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
-       write (*, *) 'rdiag0 start'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'rdiag0 start'
+       end if
        w = 0.0d+00
        cutoff = .FALSE.
 
@@ -287,7 +290,9 @@
 
        ncount = 0
 
-       write (*, *) 'nsymrp', nsymrp
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'nsymrp', nsymrp
+       end if
        Do sym = 1, nsymrp
 
            Do i = n0, n1
@@ -301,8 +306,9 @@
 
        End do
 
-       write (*, *) 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
+       end if
        Do sym = 1, nsymrp
 
            Allocate (fasym(ncount(sym), ncount(sym)))
@@ -340,25 +346,31 @@
        mat = MATMUL(mat, f)
        mat = MATMUL(mat, fa)
 
-       write (*, *) 'OFF DIAGONAL TERM OF U*FU'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'OFF DIAGONAL TERM OF U*FU'
+       end if
        do i = 1, n
        do j = 1, n
            if ((i /= j) .and. (ABS(mat(i, j)) > 1.0d-10)) then
-               write (*, '(2E13.5,2I3)') mat(i, j), i, j
+           if (rank == 0) then ! Process limits for output
+               write (normaloutput, '(2E13.5,2I3)') mat(i, j), i, j
+           end if
            end if
        end do
        end do
 
-       write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
-       do i = 1, n
-           write (*, '(4E13.5)') mat(i, i), w(i), ABS(mat(i, i) - w(i))
-       end do
-       write (*, '(/)')
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+           do i = 1, n
+               write (normaloutput, '(4E13.5)') mat(i, i), w(i), ABS(mat(i, i) - w(i))
+           end do
+           write (normaloutput, '(/)')
+       end if
        deallocate (mat)
 
-       write (*, *) 'rdiag0 end'
-
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'rdiag0 end'
+       end if
    end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -389,9 +401,9 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
-       if (rank == 0) then
-           write (3000, *) 'cdiag0 start'
-           write (3000, *) 'nsymrpa', nsymrpa
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'cdiag0 start'
+           write (normaloutput, *) 'nsymrpa', nsymrpa
        end if
 !         nsymrp = nsymrpa
 
@@ -405,8 +417,8 @@
            End do
        End do
 
-       if (rank == 0) then
-           write (3000, *) 'fi', fi
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'fi', fi
        end if
 
        fac(n0:n1, n0:n1) = 0.0d+00
@@ -488,8 +500,8 @@
            Do i = 1, dimn
                Do j = 1, dimn
                    If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
-                       if (rank == 0) then
-                           write (3000, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
+                       if (rank == 0) then ! Process limits for output
+                           write (normaloutput, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
                        end if
                    End if
                End do
@@ -497,8 +509,8 @@
 
            Do i = 1, dimn
                If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
-                   if (rank == 0) then
-                       write (3000, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
+                   if (rank == 0) then ! Process limits for output
+                       write (normaloutput, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
                    end if
                End if
            End do
@@ -531,33 +543,35 @@
        fac = DCONJG(fac)
        matc = MATMUL(matc, fac)
 
-       if (rank == 0) then
-           write (3000, *) 'OFF DIAGONAL TERM OF U*FU'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'OFF DIAGONAL TERM OF U*FU'
        end if
        do i = n0, n1
        do j = n0, n1
            if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
-               write (3000, '(2E13.5,2I3)') matc(i, j), i, j
+                if (rank == 0) then ! Process limits for output
+                    write (normaloutput, '(2E13.5,2I3)') matc(i, j), i, j
+                end if
            end if
        end do
        end do
 
-       if (rank == 0) then
-           write (3000, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
        end if
        do i = n0, n1
            if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
-               if (rank == 0) then
-                   write (3000, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
+               if (rank == 0) then ! Process limits for output
+                   write (normaloutput, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
                end if
            End if
        end do
-       if (rank == 0) then
-           write (3000, '(/)')
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, '(/)')
        end if
        deallocate (matc)
 
-       if (rank == 0) then
-           write (3000, *) 'cdiag0 end'
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'cdiag0 end'
        end if
    end

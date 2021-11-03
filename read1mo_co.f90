@@ -17,7 +17,7 @@
        double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
        if (rank == 0) then
-           write (3000, *) 'Enter read1mo_co'
+           write (normaloutput, *) 'Enter read1mo_co'
        end if
        mrconee = 10
 
@@ -69,16 +69,16 @@
        deallocate (ronei); Call memminus(KIND(ronei), SIZE(ronei), 1)
 
        if (rank == 0) then
-           write (3000, *) realc, 'realc'
+           write (normaloutput, *) realc, 'realc'
        end if
        goto 1000
 
 10     if (rank == 0) then
-           write (3000, *) 'err 10 mo1'
+           write (normaloutput, *) 'err 10 mo1'
        end if
        go to 1000
 11     if (rank == 0) then
-           write (3000, *) 'err 11 mo1'
+           write (normaloutput, *) 'err 11 mo1'
        end if
        go to 1000
 

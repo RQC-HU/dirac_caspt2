@@ -22,7 +22,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'fockdiag start'
+           write (normaloutput, *) 'fockdiag start'
        end if
        REALF = .TRUE.
 
@@ -35,8 +35,8 @@
        End do
 
        REALF = .FALSE.
-       if (rank == 0) then
-           write (3000, *) 'REALF', REALF
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'REALF', REALF
        end if
 
        If (REALF) then          ! real*8
@@ -68,9 +68,9 @@
            n = nspace(3, i0)
 
            if (rank == 0) then ! Process limits for output
-               if (i0 == 1) write (3000, *) 'FOR INACTIVE-INACTIVE ROTATION !'
-               if (i0 == 2) write (3000, *) 'FOR ACTIVE-ACTIVE ROTATION !'
-               if (i0 == 3) write (3000, *) 'FOR SECONDARY-SECONDARY ROTATION !'
+               if (i0 == 1) write (normaloutput, *) 'FOR INACTIVE-INACTIVE ROTATION !'
+               if (i0 == 2) write (normaloutput, *) 'FOR ACTIVE-ACTIVE ROTATION !'
+               if (i0 == 3) write (normaloutput, *) 'FOR SECONDARY-SECONDARY ROTATION !'
            end if
            if (REALF) then
 
@@ -79,17 +79,17 @@
                write (5) n0, n1, n
                write (5) fa(n0:n1, n0:n1)
                if (rank == 0) then ! Process limits for output
-                   write (3000, *) n0, n1, n
+                   write (normaloutput, *) n0, n1, n
 
-                   write (3000, *) 'fa '
+                   write (normaloutput, *) 'fa '
 
                    do i = n0, n1
-                       write (3000, '(30E13.5)') (fa(i, j), j=n0, n1)
+                       write (normaloutput, '(30E13.5)') (fa(i, j), j=n0, n1)
                    end do
 
-                   write (3000, *) 'f '
+                   write (normaloutput, *) 'f '
                    do i = n0, n1
-                       write (3000, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
+                       write (normaloutput, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
                    end do
                end if
            else
@@ -141,10 +141,10 @@
 
        goto 1000
 10     if (rank == 0) then ! Process limits for output
-           write (3000, *) 'reading err in orbcoeff'
+           write (normaloutput, *) 'reading err in orbcoeff'
        end if
 1000   continue
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'fockdiag end'
+           write (normaloutput, *) 'fockdiag end'
        end if
    end subroutine fockdiag_ty

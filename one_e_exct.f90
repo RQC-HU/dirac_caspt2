@@ -27,7 +27,7 @@
 !      indu = creat - ninact
 !      indv = anhi  - ninact
       indu = creat
-      indv = anhi 
+      indv = anhi
 
       if((indv==indu).and.(btest(iidet,indv-1).eqv..true.)) then
 
@@ -38,20 +38,18 @@
 
          newidet = iidet-2**(indv-1)+2**(indu-1)
 !        calculation of phase
-   
+
    	 do i1 = indv, nact-1
    	   ia = ia+2**i1          ! to make sequnece whose bits are all '0' bellow the vth bit
    	 end do
-   
+
    	 do i1 = indu, nact-1
    	   ib = ib+2**i1          ! to make sequnece whose bits are all '0' bellow the uth bit
    	 end do
-        
-	 phase = nbitsa( iand(iidet,ia) ) + nbitsa( iand(iidet-2**(indv-1),ib) )
+
+	 phase = POPCNT( iand(iidet,ia) ) + POPCNT( iand(iidet-2**(indv-1),ib) )
                        ! odd => (-), even => (+)
 
       endif
 
       end subroutine one_e_exct
-
-

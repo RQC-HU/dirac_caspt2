@@ -21,18 +21,18 @@
 
        ndet = comb(nact, nelec)
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'ndet', ndet
+           write (normaloutput, *) 'ndet', ndet
        end if
        Call casdet_ty(totsym)
        Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
 
        Call casmat(mat)
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'before allocate ecas(ndet)'
+           write (normaloutput, *) 'before allocate ecas(ndet)'
        end if
        Allocate (ecas(ndet))
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'allocate ecas(ndet)'
+           write (normaloutput, *) 'allocate ecas(ndet)'
        end if
        ecas = 0.0d+00
        thresd = 1.0d-15
@@ -43,7 +43,7 @@
 
 ! Print out CI matrix!
        if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-           write (3000, *) 'debug1'
+           write (normaloutput, *) 'debug1'
            cimat = 10
            filename = 'CIMAT'
            open (10, file='CIMAT', status='unknown', form='unformatted')
@@ -57,7 +57,7 @@
 
 ! Print out CI matrix!
 
-           write (3000, *) 'debug2'
+           write (normaloutput, *) 'debug2'
 
            cimat = 10
            filename = 'CIMAT1'
@@ -71,7 +71,7 @@
 ! Print out C1 matrix!
 
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'debug3'
+           write (normaloutput, *) 'debug3'
        end if
        Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
        Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
@@ -87,11 +87,11 @@
 
        Deallocate (ecas)
        if (rank == 0) then ! Process limits for output
-           write (3000, *) 'debug4'
+           write (normaloutput, *) 'debug4'
 
-           write (3000, '("CASCI ENERGY FOR ",I2," STATE")') totsym
+           write (normaloutput, '("CASCI ENERGY FOR ",I2," STATE")') totsym
            Do irec = 1, nroot
-               write (3000, '(I4,F30.15)') irec, eigen(irec)
+               write (normaloutput, '(I4,F30.15)') irec, eigen(irec)
            End do
 
            do j = 1, ndet
@@ -101,12 +101,12 @@
            end do
 
            do irec = 1, nroot
-               write (3000, '("Root = ",I4)') irec
+               write (normaloutput, '("Root = ",I4)') irec
                do j = 1, ndet
                    if ((ABS(mat(j, irec))**2) > 1.0d-02) then
                        i0 = idet(j)
-                       write (3000, *) (btest(i0, j0), j0=0, nact - 1)
-                       write (3000, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
+                       write (normaloutput, *) (btest(i0, j0), j0=0, nact - 1)
+                       write (normaloutput, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
                        & j, mat(j, irec), &
                        & ABS(mat(j, irec))**2
                    end if

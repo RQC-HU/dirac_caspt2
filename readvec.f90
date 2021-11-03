@@ -19,13 +19,13 @@
         cir(:,:)=0.0d+00
         cii(:,:)=0.0d+00
 
-    
+
         open( mdtriv, file=trim(filename), status='old', access='direct', recl=8, err=10)
         ios=0
         read(mdtriv, rec=1, err=11, iostat= ios) lenrec
         if(ios.ne.0) goto 12
         close (mdtriv)
-    
+
         open(mdtriv, file=filename, access='direct', recl=lenrec, err=100)
         read(mdtriv, rec=1, err=100) lenrec, nroot
 
@@ -60,18 +60,18 @@
 !               goto 7
 !            endif
 !       end do
-       
- 7     nelec = nbitsa(idet(1))
-      write(*,*) nbitsa(idet(1)), idet(1)
+
+ 7     nelec = POPCNT(idet(1))
+      write(*,*) POPCNT(idet(1)), idet(1)
         do i0= 1, ndet
-           if(nbitsa(idet(i0))/=nelec) then
+           if(POPCNT(idet(i0))/=nelec) then
               write(*,*)'error about nelec', nelec, idet(i0)
            endif
         end do
 
         Allocate ( cir(ndet, nroot))
         Allocate ( cii(ndet, nroot))
-    
+
         do irec= 1, nroot
            read(mdtriv, rec=irec+2, err=300) (cir(j,irec),cii(j,irec),j=1,ndet)
         end do
@@ -86,7 +86,7 @@
         end do
 
         realcvec = .true.
-        
+
         write(*,*)'j,irec, cir(j,irec), cii(j,irec)'
 
         do irec = 1, nroot
@@ -97,27 +97,25 @@
              end if
           end do
         end do
-              
+
 
         goto 1
 
- 10     write(*,*) 'err 10'   
+ 10     write(*,*) 'err 10'
         go to 1000
- 11     write(*,*) 'err 11'   
+ 11     write(*,*) 'err 11'
         go to 1000
- 12     write(*,*) 'err 12'   
-        go to 1000
-        
- 100     write(*,*) 'err 100 vec come'   
-         go to 1000
-        
- 200    write(*,*) 'err 200'   
+ 12     write(*,*) 'err 12'
         go to 1000
 
- 300    write(*,*) 'err 300'   
+ 100     write(*,*) 'err 100 vec come'
+         go to 1000
+
+ 200    write(*,*) 'err 200'
+        go to 1000
+
+ 300    write(*,*) 'err 300'
         go to 1000
 
  1      close(mdtriv)
  1000   end subroutine readvec
-
-

@@ -1,7 +1,7 @@
 !
         SUBROUTINE timing(date0, tsec0, date, tsec)
 !
-            use four_caspt2_module, only: rank
+            use four_caspt2_module, only: rank, normaloutput
             integer, intent(in)  :: date0
             real*8, intent(in)   :: tsec0
             integer, intent(out) :: date
@@ -24,10 +24,10 @@
 
 !        write(*,*)tsec, tsec0, difsec
 
-            if (rank == 0) then
-                write (3000, '("Present time is")')
-                write (3000, '("year  = ",I4,"month = ",I4,"date  = ",I4 )') val(1), val(2), val(3)
-                write (3000, '(14X,I4,"h   ",I4,"min  ",I2,".",I3,"sec  " )')&
+            if (rank == 0) then ! Process limits for output
+                write (normaloutput, '("Present time is")')
+                write (normaloutput, '("year  = ",I4,"month = ",I4,"date  = ",I4 )') val(1), val(2), val(3)
+                write (normaloutput, '(14X,I4,"h   ",I4,"min  ",I2,".",I3,"sec  " )')&
                 & val(5), val(6), val(7), val(8)
             end if
 
@@ -58,9 +58,8 @@
             sec = resd
 
 !        write(*,'("computational time = ", F20.10,"sec")')difsec
-            if (rank == 0) then
-                write (3000, '("computational time = ",I3,"day",I3,"h ",I3, &
+            if (rank == 0) then ! Process limits for output
+                write (normaloutput, '("computational time = ",I3,"day",I3,"h ",I3, &
                 &"min",F7.3,"sec")') day, hour, min, sec
-                write (3000, '(A,I4)') 'rank', rank
             end if
 100     end subroutine timing
