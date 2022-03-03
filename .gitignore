@@ -1,2 +1,9 @@
+# Ignore dotfiles (except .gitignore)
 .*
 !.gitignore
+
+# Ignore object files and module files
+*.o
+*.mod
+bin/*
+*.i90
