@@ -66,7 +66,6 @@
        complex*16, intent(out)  :: uc(dimn, dimm)
        integer :: j0, j, i, i0, i1
        integer :: k0, l0, ii, jj, kk, ll
-
        if (rank == 0) then ! Process limits for output
            write (*, *) 'New dimension becomes ', dimm
        end if

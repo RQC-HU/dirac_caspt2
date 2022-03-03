@@ -29,8 +29,8 @@
                    unit_d1, unit_d2, unit_d3, unit_e, unit_f, unit_g, unit_h
        integer :: ioerr
        integer :: a1_cnt, a2_cnt, b_cnt, c1_cnt, c2_cnt, c3_cnt, d1_cnt, d2_cnt, d3_cnt, e_cnt, f_cnt, g_cnt, h_cnt
-       !Iwamuro modify
-       !        integer :: ikr, jkr, kkr, lkr
+!Iwamuro modify
+!        integer :: ikr, jkr, kkr, lkr
        !  Initialization of Unit numbers for subspace files
        unit_a1 = 100; unit_a2 = 200; unit_b = 300
        unit_c1 = 400; unit_c2 = 500; unit_c3 = 600
@@ -165,12 +165,12 @@
 
                        a1_cnt = a1_cnt + 1
                    end if
-                   !                           write(*,'("A1int2",4I4,2E20.10)')l  ,k  ,j  ,i  ,  rklr(inz), -1.0d+00*rkli(inz)
+!                           write(*,'("A1int2",4I4,2E20.10)')l  ,k  ,j  ,i  ,  rklr(inz), -1.0d+00*rkli(inz)
                end if
 
            elseif (max1 == 2 .and. min1 == 1 .and. max2 == 2 .and. min2 == 2) then ! (21|22) => (21|22)
 
-               !                        write(*,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
+!                        write(*,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
 
                if (i > j) then ! (21|22) => (21|22)
 
@@ -199,7 +199,7 @@
                end if
 
            elseif (max1 == 2 .and. min1 == 1 .and. max2 == 1 .and. min2 == 1) then  ! (21|11)=>(21|11)
-               !                        write(*,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
+!                        write(*,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
 
                if (i > j) then ! (21|11) => (21|11)
 
@@ -227,7 +227,7 @@
                end if
 
            elseif (max1 == 1 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then  ! (11|21)=>(21|11)
-               !                        write(*,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
+!                        write(*,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
 
                if (k > l) then   ! (11|21) => (21|11)
 
@@ -256,9 +256,9 @@
                end if
                ! end if
 
-               !=============================================
-               ! Integrals for B space  (pi|qj) (21|21) type
-               !=============================================
+!=============================================
+! Integrals for B space  (pi|qj) (21|21) type
+!=============================================
 
            elseif (max1 == 2 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then  ! (21|21)=>(21|21)
 
@@ -304,9 +304,9 @@
                    end if
                end if
 
-               !============================================================================
-               ! Integrals for C space (ap|qr)(32|22) type C1int
-               !============================================================================
+!============================================================================
+! Integrals for C space (ap|qr)(32|22) type C1int
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 2 .and. max2 == 2 .and. min2 == 2) then ! (32|22)=>(32|22)
 
@@ -320,7 +320,7 @@
 
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
-                   !                           write(*,'("C1int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
+!                           write(*,'("C1int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                else    ! (23|22)=>(32|22)
 
@@ -332,7 +332,7 @@
 
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
-                   !                           write(*,'("C1int2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
+!                           write(*,'("C1int2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
                end if
 
            elseif (max1 == 2 .and. min1 == 2 .and. max2 == 3 .and. min2 == 2) then ! (22|32)=>(32|22)
@@ -347,7 +347,7 @@
 
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
-                   !                           write(*,'("C1int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
+!                           write(*,'("C1int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
                else    ! (22|23)=>(32|22)
 
                    write (unit_c1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
@@ -358,12 +358,12 @@
 
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
-                   !                          write(*,'("C1int4",4I4,2E20.10)')ltr,ktr,i  ,j  ,  SignKL*rklr(inz),  SignKL*rkli(inz)
+!                          write(*,'("C1int4",4I4,2E20.10)')ltr,ktr,i  ,j  ,  SignKL*rklr(inz),  SignKL*rkli(inz)
                end if
 
-               !============================================================================
-               ! Integrals for C space (ap|kk)(32|11)  type C2int
-               !============================================================================
+!============================================================================
+! Integrals for C space (ap|kk)(32|11)  type C2int
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 2 .and. max2 == 1 .and. min2 == 1) then   ! (32|11)=>(32|11)
 
@@ -413,9 +413,9 @@
                    end if
                end if
 
-               !============================================================================
-               ! Integrals for C (ai|jp) (31|12)(C3int) and E space (ai|pj)(31|21) (Eint)
-               !============================================================================
+!============================================================================
+! Integrals for C (ai|jp) (31|12)(C3int) and E space (ai|pj)(31|21) (Eint)
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then ! (31|21)=>(31|12)
 
@@ -569,9 +569,9 @@
                    end if
                end if
 
-               !============================================================================
-               ! Integrals for D space (ai|pq)(31|22) type (D1int)
-               !============================================================================
+!============================================================================
+! Integrals for D space (ai|pq)(31|22) type (D1int)
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 2 .and. min2 == 2) then ! (31|22)=>(31|22)
 
@@ -621,9 +621,9 @@
                    end if
                end if
 
-               !============================================================================
-               ! Integrals for D space (ap|qi)(32|21) type (D2int)
-               !============================================================================
+!============================================================================
+! Integrals for D space (ap|qi)(32|21) type (D2int)
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 2 .and. max2 == 2 .and. min2 == 1) then ! (32|21)=>(32|21)
 
@@ -713,9 +713,9 @@
                    end if
                end if
 
-               !============================================================================
-               ! Integrals for D space (ai|jk)  (31|11) type (D3int)
-               !============================================================================
+!============================================================================
+! Integrals for D space (ai|jk)  (31|11) type (D3int)
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 1 .and. min2 == 1) then   ! (31|11)=>(31|11)
 
@@ -765,9 +765,9 @@
                    end if
                end if
 
-               !=============================================
-               ! Integrals for F space  (ap|bq) (32|32) type
-               !=============================================
+!=============================================
+! Integrals for F space  (ap|bq) (32|32) type
+!=============================================
 
            elseif (max1 == 3 .and. min1 == 2 .and. max2 == 3 .and. min2 == 2) then  ! (32|32)=>(32|32)
 
@@ -813,9 +813,9 @@
                    end if
                end if
 
-               !============================================================================
-               ! G space (ai|bp)(31|32) type
-               !============================================================================
+!============================================================================
+! G space (ai|bp)(31|32) type
+!============================================================================
 
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 3 .and. min2 == 2) then ! (31|32)=>(31|32)
 
@@ -913,9 +913,9 @@
 
                end if
 
-               !=============================================
-               ! Integrals for H space  (ai|bj) (31|31) type
-               !=============================================
+!=============================================
+! Integrals for H space  (ai|bj) (31|31) type
+!=============================================
 
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 3 .and. min2 == 1) then  ! (31|31)=>(31|31)
 
@@ -929,7 +929,7 @@
 
                        h_cnt = h_cnt + 1
                    end if!                           write(*,'("Hint1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
-                   !                           write(*,*)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
+!                           write(*,*)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (13|31) => (31|31)
 
@@ -941,7 +941,7 @@
 
                        h_cnt = h_cnt + 1
                    end if!                           write(*,'("Hint2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
-                   !                           write(*,*)jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
+!                           write(*,*)jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (31|13) => (31|31)
 
@@ -953,7 +953,7 @@
 
                        h_cnt = h_cnt + 1
                    end if!                           write(*,'("Hint3",4I4,2E20.10)')i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
-                   !                           write(*,*)i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
+!                           write(*,*)i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (13|13) => (31|31)
 
@@ -965,7 +965,7 @@
 
                        h_cnt = h_cnt + 1
                    end if!                           write(*,'("Hint4",4I4,2E20.10)')jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
-                   !                           write(*,*)jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
+!                           write(*,*)jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
 
                end if
 
@@ -982,16 +982,16 @@
 
        Goto 60
 
-       ! 10     if (rank == 0) write (*, *) 'error for opening mdcint 10' ! Process limits for output
-       !        go to 100
-       ! 20     if (rank == 0) write (*, *) 'error for reading mdcint 20' ! Process limits for output
-       !        go to 100
-       ! 30     if (rank == 0) write (*, *) 'end mdcint 30' ! Process limits for output
-       !        go to 100
-       ! 40     if (rank == 0) write (*, *) 'error for reading mdcint 40' ! Process limits for output
-       !        go to 100
-       ! 50     if (rank == 0) write (*, *) 'end mdcint 50 normal' ! Process limits for output
-       !        go to 100
+! 10     if (rank == 0) write (*, *) 'error for opening mdcint 10' ! Process limits for output
+!        go to 100
+! 20     if (rank == 0) write (*, *) 'error for reading mdcint 20' ! Process limits for output
+!        go to 100
+! 30     if (rank == 0) write (*, *) 'end mdcint 30' ! Process limits for output
+!        go to 100
+! 40     if (rank == 0) write (*, *) 'error for reading mdcint 40' ! Process limits for output
+!        go to 100
+! 50     if (rank == 0) write (*, *) 'end mdcint 50 normal' ! Process limits for output
+!        go to 100
 10     if (rank == 0) write (*, '(A,I4)') 'error for opening mdcint 10'
        go to 100
 20     if (rank == 0) write (*, '(A,I4)') 'error for reading mdcint 20'
@@ -1007,19 +1007,19 @@
 
        close (mdcint)
 
-       !         write(11) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(12) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(2 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(31) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(32) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(33) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(4 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(41) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(42) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(5 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(9 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(7 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
-       !         write(8 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(11) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(12) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(2 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(31) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(32) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(33) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(4 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(41) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(42) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(5 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(9 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(7 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
+!         write(8 ) 0, 0, 0, 0, 0.0d+00, 0.0d+00
 
        !    close (11)
        !    close (12)
@@ -1056,5 +1056,5 @@
            write (*, '(A,I4)') "end readint2_ord_co", rank
        end if
 
-             !! TODO A1のみで行けるか確認 formattedで行けるか確認  intra3のerror時のgotoを変える(将来的に0000をEOFと認識させるようにするなどの対策をとる?)
+       !! TODO A1のみで行けるか確認 formattedで行けるか確認  intra3のerror時のgotoを変える(将来的に0000をEOFと認識させるようにするなどの対策をとる?)
    end subroutine readint2_ord_co

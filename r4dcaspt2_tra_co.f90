@@ -258,7 +258,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 !!=============================================!
 !                                              !
-    iroot = selectroot                         !
+    iroot = selectroot                       !
 !                                              !
 !!=============================================!
 
