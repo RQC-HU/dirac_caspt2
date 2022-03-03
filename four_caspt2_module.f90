@@ -6,36 +6,87 @@ MODULE four_caspt2_module
 
     Implicit NONE
 
-    real*8       :: thres, tmem
-    integer      :: norb, ndet, nelec, nroot, iroot, selectroot ! ndet: the number of determinant
-    integer      :: ninact, nact, nsec ! ninact: the number of inactive spinors, nact: active, nsec: secondary
-    integer      :: ncore, nbas
-    character    :: date*8, time*10, ptgrp*6
+    real(8)      :: thres, tmem
+    integer      :: norb, ndet, iroot ! ndet: the number of determinant
+    !! =================================================
+    !! Valiables of Input (active.inp)
+    !! =================================================
+    ! ninact        : The number of inactive spinors
+    ! nact          : The number of active spinors
+    ! nsec          : The number of secondary spinors
+    ! nelec         : The number of electrons in active space
+    ! nroot         : The number of roots
+    ! selectroot    : Which root do you want to obtain
+    ! ncore         : The number of core orbitals
+    ! nbas          : Basis set
+    ! eshift        : Real shift
+    ! ptgrp         : Point group symmetry
+    integer         :: ninact, nact, nsec, nelec
+    integer         :: nroot, selectroot
+    integer         :: ncore, nbas
+    real(8)         :: eshift
+    character       :: ptgrp*6
 
-    integer, allocatable :: idet(:), sp(:)
-    real*8, allocatable :: cir(:, :), cii(:, :), eigen(:) ! cir:CI coefficients(real), cii:CI coefficients(imaginary)
-    real*8, allocatable :: int2r(:), int2i(:), int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
-    real*8, allocatable :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
-    integer, allocatable :: indtwr(:, :, :, :), indtwi(:, :, :, :)
+    character       :: date*8, time*10
+    integer, allocatable :: idet(:), sp(:), idetr(:)
+
+    !! =================================================
+    !! Valiables of CI
+    !! =================================================
+    ! cir   : Real numbers of CI coeffients.
+    ! cii   : Imaginary numbers of CI coeffients.
+    ! eigen : Eigen values
+    real(8), allocatable :: cir(:, :), cii(:, :), eigen(:)
+
+    ! integer, allocatable :: indtwr(:, :, :, :), indtwi(:, :, :, :)
+    !! =================================================
+    !! Valiables of two electron integrals
+    !! =================================================
+    ! inttwr    : Real numbers of two electron integrals (Directly specify four indices to get the integral value)
+    ! inttwi    : Imaginary numbers of two electron integrals (Directly specify four indices to get the integral value)
+    ! int2r_f1
+    ! int2r_f2
+    ! int2i_f1
+    ! int2i_f2
     real(8), allocatable :: inttwr(:, :, :, :), inttwi(:, :, :, :)
+    real(8), allocatable :: int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
+    real(8), allocatable :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
+
     logical :: realc, realcvec, debug, realf, evenelec
+    !! =================================================
+    !! Valiables of timer
+    !! =================================================
+    ! val       : Initial time of CASCI or CASPT2 programs. (ref. https://docs.oracle.com/cd/E19205-01/820-1201/aetcf/index.html)
+    ! initdate  : Initial date = val(3) (min:1, max:31)
+    ! inittime  : Initial time (sec) = hour*60^2+min*60+sec+millisec*0.001
+    ! totalsec  : Equals to inittime
+    ! date1     : Start date (for elapsed time measurement)
+    ! date0     : End date (for elapsed time measurement)
+    ! tsec1     : Start seconds (for elapsed time measurement)
+    ! tsec0     : End seconds (for elapsed time measurement)
+    integer     ::  val(8), initdate, date0, date1
+    real(8)     :: totalsec, inittime, tsec0, tsec1, tsec
 
-    integer                 ::  val(8), initdate, date0, date1
-    real*8                  :: totalsec, inittime, tsec0, tsec1, tsec, eshift, sumc2, sumc2local
-    complex*16              ::  coeff1
-
+    !! ========================================
+    !! Valiables of second pertubation energy
+    !! ========================================
+    ! sumc2     : Second pertubation energy(total) / a.u.
+    ! sumclocal : Second pertubation energy(each subspace) / a.u.
+    ! coeff1    : The coefficient for solvH (sumclocal = sumclocal + abs(coeff1)^2)
+    real*8      ::  sumc2, sumc2local
+    complex*16  ::  coeff1
 ! from MORCONEE
 
 !   real*8 :: ecore, enuc
     real*8 :: enuc
-    double precision :: ecore
+    double precision :: ecore ! core energy
 !   integer :: nsymrp, nsymrpa, multb(128,128), multb2(128,128), nmo, scfru
 !   integer :: nmo
     integer :: nsymrp, nsymrpa, multb(128, 128), multb2(128, 128), nmo, scfru
     character :: repn(64)*14, repna(64)*4, repn_ty(64)*6
 !   character :: repn(50)*14, repna(50)*4, repn_ty(50)*6
 !   integer, allocatable :: irpmo(:), irpamo(:), indmo(:), indmor(:)
-    integer, allocatable :: irpmo(:), irpamo(:)
+    integer, allocatable :: irpmo(:), irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo(:), indmor(:) ! index of MO
     real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
     real*8, allocatable  :: orbmo(:), orb(:)
@@ -74,24 +125,31 @@ MODULE four_caspt2_module
 !       Write (IRPMO(IMO),IRPAMO(IMO),ORBMO(IMO),IMO=1,NMO)
 !       Write ((ONER(IMO,JMO), ONEI(IMO,JMO), JMO=1, NMO), IMO=1, NMO)
 
-    !! ---------------------------
-    !! Valiables for MPI
-    !! ---------------------------
-    ! @params
-    ! ierr   : Error code. if ierr is not 0, the MPI method is not working properly.
-    ! nprocs : The number of processes in MPI
-    ! rank   : Process number of MPI
+    !! ===================
+    !! Valiables of MPI
+    !! ===================
+    ! ierr                  : Error code. if ierr is not 0, the MPI method was not working properly.
+    ! nprocs                : Total number of processes in MPI (Available up to 10000)
+    ! rank                  : Process number of MPI (0 <= rank <= nprocs-1)
+    ! mdcint_filename       : MDCINT filenames for each MPI process
+    ! mdcintnew             : MDCINTNEW filenames for each MPI process (e.g. MDCINTNEW8)
+    ! mdcint_debug          : MDCINT_debug filenames for each MPI process (e.g. MDCINT_debug1)
+    ! mdcint_int            : MDCINT_int filenames for each MPI process (e.g. MDCINT_int)
+    ! a1int, a2int          : A subspace filenames for each MPI process (e.g. A1int2)
+    ! bint                  : B subspace filenames for each MPI process (e.g. Bint10)
+    ! c1int, c2int, c3int   : C subspace filenames for each MPI process (e.g. C1int1)
+    ! d1int, d2int, d3int   : D subspace filenames for each MPI process (e.g. D1int)
+    ! eint                  : E subspace filenames for each MPI process (e.g. Eint3)
+    ! fint                  : F subspace filenames for each MPI process (e.g. Fint4)
+    ! gint                  : G subspace filenames for each MPI process (e.g. Gint11)
+    ! hint                  : H subspace filenames for each MPI process (e.g. Hint12)
+    ! normal_output  : The unit number for normal output (default unit number = 3000, default file name = "caspt2.out")
+    ! read_line_max : The number of lines to be read at a time when reading two-electron integral related files.(e.g. A1int, MDCINTNEW)
     integer         :: ierr, nprocs, rank
-
-    ! Run on r4dcasci_co.f90 and r4dcaspt2_tra_co.f90 to get the MDCINT filenames for each process
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
-
-    ! Run on r4dcaspt2_tra_co.f90 to get the subspace filenames for each process
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
+    integer, parameter :: normal_output = 3000, read_line_max = 1000
 
     ! Test for MDCINT_READ_COUNT
     integer :: casci_mdcint_cnt, caspt2_mdcint_cnt, caspt2_mdcint_cnt2, simple_loop
-
-    ! Unit number for normal output (caspt2.out)
-    integer,parameter :: normaloutput = 3000
 end MODULE four_caspt2_module

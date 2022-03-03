@@ -9,7 +9,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     use four_caspt2_module
 
     Implicit NONE
+#ifdef HAVE_MPI
     include 'mpif.h'
+#endif
     integer                 :: ii, jj, kk, ll, typetype, i0, j0
     integer                 ::  j, i, k, l, nuniq
     integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
@@ -36,32 +38,36 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
+#ifdef HAVE_MPI
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+#else
+    rank = 0; nprocs = 1
+#endif
     if (rank == 0) then ! Process limits for output
-        open (normaloutput, file='caspt2.out', form='formatted', status='unknown')
-        write (normaloutput, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
-        write (normaloutput, *) ''
-        write (normaloutput, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
-        write (normaloutput, *) ''
+        ! open (normal_output, file='caspt2.out', form='formatted', status='unknown')
+        write (*, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
+        write (*, *) ''
+        write (*, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
+        write (*, *) ''
     end if
     tmem = 0.0d+00
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
         val = 0
         Call DATE_AND_TIME(VALUES=val)
 
-        write (normaloutput, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        write (normaloutput, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
+        write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
+        write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
 
         totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
         initdate = val(3)
         inittime = totalsec
 
-        write (normaloutput, *) inittime
+        write (*, *) inittime
         ! Call timing(val(3), totalsec, date0, tsec)
     end if
 !     end if
@@ -80,17 +86,17 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     close (5 + rank)
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'ninact     =', ninact
-        write (normaloutput, *) 'nact       =', nact
-        write (normaloutput, *) 'nsec       =', nsec
-        write (normaloutput, *) 'nelec      =', nelec
-        write (normaloutput, *) 'nroot      =', nroot
-        write (normaloutput, *) 'selectroot =', selectroot
-        write (normaloutput, *) 'totsym     =', totsym
-        write (normaloutput, *) 'ncore      =', ncore
-        write (normaloutput, *) 'nbas       =', nbas
-        write (normaloutput, *) 'eshift     =', eshift
-        write (normaloutput, *) 'ptgrp      =', ptgrp
+        write (*, *) 'ninact     =', ninact
+        write (*, *) 'nact       =', nact
+        write (*, *) 'nsec       =', nsec
+        write (*, *) 'nelec      =', nelec
+        write (*, *) 'nroot      =', nroot
+        write (*, *) 'selectroot =', selectroot
+        write (*, *) 'totsym     =', totsym
+        write (*, *) 'ncore      =', ncore
+        write (*, *) 'nbas       =', nbas
+        write (*, *) 'eshift     =', eshift
+        write (*, *) 'ptgrp      =', ptgrp
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
@@ -99,7 +105,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     call read1mo_co(filename)
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
+        write (*, *) 'realc', realc, ECORE, ninact, nact, nsec, nmo
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -108,7 +114,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     !Iwamuro create new ikr for dirac
     Call create_newmdcint
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'Before readint2_casci_co', rank
+        write (*, *) 'Before readint2_casci_co', rank
     end if
     ! if (rank == 0) then
     filename = 'MDCINTNEW'
@@ -122,14 +128,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !        sp( ninact+nact+1   : ninact+nact+nsec )    = 3
 !        sp( ninact+nact+nsec: nmo              )    = 4
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'nmo        =', nmo
+        write (*, *) 'nmo        =', nmo
     end if
     nmo = ninact + nact + nsec
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     if (rank == 0) then  ! Process limits for output
-        write (normaloutput, *) "iwamuro modify"
+        write (*, *) "iwamuro modify"
     end if
     If (mod(nelec, 2) == 0) then
         inisym = nsymrp + 1
@@ -140,19 +146,19 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     End if
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 !   Do totsym = inisym, inisym
 !   Do totsym = inisym, endsym
 
 !      totsym = 4
 
-        write (normaloutput, *) ' '
-        write (normaloutput, *) '*******************************'
-        write (normaloutput, *) ' '
-        write (normaloutput, *) 'IREP IS ', repna(totsym)
-        write (normaloutput, *) ' '
-        write (normaloutput, *) '*******************************'
-        write (normaloutput, *) ' '
+        write (*, *) ' '
+        write (*, *) '*******************************'
+        write (*, *) ' '
+        write (*, *) 'IREP IS ', repna(totsym)
+        write (*, *) ' '
+        write (*, *) '*******************************'
+        write (*, *) ' '
     end if
     realcvec = .TRUE.
 
@@ -162,22 +168,22 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
 !    This is test for bug fix about realc part
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) realc, 'realc'
-        write (normaloutput, *) realcvec, 'realcvec'
+        write (*, *) realc, 'realc'
+        write (*, *) realcvec, 'realcvec'
     end if
     test = .true.
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) realc, 'realc'
-        write (normaloutput, *) realcvec, 'realcvec'
+        write (*, *) realc, 'realc'
+        write (*, *) realcvec, 'realcvec'
     end if
     realc = .FALSE.      !!!      realc =.TRUE.
     realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'FOR TEST WE DO (F,F)'
-        write (normaloutput, *) realc, 'realc'
-        write (normaloutput, *) realcvec, 'realcvec'
+        write (*, *) 'FOR TEST WE DO (F,F)'
+        write (*, *) realc, 'realc'
+        write (*, *) realcvec, 'realcvec'
     end if
 !!=============================================!
 !                                              !
@@ -188,7 +194,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     Call e0test_v2
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 !            BUILDING  FOCK MATRIX               !
@@ -201,13 +207,12 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
 
-    f(:, :) = 0.0d+00
-
 !      debug = .FALSE.
     debug = .TRUE.
     If (debug) then
+        f(:, :) = 0.0d+00
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'fockhf1_ty start'
+            write (*, *) 'fockhf1_ty start'
         end if
         Call fockhf1_ty
     End if
@@ -217,14 +222,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     f(:, :) = 0.0d+00
     if (rank == 0) then
-        write(normaloutput,*)'before building fock'
+        write (*, *) 'before building fock'
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
     end if
     Call fockcasci_ty
     if (rank == 0) then
-        write(normaloutput,*)'end building fock'
+        write (*, *) 'end building fock'
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -232,7 +237,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !      debug = .TRUE.
     debug = .FALSE.
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) debug, 'debug'
+        write (*, *) debug, 'debug'
     end if
     if (debug) Call prtoutfock
 
@@ -243,7 +248,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) then ! Process limits for output
         Do i0 = 1, nmo
-            write (normaloutput, *) 'eps(', i0, ')=', eps(i0)
+            write (*, *) 'eps(', i0, ')=', eps(i0)
         End do
     end if
 !      Do i0 = 1, nmo/2
@@ -265,6 +270,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
     deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
     deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
+    deallocate (idetr); Call memminus(KIND(idetr), SIZE(idetr), 1)
     deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
     deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
@@ -278,27 +284,28 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
     deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
     deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-    deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
+    ! deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
     deallocate (inttwi); Call memminus(KIND(inttwi), SIZE(inttwi), 1)
-    deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
+    ! deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
     deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-    deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
+    ! deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
     deallocate (inttwr); Call memminus(KIND(inttwr), SIZE(inttwr), 1)
-    deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
+    ! deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
     deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
     deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
     deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
         Call timing(val(3), totalsec, date0, tsec0)
-        write (normaloutput, *) 'End r4dcasci_ty part'
+        write (*, *) 'End r4dcasci_ty part'
     end if
+#ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
+#endif
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
-        close (normaloutput)
+        write (*, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
     end if
 1000 continue
 END program r4dcasci_co

@@ -36,8 +36,8 @@
        open (mrconee, file=trim(filename), form='unformatted', status='old', err=10)
        Read (mrconee) NMO, BREIT, ECORE  ! NMO is nbas - ncore
        if (rank == 0) then
-           write (normaloutput, *) 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
-           write (normaloutput, *) NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
+           write (*, *) 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
+           write (*, *) NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
        end if
 !Iwamuro modify
        scfru = 1
@@ -60,13 +60,13 @@
        Read (mrconee) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
 
        if (rank == 0) then
-           write (normaloutput, *) ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
-           write (normaloutput, *) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
+           write (*, *) ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
+           write (*, *) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
        end if
 !Iwamuro modify
        Read (mrconee) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
        if (rank == 0) then
-           write (normaloutput, *) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+           write (*, *) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
        end if
        allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
        allocate (MULTB_D(1:NSYMRPA, 1:NSYMRPA))  ! dagger
@@ -117,24 +117,25 @@
        End do
 
        if (rank == 0) then
-           write (normaloutput, *) 'MULTB'
+           write (*, *) 'MULTB'
 
            Do i0 = 1, 2*nsymrpa
-               write (normaloutput, '(400I3)') (MULTB(i0, j0), j0=1, 2*nsymrpa)
+               write (*, '(400I3)') (MULTB(i0, j0), j0=1, 2*nsymrpa)
            End do
 
-           write (normaloutput, *) 'MULTB2'
+           write (*, *) 'MULTB2'
 
            Do i0 = 1, 2*nsymrpa
-               write (normaloutput, '(400I3)') (MULTB2(i0, j0), j0=1, 2*nsymrpa)
+               write (*, '(400I3)') (MULTB2(i0, j0), j0=1, 2*nsymrpa)
            End do
-           write (normaloutput, *) 'end multb1,2'
+           write (*, *) 'end multb1,2'
        end if
 ! create MULTB_S, MULTB_D
 
        Do i0 = 1, nsymrpa
            Do j0 = 1, nsymrpa
                MULTB_S(i0, j0) = MULTB(i0 + nsymrpa, j0 + nsymrpa)
+               !    MULTB_D(i0, j0) = MULTB2(j0, i0)
                MULTB_D(i0, j0) = MULTB2(i0, j0)
            End do
        End do
@@ -143,16 +144,16 @@
        MULTB_D = MULTB_D - nsymrpa
 
        if (rank == 0) then
-           write (normaloutput, *) 'MULTB_S'
+           write (*, *) 'MULTB_S'
 
            Do i0 = 1, nsymrpa
-               write (normaloutput, '(200I3)') (MULTB_S(i0, j0), j0=1, nsymrpa)
+               write (*, '(200I3)') (MULTB_S(i0, j0), j0=1, nsymrpa)
            End do
 
-           write (normaloutput, *) 'MULTB_D'
+           write (*, *) 'MULTB_D'
 
            Do i0 = 1, nsymrpa
-               write (normaloutput, '(200I3)') (MULTB_D(i0, j0), j0=1, nsymrpa)
+               write (*, '(200I3)') (MULTB_D(i0, j0), j0=1, nsymrpa)
            End do
        end if
 
@@ -168,7 +169,7 @@
        sp(ninact + nact + nsec + 1:nmo) = 4
 
        if (rank == 0) then
-           write (normaloutput, *) 'moint1 is closed.'
+           write (*, *) 'moint1 is closed.'
        end if
 !     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1
 
@@ -178,44 +179,44 @@
 
 !Iwamuro modify
        if (rank == 0) then
-           write (normaloutput, *) 'if pgsym=c1, this route does not go through. '
+           write (*, *) 'if pgsym=c1, this route does not go through. '
        end if
 
        Do jsym = 1, nsymrpa
-       Do isym = 1, nsymrpa - 1, 2
-           MULTB_DF(isym + 1, jsym) = MULTB_D(isym, jsym)
-           MULTB_DF(isym, jsym) = MULTB_D(isym + 1, jsym)
-       End do
-       End do
-
-       Do jsym = 1, nsymrpa
-       Do isym = 1, nsymrpa
-           ksym = MULTB_DF(isym, jsym)
-           MULTB_DB(isym, ksym) = jsym
-       End do
+           Do isym = 1, nsymrpa - 1, 2
+               MULTB_DF(isym + 1, jsym) = MULTB_D(isym, jsym)
+               MULTB_DF(isym, jsym) = MULTB_D(isym + 1, jsym)
+           End do
        End do
 
        Do jsym = 1, nsymrpa
-       Do isym = 1, nsymrpa
-           ksym = MULTB_S(isym, jsym)
-           MULTB_SB(isym, ksym) = jsym
+           Do isym = 1, nsymrpa
+               ksym = MULTB_DF(isym, jsym)
+               MULTB_DB(isym, ksym) = jsym
+           End do
        End do
+
+       Do jsym = 1, nsymrpa
+           Do isym = 1, nsymrpa
+               ksym = MULTB_S(isym, jsym)
+               MULTB_SB(isym, ksym) = jsym
+           End do
        End do
 
        if (rank == 0) then
-           write (normaloutput, *) 'MULTB_SB'
+           write (*, *) 'MULTB_SB'
            Do I = 1, nsymrpa
-               write (normaloutput, '(50I3)') (MULTB_SB(I, J), J=1, NSYMRPA)
+               write (*, '(50I3)') (MULTB_SB(I, J), J=1, NSYMRPA)
            End do
 
-           write (normaloutput, *) 'MULTB_DF'
+           write (*, *) 'MULTB_DF'
            Do I = 1, nsymrpa
-               write (normaloutput, '(50I3)') (MULTB_DF(I, J), J=1, NSYMRPA)
+               write (*, '(50I3)') (MULTB_DF(I, J), J=1, NSYMRPA)
            End do
 
-           write (normaloutput, *) 'MULTB_DB'
+           write (*, *) 'MULTB_DB'
            Do I = 1, nsymrpa
-               write (normaloutput, '(50I3)') (MULTB_DB(I, J), J=1, NSYMRPA)
+               write (*, '(50I3)') (MULTB_DB(I, J), J=1, NSYMRPA)
            End do
        end if
 !     Write(*,'("UTCHEMIMO1",50I3)') (UTCHEMIMO1(IMO,1),IMO=1,nmo)
@@ -245,27 +246,27 @@
            REPNA(61) = '1e7u  '; REPNA(62) = '2e7u  '; REPNA(63) = '1e9u  '; REPNA(64) = '2e9u  '
 
            Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i, j) = MULTB(i + nsymrpa, j)
-           End do
-           End do
-
-           Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i, j + nsymrpa/2) = SD(i, j) + nsymrpa/2
-           End do
+               Do j = 1, nsymrpa/2
+                   SD(i, j) = MULTB(i + nsymrpa, j)
+               End do
            End do
 
            Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i + nsymrpa/2, j) = SD(i, j + nsymrpa/2)
-           End do
+               Do j = 1, nsymrpa/2
+                   SD(i, j + nsymrpa/2) = SD(i, j) + nsymrpa/2
+               End do
            End do
 
            Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i + nsymrpa/2, j + nsymrpa/2) = SD(i, j)
+               Do j = 1, nsymrpa/2
+                   SD(i + nsymrpa/2, j) = SD(i, j + nsymrpa/2)
+               End do
            End do
+
+           Do i = 1, nsymrpa/2
+               Do j = 1, nsymrpa/2
+                   SD(i + nsymrpa/2, j + nsymrpa/2) = SD(i, j)
+               End do
            End do
 
        Elseif (trim(ptgrp) == 'C32') then
@@ -288,17 +289,17 @@
            REPNA(61) = '1e7  '; REPNA(62) = '2e7  '; REPNA(63) = '1e9  '; REPNA(64) = '2e9  '
 
            Do i = 1, nsymrpa
-           Do j = 1, nsymrpa
-               SD(i, j) = MULTB(i + nsymrpa, j)
-           End do
+               Do j = 1, nsymrpa
+                   SD(i, j) = MULTB(i + nsymrpa, j)
+               End do
            End do
 
        Else
 
            Do i = 1, nsymrpa
-           Do j = 1, nsymrpa
-               SD(i, j) = MULTB(i + nsymrpa, j)
-           End do
+               Do j = 1, nsymrpa
+                   SD(i, j) = MULTB(i + nsymrpa, j)
+               End do
            End do
 
        End if
@@ -306,7 +307,7 @@
        go to 72
 
 71     if (rank == 0) then
-           write (normaloutput, *) 'If pgsym=c1, this route goes through.'
+           write (*, *) 'If pgsym=c1, this route goes through.'
        end if
        NSYMRP = 1
        NSYMRPA = 1
@@ -320,21 +321,21 @@
 72     If (trim(ptgrp) /= 'C1') nsymrp = nsymrpa
 
        if (rank == 0) then
-           write (normaloutput, *) 'MULTB_SD'
+           write (*, *) 'MULTB_SD'
            Do i = 1, nsymrpa
-               write (normaloutput, '(50I3)') (SD(i, j), j=1, nsymrpa)
+               write (*, '(50I3)') (SD(i, j), j=1, nsymrpa)
            End do
        end if
        Do i = 1, nsymrpa
-       Do j = 1, nsymrpa
-           DS(i, j) = SD(j, i)
-       End do
+           Do j = 1, nsymrpa
+               DS(i, j) = SD(j, i)
+           End do
        End do
 
        if (rank == 0) then
-           write (normaloutput, *) 'MULTB_DS'
+           write (*, *) 'MULTB_DS'
            Do i = 1, nsymrpa
-               write (normaloutput, '(50I3)') (DS(i, j), j=1, nsymrpa)
+               write (*, '(50I3)') (DS(i, j), j=1, nsymrpa)
            End do
        end if
        MULTB_DS(:, :) = DS(:, :)
@@ -393,7 +394,7 @@
 !        write(*,*) "Modify irpmo"
 
        if (rank == 0) then
-           write (normaloutput, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
+           write (*, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
        end if
 !        orbmo(:) = 0.0d+00
        orb = orbmo
@@ -438,9 +439,9 @@
        end do
 
        if (rank == 0) then
-       do i0 = 1, nmo
-           write (normaloutput, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
-       end do
+           do i0 = 1, nmo
+               write (*, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
+           end do
        end if
        orbmo = orb
 
@@ -453,21 +454,21 @@
        end do
 
        if (rank == 0) then
-           write (normaloutput, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
+           write (*, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
 
-           write (normaloutput, *) 'inactive'
+           write (*, *) 'inactive'
            do i0 = 1, ninact
-               write (normaloutput, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+               write (*, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
            end do
 
-           write (normaloutput, *) 'active'
+           write (*, *) 'active'
            do i0 = ninact + 1, ninact + nact
-               write (normaloutput, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+               write (*, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
            end do
 
-           write (normaloutput, *) 'secondary'
+           write (*, *) 'secondary'
            do i0 = ninact + nact + 1, ninact + nact + nsec
-               write (normaloutput, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+               write (*, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
            end do
        end if
 !        do i0 = 1, nmo
@@ -479,23 +480,23 @@
        goto 1000
 
 10     if (rank == 0) then
-           write (normaloutput, *) 'err 0'
+           write (*, *) 'err 0'
        end if
        go to 1000
 11     if (rank == 0) then
-           write (normaloutput, *) 'err 1'
+           write (*, *) 'err 1'
        end if
        go to 1000
 12     if (rank == 0) then
-           write (normaloutput, *) 'err 2'
+           write (*, *) 'err 2'
        end if
        go to 1000
 13     if (rank == 0) then
-           write (normaloutput, *) 'err 3'
+           write (*, *) 'err 3'
        end if
        go to 1000
 14     if (rank == 0) then
-           write (normaloutput, *) 'err 4'
+           write (*, *) 'err 4'
        end if
        go to 1000
 100    go to 1000

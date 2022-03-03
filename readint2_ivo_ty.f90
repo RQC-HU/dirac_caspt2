@@ -48,6 +48,7 @@
         write(*,'("Current Memory is ",F10.2,"MB")')tmem/1024/1024
 
         nuniq = 0
+        ! Noda 2021/12/27  The initialization below this line may not be necessary for correct calculations. (Just Code reading)
         indk(:) = 0
         indl(:) = 0
         rklr(:) = 0.0d+00
@@ -56,6 +57,7 @@
         int2i_f1 = 0.0d+00
         int2r_f2 = 0.0d+00
         int2i_f2 = 0.0d+00
+        ! End Noda 2021/12/27  The initialization before this line may not be necessary for correct calculations. (Just Code reading)
 
         totalint = 0
         mdcint=11
@@ -285,11 +287,12 @@
             endif
 
  70      Enddo
-	
+         ! Noda 2021/12/27  The initialization below this line may not be necessary for correct calculations. (Just Code reading)
          indk(:)=0
          indl(:)=0
          rklr = 0.0d+00
          rkli = 0.0d+00
+         ! End Noda 2021/12/27  The initialization before this line may not be necessary for correct calculations. (Just Code reading)
 
          Goto 60
 

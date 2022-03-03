@@ -337,8 +337,9 @@
        use four_caspt2_module
 
        Implicit NONE
+#ifdef HAVE_MPI
        include "mpif.h"
-
+#endif
        integer :: ii, jj, kk, ll, typetype
        integer :: j0, j, i, k, l, i0, i1, nuniq
        integer :: k0, l0, nint
@@ -363,7 +364,7 @@
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'iroot = ', iroot
+           write (*, *) 'iroot = ', iroot
        end if
 
 !        Do iroot = 1, nroot
@@ -389,8 +390,12 @@
            energyHF(1) = energyHF(1) + cmplxint
 
        end do
+#ifdef HAVE_MPI
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       write (normaloutput, *) 'energyHF(1)', energyHF(1)
+#endif
+       if (rank == 0) then ! Process limits for output
+           write (*, *) 'energyHF(1)', energyHF(1)
+       end if
 !         do i = 1, ninact
 !
 !            cmplxint = 0.0d+00
@@ -440,14 +445,16 @@
        end do
 
        energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
+#ifdef HAVE_MPI
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#endif
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'energyHF(2)', energyHF(2)
+           write (*, *) 'energyHF(2)', energyHF(2)
        end if
 
 !Iwamuro modify
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Iwamuro modify'
+           write (*, *) 'Iwamuro modify'
        end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
@@ -646,31 +653,33 @@
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#ifdef HAVE_MPI
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#endif
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'energy 1 =', energy(iroot, 1)
-           write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
-           write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
-           write (normaloutput, *) 'energy 4 =', energy(iroot, 4)
+           write (*, *) 'energy 1 =', energy(iroot, 1)
+           write (*, *) 'energy 2 =', energy(iroot, 2)
+           write (*, *) 'energy 3 =', energy(iroot, 3)
+           write (*, *) 'energy 4 =', energy(iroot, 4)
 
-           write (normaloutput, *) iroot, 't-energy(1-4)', &
+           write (*, *) iroot, 't-energy(1-4)', &
                energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-           write (normaloutput, *) iroot, 't-energy', &
+           write (*, *) iroot, 't-energy', &
                eigen(iroot) - ecore
-           write (normaloutput, *) iroot, 'eigen e0', &
+           write (*, *) iroot, 'eigen e0', &
                eigen(iroot)
 
-           write (normaloutput, *) 'C the error ', &
+           write (*, *) 'C the error ', &
                eigen(iroot) - ecore &
                - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 ! Iwamuro modify
-           write (normaloutput, *) 'Iwamuro modify'
+           write (*, *) 'Iwamuro modify'
 
 !         else
 !            write(*,*)'C the error ', &
@@ -684,8 +693,8 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           write (normaloutput, *) 'CAUTION! HF energy may not be obtained correctly '
-           write (normaloutput, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+           write (*, *) 'CAUTION! HF energy may not be obtained correctly '
+           write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
        end if
 !!###   end do ! about type
        if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
@@ -696,6 +705,6 @@
 !      write(*,*)'e0aftertrac end'
 ! Iwamuro modify
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'e0aftertrac_ty end'
+           write (*, *) 'e0aftertrac_ty end'
        end if
    End subroutine e0aftertrac_ty

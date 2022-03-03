@@ -1,5 +1,5 @@
 # include  /home/minori/PROGRAMS/utchem_rq37_new/utchem/config/makeconfig
-
+.PHONY: clean
 #OBJS4 = ../netlibfiles/linpack/linpack.a
 #R4DCASCI = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
 	readorb_enesym.o \
@@ -38,7 +38,7 @@ R4DCASCI_CO = four_caspt2_module.o nbitsa.o readvec.o read1mo_co.o \
 	timing.o mem.o \
 	uramda_s_half.o nrintread.o \
 	checkdgc.o e0test_v2.o casci_ty.o casdet_ty.o casmat.o r4dcasci_co.o \
-	create_binmdcint.o get_filename.o
+	create_binmdcint.o get_filename.o casmat_modified.o
 
 #R4DIVO = four_caspt2_module.o nbitsa.o readvec.o read1mo.o \
 	readorb_enesym.o \
@@ -165,31 +165,41 @@ NRMOBJS2 = four_caspt2_module.o nbitsa.o \
 
 # This is a Intel mkl setting for the Institute for Molecular Science's linux server
 # MKLROOT = /local/apl/lx/intel2020update2/compilers_and_libraries_2020.2.254/linux/mkl
-MKLROOT = /local/apl/lx/intel2020update2/mkl
+ MKLROOT = /local/apl/lx/intel2020update2/mkl
+# MKLROOT = /opt/intel/psxe2019/mkl
 #BLASMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/blas95.mod
 #LAPACKMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/lapack95.mod
 #INC = -I$(BLASMOD) -I$(LAPACKMOD)
 INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
 # F90C = ifort
-F90C = mpiifort
+ F90C = mpiifort
 # F90FLAGS = $(INC) -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 # F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
 
 # Use this flags if normally
- F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -qopenmp
+# (Check all warnings except unused variables warnings. Do not generate an interface block for each routine in the source file.)
+# F90FLAGS = -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -O3 -mp1 -integer_size 64 -unroll -qopenmp -warn all -warn nounused -nogen-interfaces # Do all debug calculations
+# F90FLAGS = -xHost -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -Ofast -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces # Use xHost (optimizations for )
+# F90FLAGS = -xHOST -O3 -ipo -no-prec-div -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces -qopt-report-phase=hpo # Use xHost (optimizations for )
+F90FLAGS = -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces -qopt-report-phase=hpo # Use xHost (optimizations for )
+# F90FLAGS = -xHost -mkl -cpp -DCASMAT_DEBUG -DHAVE_ERF -DHAVE_MPI -pad -O3 -mp1 -integer_size 64 -unroll -qopenmp -warn all -warn nounused -nogen-interfaces # Use xHost (optimizations for )
+
+
+#  F90FLAGS = -mkl -cpp -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
+# F90FLAGS = -mkl -cpp -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -qopenmp -warn all -nogen-interfaces
 
 # Use this flags if you want to use gprof
-# F90FLAGS = -mkl -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg -qopenmp
+# F90FLAGS = -mkl -cpp -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg -qopenmp
 
 # Use this flags when debugging (list out of range access)
-# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2 -qopenmp
+# F90FLAGS = -mkl -cpp -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2 -qopenmp
 
 # Use this flags when debugging
-# F90FLAGS = -mkl -debug extended -integer_size 64 -real-size 64 -traceback -g -check -qopenmp
+# F90FLAGS = -mkl -cpp -debug extended -integer_size 64 -real-size 64 -traceback -g -check -qopenmp
 
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe
-all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
+all : createbindir r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 
 #f.o:
 #	$(FORTRAN) $(OPTS) -c $*.f90
@@ -224,6 +234,8 @@ all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 #r4dcaspt2otyexe : $(R4DCASPT2O_TY)
 #	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_TY) $(LAPACKLIB) $(BLASLIB)
 #	mv r4dcaspt2otyexe bin/r4dcaspt2otyexe
+createbindir:
+	mkdir -p bin
 
 hfc_casciexe : $(HFC_CASCI)
 	$(F90C) $(F90FLAGS) -o $@ $(HFC_CASCI)

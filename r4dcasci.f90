@@ -35,9 +35,13 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
     integer :: ierr, nprocs, rank
+#ifdef HAVE_MPI
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+#else
+    rank = 0; nprocs = 1;
+#endif
     write (*, *) ''
     write (*, *) ' ENTER R4DCASCI PROGRAM written by M. Abe'
     write (*, *) ''

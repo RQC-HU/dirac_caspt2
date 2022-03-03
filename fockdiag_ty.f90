@@ -11,18 +11,20 @@
        Implicit NONE
 
        integer                 ::  i, j
-       integer                 :: i0, j0, n, dimn, n0, n1, nspace(3, 3)
-       logical                 :: test, cutoff
+       !    integer                 :: i0, j0, n, dimn, n0, n1, nspace(3, 3)
+       integer                 :: i0, n, n0, n1, nspace(3, 3)
+       !    logical                 :: test, cutoff
 
-       complex*16              :: trace1, trace2
+       !    complex*16              :: trace1, trace2
        real*8, allocatable :: fa(:, :)
-       complex*16, allocatable :: fac(:, :), readmo(:, :, :)
+       !    complex*16, allocatable :: fac(:, :), readmo(:, :, :)
+       complex*16, allocatable :: fac(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'fockdiag start'
+           write (*, *) 'fockdiag start'
        end if
        REALF = .TRUE.
 
@@ -36,7 +38,7 @@
 
        REALF = .FALSE.
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'REALF', REALF
+           write (*, *) 'REALF', REALF
        end if
 
        If (REALF) then          ! real*8
@@ -68,9 +70,9 @@
            n = nspace(3, i0)
 
            if (rank == 0) then ! Process limits for output
-               if (i0 == 1) write (normaloutput, *) 'FOR INACTIVE-INACTIVE ROTATION !'
-               if (i0 == 2) write (normaloutput, *) 'FOR ACTIVE-ACTIVE ROTATION !'
-               if (i0 == 3) write (normaloutput, *) 'FOR SECONDARY-SECONDARY ROTATION !'
+               if (i0 == 1) write (*, *) 'FOR INACTIVE-INACTIVE ROTATION !'
+               if (i0 == 2) write (*, *) 'FOR ACTIVE-ACTIVE ROTATION !'
+               if (i0 == 3) write (*, *) 'FOR SECONDARY-SECONDARY ROTATION !'
            end if
            if (REALF) then
 
@@ -79,17 +81,17 @@
                write (5) n0, n1, n
                write (5) fa(n0:n1, n0:n1)
                if (rank == 0) then ! Process limits for output
-                   write (normaloutput, *) n0, n1, n
+                   write (*, *) n0, n1, n
 
-                   write (normaloutput, *) 'fa '
+                   write (*, *) 'fa '
 
                    do i = n0, n1
-                       write (normaloutput, '(30E13.5)') (fa(i, j), j=n0, n1)
+                       write (*, '(30E13.5)') (fa(i, j), j=n0, n1)
                    end do
 
-                   write (normaloutput, *) 'f '
+                   write (*, *) 'f '
                    do i = n0, n1
-                       write (normaloutput, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
+                       write (*, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
                    end do
                end if
            else
@@ -140,11 +142,11 @@
        end if
 
        goto 1000
-10     if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'reading err in orbcoeff'
+       if (rank == 0) then ! Process limits for output
+           write (*, *) 'reading err in orbcoeff'
        end if
 1000   continue
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'fockdiag end'
+           write (*, *) 'fockdiag end'
        end if
    end subroutine fockdiag_ty
