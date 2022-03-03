@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // コード自動実行
+    "formulahendry.code-runner",
+    // フォルダ差分確認
+    "moshfeu.compare-folders",
+    // ログに色を付けてくれる
+    "IBM.output-colorizer",
+    // ssh経由のフォルダなどをVSCodeで開いたり、コーディング可能にする拡張機能
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    // Shell scriptの構文チェック
+    "timonwong.shellcheck",
+    // Fortran関連
+    "ms-vscode.cpptools-extension-pack",
+    "ms-vscode.cmake-tools",
+    "ekibun.fortranbreaker",
+    "krvajalm.linter-gfortran",
+    "hansec.fortran-ls",
+    "usernamehw.errorlens",
+    // Git関連
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+    "KnisterPeter.vscode-github",
+    "GitHub.vscode-pull-request-github",
+    "eamodio.gitlens",
+  ]
+}
