@@ -199,7 +199,7 @@ F90FLAGS = -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -w
 
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe
-all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
+all : makebindir r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 
 #f.o:
 #	$(FORTRAN) $(OPTS) -c $*.f90
@@ -234,6 +234,8 @@ all : r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 #r4dcaspt2otyexe : $(R4DCASPT2O_TY)
 #	$(F90C) $(F90FLAGS) -o $@ $(R4DCASPT2O_TY) $(LAPACKLIB) $(BLASLIB)
 #	mv r4dcaspt2otyexe bin/r4dcaspt2otyexe
+makebindir :
+	mkdir -p bin
 
 hfc_casciexe : $(HFC_CASCI)
 	$(F90C) $(F90FLAGS) -o $@ $(HFC_CASCI)
