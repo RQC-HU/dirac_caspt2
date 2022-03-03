@@ -7,7 +7,9 @@
        use four_caspt2_module
 
        Implicit NONE
+#ifdef HAVE_MPI
        include 'mpif.h'
+#endif
        complex*16, intent(out) :: mat(ndet, ndet)
 
        integer              :: occ, vir, indr, inds, inda, indb
@@ -16,7 +18,7 @@
        integer              :: phase, phase1, phase2
        real*8               :: nsign, i2r, i2i
        complex*16           :: cmplxint, mat0
-
+       integer              :: nprocs_for_mat
        integer, allocatable :: ridet(:), oc(:), vi(:)
 
        mat = 0.0d+00
@@ -29,7 +31,14 @@
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'allocated oc and vi', rank
        end if
-       Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+#ifdef BIG_MAT
+       ! If only the master process has a matrix named mat,
+       ! this subroutine will also excutes only by the master process.(So nprocs must be 1)
+       nprocs_for_mat = 1
+#else
+       nprocs_for_mat = nprocs
+#endif
+       Do i = rank + 1, ndet, nprocs_for_mat ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
            occ = 0
            oc = 0
@@ -54,7 +63,7 @@
 !! IDENTICAL DETERMINANT => DIAGONAL TERM
            !   diagonal term is same as Hartree-Fock's expression
 
-           cmplxint = 0.0d+00
+           !    cmplxint = 0.0d+00
            Do i0 = 1, ninact
                ir = i0
                cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
@@ -67,6 +76,7 @@
                cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
                mat(i, i) = mat(i, i) + cmplxint
            End do
+
            mat0 = 0.0d+00
 
            Do i0 = 1, ninact + nelec
@@ -88,12 +98,8 @@
                        is = inds + ninact
                    End if
 
-                   !    nint = ABS(indtwr(ir, ir, is, is))
-                   !    nsign = SIGN(1, indtwr(ir, ir, is, is))
-                   !    i2r = int2r(nint)*nsign
+                   ! two electron integral : (ir, ir | is, is)
                    i2r = inttwr(ir, ir, is, is)
-                   !    nsign = SIGN(1, indtwi(ir, ir, is, is))
-                   !    i2i = int2i(nint)*nsign
                    i2i = inttwi(ir, ir, is, is)
                    cmplxint = CMPLX(i2r, i2i, 16)
 !                 write(*,*)ir,is,cmplxint
@@ -101,12 +107,8 @@
                    mat0 = mat0 + 0.5d+00*cmplxint
 !                 mat(i,i) = mat(i,i) + 0.5d+00*cmplxint
 
-                   !    nint = ABS(indtwr(ir, is, is, ir))
-                   !    nsign = SIGN(1, indtwr(ir, is, is, ir))
-                   !    i2r = int2r(nint)*nsign
+                   ! two electron integral : (ir, is | is, ir)
                    i2r = inttwr(ir, is, is, ir)
-                   !    nsign = SIGN(1, indtwi(ir, is, is, ir))
-                   !    i2i = int2i(nint)*nsign
                    i2i = inttwi(ir, is, is, ir)
                    cmplxint = CMPLX(i2r, i2i, 16)
 !                 write(*,*)ir,is,cmplxint
@@ -133,33 +135,26 @@
 
                    Call one_e_exct(idet(i), inda, indr, newidet1, phase1)
 
-                   Call idetr(newidet1, j)
+                   j = idetr(newidet1)
 
 !                 write(*,*)'j=',j
 
                    If (j > i) then
+                       !    if (rank == 0) write (normaloutput, '(A,I5,A,I5)') 'Noda ijorder i:', i, ' j:', j
                        cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
                        mat(i, j) = mat(i, j) + cmplxint
                        Do l0 = 1, ninact
                            is = l0
 
-                           !    nint = ABS(indtwr(ir, ia, is, is))
-                           !    nsign = SIGN(1, indtwr(ir, ia, is, is))
-                           !    i2r = int2r(nint)*nsign
+                           ! two electron integral : (ir, ia | is, is)
                            i2r = inttwr(ir, ia, is, is)
-                           !    nsign = SIGN(1, indtwi(ir, ia, is, is))
-                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, ia, is, is)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
                            mat(i, j) = mat(i, j) + cmplxint
 
-                           !    nint = ABS(indtwr(ir, is, is, ia))
-                           !    nsign = SIGN(1, indtwr(ir, is, is, ia))
-                           !    i2r = int2r(nint)*nsign
+                           ! two electron integral : (ir, is | is, ia)
                            i2r = inttwr(ir, is, is, ia)
-                           !    nsign = SIGN(1, indtwi(ir, is, is, ia))
-                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, is, is, ia)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
@@ -170,23 +165,15 @@
                            inds = oc(l0)
                            is = inds + ninact
 
-                           !    nint = ABS(indtwr(ir, ia, is, is))
-                           !    nsign = SIGN(1, indtwr(ir, ia, is, is))
-                           !    i2r = int2r(nint)*nsign
+                           ! two electron integral : (ir, ia | is, is)
                            i2r = inttwr(ir, ia, is, is)
-                           !    nsign = SIGN(1, indtwi(ir, ia, is, is))
-                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, ia, is, is)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
                            mat(i, j) = mat(i, j) + cmplxint
 
-                           !    nint = ABS(indtwr(ir, is, is, ia))
-                           !    nsign = SIGN(1, indtwr(ir, is, is, ia))
-                           !    i2r = int2r(nint)*nsign
+                           ! two electron integral : (ir, is | is, ia)
                            i2r = inttwr(ir, is, is, ia)
-                           !    nsign = SIGN(1, indtwi(ir, is, is, ia))
-                           !    i2i = int2i(nint)*nsign
                            i2i = inttwi(ir, is, is, ia)
                            cmplxint = CMPLX(i2r, i2i, 16)
 
@@ -223,30 +210,22 @@
                            Call one_e_exct(idet(i), inda, indr, newidet1, phase1)
                            Call one_e_exct(newidet1, indb, inds, newidet2, phase2)
 
-                           Call idetr(newidet2, j)
+                           j = idetr(newidet2)
 
                            If (j > i) then
-
+                               !    if (rank == 0) write (normaloutput, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
                                if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
                                if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
 
-                               !    nint = ABS(indtwr(ir, ia, is, ib))
-                               !    nsign = SIGN(1, indtwr(ir, ia, is, ib))
-                               !    i2r = int2r(nint)*nsign
+                               ! two electron integral : (ir, ia | is, ib)
                                i2r = inttwr(ir, ia, is, ib)
-                               !    nsign = SIGN(1, indtwi(ir, ia, is, ib))
-                               !    i2i = int2i(nint)*nsign
                                i2i = inttwi(ir, ia, is, ib)
                                cmplxint = CMPLX(i2r, i2i, 16)
 
                                mat(i, j) = cmplxint
 
-                               !    nint = ABS(indtwr(ir, ib, is, ia))
-                               !    nsign = SIGN(1, indtwr(ir, ib, is, ia))
-                               !    i2r = int2r(nint)*nsign
+                               ! two electron integral : (ir, ib | is, ia)
                                i2r = inttwr(ir, ib, is, ia)
-                               !    nsign = SIGN(1, indtwi(ir, ib, is, ia))
-                               !    i2i = int2i(nint)*nsign
                                i2i = inttwi(ir, ib, is, ia)
                                cmplxint = CMPLX(i2r, i2i, 16)
 
@@ -270,29 +249,35 @@
            write (normaloutput, '(A,I4)') 'end casmat', rank
            write (normaloutput, '(A,I4)') 'Reduce mat(:,:)', rank
        end if
+#ifdef HAVE_MPI
+#ifdef BIG_MAT
+       ! If only the master rank execute casmat.f90, allreduce is not neccesarry.
+#else
        call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#endif
+#endif
 1000 end subroutine
 
-! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-   SUBROUTINE idetr(iidet, j)
+!    SUBROUTINE idetr(iidet, j)
 
-! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-       use four_caspt2_module
+!        use four_caspt2_module
 
-       Implicit NONE
+!        Implicit NONE
 
-       integer, intent(in)  :: iidet
-       integer, intent(out) :: j
-       integer              :: i0
+!        integer, intent(in)  :: iidet
+!        integer, intent(out) :: j
+!        integer              :: i0
 
-       j = 0
+!        j = 0
 
-       Do i0 = 1, ndet
-           If (idet(i0) == iidet) then
-               j = i0
-           End if
-       End do
+!        Do i0 = 1, ndet
+!            If (idet(i0) == iidet) then
+!                j = i0
+!            End if
+!        End do
 
-   END SUBROUTINE idetr
+!    END SUBROUTINE idetr

@@ -7,7 +7,6 @@
        use four_caspt2_module
 
        Implicit NONE
-       include 'mpif.h'
        character*50, intent(in) :: filename
 
        character  :: datex*10, timex*8
@@ -28,24 +27,18 @@
        !   Unit numbers for subspace files
        integer  :: unit_a1, unit_a2, unit_b, unit_c1, unit_c2, unit_c3, &
                    unit_d1, unit_d2, unit_d3, unit_e, unit_f, unit_g, unit_h
-       integer :: loopcnt, sp_cnt, ioerr
+       integer :: ioerr
        integer :: a1_cnt, a2_cnt, b_cnt, c1_cnt, c2_cnt, c3_cnt, d1_cnt, d2_cnt, d3_cnt, e_cnt, f_cnt, g_cnt, h_cnt
 !Iwamuro modify
 !        integer :: ikr, jkr, kkr, lkr
        !  Initialization of Unit numbers for subspace files
-       unit_a1 = rank + 100; unit_a2 = rank + 200; unit_b = rank + 300
-       unit_c1 = rank + 400; unit_c2 = rank + 500; unit_c3 = rank + 600
-       unit_d1 = rank + 700; unit_d2 = rank + 800; unit_d3 = rank + 900
-       unit_e = rank + 1000; unit_f = rank + 1100; unit_g = rank + 1200; unit_h = rank + 1300
+       unit_a1 = 100; unit_a2 = 200; unit_b = 300
+       unit_c1 = 400; unit_c2 = 500; unit_c3 = 600
+       unit_d1 = 700; unit_d2 = 800; unit_d3 = 900
+       unit_e = 1000; unit_f = 1100; unit_g = 1200; unit_h = 1300
        caspt2_mdcint_cnt = 0; simple_loop = 0
        a1_cnt = 0; a2_cnt = 0; b_cnt = 0; c1_cnt = 0; c2_cnt = 0; c3_cnt = 0
        d1_cnt = 0; d2_cnt = 0; d3_cnt = 0; e_cnt = 0; f_cnt = 0; g_cnt = 0; h_cnt = 0
-    !    do loopcnt = 0, nprocs - 1
-    !        if (loopcnt == rank) then
-    !            writenormaloutput, *) 'rank:', rank, 'sp(1:nmo)->', (sp(sp_cnt), sp_cnt=1, nmo)
-    !        end if
-    !        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-    !    end do
        Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
        kr(:) = 0
 
@@ -64,20 +57,20 @@
 
        totalint = 0
 
-       open (unit_a1, file=a1int, form='formatted', status='replace')
-       open (unit_a2, file=a2int, form='formatted', status='replace')
-       open (unit_b, file=bint, form='formatted', status='replace')
-       open (unit_c1, file=c1int, form='formatted', status='replace')
-       open (unit_c2, file=c2int, form='formatted', status='replace')
-       open (unit_c3, file=c3int, form='formatted', status='replace')
-       open (unit_d1, file=d1int, form='formatted', status='replace')
-       open (unit_d2, file=d2int, form='formatted', status='replace')
-       open (unit_d3, file=d3int, form='formatted', status='replace')
-       open (unit_e, file=eint, form='formatted', status='replace')
-       open (unit_f, file=fint, form='formatted', status='replace')
-       open (unit_g, file=gint, form='formatted', status='replace')
-       open (unit_h, file=hint, form='formatted', status='replace')
 
+       open (unit_a1, file=a1int, form='unformatted', status='replace')
+       open (unit_a2, file=a2int, form='unformatted', status='replace')
+       open (unit_b, file=bint, form='unformatted', status='replace')
+       open (unit_c1, file=c1int, form='unformatted', status='replace')
+       open (unit_c2, file=c2int, form='unformatted', status='replace')
+       open (unit_c3, file=c3int, form='unformatted', status='replace')
+       open (unit_d1, file=d1int, form='unformatted', status='replace')
+       open (unit_d2, file=d2int, form='unformatted', status='replace')
+       open (unit_d3, file=d3int, form='unformatted', status='replace')
+       open (unit_e, file=eint, form='unformatted', status='replace')
+       open (unit_f, file=fint, form='unformatted', status='replace')
+       open (unit_g, file=gint, form='unformatted', status='replace')
+       open (unit_h, file=hint, form='unformatted', status='replace')
        !    open (11, file='A1int', form='unformatted', status='unknown')
        !    open (12, file='A2int', form='unformatted', status='unknown')
        !    open (2, file='Bint', form='unformatted', status='unknown')
@@ -151,27 +144,26 @@
 !                        write(normaloutput,'(4I4,2E20.10)')i,j,k,l,  rklr(inz),         rkli(inz)
 
                if (k > l) then ! (22|21) => (21|22)
-                   !    write (unit_a1) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                      write (unit_a1) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    !    write (unit_a1,'(4I4,2E32.16)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a1_cnt = a1_cnt + 1
                    end if
 !                           write(normaloutput,'("A1int1",4I4,2E20.10)')k  ,l  ,i  ,j  ,  rklr(inz),         rkli(inz)
 
                else    ! (22|12) => (22|21)* => (21|22)*
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a1) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
-                   write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
+                      write (unit_a1, IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
+                !    write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
                    !    write (unit_a1,'(4I4,2E32.16)', IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a1_cnt = a1_cnt + 1
                    end if
 !                           write(normaloutput,'("A1int2",4I4,2E20.10)')l  ,k  ,j  ,i  ,  rklr(inz), -1.0d+00*rkli(inz)
@@ -183,27 +175,25 @@
 
                if (i > j) then ! (21|22) => (21|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a1) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_a1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    !    write (unit_a1,'(4I4,2E32.16)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a1_cnt = a1_cnt + 1
                    end if!                           write(normaloutput,'("A1int3",4I4,2E20.10)')i  ,j  ,k  ,l  ,  rklr(inz),         rkli(inz)
 
                else    ! (12|22) => (21|22)*
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a1) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
-                   write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
+                      write (unit_a1, IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
+                !    write (unit_a1, '(4I4, 2e20.10)', IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
                    !    write (unit_a1, '(4I4,2E32.16)', IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a1_cnt = a1_cnt + 1
                    end if!                           write(normaloutput,'("A1int4",4I4,2E20.10)')j  ,i  ,l  ,k  ,  rklr(inz),-1.0d+00*rkli(inz)
 
@@ -214,27 +204,25 @@
 
                if (i > j) then ! (21|11) => (21|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a2) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_a2, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_a2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_a2, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    !    write (unit_a2,'(4I4,2E32.16)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a2_cnt = a2_cnt + 1
                    end if!                           write(normaloutput,'("A2int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                else    ! (12|11) => (21|11)* => (21|11)*
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a2) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
-                   write (unit_a2, '(4I4, 2e20.10)', IOSTAT = ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
+                      write (unit_a2, IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
+                !    write (unit_a2, '(4I4, 2e20.10)', IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
                    !    write (unit_a2,'(4I4,2E32.16)', IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a2_cnt = a2_cnt + 1
                    end if!                           write(normaloutput,'("A2int2",4I4,2E20.10)')j  ,i  ,l  ,k  ,         rklr(inz), -1.0d+00*rkli(inz)
                end if
@@ -244,27 +232,25 @@
 
                if (k > l) then   ! (11|21) => (21|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a2) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_a2, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                      write (unit_a2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_a2, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    !    write (unit_a2, '(4I4,2E32.16)',IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a2_cnt = a2_cnt + 1
                    end if!                           write(normaloutput,'("A2int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 
                else    ! (11|12) => (11|21)* => (21|11)*
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_a2) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
-                   write (unit_a2, '(4I4, 2e20.10)', IOSTAT = ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
+                      write (unit_a2, IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
+                !    write (unit_a2, '(4I4, 2e20.10)', IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
                    !    write (unit_a2,'(4I4,2E32.16)', IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_a2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        a2_cnt = a2_cnt + 1
                    end if!                           write(normaloutput,'("A2int4",4I4,2E20.10)')l  ,k  ,j  ,i  ,         rklr(inz), -1.0d+00*rkli(inz)
 
@@ -279,46 +265,42 @@
 
                if (i > j .and. k > l) then   ! (21|21) => (21|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_b) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_b, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_b, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_b, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_b', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        b_cnt = b_cnt + 1
                    end if
                elseif (i < j .and. k > l) then ! (12|21) => (21|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_b) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_b, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_b, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_b, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_b', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        b_cnt = b_cnt + 1
                    end if
                elseif (i > j .and. k < l) then ! (21|12) => (21|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_b) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_b, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_b, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_b, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_b', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        b_cnt = b_cnt + 1
                    end if
                elseif (i < j .and. k < l) then ! (12|12) => (21|21)*
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_b) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_b, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                      write (unit_b, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_b, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_b', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        b_cnt = b_cnt + 1
                    end if
                end if
@@ -331,26 +313,24 @@
 
                if (i > j) then ! (32|22)=>(32|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c1) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_c1, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_c1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_c1, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
 !                           write(normaloutput,'("C1int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                else    ! (23|22)=>(32|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c1) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_c1, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_c1, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_c1, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
 !                           write(normaloutput,'("C1int2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
@@ -360,25 +340,23 @@
 
                if (k > l) then ! (22|32)=>(32|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c1) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_c1, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                      write (unit_c1, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_c1, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
 !                           write(normaloutput,'("C1int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
                else    ! (22|23)=>(32|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c1) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_c1, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_c1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_c1, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c1_cnt = c1_cnt + 1
                    end if!Iwamuro modify
 !                          write(normaloutput,'("C1int4",4I4,2E20.10)')ltr,ktr,i  ,j  ,  SignKL*rklr(inz),  SignKL*rkli(inz)
@@ -392,24 +370,22 @@
 
                if (i > j) then ! (32|11)=>(32|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c2) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_c2, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_c2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_c2, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c2_cnt = c2_cnt + 1
                    end if
                else    ! (23|11)=>(32|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c2) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_c2, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_c2, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_c2, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c2_cnt = c2_cnt + 1
                    end if
                end if
@@ -418,24 +394,22 @@
 
                if (k > l) then ! (11|32)=>(32|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c2) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_c2, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                      write (unit_c2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_c2, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c2_cnt = c2_cnt + 1
                    end if
                else    ! (11|23)=>(32|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_c2) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_c2, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_c2, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_c2, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c2_cnt = c2_cnt + 1
                    end if
                end if
@@ -447,75 +421,75 @@
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then ! (31|21)=>(31|12)
 
                if (i > j .and. l > k) then ! (31|12)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                elseif (j > i .and. l > k) then ! (13|12)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                elseif (i > j .and. k > l) then ! (31|21)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                elseif (i < j .and. k > l) then ! (13|21)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                ! write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                end if
@@ -523,75 +497,75 @@
            elseif (max1 == 2 .and. min1 == 1 .and. max2 == 3 .and. min2 == 1) then ! (21|31)=>(31|12)
 
                if (i > j .and. l > k) then ! (21|13)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                ! write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                elseif (j > i .and. l > k) then ! (12|13)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                elseif (i > j .and. k > l) then ! (21|31)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                elseif (i < j .and. k > l) then ! (12|31)=>(31|21) For E
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_e) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_e, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+
+                      write (unit_e, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_e, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_e', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        e_cnt = e_cnt + 1
                    end if
-                   !    write (unit_c3) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_c3, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                      write (unit_c3, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_c3, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_c3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        c3_cnt = c3_cnt + 1
                    end if
                end if
@@ -604,24 +578,22 @@
 
                if (i > j) then ! (31|22)=>(31|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d1) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_d1, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_d1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_d1, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then !ioerr /= 0
                        write (normaloutput, *) 'error write unit_d1', ioerr, 'rank', rank
                    else ! ioerr == 0
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d1_cnt = d1_cnt + 1
                    end if
                else    ! (13|22)=>(31|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d1) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_d1, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_d1, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_d1, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d1_cnt = d1_cnt + 1
                    end if
                end if
@@ -630,24 +602,22 @@
 
                if (k > l) then ! (22|31)=>(31|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d1) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_d1, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                      write (unit_d1, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_d1, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d1_cnt = d1_cnt + 1
                    end if
                else    ! (22|13)=>(31|22)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d1) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_d1, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_d1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_d1, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d1', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d1_cnt = d1_cnt + 1
                    end if
                end if
@@ -660,46 +630,42 @@
 
                if (i > j .and. k > l) then ! (32|21)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d2) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_d2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                elseif (i < j .and. k > l) then ! (23|21)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d2) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_d2, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                elseif (i > j .and. k < l) then ! (32|12)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d2) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_d2, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                elseif (i < j .and. k < l) then ! (23|12)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_d2) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                      write (unit_d2, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                ! write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                end if
@@ -708,42 +674,42 @@
 
                if (i > j .and. k > l) then ! (21|32)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_d2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                elseif (i < j .and. k > l) then ! (12|32)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_d2, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                elseif (i > j .and. k < l) then ! (21|23)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_d2, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                elseif (i < j .and. k < l) then ! (12|23)=>(32|21)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d2, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                write (unit_d2, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                ! write (unit_d2, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d2', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d2_cnt = d2_cnt + 1
                    end if
                end if
@@ -756,22 +722,22 @@
 
                if (i > j) then ! (ai|jk) (31|11)=>(31|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d3, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_d3, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_d3, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d3_cnt = d3_cnt + 1
                    end if
                else    ! (i~a~|kk) (13|11)=>(31|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d3, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_d3, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_d3, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d3_cnt = d3_cnt + 1
                    end if
                end if
@@ -780,22 +746,22 @@
 
                if (k > l) then ! (jk|ai) (31|11)=>(31|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d3, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                   write (unit_d3, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_d3, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d3_cnt = d3_cnt + 1
                    end if
                else  ! (jk|i~a~)=>( ai|kk) (11|13)=>(31|11)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_d3, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_d3,  IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_d3, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_d3', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        d3_cnt = d3_cnt + 1
                    end if
                end if
@@ -808,43 +774,42 @@
 
                if (i > j .and. k > l) then   ! (32|32) => (32|32)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_f, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                   write (unit_f, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_f, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_f', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        f_cnt = f_cnt + 1
                    end if
                elseif (i < j .and. k > l) then ! (23|32) => (32|32)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_f, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                   write (unit_f, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_f, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_f', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        f_cnt = f_cnt + 1
                    end if
                elseif (i > j .and. k < l) then ! (32|23) => (32|32)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   write (unit_f, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                   write (unit_f, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_f, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_f', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        f_cnt = f_cnt + 1
                    end if
                elseif (i < j .and. k < l) then ! (23|23) => (32|32)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_f) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_f, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                      write (unit_f, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_f, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_f', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        f_cnt = f_cnt + 1
                    end if
                end if
@@ -856,46 +821,46 @@
            elseif (max1 == 3 .and. min1 == 1 .and. max2 == 3 .and. min2 == 2) then ! (31|32)=>(31|32)
 
                if (i > j .and. l > k) then ! (31|23)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint1",4I4,2E20.10)')i  ,j  ,ltr,ktr,   SignKL*rklr(inz),  SignKL*rkli(inz)
 
                elseif (j > i .and. l > k) then ! (13|23)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint2",4I4,2E20.10)')jtr,itr,ltr,ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                elseif (i > j .and. k > l) then ! (31|32)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint3",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (13|32)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint4",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz), SignIJ*rkli(inz)
 
@@ -904,46 +869,46 @@
            elseif (max1 == 3 .and. min1 == 2 .and. max2 == 3 .and. min2 == 1) then ! (32|31)=>(31|32)
 
                if (i > j .and. l > k) then ! (32|13)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint5",4I4,2E20.10)')ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
 
                elseif (j > i .and. l > k) then ! (23|13)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if                   !    write (normaloutput, '("Gint6",4I4,2E20.10)') ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                elseif (i > j .and. k > l) then ! (32|31)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) k, l, i, j, rklr(inz), rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, i, j, rklr(inz), rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
+                !    write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint7",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (23|31)=>(31|32)
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_g) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_g, '(4I4, 2e20.10)', IOSTAT = ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+
+                      write (unit_g, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_g, '(4I4, 2e20.10)', IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_g', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        g_cnt = g_cnt + 1
                    end if!                           write(normaloutput,'("Gint8",4I4,2E20.10)')k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
@@ -957,52 +922,48 @@
 
                if (i > j .and. k > l) then   ! (31|31) => (31|31)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_h) i, j, k, l, rklr(inz), rkli(inz)
-                   write (unit_h, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                      write (unit_h, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
+                !    write (unit_h, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_h', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        h_cnt = h_cnt + 1
                    end if!                           write(normaloutput,'("Hint1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 !                           write(normaloutput,*)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                elseif (i < j .and. k > l) then ! (13|31) => (31|31)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_h) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                   write (unit_h, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                      write (unit_h, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
+                !    write (unit_h, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_h', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        h_cnt = h_cnt + 1
                    end if!                           write(normaloutput,'("Hint2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 !                           write(normaloutput,*)jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
                elseif (i > j .and. k < l) then ! (31|13) => (31|31)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_h) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                   write (unit_h, '(4I4, 2e20.10)', IOSTAT = ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                      write (unit_h, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
+                !    write (unit_h, '(4I4, 2e20.10)', IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_h', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        h_cnt = h_cnt + 1
                    end if!                           write(normaloutput,'("Hint3",4I4,2E20.10)')i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
 !                           write(normaloutput,*)i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
 
                elseif (i < j .and. k < l) then ! (13|13) => (31|31)
 
-                   caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
-                   !    write (unit_h) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                   write (unit_h, '(4I4, 2e20.10)', IOSTAT = ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                      write (unit_h, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                !  write (unit_h, '(4I4, 2e20.10)', IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                    if (ioerr .ne. 0) then
                        write (normaloutput, *) 'error write unit_h', ioerr, 'rank', rank
                    else
-                       caspt2_mdcint_cnt = caspt2_mdcint_cnt + 1
+
                        h_cnt = h_cnt + 1
                    end if!                           write(normaloutput,'("Hint4",4I4,2E20.10)')jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
 !                           write(normaloutput,*)jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
@@ -1015,10 +976,10 @@
 
 70     End do
 
-       indk(:) = 0
-       indl(:) = 0
-       rklr = 0.0d+00
-       rkli = 0.0d+00
+    !    indk(:) = 0
+    !    indl(:) = 0
+    !    rklr = 0.0d+00
+    !    rkli = 0.0d+00
 
        Goto 60
 

@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE uramda_s_half (ur, wnew, dimn, dimm) 
+   SUBROUTINE uramda_s_half (ur, wnew, dimn, dimm)
 
 ! Assume C1 molecule, calculate U(ramda_S)^(-1/2) : ramda_S is diagonal matrix of S
 !                                                   but eliminated 0 eigen values
@@ -14,7 +14,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)    :: dimn, dimm           ! dimn >= dimm reduced dimension
         real*8, intent(inout)  :: ur(dimn,dimm)
         real*8, intent(in)     :: wnew(dimm)
@@ -48,7 +48,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE ucramda_s_half (uc, wnew, dimn, dimm) 
+   SUBROUTINE ucramda_s_half (uc, wnew, dimn, dimm)
 
 ! Assume C1 molecule, calculate U(ramda_S)^(-1/2) : ramda_S is diagonal matrix of S
 !                                                   but eliminated 0 eigen values
@@ -61,7 +61,7 @@
    use four_caspt2_module
 
         Implicit NONE
-     
+
         integer, intent(in)        :: dimn, dimm           ! dimn >= dimm reduced dimension
         complex*16, intent(inout)  :: uc(dimn,dimm)
         real*8, intent(in)         :: wnew(dimm)
@@ -89,6 +89,3 @@
 !        end do
 
    end subroutine ucramda_s_half
-
-
-

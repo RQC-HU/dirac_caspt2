@@ -8,7 +8,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     use four_caspt2_module
     Implicit NONE
+#ifdef HAVE_MPI
     include 'mpif.h'
+#endif
     integer                 :: ii, jj, kk, ll, typetype, i0
     integer                 ::  j, i, k, l, nuniq
     integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
@@ -23,7 +25,8 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     character*50            :: filename
     real(16)                :: time0, time1
-    integer                 :: access ! caspt2.outが存在するか確認するための変数 0:存在する
+    integer                 :: access ! caspt2.outが存在するか確認するための変数 0:存在する others:存在しない
+    integer                 :: idetr_array_len ! length of array = idetr(1:2**nact - 1)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -36,10 +39,14 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 !
 
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
+#ifdef HAVE_MPI
     call MPI_INIT(ierr)
     time0 = MPI_Wtime()
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+#else
+    rank = 0; nprocs = 1
+#endif
     if (rank == 0) then ! Process limits for output
         ! caspt2.outが存在するかどうか確認,あれば追記,なければ新規追加する
         if (access("./caspt2.out", " ") == 0) then
@@ -149,6 +156,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     read (10) idet(1:ndet)
     read (10) ecas(1:ndet)
 
+    read (10) idetr_array_len
+    allocate (idetr(1:idetr_array_len)); call memplus(kind(idet), size(idet), 1)
+    read (10) idetr(1:idetr_array_len)
     close (10)
 
     Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
@@ -268,14 +278,12 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! date1 = date0
     ! tsec1 = tsec0
 
-
-    if (rank == 0) then
+    if (rank == 0) then ! Proces limits for output
         write (normaloutput, *) 'A1int filename : ', trim(a1int), ' rank', rank
     end if
 
     ! Call intra_3(2, 1, 2, 2, 'A1int')
     Call intra_3(2, 1, 2, 2, a1int)
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
         write (normaloutput, *) 'End intra3 A1int'
     end if
@@ -319,7 +327,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call solvB_ord_ty(e0, e2)
     e2all = e2all + e2
     if (rank == 0) then ! Process limits for output
-        write (*, *) e2all
+        write (normaloutput, *) e2all
     end if
 
     date1 = date0
@@ -364,7 +372,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     Call intra_3(3, 1, 2, 2, d1int)
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'End intra_1 C3int'
+        write (normaloutput, *) 'End intra_1 D1int'
     end if
     date1 = date0
     tsec1 = tsec0
@@ -502,7 +510,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
     if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
     if (allocated(idet)) deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
-
+    if (allocated(idetr)) deallocate (idetr); Call memminus(KIND(idetr), SIZE(idetr), 1)
 !    End do  ! totsym
     if (allocated(sp)) deallocate (sp); Call memminus(KIND(sp), SIZE(sp), 1)
     if (allocated(orb)) deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
@@ -523,12 +531,13 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (rank == 0) then ! Process limits for output
         write (normaloutput, *) 'End r4dcaspt2_tra_ty'
     end if
+#ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
     time1 = MPI_Wtime()
     if (rank == 0) then ! Process limits for output
         write (normaloutput, "(a,I4,a,e16.6)") "MPI_Wtime, rank:", rank, "time", time1 - time0
     end if
     call MPI_FINALIZE(ierr)
-
+#endif
 1000 continue
 END program r4dcaspt2_tra_co

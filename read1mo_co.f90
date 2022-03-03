@@ -10,8 +10,10 @@
 
        integer :: mrconee, isp
        character*50, intent(in) :: filename
-       integer :: j0, j, i, i0, i1
-       integer :: k0, l0, ii, jj, kk, ll, nmom
+       integer :: j0, i0
+       ! integer :: j0, j, i, i0, i1
+       integer :: nmom
+       ! integer :: k0, l0, ii, jj, kk, ll, nmom
 
 !        real*8, allocatable :: roner(:,:,:), ronei(:,:,:)
        double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
@@ -57,12 +59,12 @@
 !Iwamuro modify
 
        do i0 = 1, nmom
-       do j0 = 1, nmom
+           do j0 = 1, nmom
 !           oner(i0,j0) = roner(i0,j0,1)
 !           onei(i0,j0) = ronei(i0,j0,1)
-           oner(indmor(i0), indmor(j0)) = roner(i0, j0, 1) ! using alpha component for a while
-           onei(indmor(i0), indmor(j0)) = ronei(i0, j0, 1)
-       end do
+               oner(indmor(i0), indmor(j0)) = roner(i0, j0, 1) ! using alpha component for a while
+               onei(indmor(i0), indmor(j0)) = ronei(i0, j0, 1)
+           end do
        end do
 
        deallocate (roner); Call memminus(KIND(roner), SIZE(roner), 1)
@@ -77,7 +79,7 @@
            write (normaloutput, *) 'err 10 mo1'
        end if
        go to 1000
-11     if (rank == 0) then
+       if (rank == 0) then
            write (normaloutput, *) 'err 11 mo1'
        end if
        go to 1000

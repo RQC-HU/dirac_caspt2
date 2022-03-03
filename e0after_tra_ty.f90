@@ -337,8 +337,9 @@
        use four_caspt2_module
 
        Implicit NONE
+#ifdef HAVE_MPI
        include "mpif.h"
-
+#endif
        integer :: ii, jj, kk, ll, typetype
        integer :: j0, j, i, k, l, i0, i1, nuniq
        integer :: k0, l0, nint
@@ -389,8 +390,12 @@
            energyHF(1) = energyHF(1) + cmplxint
 
        end do
+#ifdef HAVE_MPI
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       write (normaloutput, *) 'energyHF(1)', energyHF(1)
+#endif
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'energyHF(1)', energyHF(1)
+       end if
 !         do i = 1, ninact
 !
 !            cmplxint = 0.0d+00
@@ -440,7 +445,9 @@
        end do
 
        energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
+#ifdef HAVE_MPI
        call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#endif
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'energyHF(2)', energyHF(2)
        end if
@@ -646,10 +653,12 @@
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-          call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#ifdef HAVE_MPI
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+#endif
 
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'energy 1 =', energy(iroot, 1)

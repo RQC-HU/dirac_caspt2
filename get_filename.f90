@@ -35,7 +35,7 @@ subroutine get_mdcint_filename
         else if (rank < 10000) then ! four digit (1000~9999)
             digit_x_padding = "X"
         end if
-        write (chr_rank, "(I3)") rank
+        write (chr_rank, "(I4)") rank
         mdcint_filename = TRIM(mdcint_baseName)//TRIM(ADJUSTL(digit_x_padding))//TRIM(ADJUSTL(chr_rank))
         mdcintnew = "MDCINTNEW"//TRIM(ADJUSTL(chr_rank))
         mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(chr_rank))
@@ -66,7 +66,7 @@ subroutine get_subspace_filename
         gint = "Gint"
         hint = "Hint"
     else
-        write (chr_rank, "(I3)") rank
+        write (chr_rank, "(I4)") rank
         a1int = "A1int"//TRIM(ADJUSTL(chr_rank))
         a2int = "A2int"//TRIM(ADJUSTL(chr_rank))
         bint = "Bint"//TRIM(ADJUSTL(chr_rank))

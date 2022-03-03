@@ -11,12 +11,14 @@
        Implicit NONE
 
        integer                 ::  i, j
-       integer                 :: i0, j0, n, dimn, n0, n1, nspace(3, 3)
-       logical                 :: test, cutoff
+       !    integer                 :: i0, j0, n, dimn, n0, n1, nspace(3, 3)
+       integer                 :: i0, n, n0, n1, nspace(3, 3)
+       !    logical                 :: test, cutoff
 
-       complex*16              :: trace1, trace2
+       !    complex*16              :: trace1, trace2
        real*8, allocatable :: fa(:, :)
-       complex*16, allocatable :: fac(:, :), readmo(:, :, :)
+       !    complex*16, allocatable :: fac(:, :), readmo(:, :, :)
+       complex*16, allocatable :: fac(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -140,7 +142,7 @@
        end if
 
        goto 1000
-10     if (rank == 0) then ! Process limits for output
+       if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'reading err in orbcoeff'
        end if
 1000   continue

@@ -11,7 +11,7 @@
         Implicit NONE
 
         integer, intent(in) :: nhomo
- 
+
         integer :: ii, jj, kk, ll
         integer :: j, i, k, l, i0, j0
         integer :: nint, n, nsym, isym, nv, numh
@@ -113,7 +113,7 @@
                     mosym(nv) = i
                  endif
               enddo
-
+              ! Noda 2021/12/27 max(nv) = nsec. So the max dimention of fsym is nsec (fsym(nsec,nsec))
               Do i = 1, nv
                  i0 = mosym(i)
                  Do j = i, nv
@@ -131,7 +131,7 @@
               call cdiag (fsym, nv, nv,wsym , thresd, cutoff)
 
               Allocate(coeff(nbas*2,nv,2))
-              
+              ! Noda 2021/12/27 max(nv) = nsec. max : (coeff(nbas*2,nsec,2))
               Do i = 1, nv
                  i0 = mosym(i)+ncore+ninact+nact
                  coeff(:,i,:)=itrfmo(:,i0,:)
@@ -139,14 +139,14 @@
 
               coeff(:,:,1) = MATMUL(coeff(:,:,1),fsym(:,:))
               coeff(:,:,2) = MATMUL(coeff(:,:,2),fsym(:,:))
-              
+
               Do i = 1, nv
                  i0 = mosym(i)+ncore+ninact+nact
                  itrfmo(:,i0,:) = coeff(:,i,:)
               Enddo
 
 ! Kramers - pairs
-              
+
               Do i = 1, nv
                  i0 = mosym(i)+ncore+ninact+nact+1
                  coeff(:,i,:)=itrfmo(:,i0,:)
@@ -154,7 +154,7 @@
 
               coeff(:,:,1) = MATMUL(coeff(:,:,1),DCONJG(fsym(:,:)))
               coeff(:,:,2) = MATMUL(coeff(:,:,2),DCONJG(fsym(:,:)))
-              
+
               Do i = 1, nv
                  i0 = mosym(i)+ncore+ninact+nact+1
                  itrfmo(:,i0,:) = coeff(:,i,:)
@@ -185,7 +185,7 @@
              deallocate(mosym)
           enddo
 
-          readmo(1:nbas*2, nbas+1:nbas*2,1:2) = itrfmo(1:nbas*2,1:nbas,1:2) 
+          readmo(1:nbas*2, nbas+1:nbas*2,1:2) = itrfmo(1:nbas*2,1:nbas,1:2)
 
           open(15,file='r4dorbcoeff_ivo',status='unknown',form='unformatted')
           write(15) readmo
@@ -196,9 +196,6 @@
 !        deallocate(fdmmy)
           deallocate(readmo)
           deallocate(itrfmo)
-               
+
  100      write(*,*)'fockivo_ty end'
           end
-
-
-

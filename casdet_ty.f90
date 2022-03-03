@@ -18,19 +18,23 @@
            write (normaloutput, *) 'Enter casdet_ty'
        end if
        Allocate (idet0(ndet))
+       Allocate (idetr(2**nact - 1));call memplus(kind(idetr),size(idetr),1)
        idet0 = 0
+       idetr = 0
        ndet = 0
-
+    !    67108864* 8 / (1024^2) = 500MB, 26 spinor
        Do i = 1, 2**nact - 1
            if (POPCNT(i) == nelec) then
                if (trim(ptgrp) == 'C1') then
                    ndet = ndet + 1
                    idet0(ndet) = i
+                   idetr(i) = ndet
                else
                    Call detsym_ty(i, isym)
                    if (isym == totsym) then
                        ndet = ndet + 1
                        idet0(ndet) = i
+                       idetr(i) = ndet
                    end if
                End if
            End if

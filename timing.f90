@@ -2,11 +2,12 @@
         SUBROUTINE timing(date0, tsec0, date, tsec)
 !
             use four_caspt2_module, only: rank, normaloutput
+            implicit none
             integer, intent(in)  :: date0
             real*8, intent(in)   :: tsec0
-            integer, intent(out) :: date
-            real*8, intent(out)  :: tsec
-            real*8               :: difsec, sec
+            integer, intent(inout) :: date
+            real*8, intent(inout)  :: tsec
+            real*8               :: difsec, sec, resd
 
             integer              ::  val(8), day, hour, min
 
@@ -14,6 +15,7 @@
 !        Write(*,*)'Year = ',val(1),'Mon = ',val(2),'Date = ',val(3)
 !        Write(*,*)'Hour = ',val(5),'Min = ',val(6),'Sec = ',val(7),'.',val(8)
 
+            ! val(8): millisec, val(7): sec, val(6):min, val(5):hours
             tsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
 
             if (date0 < val(3)) then

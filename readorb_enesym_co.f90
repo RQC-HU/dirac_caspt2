@@ -135,6 +135,7 @@
        Do i0 = 1, nsymrpa
            Do j0 = 1, nsymrpa
                MULTB_S(i0, j0) = MULTB(i0 + nsymrpa, j0 + nsymrpa)
+            !    MULTB_D(i0, j0) = MULTB2(j0, i0)
                MULTB_D(i0, j0) = MULTB2(i0, j0)
            End do
        End do
@@ -182,24 +183,24 @@
        end if
 
        Do jsym = 1, nsymrpa
-       Do isym = 1, nsymrpa - 1, 2
-           MULTB_DF(isym + 1, jsym) = MULTB_D(isym, jsym)
-           MULTB_DF(isym, jsym) = MULTB_D(isym + 1, jsym)
-       End do
-       End do
-
-       Do jsym = 1, nsymrpa
-       Do isym = 1, nsymrpa
-           ksym = MULTB_DF(isym, jsym)
-           MULTB_DB(isym, ksym) = jsym
-       End do
+           Do isym = 1, nsymrpa - 1, 2
+               MULTB_DF(isym + 1, jsym) = MULTB_D(isym, jsym)
+               MULTB_DF(isym, jsym) = MULTB_D(isym + 1, jsym)
+           End do
        End do
 
        Do jsym = 1, nsymrpa
-       Do isym = 1, nsymrpa
-           ksym = MULTB_S(isym, jsym)
-           MULTB_SB(isym, ksym) = jsym
+           Do isym = 1, nsymrpa
+               ksym = MULTB_DF(isym, jsym)
+               MULTB_DB(isym, ksym) = jsym
+           End do
        End do
+
+       Do jsym = 1, nsymrpa
+           Do isym = 1, nsymrpa
+               ksym = MULTB_S(isym, jsym)
+               MULTB_SB(isym, ksym) = jsym
+           End do
        End do
 
        if (rank == 0) then
@@ -245,27 +246,27 @@
            REPNA(61) = '1e7u  '; REPNA(62) = '2e7u  '; REPNA(63) = '1e9u  '; REPNA(64) = '2e9u  '
 
            Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i, j) = MULTB(i + nsymrpa, j)
-           End do
-           End do
-
-           Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i, j + nsymrpa/2) = SD(i, j) + nsymrpa/2
-           End do
+               Do j = 1, nsymrpa/2
+                   SD(i, j) = MULTB(i + nsymrpa, j)
+               End do
            End do
 
            Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i + nsymrpa/2, j) = SD(i, j + nsymrpa/2)
-           End do
+               Do j = 1, nsymrpa/2
+                   SD(i, j + nsymrpa/2) = SD(i, j) + nsymrpa/2
+               End do
            End do
 
            Do i = 1, nsymrpa/2
-           Do j = 1, nsymrpa/2
-               SD(i + nsymrpa/2, j + nsymrpa/2) = SD(i, j)
+               Do j = 1, nsymrpa/2
+                   SD(i + nsymrpa/2, j) = SD(i, j + nsymrpa/2)
+               End do
            End do
+
+           Do i = 1, nsymrpa/2
+               Do j = 1, nsymrpa/2
+                   SD(i + nsymrpa/2, j + nsymrpa/2) = SD(i, j)
+               End do
            End do
 
        Elseif (trim(ptgrp) == 'C32') then
@@ -288,17 +289,17 @@
            REPNA(61) = '1e7  '; REPNA(62) = '2e7  '; REPNA(63) = '1e9  '; REPNA(64) = '2e9  '
 
            Do i = 1, nsymrpa
-           Do j = 1, nsymrpa
-               SD(i, j) = MULTB(i + nsymrpa, j)
-           End do
+               Do j = 1, nsymrpa
+                   SD(i, j) = MULTB(i + nsymrpa, j)
+               End do
            End do
 
        Else
 
            Do i = 1, nsymrpa
-           Do j = 1, nsymrpa
-               SD(i, j) = MULTB(i + nsymrpa, j)
-           End do
+               Do j = 1, nsymrpa
+                   SD(i, j) = MULTB(i + nsymrpa, j)
+               End do
            End do
 
        End if
@@ -326,9 +327,9 @@
            End do
        end if
        Do i = 1, nsymrpa
-       Do j = 1, nsymrpa
-           DS(i, j) = SD(j, i)
-       End do
+           Do j = 1, nsymrpa
+               DS(i, j) = SD(j, i)
+           End do
        End do
 
        if (rank == 0) then
@@ -438,9 +439,9 @@
        end do
 
        if (rank == 0) then
-       do i0 = 1, nmo
-           write (normaloutput, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
-       end do
+           do i0 = 1, nmo
+               write (normaloutput, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
+           end do
        end if
        orbmo = orb
 

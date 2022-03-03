@@ -9,7 +9,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     use four_caspt2_module
 
     Implicit NONE
+#ifdef HAVE_MPI
     include 'mpif.h'
+#endif
     integer                 :: ii, jj, kk, ll, typetype, i0, j0
     integer                 ::  j, i, k, l, nuniq
     integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
@@ -36,9 +38,13 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
+#ifdef HAVE_MPI
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+#else
+    rank = 0; nprocs = 1
+#endif
     if (rank == 0) then ! Process limits for output
         open (normaloutput, file='caspt2.out', form='formatted', status='unknown')
         write (normaloutput, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
@@ -201,11 +207,11 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
 
-    f(:, :) = 0.0d+00
 
 !      debug = .FALSE.
     debug = .TRUE.
     If (debug) then
+        f(:, :) = 0.0d+00
         if (rank == 0) then ! Process limits for output
             write (normaloutput, *) 'fockhf1_ty start'
         end if
@@ -265,6 +271,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
     deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
     deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
+    deallocate (idetr); Call memminus(KIND(idetr), SIZE(idetr), 1)
     deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
     deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
@@ -278,13 +285,13 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
     deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
     deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-    deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
+    ! deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
     deallocate (inttwi); Call memminus(KIND(inttwi), SIZE(inttwi), 1)
-    deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
+    ! deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
     deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-    deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
+    ! deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
     deallocate (inttwr); Call memminus(KIND(inttwr), SIZE(inttwr), 1)
-    deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
+    ! deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
     deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
     deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
@@ -295,7 +302,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         Call timing(val(3), totalsec, date0, tsec0)
         write (normaloutput, *) 'End r4dcasci_ty part'
     end if
+#ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
+#endif
     if (rank == 0) then ! Process limits for output
         write (normaloutput, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
         close (normaloutput)

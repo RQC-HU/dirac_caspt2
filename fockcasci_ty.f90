@@ -9,27 +9,38 @@
        use four_caspt2_module
 
        Implicit NONE
+#ifdef HAVE_MPI
        include 'mpif.h'
-
+#endif
        integer :: ii, jj, kk, ll
        integer :: j, i, k, l
        integer :: nint, n
 
        real*8 :: i2r, i2i, dr, di, nsign
        complex*16 :: cmplxint, dens
-
+       integer :: datetmp0, datetmp1
+       real(8) :: tsectmp0, tsectmp1
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
+       if (rank == 0) then ! Process limits for output
+           write (normaloutput, *) 'enter building fock matrix'
+       end if
+       datetmp0 = initdate
+       tsectmp0 = inittime
+       if (rank == 0) call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
+       datetmp0 = datetmp1
+       tsectmp0 = tsectmp1
 
        f = 0.0d+00
 
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'enter building fock matrix'
        end if
-       !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
+       !$OMP parallel private(i,j,k,l,cmplxint,dr,di,dens)
+       !$OMP do schedule(dynamic,2)
        do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
            do j = i, ninact + nact
                f(i, j) = DCMPLX(oner(i, j), onei(i, j))
@@ -77,10 +88,10 @@
                f(j, i) = DCONJG(f(i, j))
            end do       ! j
        end do          ! i
+       !$OMP end do
 
-       !$OMP parallel do private(j,k,l,cmplxint,dr,di,dens)
+       !$OMP do schedule(dynamic,2)
        do i = ninact + nact + 1 + rank, ninact + nact + nsec, nprocs
-           !    do i = ninact + nact + 1, ninact + nact + nsec
            do j = i, ninact + nact + nsec
                !    if (rank == 0) then
                f(i, j) = DCMPLX(oner(i, j), onei(i, j))
@@ -133,8 +144,20 @@
 
            end do       ! j
        end do          ! i
+       !$OMP end do
+       !$OMP end parallel
+#ifdef HAVE_MPI
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
+#endif
+       if (rank == 0) then  ! Process limits for output
+           write (normaloutput, *) 'fockcasci before f allreduce'
+       end if
+       if (rank == 0) call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
+       datetmp0 = datetmp1
+       tsectmp0 = tsectmp1
+#ifdef HAVE_MPI
        call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-
+#endif
        if (rank == 0) then ! Process limits for output
            write (normaloutput, *) 'fockcasci end'
        end if

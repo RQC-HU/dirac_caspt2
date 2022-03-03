@@ -28,12 +28,10 @@
            ii = i
 
            If (realcvec) then
-               Call dim1_density_R &
-                   (ii, ii, dr)
+               Call dim1_density_R(ii, ii, dr)
                e0 = e0 + dr*eps(i + ninact)
            Else
-               Call dim1_density &
-                   (ii, ii, dr, di)
+               Call dim1_density(ii, ii, dr, di)
                if (ABS(di) > 1.0d-10 .and. rank == 0) write (normaloutput, *) '1dim density is complex! strange', i, di
                e0 = e0 + dr*eps(i + ninact)
            End if

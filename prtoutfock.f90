@@ -9,7 +9,8 @@
    use four_caspt2_module
 
         Implicit NONE
-        integer :: i, j, ii, jj
+      !   integer :: i, j, ii, jj
+        integer :: i, j
 
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -76,6 +77,3 @@
          end do
 
       end SUBROUTINE prtoutfock
-
-
-
