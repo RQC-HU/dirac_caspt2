@@ -139,7 +139,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'reading int2 is over'
+        write (*, *) 'reading int2 is over'
     end if
 
     Do i0 = 1, nab
@@ -167,8 +167,8 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     End do
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("e2h      = ",E20.10,"a.u.")') e2h
-        write (normaloutput, '("sumc2,h  = ",E20.10)') sumc2local
+        write (*, '("e2h      = ",E20.10,"a.u.")') e2h
+        write (*, '("sumc2,h  = ",E20.10)') sumc2local
     end if
     sumc2 = sumc2 + sumc2local
 
@@ -183,6 +183,6 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 10  continue                !write(*,*)'error about opening Hint file' ;stop
 100 continue
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'end solvH_ord_ty'
+        write (*, *) 'end solvH_ord_ty'
     end if
 End SUBROUTINE solvH_ord_ty

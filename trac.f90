@@ -26,7 +26,7 @@
 
        occ = 0
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Enter TRACI'
+           write (*, *) 'Enter TRACI'
        end if
 
        Do i0 = 1, ndet
@@ -105,7 +105,7 @@
 ! for a while !        End do
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Obtain inverse of ds matrix'
+           write (*, *) 'Obtain inverse of ds matrix'
        end if
 
        Allocate (IPIV(ndet))
@@ -115,14 +115,14 @@
 
        Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'info', info
+           write (*, *) 'info', info
        end if
 
        Allocate (work(ndet))
 
        Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'info', info
+           write (*, *) 'info', info
        end if
 
 ! for a while !      write(*,'(/,"REAL")')
@@ -153,7 +153,7 @@
        Deallocate (work)
        Deallocate (IPIV)
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Check whether inverese matrix is really so'
+           write (*, *) 'Check whether inverese matrix is really so'
        end if
 
        error = .FALSE.
@@ -165,12 +165,12 @@
                If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                    error = .TRUE.
                    if (rank == 0) then ! Process limits for output
-                       write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                       write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                    end if
                Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                    error = .TRUE.
                    if (rank == 0) then ! Process limits for output
-                       write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                       write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                    end if
                End if
 
@@ -178,7 +178,7 @@
        End do
 
        if (rank == 0) then ! Process limits for output
-           If (.not. error) write (normaloutput, *) 'Inverse matrix is obtained correclty'
+           If (.not. error) write (*, *) 'Inverse matrix is obtained correclty'
        end if
        Deallocate (dsold)
 
@@ -242,7 +242,7 @@
 
        occ = 0
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Enter TRACI'
+           write (*, *) 'Enter TRACI'
        end if
        datetmp1 = date0; datetmp0 = date0
 
@@ -265,14 +265,14 @@
 200            end if
            End do
        End do
-       if (rank == 0) write (normaloutput, *) 'Before allocate a matrix named ds'
+       if (rank == 0) write (*, *) 'Before allocate a matrix named ds'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
        Allocate (ds(ndet, ndet))
 
        ds = 0.0d+00
-       if (rank == 0) write (normaloutput, *) 'Initialized a matrix named ds'
+       if (rank == 0) write (*, *) 'Initialized a matrix named ds'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
@@ -285,18 +285,18 @@
 
            End do
        End do
-       if (rank == 0) write (normaloutput, *) 'End detsc'
+       if (rank == 0) write (*, *) 'End detsc'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Obtain inverse of ds matrix'
+           write (*, *) 'Obtain inverse of ds matrix'
        end if
        Allocate (IPIV(ndet))
        Allocate (dsold(ndet, ndet))
 
        dsold = ds
-       if (rank == 0) write (normaloutput, *) 'Start get LU factorization of ds'
+       if (rank == 0) write (*, *) 'Start get LU factorization of ds'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
@@ -307,28 +307,28 @@
        ! つまりZGETRF+ZGETRIの計算量はO(n^3)でcdiagと同等の計算量が必要
        Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'info', info
+           write (*, *) 'info', info
        end if
 #ifdef HAVE_MPI
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-       if (rank == 0) write (normaloutput, *) 'End get LU factorization of ds'
+       if (rank == 0) write (*, *) 'End get LU factorization of ds'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
        Allocate (work(ndet))
-       if (rank == 0) write (normaloutput, *) 'Start get a inverse matrix of ds'
+       if (rank == 0) write (*, *) 'Start get a inverse matrix of ds'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
        Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'info', info
+           write (*, *) 'info', info
        end if
 #ifdef HAVE_MPI
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-       if (rank == 0) write (normaloutput, *) 'End get a inverse matrix of ds, ndet', ndet
+       if (rank == 0) write (*, *) 'End get a inverse matrix of ds, ndet', ndet
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
@@ -336,7 +336,7 @@
        Deallocate (IPIV)
 #ifdef DEBUG
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Check whether inverese matrix is really so'
+           write (*, *) 'Check whether inverese matrix is really so'
        end if
        error = .FALSE.
 
@@ -348,7 +348,7 @@
 #ifdef HAVE_MPI
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-       if (rank == 0) write (normaloutput, *) 'End dsold = matmul(ds, dsold) so dsold should be a identity matrix.'
+       if (rank == 0) write (*, *) 'End dsold = matmul(ds, dsold) so dsold should be a identity matrix.'
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
        datetmp1 = datetmp0
        tsectmp1 = tsectmp0
@@ -357,7 +357,7 @@
        !    end do
        !    if (maxval(abs(real(dsold))) > 1.0d-10) then
        !        if (rank == 0) then
-       !            write (normaloutput, '(E13.5)') maxval(abs(real(dsold)))
+       !            write (*, '(E13.5)') maxval(abs(real(dsold)))
        !        end if
        !    end if
        Do i0 = 1, ndet
@@ -366,12 +366,12 @@
                If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                    error = .TRUE.
                    if (rank == 0) then ! Process limits for output
-                       write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                       write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                    end if
                Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                    error = .TRUE.
                    if (rank == 0) then ! Process limits for output
-                       write (normaloutput, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
+                       write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
                    end if
                End if
 
@@ -382,7 +382,7 @@
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
        if (rank == 0) then ! Process limits for output
-           If (.not. error) write (normaloutput, *) 'Inverse matrix is obtained correclty'
+           If (.not. error) write (*, *) 'Inverse matrix is obtained correclty'
        end if
 #endif
        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

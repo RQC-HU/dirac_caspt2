@@ -35,40 +35,40 @@ SUBROUTINE casci_ty(totsym)
 
     ndet = comb(nact, nelec)
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'ndet', ndet
+        write (*, *) 'ndet', ndet
     end if
     Call casdet_ty(totsym)
     if (rank == 0) then
-        write (normaloutput, *) "before allocate mat(ndet,ndet)"
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-        write (normaloutput, *) 'kind of complex16 array named mat is ', kind(mat)
+        write (*, *) "before allocate mat(ndet,ndet)"
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, *) 'kind of complex16 array named mat is ', kind(mat)
         expected_mem = tmem + (ndet**2)*16
-        write (normaloutput, *) 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
+        write (*, *) 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
     end if
 
 #ifdef CASMAT_DEBUG
     not_zero_count = 0
     call casmat_modified(not_zero_count)
-    if (rank == 0) write (normaloutput, *) 'Noda end casmat_modified'
+    if (rank == 0) write (*, *) 'Noda end casmat_modified'
     not_zero_sum = not_zero_count
     call MPI_Allreduce(MPI_IN_PLACE, not_zero_sum, 1, MPI_INTEGER8, MPI_SUM, MPI_COMM_WORLD, ierr)
 
     if (rank == 0) then
         not_zero_percentage = (real(not_zero_sum, 8)/real((ndet**2), 8))*100
-        write (normaloutput, *) 'Noda end casmat_modified, not_zero_sum:', not_zero_sum, &
+        write (*, *) 'Noda end casmat_modified, not_zero_sum:', not_zero_sum, &
             ' all', ndet**2, ' percentage', not_zero_percentage, '%'
     end if
     if (rank == 0) then
         allocate (mat_not_zero(not_zero_sum))
         allocate (mat_i_order(not_zero_sum))
         allocate (mat_j_order(not_zero_sum))
-        if (rank == 0) write (normaloutput, *) "Noda nprocs check", nprocs
+        if (rank == 0) write (*, *) "Noda nprocs check", nprocs
         read_count = 0
         not_zero_count_modified = 0
         do loop_idx = 0, nprocs - 1
             write (chr_rank, *) loop_idx
             matfilename = 'mat'//trim(adjustl(chr_rank))
-            if (rank == 0) write (normaloutput, *) "Noda matfilename check", trim(matfilename)
+            if (rank == 0) write (*, *) "Noda matfilename check", trim(matfilename)
             open (mat_unit_num, file=matfilename, form='unformatted')
 103         read (mat_unit_num, err=101, end=102) i, j, matvalr, matvali
             if (i == j) then
@@ -86,7 +86,7 @@ SUBROUTINE casci_ty(totsym)
 101         write (*, *) 'mat_read_error', rank, nprocs
 102         if (rank == 0) then
                 not_zero_percentage = (real(not_zero_count_modified, 8)/real((ndet**2), 8))*100
-                write (normaloutput, *) 'Noda end read casmat_modified, not_zero_count_modified:', not_zero_count_modified, &
+                write (*, *) 'Noda end read casmat_modified, not_zero_count_modified:', not_zero_count_modified, &
                     ' all', ndet**2, ' percentage', not_zero_percentage, '%'
             end if
             close (mat_unit_num)
@@ -94,16 +94,16 @@ SUBROUTINE casci_ty(totsym)
     end if
     loop_sum = read_count
     ! if (rank == 0) then
-    !     write (normaloutput, *) 'mat mat_not_zero diff check'
+    !     write (*, *) 'mat mat_not_zero diff check'
     !     do loop_idx = 1, not_zero_sum
     !         if (mat(mat_i_order(loop_idx), mat_j_order(loop_idx)) /= mat_not_zero(loop_idx)) then
-    !             write (normaloutput, '(A,I5,A,I5,A,E20.10)') 'Noda mat/=mat_not_zero i: ', mat_i_order(loop_idx), &
+    !             write (*, '(A,I5,A,I5,A,E20.10)') 'Noda mat/=mat_not_zero i: ', mat_i_order(loop_idx), &
     !                 ' j: ', mat_j_order(loop_idx), 'mat ', mat(mat_i_order(loop_idx), mat_j_order(loop_idx)), mat_not_zero(loop_idx)
     !         end if
-    !         write (normaloutput, '(A,I5,A,I5,A,2E20.10)') 'Noda modified mat i: ', mat_i_order(loop_idx), ' j: ',&
+    !         write (*, '(A,I5,A,I5,A,2E20.10)') 'Noda modified mat i: ', mat_i_order(loop_idx), ' j: ',&
     !                 mat_j_order(loop_idx), ' mat:', mat_not_zero(loop_idx)
     !     end do
-    !     write (normaloutput, *) 'end mat mat_not_zero diff check'
+    !     write (*, *) 'end mat mat_not_zero diff check'
     ! end if
 #endif
 #ifdef HAVE_MPI
@@ -112,15 +112,15 @@ SUBROUTINE casci_ty(totsym)
 #ifdef BIG_MAT
     if (rank == 0) then
         Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
-        write (normaloutput, *) "end allocate mat(ndet,ndet)"
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, *) "end allocate mat(ndet,ndet)"
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
         Call casmat(mat)
     end if
 #else
     Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
     if (rank == 0) then
-        write (normaloutput, *) "end allocate mat(ndet,ndet)"
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, *) "end allocate mat(ndet,ndet)"
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
     Call casmat(mat)
 #endif
@@ -128,7 +128,7 @@ SUBROUTINE casci_ty(totsym)
     if (rank == 0) then
         matcount = 0
         matdiagcount = 0
-        write (normaloutput, *) 'Noda end casmat'
+        write (*, *) 'Noda end casmat'
         do idx1 = 1, ndet
             do idx2 = idx1, ndet
                 if (mat(idx2, idx1) /= 0.0d+00) then
@@ -138,43 +138,43 @@ SUBROUTINE casci_ty(totsym)
                     else
                         matcount = matcount + 2
                     end if
-                    ! write (normaloutput, *) idx2, idx1, mat(idx2, idx1), mat(idx1, idx2)
+                    ! write (*, *) idx2, idx1, mat(idx2, idx1), mat(idx1, idx2)
                 end if
             end do
         end do
         not_zero_percentage = (real(matcount, 8)/real((ndet**2), 8))*100
-        write (normaloutput, *) 'matcount', matcount, ' all', ndet**2, ' percentage', not_zero_percentage, '%'
-        write (normaloutput, *) 'matdiagcount', matdiagcount, ' ndet', ndet
+        write (*, *) 'matcount', matcount, ' all', ndet**2, ' percentage', not_zero_percentage, '%'
+        write (*, *) 'matdiagcount', matdiagcount, ' ndet', ndet
     end if
-    if (rank == 0) write (normaloutput, *) 'mat,mat_not_zero diff check'
+    if (rank == 0) write (*, *) 'mat,mat_not_zero diff check'
     do read_count = 1, loop_sum
 !   if (rank == 0.and.abs(real(mat(mat_i_order(read_count), mat_j_order(read_count)),8)-real(mat_not_zero(read_count),8))>1.0d-15)then
        if (rank == 0 .and. real(mat(mat_i_order(read_count), mat_j_order(read_count)), 8) /= real(mat_not_zero(read_count), 8)) then
-            write (normaloutput, '(A,I5,A,I5,A,2E20.10,A,E20.10)') 'Noda check i: ', mat_i_order(read_count), &
+            write (*, '(A,I5,A,I5,A,2E20.10,A,E20.10)') 'Noda check i: ', mat_i_order(read_count), &
                 ' j: ', mat_j_order(read_count), &
                 'mat ', real(mat(mat_i_order(read_count), mat_j_order(read_count)), 8), real(mat_not_zero(read_count), 8), &
                 'diff ', (real(mat(mat_i_order(read_count), mat_j_order(read_count)), 8) - real(mat_not_zero(read_count), 8))
         end if
     end do
-    if (rank == 0) write (normaloutput, *) 'mat,mat_not_zero diff check end'
+    if (rank == 0) write (*, *) 'mat,mat_not_zero diff check end'
 #endif
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'before allocate ecas(ndet)'
+        write (*, *) 'before allocate ecas(ndet)'
     end if
     Allocate (ecas(ndet))
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'allocate ecas(ndet)'
+        write (*, *) 'allocate ecas(ndet)'
     end if
     ecas = 0.0d+00
     thresd = 1.0d-15
     cutoff = .FALSE.
-    if (rank == 0) write (normaloutput, *) 'Start mat cdiag'
+    if (rank == 0) write (*, *) 'Start mat cdiag'
     datetmp1 = date0; datetmp0 = date0
 
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
 
-    if (rank == 0) write (normaloutput, *) 'Noda ndet before cdiag', ndet
+    if (rank == 0) write (*, *) 'Noda ndet before cdiag', ndet
 #ifdef BIG_MAT
     if (rank == 0) then
         ! Only the master process has a matrix named mat.
@@ -186,11 +186,11 @@ SUBROUTINE casci_ty(totsym)
 #endif
 #ifdef CASMAT_DEBUG
     if (rank == 0) then
-        write (normaloutput, *) 'Noda ndet after cdiag', ndet
-        write (normaloutput, *) 'Noda cidag mat diag values'
+        write (*, *) 'Noda ndet after cdiag', ndet
+        write (*, *) 'Noda cidag mat diag values'
         do idx1 = 1, ndet
             ! if (real(mat(idx1, idx1)) > 1.0d-15) then
-            write (normaloutput, *) idx1, mat(idx1, idx1)
+            write (*, *) idx1, mat(idx1, idx1)
             ! end if
         end do
     end if
@@ -199,13 +199,13 @@ SUBROUTINE casci_ty(totsym)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (normaloutput, *) 'End mat cdiag'
+    if (rank == 0) write (*, *) 'End mat cdiag'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        write (normaloutput, *) 'debug1'
+        write (*, *) 'debug1'
         cimat = 10
         filename = 'CIMAT'
         open (10, file='CIMAT', status='unknown', form='unformatted')
@@ -221,7 +221,7 @@ SUBROUTINE casci_ty(totsym)
 
 ! Print out CI matrix!
 
-        write (normaloutput, *) 'debug2'
+        write (*, *) 'debug2'
 
         cimat = 10
         filename = 'CIMAT1'
@@ -235,7 +235,7 @@ SUBROUTINE casci_ty(totsym)
 ! Print out C1 matrix!
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'debug3'
+        write (*, *) 'debug3'
     end if
     Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
     Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
@@ -275,16 +275,16 @@ SUBROUTINE casci_ty(totsym)
 #endif
 #ifdef CASMAT_DEBUG
     do loop_idx = 1, ndet
-        write (normaloutput, *) 'Noda cir check', loop_idx, real(mat(loop_idx, selectroot), 8)
+        write (*, *) 'Noda cir check', loop_idx, real(mat(loop_idx, selectroot), 8)
     end do
 #endif
     Deallocate (ecas)
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'debug4'
+        write (*, *) 'debug4'
 
-        write (normaloutput, '("CASCI ENERGY FOR ",I2," STATE")') totsym
+        write (*, '("CASCI ENERGY FOR ",I2," STATE")') totsym
         Do irec = 1, nroot
-            write (normaloutput, '(I4,F30.15)') irec, eigen(irec)
+            write (*, '(I4,F30.15)') irec, eigen(irec)
         End do
 
         do j = 1, ndet
@@ -294,12 +294,12 @@ SUBROUTINE casci_ty(totsym)
         end do
 
         do irec = 1, nroot
-            write (normaloutput, '("Root = ",I4)') irec
+            write (*, '("Root = ",I4)') irec
             do j = 1, ndet
                 if ((ABS(mat(j, irec))**2) > 1.0d-02) then
                     i0 = idet(j)
-                    write (normaloutput, *) (btest(i0, j0), j0=0, nact - 1)
-                    write (normaloutput, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
+                    write (*, *) (btest(i0, j0), j0=0, nact - 1)
+                    write (*, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
                     & j, mat(j, irec), &
                     & ABS(mat(j, irec))**2
                 end if

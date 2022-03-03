@@ -165,12 +165,12 @@ NRMOBJS2 = four_caspt2_module.o nbitsa.o \
 
 # This is a Intel mkl setting for the Institute for Molecular Science's linux server
 # MKLROOT = /local/apl/lx/intel2020update2/compilers_and_libraries_2020.2.254/linux/mkl
-# MKLROOT = /local/apl/lx/intel2020update2/mkl
-#MKLROOT = /opt/intel/psxe2019/mkl
+ MKLROOT = /local/apl/lx/intel2020update2/mkl
+# MKLROOT = /opt/intel/psxe2019/mkl
 #BLASMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/blas95.mod
 #LAPACKMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/lapack95.mod
 #INC = -I$(BLASMOD) -I$(LAPACKMOD)
-#INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
+INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
 # F90C = ifort
  F90C = mpiifort
 # F90FLAGS = $(INC) -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll

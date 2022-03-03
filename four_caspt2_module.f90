@@ -143,12 +143,12 @@ MODULE four_caspt2_module
     ! fint                  : F subspace filenames for each MPI process (e.g. Fint4)
     ! gint                  : G subspace filenames for each MPI process (e.g. Gint11)
     ! hint                  : H subspace filenames for each MPI process (e.g. Hint12)
-    ! normaloutput  : The unit number for normal output (default unit number = 3000, default file name = "caspt2.out")
+    ! normal_output  : The unit number for normal output (default unit number = 3000, default file name = "caspt2.out")
     ! read_line_max : The number of lines to be read at a time when reading two-electron integral related files.(e.g. A1int, MDCINTNEW)
     integer         :: ierr, nprocs, rank
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
-    integer, parameter :: normaloutput = 3000, read_line_max = 1000
+    integer, parameter :: normal_output = 3000, read_line_max = 1000
 
     ! Test for MDCINT_READ_COUNT
     integer :: casci_mdcint_cnt, caspt2_mdcint_cnt, caspt2_mdcint_cnt2, simple_loop

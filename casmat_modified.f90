@@ -26,12 +26,12 @@
         integer, intent(out)  :: not_zero_count
 
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'Cas mat enter'
+            write (*, *) 'Cas mat enter'
         end if
         Allocate (oc(nelec))
         Allocate (vi(nact - nelec))
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'allocated oc and vi', rank
+            write (*, *) 'allocated oc and vi', rank
         end if
         write (chr_rank, *) rank
         matfilename = "mat"//trim(adjustl(chr_rank))
@@ -118,7 +118,7 @@
             matval = matval + mat0 + DCONJG(mat0)
             if (matval /= 0.0d+00) then
                 not_zero_count = not_zero_count + 1
-                !     if (rank == 0) write (normaloutput, '(A,I5,A,I5,A,E20.10)') 'Noda ijorder2 i:', i, ' j:', i, " mat", real(matval)
+                !     if (rank == 0) write (*, '(A,I5,A,I5,A,E20.10)') 'Noda ijorder2 i:', i, ' j:', i, " mat", real(matval)
                 write (mat_unit_num) i, i, matval
             end if
 !           write(*,*)'mat(',i,',',i,') = ',mat(i,i)
@@ -223,7 +223,7 @@
                             j = idetr(newidet2)
                             matval = 0.0d+00
                             If (j > i) then
-                                ! if (rank == 0) write (normaloutput, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
+                                ! if (rank == 0) write (*, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
                                 ! if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
                                 ! if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
                                 phase = (-1)**mod(phase1 + phase2, 2)
@@ -260,8 +260,8 @@
         Deallocate (oc)
         Deallocate (vi)
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, '(A,I4)') 'end casmat', rank
-            write (normaloutput, '(A,I4)') 'Reduce mat(:,:)', rank
+            write (*, '(A,I4)') 'end casmat', rank
+            write (*, '(A,I4)') 'Reduce mat(:,:)', rank
         end if
         close (mat_unit_num)
 1000 end subroutine

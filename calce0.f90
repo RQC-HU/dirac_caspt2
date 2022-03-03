@@ -22,7 +22,7 @@
        dr = 0.0d+00
        di = 0.0d+00
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) iroot, 'iroot'
+           write (*, *) iroot, 'iroot'
        end if
        Do i = 1, nact
            ii = i
@@ -32,14 +32,14 @@
                e0 = e0 + dr*eps(i + ninact)
            Else
                Call dim1_density(ii, ii, dr, di)
-               if (ABS(di) > 1.0d-10 .and. rank == 0) write (normaloutput, *) '1dim density is complex! strange', i, di
+               if (ABS(di) > 1.0d-10 .and. rank == 0) write (*, *) '1dim density is complex! strange', i, di
                e0 = e0 + dr*eps(i + ninact)
            End if
 
        End do
 
-       if (rank == 0) write (normaloutput, *) 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
+       if (rank == 0) write (*, *) 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
 
 1000   continue
-       if (rank == 0) write (normaloutput, *) 'end'
+       if (rank == 0) write (*, *) 'end'
    end subroutine calce0

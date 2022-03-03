@@ -32,8 +32,8 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) ' '
-        write (normaloutput, *) 'FOR TEST, FOCK MATRIX OF HF STATE IS CALCULATED '
+        write (*, *) ' '
+        write (*, *) 'FOR TEST, FOCK MATRIX OF HF STATE IS CALCULATED '
     end if
     n = 0
     f = 0.0d+00
@@ -77,26 +77,26 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 #endif
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) ' '
-        write (normaloutput, *) 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
-        write (normaloutput, *) ' '
+        write (*, *) ' '
+        write (*, *) 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
+        write (*, *) ' '
         do i = 1, ninact + nact + nsec
             do j = i, ninact + nact + nsec
                 if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-6)) then
 !            if(i/=j)then
-                    write (normaloutput, '(2I4,2E20.10)') i, j, f(i, j)
+                    write (*, '(2I4,2E20.10)') i, j, f(i, j)
                 end if
             end do
         end do
-        write (normaloutput, *) ' '
-        write (normaloutput, *) 'THESE DIAGONAL ELEMENTS SHOULD BE CORESPOND TO HF SPINOR ENERGY '
-        write (normaloutput, *) ' '
-        write (normaloutput, *) '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
+        write (*, *) ' '
+        write (*, *) 'THESE DIAGONAL ELEMENTS SHOULD BE CORESPOND TO HF SPINOR ENERGY '
+        write (*, *) ' '
+        write (*, *) '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
         &, 'Spinor Energy (HF)        ERROR'
         do i = 1, ninact + nact + nsec
-            write (normaloutput, '(I4,4E20.10)') i, f(i, i), orbmo(i), orbmo(i) - dble(f(i, i))
+            write (*, '(I4,4E20.10)') i, f(i, i), orbmo(i), orbmo(i) - dble(f(i, i))
         end do
 
-        write (normaloutput, *) 'fockhf end'
+        write (*, *) 'fockhf end'
     end if
 end SUBROUTINE fockhf1_ty

@@ -69,7 +69,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
     traint2 = 0.0d+00
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
@@ -78,8 +78,8 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 ! Abe modified 2016. 11.11
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'nmaxint = ', nmaxint
-        write (normaloutput, *) 'tmem, nmaxint*48', tmem, nmaxint*48
+        write (*, *) 'nmaxint = ', nmaxint
+        write (*, *) 'tmem, nmaxint*48', tmem, nmaxint*48
     end if
     IF (nmaxint < 0) stop
 
@@ -452,7 +452,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
     goto 100
 !  10     write(*,*)'error opening file' ; goto 1000
-10  write (normaloutput, *) 'error opening file'
+10  write (*, *) 'error opening file'
     inquire (1, opened=is_opened)
     if (is_opened .eqv. .true.) then
         close (1)
@@ -546,7 +546,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     traint2 = 0.0d+00
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
@@ -555,13 +555,13 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 ! Abe modified 2016. 11.11
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'nmaxint = ', nmaxint
-        write (normaloutput, *) 'tmem, nmaxint*48', tmem, nmaxint*48
+        write (*, *) 'nmaxint = ', nmaxint
+        write (*, *) 'tmem, nmaxint*48', tmem, nmaxint*48
     end if
     IF (nmaxint < 0) stop
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'nmaxint = ', nmaxint
+        write (*, *) 'nmaxint = ', nmaxint
     end if
 
     Allocate (i(nmaxint)); Call memplus(KIND(i), SIZE(i), 1)
@@ -994,7 +994,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     goto 100
 !  10     write(*,*)'error opening file' ; goto 1000
-10  write (normaloutput, *) 'error opening file'
+10  write (*, *) 'error opening file'
     inquire (1, opened=is_opened)
     if (is_opened .eqv. .true.) then
         close (1)
@@ -1045,7 +1045,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     thresd = 1.0d-15
 
     if (.not. (spk == spl)) then
-        write (normaloutput, *) 'error intra_3', spi, spj, spk, spl
+        write (*, *) 'error intra_3', spi, spj, spk, spl
         stop
     end if
     ini(1) = 1
@@ -1088,7 +1088,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     traint2 = 0.0d+00
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
     end if
 !        nmaxint = AINT(3.5d+09 - tmem)/48 ! one integrals required four integer and one complex values
 
@@ -1097,14 +1097,14 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 ! Abe modified 2016. 11.11
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'nmaxint = ', nmaxint
-        write (normaloutput, *) 'tmem, nmaxint*48', tmem, nmaxint*48
+        write (*, *) 'nmaxint = ', nmaxint
+        write (*, *) 'tmem, nmaxint*48', tmem, nmaxint*48
     end if
 
     IF (nmaxint < 0) stop
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'nmaxint = ', nmaxint
+        write (*, *) 'nmaxint = ', nmaxint
     end if
 
     Allocate (i(nmaxint)); Call memplus(KIND(i), SIZE(i), 1)
@@ -1280,7 +1280,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'Read intergals  and second index transformation'
+        write (*, *) 'Read intergals  and second index transformation'
     end if
     open (1, file=trim(fname), status='old', form='unformatted')
     ! open (1, file=trim(fname), status='old', form='formatted')
@@ -1538,7 +1538,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     goto 100
 !  10     write(*,*)'error opening file' ; goto 1000
-10  write (normaloutput, *) 'error opening file', rank
+10  write (*, *) 'error opening file', rank
     inquire (1, opened=is_opened)
     if (is_opened .eqv. .true.) then
         close (1)
@@ -1549,7 +1549,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (normaloutput, *) 'read and write file properly. filename : ', trim(fname), ' rank :', rank
+    if (rank == 0) write (*, *) 'read and write file properly. filename : ', trim(fname), ' rank :', rank
 101 deallocate (i); Call memminus(KIND(i), SIZE(i), 1)
     deallocate (j); Call memminus(KIND(j), SIZE(j), 1)
     deallocate (k); Call memminus(KIND(k), SIZE(k), 1)

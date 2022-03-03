@@ -67,7 +67,7 @@
        integer :: j0, j, i, i0, i1
        integer :: k0, l0, ii, jj, kk, ll
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'New dimension becomes ', dimm
+           write (*, *) 'New dimension becomes ', dimm
        end if
        uc = 0.0d+00
        wnew = 0.0d+00

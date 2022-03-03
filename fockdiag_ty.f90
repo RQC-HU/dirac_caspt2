@@ -24,7 +24,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'fockdiag start'
+           write (*, *) 'fockdiag start'
        end if
        REALF = .TRUE.
 
@@ -38,7 +38,7 @@
 
        REALF = .FALSE.
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'REALF', REALF
+           write (*, *) 'REALF', REALF
        end if
 
        If (REALF) then          ! real*8
@@ -70,9 +70,9 @@
            n = nspace(3, i0)
 
            if (rank == 0) then ! Process limits for output
-               if (i0 == 1) write (normaloutput, *) 'FOR INACTIVE-INACTIVE ROTATION !'
-               if (i0 == 2) write (normaloutput, *) 'FOR ACTIVE-ACTIVE ROTATION !'
-               if (i0 == 3) write (normaloutput, *) 'FOR SECONDARY-SECONDARY ROTATION !'
+               if (i0 == 1) write (*, *) 'FOR INACTIVE-INACTIVE ROTATION !'
+               if (i0 == 2) write (*, *) 'FOR ACTIVE-ACTIVE ROTATION !'
+               if (i0 == 3) write (*, *) 'FOR SECONDARY-SECONDARY ROTATION !'
            end if
            if (REALF) then
 
@@ -81,17 +81,17 @@
                write (5) n0, n1, n
                write (5) fa(n0:n1, n0:n1)
                if (rank == 0) then ! Process limits for output
-                   write (normaloutput, *) n0, n1, n
+                   write (*, *) n0, n1, n
 
-                   write (normaloutput, *) 'fa '
+                   write (*, *) 'fa '
 
                    do i = n0, n1
-                       write (normaloutput, '(30E13.5)') (fa(i, j), j=n0, n1)
+                       write (*, '(30E13.5)') (fa(i, j), j=n0, n1)
                    end do
 
-                   write (normaloutput, *) 'f '
+                   write (*, *) 'f '
                    do i = n0, n1
-                       write (normaloutput, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
+                       write (*, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
                    end do
                end if
            else
@@ -143,10 +143,10 @@
 
        goto 1000
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'reading err in orbcoeff'
+           write (*, *) 'reading err in orbcoeff'
        end if
 1000   continue
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'fockdiag end'
+           write (*, *) 'fockdiag end'
        end if
    end subroutine fockdiag_ty

@@ -26,7 +26,7 @@
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'enter building fock matrix'
+           write (*, *) 'enter building fock matrix'
        end if
        datetmp0 = initdate
        tsectmp0 = inittime
@@ -37,7 +37,7 @@
        f = 0.0d+00
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'enter building fock matrix'
+           write (*, *) 'enter building fock matrix'
        end if
        !$OMP parallel private(i,j,k,l,cmplxint,dr,di,dens)
        !$OMP do schedule(dynamic,2)
@@ -150,7 +150,7 @@
        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
        if (rank == 0) then  ! Process limits for output
-           write (normaloutput, *) 'fockcasci before f allreduce'
+           write (*, *) 'fockcasci before f allreduce'
        end if
        if (rank == 0) call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
        datetmp0 = datetmp1
@@ -159,6 +159,6 @@
        call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'fockcasci end'
+           write (*, *) 'fockcasci end'
        end if
    end

@@ -56,14 +56,14 @@
        deallocate (work)
 
        if (info /= 0 .and. rank == 0) then
-           write (normaloutput, *) 'error in diagonalization, info = ', info
+           write (*, *) 'error in diagonalization, info = ', info
            goto 1000
        end if
 
        if (cutoff) then
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'cut off threshold is ', thresd
+               write (*, *) 'cut off threshold is ', thresd
            end if
            j0 = 0
            do i0 = 1, dimn
@@ -113,7 +113,7 @@
        integer :: k0, l0, ii, jj, kk, ll
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Enter cdiagonal part'
+           write (*, *) 'Enter cdiagonal part'
        end if
        w(:) = 0.0d+00
 
@@ -209,11 +209,11 @@
        deallocate (rwork)
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Finish zheev info = ', info
+           write (*, *) 'Finish zheev info = ', info
        end if
        if (info /= 0) then
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'error in diagonalization, info = ', info
+               write (*, *) 'error in diagonalization, info = ', info
            end if
            goto 1000
        end if
@@ -225,7 +225,7 @@
        if (cutoff) then
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'cut off threshold is ', thresd
+               write (*, *) 'cut off threshold is ', thresd
            end if
 
            j0 = 0
@@ -242,7 +242,7 @@
        end if
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, '(A,I8)') "end cdiag", rank
+           write (*, '(A,I8)') "end cdiag", rank
        end if
 1000   continue
    end subroutine cdiag
@@ -276,7 +276,7 @@
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'rdiag0 start'
+           write (*, *) 'rdiag0 start'
        end if
        w = 0.0d+00
        cutoff = .FALSE.
@@ -291,7 +291,7 @@
        ncount = 0
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'nsymrp', nsymrp
+           write (*, *) 'nsymrp', nsymrp
        end if
        Do sym = 1, nsymrp
 
@@ -307,7 +307,7 @@
        End do
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
+           write (*, *) 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
        end if
        Do sym = 1, nsymrp
 
@@ -347,29 +347,29 @@
        mat = MATMUL(mat, fa)
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'OFF DIAGONAL TERM OF U*FU'
+           write (*, *) 'OFF DIAGONAL TERM OF U*FU'
        end if
        do i = 1, n
        do j = 1, n
            if ((i /= j) .and. (ABS(mat(i, j)) > 1.0d-10)) then
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, '(2E13.5,2I3)') mat(i, j), i, j
+               write (*, '(2E13.5,2I3)') mat(i, j), i, j
            end if
            end if
        end do
        end do
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+           write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
            do i = 1, n
-               write (normaloutput, '(4E13.5)') mat(i, i), w(i), ABS(mat(i, i) - w(i))
+               write (*, '(4E13.5)') mat(i, i), w(i), ABS(mat(i, i) - w(i))
            end do
-           write (normaloutput, '(/)')
+           write (*, '(/)')
        end if
        deallocate (mat)
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'rdiag0 end'
+           write (*, *) 'rdiag0 end'
        end if
    end
 
@@ -402,8 +402,8 @@
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'cdiag0 start'
-           write (normaloutput, *) 'nsymrpa', nsymrpa
+           write (*, *) 'cdiag0 start'
+           write (*, *) 'nsymrpa', nsymrpa
        end if
 !         nsymrp = nsymrpa
 
@@ -418,7 +418,7 @@
        End do
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'fi', fi
+           write (*, *) 'fi', fi
        end if
 
        fac(n0:n1, n0:n1) = 0.0d+00
@@ -501,7 +501,7 @@
                Do j = 1, dimn
                    If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
                        if (rank == 0) then ! Process limits for output
-                           write (normaloutput, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
+                           write (*, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
                        end if
                    End if
                End do
@@ -510,7 +510,7 @@
            Do i = 1, dimn
                If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
                    if (rank == 0) then ! Process limits for output
-                       write (normaloutput, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
+                       write (*, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
                    end if
                End if
            End do
@@ -544,34 +544,34 @@
        matc = MATMUL(matc, fac)
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'OFF DIAGONAL TERM OF U*FU'
+           write (*, *) 'OFF DIAGONAL TERM OF U*FU'
        end if
        do i = n0, n1
        do j = n0, n1
            if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
                 if (rank == 0) then ! Process limits for output
-                    write (normaloutput, '(2E13.5,2I3)') matc(i, j), i, j
+                    write (*, '(2E13.5,2I3)') matc(i, j), i, j
                 end if
            end if
        end do
        end do
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+           write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
        end if
        do i = n0, n1
            if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
                if (rank == 0) then ! Process limits for output
-                   write (normaloutput, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
+                   write (*, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
                end if
            End if
        end do
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, '(/)')
+           write (*, '(/)')
        end if
        deallocate (matc)
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'cdiag0 end'
+           write (*, *) 'cdiag0 end'
        end if
    end

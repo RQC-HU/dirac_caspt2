@@ -27,7 +27,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) "enter e0test"
+           write (*, *) "enter e0test"
        end if
        Allocate (energy(nroot, 4)); Call memplus(KIND(energy), SIZE(energy), 1)
        !    energy(1:nroot, 1:4) = 0.0d+00
@@ -58,7 +58,7 @@
            end do
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'energy 1 =', energy(iroot, 1)
+               write (*, *) 'energy 1 =', energy(iroot, 1)
            end if
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
@@ -107,7 +107,7 @@
            !    call MPI_Reduce(energy(iroot, 2), energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
+               write (*, *) 'energy 2 =', energy(iroot, 2)
            end if
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
@@ -138,7 +138,7 @@
                        i2r = inttwr(kk, kk, ii, jj)
 
                        if (rank == 0) then ! Process limits for output
-                           write (normaloutput, '(4I3,F5.1,I6)') kk, kk, ii, jj, nsign, nint
+                           write (*, '(4I3,F5.1,I6)') kk, kk, ii, jj, nsign, nint
                        end if
 
                        oneeff = oneeff + i2r
@@ -149,7 +149,7 @@
                        i2r = inttwr(kk, jj, ii, kk)
 
                        if (rank == 0) then ! Process limits for output
-                           write (normaloutput, '(4I3,F5.1,I6)') kk, jj, ii, kk, nsign, nint
+                           write (*, '(4I3,F5.1,I6)') kk, jj, ii, kk, nsign, nint
                        end if
 
                        oneeff = oneeff - i2r
@@ -174,7 +174,7 @@
            !    call MPI_Reduce(energy(iroot, 3), energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
+               write (*, *) 'energy 3 =', energy(iroot, 3)
            end if
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
@@ -244,15 +244,15 @@
            !    call MPI_Reduce(energy(iroot, 4), energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'energy 4 =', energy(iroot, 4)
+               write (*, *) 'energy 4 =', energy(iroot, 4)
 
-               write (normaloutput, *) iroot, 't-energy(1-4)', &
+               write (*, *) iroot, 't-energy(1-4)', &
                    energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-               write (normaloutput, *) iroot, 't-energy ', &
+               write (*, *) iroot, 't-energy ', &
                    eigen(iroot) - ecore
 
-               write (normaloutput, *) 'R the error ', &
+               write (*, *) 'R the error ', &
                    eigen(iroot) - ecore &
                    - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
            end if
@@ -613,18 +613,18 @@
 #endif
 
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'energy 1 =', energy(iroot, 1)
-               write (normaloutput, *) 'energy 2 =', energy(iroot, 2)
-               write (normaloutput, *) 'energy 3 =', energy(iroot, 3)
-               write (normaloutput, *) 'energy 4 =', energy(iroot, 4)
+               write (*, *) 'energy 1 =', energy(iroot, 1)
+               write (*, *) 'energy 2 =', energy(iroot, 2)
+               write (*, *) 'energy 3 =', energy(iroot, 3)
+               write (*, *) 'energy 4 =', energy(iroot, 4)
 
-               write (normaloutput, *) iroot, 't-energy(1-4)', &
+               write (*, *) iroot, 't-energy(1-4)', &
                    energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-               write (normaloutput, *) iroot, 't-energy', &
+               write (*, *) iroot, 't-energy', &
                    eigen(iroot) - ecore
 
-               write (normaloutput, *) 'C the error ', &
+               write (*, *) 'C the error ', &
                    eigen(iroot) - ecore &
                    - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
@@ -645,12 +645,12 @@
 !         write(*,*)'energy HF1 =',energyHF(1)
 !         write(*,*)'energy HF2 =',energyHF(2)
            if (rank == 0) then ! Process limits for output
-               write (normaloutput, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+               write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
            end if
        end if
 1000   continue
        deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'e0test end'
+           write (*, *) 'e0test end'
        end if
    End subroutine e0test_v2

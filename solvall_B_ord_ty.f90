@@ -81,8 +81,8 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) ' ENTER solv B part'
-        write (normaloutput, *) ' nsymrpa', nsymrpa
+        write (*, *) ' ENTER solv B part'
+        write (*, *) ' nsymrpa', nsymrpa
     end if
     i0 = 0
     Do ii = 1, ninact
@@ -112,7 +112,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (normaloutput, *) 'end before v matrices'
+    if (rank == 0) write (*, *) 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -140,7 +140,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         End do                  ! it
 
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'isym, dimn', isym, dimn
+            write (*, *) 'isym, dimn', isym, dimn
         end if
         If (dimn == 0) goto 1000
 
@@ -165,7 +165,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
         sc = 0.0d+00            ! sc N*N
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'before sBmat'
+            write (*, *) 'before sBmat'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -174,7 +174,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'sc matrix is obtained normally'
+            write (*, *) 'sc matrix is obtained normally'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -187,7 +187,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
         sc0 = sc
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'before cdiag'
+            write (*, *) 'before cdiag'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -195,7 +195,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'after s cdiag, new dimension is', dimm
+            write (*, *) 'after s cdiag, new dimension is', dimm
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -211,7 +211,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
         bc = 0.0d+00
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'before bBmat'
+            write (*, *) 'before bBmat'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -220,7 +220,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'bc matrix is obtained normally'
+            write (*, *) 'bc matrix is obtained normally'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -228,26 +228,26 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         If (debug) then
 
             if (rank == 0) then ! Process limits for output
-                write (normaloutput, *) 'Check whether U*SU is diagonal'
+                write (*, *) 'Check whether U*SU is diagonal'
             end if
             Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) then  ! Process limits for output
-                write (normaloutput, *) 'Check whether U*SU is diagonal END'
+                write (*, *) 'Check whether U*SU is diagonal END'
             end if
         End if
 
         deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
 
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'OK cdiag', dimn, dimm
+            write (*, *) 'OK cdiag', dimn, dimm
         end if
         Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
         Allocate (wsnew(dimm)); Call memplus(KIND(wsnew), SIZE(wsnew), 1)     ! wnew M
         uc(:, :) = 0.0d+00
         wsnew(:) = 0.0d+00
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'before ccutoff'
+            write (*, *) 'before ccutoff'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -255,7 +255,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'OK ccutoff'
+            write (*, *) 'OK ccutoff'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -263,7 +263,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
         deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'before ucramda_s_half'
+            write (*, *) 'before ucramda_s_half'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -272,7 +272,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         deallocate (wsnew); Call memminus(KIND(wsnew), SIZE(wsnew), 1)
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'ucrams half OK'
+            write (*, *) 'ucrams half OK'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -288,19 +288,19 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         If (debug) then
 
             if (rank == 0) then ! Process limits for output
-                write (normaloutput, *) 'Check whether bc1 is hermite or not'
+                write (*, *) 'Check whether bc1 is hermite or not'
             end if
             Do i = 1, dimm
                 Do j = i, dimm
                     if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
                         if (rank == 0) then ! Process limits for output
-                            write (normaloutput, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
+                            write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
                         end if
                     End if
                 End do
             End do
             if (rank == 0) then ! Process limits for output
-                write (normaloutput, *) 'Check whether bc1 is hermite or not END'
+                write (*, *) 'Check whether bc1 is hermite or not END'
             end if
         End if
 
@@ -312,12 +312,12 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Allocate (wb(dimm)); Call memplus(KIND(wb), SIZE(wb), 1)
 
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'bC matrix is transrated to bc1(M*M matrix)!'
+            write (*, *) 'bC matrix is transrated to bc1(M*M matrix)!'
         end if
         Allocate (bc0(dimm, dimm)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*M
         bc0 = bc1
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'before cdiag'
+            write (*, *) 'before cdiag'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -325,7 +325,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'end cdiag'
+            write (*, *) 'end cdiag'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -333,19 +333,19 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         If (debug) then
 
             if (rank == 0) then ! Process limits for output
-                write (normaloutput, *) 'Check whether bc is really diagonalized or not'
+                write (*, *) 'Check whether bc is really diagonalized or not'
             end if
             Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) then ! Process limits for output
-                write (normaloutput, *) 'Check whether bc is really diagonalized or not END'
+                write (*, *) 'Check whether bc is really diagonalized or not END'
             end if
         End if
 
         deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
 
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'bC1 matrix is diagonalized!'
+            write (*, *) 'bC1 matrix is diagonalized!'
         end if
         e2 = 0.0d+00
 
@@ -386,7 +386,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
         End do            !i0
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, '("e2b(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+            write (*, '("e2b(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
         end if
         Deallocate (bc1); Call memminus(KIND(bc1), SIZE(bc1), 2)
         Deallocate (uc); Call memminus(KIND(uc), SIZE(uc), 2)
@@ -395,7 +395,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
 1000    e2b = e2b + e2(isym)
         if (rank == 0) then ! Process limits for output
-            write (normaloutput, *) 'End e2(isym) add'
+            write (*, *) 'End e2(isym) add'
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -404,8 +404,8 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     End do               ! isym
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, '("e2b      = ",E20.10,"a.u.")') e2b
-        write (normaloutput, '("sumc2,b  = ",E20.10)') sumc2local
+        write (*, '("e2b      = ",E20.10,"a.u.")') e2b
+        write (*, '("sumc2,b  = ",E20.10)') sumc2local
     end if
     sumc2 = sumc2 + sumc2local
 
@@ -416,7 +416,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
     continue
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'end solvB_ord_ty'
+        write (*, *) 'end solvB_ord_ty'
     end if
 end
 
@@ -533,7 +533,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
     bc(:, :) = 0.0d+00
 
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'B space Bmat iroot=', iroot
+        write (*, *) 'B space Bmat iroot=', iroot
     end if
 
     !$OMP parallel do schedule(dynamic,1) private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
@@ -614,7 +614,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
         call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     end if
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'bBmat is ended'
+        write (*, *) 'bBmat is ended'
     end if
 #endif
 End subroutine bBmat
@@ -716,13 +716,13 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 
 20  close (1)
     if (rank == 0) then ! Process limits for output
-        write (normaloutput, *) 'reading int2 is over'
+        write (*, *) 'reading int2 is over'
     end if
     goto 100
 
 10  write (*, *) 'error while opening file Bint'; goto 100
 
-100 if (rank == 0) write (normaloutput, *) 'vBmat_ord_ty is ended'
+100 if (rank == 0) write (*, *) 'vBmat_ord_ty is ended'
 
 !  v(nij, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 #ifdef HAVE_MPI

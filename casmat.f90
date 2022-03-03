@@ -24,12 +24,12 @@
        mat = 0.0d+00
 
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'Cas mat enter'
+           write (*, *) 'Cas mat enter'
        end if
        Allocate (oc(nelec))
        Allocate (vi(nact - nelec))
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, *) 'allocated oc and vi', rank
+           write (*, *) 'allocated oc and vi', rank
        end if
 #ifdef BIG_MAT
        ! If only the master process has a matrix named mat,
@@ -140,7 +140,7 @@
 !                 write(*,*)'j=',j
 
                    If (j > i) then
-                       !    if (rank == 0) write (normaloutput, '(A,I5,A,I5)') 'Noda ijorder i:', i, ' j:', j
+                       !    if (rank == 0) write (*, '(A,I5,A,I5)') 'Noda ijorder i:', i, ' j:', j
                        cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
                        mat(i, j) = mat(i, j) + cmplxint
                        Do l0 = 1, ninact
@@ -213,7 +213,7 @@
                            j = idetr(newidet2)
 
                            If (j > i) then
-                               !    if (rank == 0) write (normaloutput, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
+                               !    if (rank == 0) write (*, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
                                if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
                                if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
 
@@ -246,8 +246,8 @@
        Deallocate (oc)
        Deallocate (vi)
        if (rank == 0) then ! Process limits for output
-           write (normaloutput, '(A,I4)') 'end casmat', rank
-           write (normaloutput, '(A,I4)') 'Reduce mat(:,:)', rank
+           write (*, '(A,I4)') 'end casmat', rank
+           write (*, '(A,I4)') 'Reduce mat(:,:)', rank
        end if
 #ifdef HAVE_MPI
 #ifdef BIG_MAT
