@@ -3,8 +3,8 @@
 
 SUBROUTINE solvG_ord_ty(e0, e2g)
 
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -39,35 +39,35 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    !      SPACE G IS NOW CALCULATED
-    !
-    !     EaiEbt|0>
-    !
-    !   DRAS1 =-1   DRAS2 = -1   DRAS3 = +2
-    !
-    !   c > d, a > b, and impose that c >= a (or a >= c)
-    !
-    !  S(cjdu,aibt) = d(ac) d(bd) d(ij) <0|Eut|0>  <= S(u,t)
-    !                                   ~~~~~~~~~
-    !  S(u,t) = <0|Eut|0>
-    !
-    !  B(u,t) = Siguma_w [eps(w)<0|EutEww|0>] + S(u,t)(-eps(t))
-    !
-    !  alpha(i,a,b) = -eps(i) + eps(a) + eps(b) - e0
-    !
-    !  where
-    !
-    !  e0 = Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
-    !
-    !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
-    !
-    !
-    !  E2 = SIGUMA_iab, dimm |V1(t,iab)|^2|/{(alpha(iab) + wb(t)}
-    !
-    !        thresd = thres
+!      SPACE G IS NOW CALCULATED
+!
+!     EaiEbt|0>
+!
+!   DRAS1 =-1   DRAS2 = -1   DRAS3 = +2
+!
+!   c > d, a > b, and impose that c >= a (or a >= c)
+!
+!  S(cjdu,aibt) = d(ac) d(bd) d(ij) <0|Eut|0>  <= S(u,t)
+!                                   ~~~~~~~~~
+!  S(u,t) = <0|Eut|0>
+!
+!  B(u,t) = Siguma_w [eps(w)<0|EutEww|0>] + S(u,t)(-eps(t))
+!
+!  alpha(i,a,b) = -eps(i) + eps(a) + eps(b) - e0
+!
+!  where
+!
+!  e0 = Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
+!
+!  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
+!
+!
+!  E2 = SIGUMA_iab, dimm |V1(t,iab)|^2|/{(alpha(iab) + wb(t)}
+!
+!        thresd = thres
     if (rank == 0) then ! Process limits for output
         write (*, *) ' ENTER solv G part'
         write (*, *) ' nsymrpa', nsymrpa
@@ -127,14 +127,14 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         write (*, *) 'come'
     end if
 #ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+    call MPI_Barrier (MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'end before v matrices'
+    if (rank == 0) write(*,*) 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vGmat_ord_ty(nabi, iabi, v)
-    if (rank == 0) write (*, *) 'end after vGmat'
+    if (rank == 0) write(*,*) 'end after vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -164,7 +164,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call sGmat(dimn, indt(1:dimn), sc)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'sG matrix is obtained normally'
         end if
@@ -174,7 +174,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         Allocate (ws(dimn))
 
         cutoff = .TRUE.
-        !           thresd = 1.0d-15
+!           thresd = 1.0d-15
 
         Allocate (sc0(dimn, dimn))
         sc0 = sc
@@ -185,7 +185,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'after s cdiag, new dimension is', dimm
         end if
@@ -206,7 +206,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
             end if
 
             Call checkdgc(dimn, sc0, sc, ws)
-            !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) then ! Process limits for output
                 write (*, *) 'Check whether U*SU is diagonal END'
             end if
@@ -222,7 +222,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call bGmat(dimn, sc0, indt(1:dimn), bc)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         if (rank == 0) then ! Process limits for output
             write (*, *) 'bC matrix is obtained normally'
@@ -246,7 +246,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'OK ccutoff'
         end if
@@ -262,7 +262,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         deallocate (wsnew)
 
         if (rank == 0) then ! Process limits for output
@@ -312,7 +312,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'end cdiag'
         end if
@@ -325,7 +325,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
                 write (*, *) 'Check whether bc is really diagonalized or not'
             end if
             Call checkdgc(dimm, bc0, bc1, wb)
-            !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) then ! Process limits for output
                 write (*, *) 'Check whether bc is really diagonalized or not END'
             end if
@@ -345,7 +345,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
             jb = ib0(i0)
             ji = ii0(i0)
 
-            !     EaiEbt|0>
+!     EaiEbt|0>
 
             syma = MULTB_D(irpmo(jb), isym)
             symb = MULTB_D(irpmo(ja), irpmo(ji))
@@ -418,10 +418,10 @@ end
 
 SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space C
 
-    !  S(u,t) = <0|Eut|0>
-    !
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+!  S(u,t) = <0|Eut|0>
+!
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -439,7 +439,7 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 
     sc = 0.0d+00
 
-    !    !$OMP parallel do schedule(dynamic,1) private(it,iu,a,b)
+!    !$OMP parallel do schedule(dynamic,1) private(it,iu,a,b)
     Do i = rank + 1, dimn, nprocs
         it = indt(i)
 
@@ -452,12 +452,12 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 
             sc(i, j) = DCMPLX(a, b)
             sc(j, i) = DCMPLX(a, -b)
-            !              write(*,*)i,j,sc(i,j)
+!              write(*,*)i,j,sc(i,j)
         End do               !j
     End do                  !i
-    !    !$OMP end parallel do
+!    !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce (MPI_IN_PLACE, sc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
 End subroutine sGmat
@@ -466,15 +466,15 @@ End subroutine sGmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in space C
-    !
-    !
-    !  S(u,t) = <0|Eut|0>
-    !
-    !  B(u,t) = Siguma_w [eps(w)<0|EutEww|0>] + S(u,t)(-eps(t))
-    !
-    !
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+!
+!
+!  S(u,t) = <0|Eut|0>
+!
+!  B(u,t) = Siguma_w [eps(w)<0|EutEww|0>] + S(u,t)(-eps(t))
+!
+!
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -499,7 +499,7 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
         write (*, *) 'G space Bmat iroot=', iroot
     end if
 
-    !  !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
+  !  !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
         iu = indt(i)
         ju = iu + ninact
@@ -508,7 +508,7 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
             it = indt(j)
             jt = it + ninact
 
-            !  B(u,t) = Siguma_w [eps(w)<0|EutEww|0>] + S(u,t)(-eps(t))
+!  B(u,t) = Siguma_w [eps(w)<0|EutEww|0>] + S(u,t)(-eps(t))
 
             Do iw = 1, nact
                 jw = iw + ninact
@@ -519,15 +519,15 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
 
             End do
 
-            !              bc(i, j) = bc(i, j) - sc(i, j)*eps(jt)
+!              bc(i, j) = bc(i, j) - sc(i, j)*eps(jt)
             bc(i, j) = bc(i, j) - sc(i, j)*eps(ju)
 
-            !              write(*,*)'bc',i,j, bc(i,j)
+!              write(*,*)'bc',i,j, bc(i,j)
             bc(j, i) = DCONJG(bc(i, j))
 
         End do               !i
     End do                  !j
-    !   !$OMP end parallel do
+ !   !$OMP end parallel do
 #ifdef HAVE_MPI
     if (rank == 0) then
         call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
@@ -544,11 +544,11 @@ End subroutine bGmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
-    !
-    !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
-    !
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+!
+!  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
+!
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -574,13 +574,13 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     v = 0.0d+00
 
-    !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
+!  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
 
     open (1, file=gint, status='old', form='unformatted')  !  (31|32) stored
 30  read (1, err=10, end=20) i, j, k, l, cint2
 
     if (i == k) goto 30
-    !        write(*,*) i,j,k,l,tabi,cint2
+!        write(*,*) i,j,k,l,tabi,cint2
 
     tabi = iabi(i, k, j)
 
@@ -600,14 +600,14 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     goto 30
 
 20  close (1); goto 100
-10  if (rank == 0) write (*, *) 'error while opening file Gint'; goto 100
+10  if(rank == 0) write (*, *) 'error while opening file Gint'; goto 100
 
 100 if (rank == 0) write (*, *) 'vGmat_ord_ty is ended'
     !   v(nabi, ninact+1:ninact+nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'end allreduce vGmat'
+    if(rank == 0) write(*,*) 'end allreduce vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

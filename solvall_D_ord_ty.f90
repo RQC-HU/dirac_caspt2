@@ -80,7 +80,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     end if
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
-    tsectmp1 = tsectmp0; 
+    tsectmp1 = tsectmp0;
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -88,6 +88,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     e2d = 0.0d+00
     dimn = 0
     syma = 0
+
 
     i0 = 0
     Do ia = 1, nsec
@@ -479,7 +480,7 @@ SUBROUTINE sDmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
     End do                  !i
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce (MPI_IN_PLACE, sc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 End subroutine sDmat
 

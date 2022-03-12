@@ -1,41 +1,41 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE e0aftertra_ty
+SUBROUTINE e0aftertra_ty
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-       use four_caspt2_module
+    use four_caspt2_module
 
-       Implicit NONE
+    Implicit NONE
 
-       integer :: ii, jj, kk, ll, typetype
-       integer :: j0, j, i, k, l, i0, i1, nuniq
-       integer :: k0, l0, nint
-       logical :: test
+    integer :: ii, jj, kk, ll, typetype
+    integer :: j0, j, i, k, l, i0, i1, nuniq
+    integer :: k0, l0, nint
+    logical :: test
 
-       real*8 :: i2r, i2i, dr, di, nsign
-       complex*16 :: oneeff, cmplxint, dens, energyHF(2)
-       complex*16, allocatable :: energy(:, :)
+    real*8 :: i2r, i2i, dr, di, nsign
+    complex*16 :: oneeff, cmplxint, dens, energyHF(2)
+    complex*16, allocatable :: energy(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-       write (*, *) 'EIGEN(1)', eigen(1)
+    write (*, *) 'EIGEN(1)', eigen(1)
 
-       Allocate (energy(nroot, 4))
-       energy(1:nroot, 1:4) = 0.0d+00
+    Allocate (energy(nroot, 4))
+    energy(1:nroot, 1:4) = 0.0d+00
 
-       debug = .FALSE.
-       thres = 1.0d-15
+    debug = .FALSE.
+    thres = 1.0d-15
 !        thres = 0.0d+00
-       if (rank == 0) then
-           open (5, file='e0after', status='unknown', form='unformatted')
-       end if
+    if (rank == 0) then
+        open (5, file='e0after', status='unknown', form='unformatted')
+    end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
-       write (*, *) 'iroot = ', iroot
+    write (*, *) 'iroot = ', iroot
 
 !        Do iroot = 1, nroot
 
@@ -50,17 +50,17 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       energyHF(1) = 0.0d+00
+    energyHF(1) = 0.0d+00
 
-       do i = 1, ninact + nelec
+    do i = 1, ninact + nelec
 
-           cmplxint = 0.0d+00
+        cmplxint = 0.0d+00
 
-           Call tramo1_ty(i, i, cmplxint)
+        Call tramo1_ty(i, i, cmplxint)
 !            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
-           energyHF(1) = energyHF(1) + cmplxint
+        energyHF(1) = energyHF(1) + cmplxint
 
-       end do
+    end do
 
 !         write(*,*)'energyHF(1)',energyHF(1)
 
@@ -73,23 +73,23 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       energyHF(2) = 0.0d+00
+    energyHF(2) = 0.0d+00
 
-       do i = 1, ninact + nelec
-           do j = i, ninact + nelec
+    do i = 1, ninact + nelec
+        do j = i, ninact + nelec
 
-               Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2_ty(i, i, j, j, cmplxint)
 
-               energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
+            energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
 
-               Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2_ty(i, j, j, i, cmplxint)
 
-               energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
+            energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
 
-           end do
-       end do
+        end do
+    end do
 
-       energyHF(2) = energyHF(2) + CONJG(energyHF(2))
+    energyHF(2) = energyHF(2) + CONJG(energyHF(2))
 
 !         write(*,*)'energyHF(2)',energyHF(2)
 
@@ -102,13 +102,13 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = 1, ninact
+    do i = 1, ninact
 
-           Call tramo1_ty(i, i, cmplxint)
+        Call tramo1_ty(i, i, cmplxint)
 
-           energy(iroot, 1) = energy(iroot, 1) + cmplxint
+        energy(iroot, 1) = energy(iroot, 1) + cmplxint
 
-       end do
+    end do
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 2            !
@@ -119,21 +119,21 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = 1, ninact
-           do j = i, ninact
+    do i = 1, ninact
+        do j = i, ninact
 
-               Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2_ty(i, i, j, j, cmplxint)
 
-               energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
+            energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
 
-               Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2_ty(i, j, j, i, cmplxint)
 
-               energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
+            energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
 
-           end do
-       end do
+        end do
+    end do
 
-       energy(iroot, 2) = energy(iroot, 2) + CONJG(energy(iroot, 2))
+    energy(iroot, 2) = energy(iroot, 2) + CONJG(energy(iroot, 2))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 3            !
@@ -146,54 +146,54 @@
 !                             !          k
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = ninact + 1, ninact + nact
-           do j = i, ninact + nact
+    do i = ninact + 1, ninact + nact
+        do j = i, ninact + nact
 
-               oneeff = 0.0d+00
+            oneeff = 0.0d+00
 
-               do k = 1, ninact            ! kk is inactive spinor
+            do k = 1, ninact            ! kk is inactive spinor
 
-                   Call tramo2_ty(i, j, k, k, cmplxint)
+                Call tramo2_ty(i, j, k, k, cmplxint)
 
-                   oneeff = oneeff + cmplxint
+                oneeff = oneeff + cmplxint
 
-                   Call tramo2_ty(i, k, k, j, cmplxint)
+                Call tramo2_ty(i, k, k, j, cmplxint)
 
-                   oneeff = oneeff - cmplxint
+                oneeff = oneeff - cmplxint
 
-300            end do           ! k
+300         end do           ! k
 
-               Call tramo1_ty(i, j, cmplxint)
+            Call tramo1_ty(i, j, cmplxint)
 
-               oneeff = oneeff + cmplxint
+            oneeff = oneeff + cmplxint
 
 !___________________________________________________________!
-               !
-               if (i == j) oneeff = 0.5d+00*oneeff             !
+            !
+            if (i == j) oneeff = 0.5d+00*oneeff             !
 !___________________________________________________________!
 
-               if (realcvec) then
+            if (realcvec) then
 
-                   ii = i - ninact
-                   jj = j - ninact
-                   Call dim1_density_R(ii, jj, dr)
+                ii = i - ninact
+                jj = j - ninact
+                Call dim1_density_R(ii, jj, dr)
 
-                   energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
+                energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
 
-               else
-                   ii = i - ninact
-                   jj = j - ninact
-                   Call dim1_density(ii, jj, dr, di)
+            else
+                ii = i - ninact
+                jj = j - ninact
+                Call dim1_density(ii, jj, dr, di)
 
-                   dens = CMPLX(dr, di, 16)
+                dens = CMPLX(dr, di, 16)
 !                  write(*,'(2I4,2E20.10)') i, j,DBLE(oneeff), DBLE(dens)
-                   energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
+                energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
-               end if
-           end do
-       end do
+            end if
+        end do
+    end do
 
-       energy(iroot, 3) = energy(iroot, 3) + CONJG(energy(iroot, 3))
+    energy(iroot, 3) = energy(iroot, 3) + CONJG(energy(iroot, 3))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 4            !
@@ -205,10 +205,10 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
 
-       do i = ninact + 1, ninact + nact
-           do j = ninact + 1, ninact + nact
-               do k = ninact + 1, ninact + nact
-                   do l = i, ninact + nact
+    do i = ninact + 1, ninact + nact
+        do j = ninact + 1, ninact + nact
+            do k = ninact + 1, ninact + nact
+                do l = i, ninact + nact
 
 !          if((i < ninact+3).and.(j < ninact+3).and.(k < ninact+3).and.(l < ninact+3)) then
 !             debug = .TRUE. ; write(*,*) i,j,k,l
@@ -216,92 +216,92 @@
 !             debug = .FALSE.
 !          endif
 
-                       Call tramo2_ty(i, j, k, l, cmplxint)
+                    Call tramo2_ty(i, j, k, l, cmplxint)
 
-                       If (i == l) cmplxint = cmplxint*(0.5d+00)
+                    If (i == l) cmplxint = cmplxint*(0.5d+00)
 
-                       if (realcvec) then
-                           ii = i - ninact
-                           jj = j - ninact
-                           kk = k - ninact
-                           ll = l - ninact
+                    if (realcvec) then
+                        ii = i - ninact
+                        jj = j - ninact
+                        kk = k - ninact
+                        ll = l - ninact
 
-                           Call dim2_density_R(ii, jj, kk, ll, dr)
+                        Call dim2_density_R(ii, jj, kk, ll, dr)
 
-                           energy(iroot, 4) = energy(iroot, 4) &
-                                              + (0.5d+00)*dr*cmplxint
-                       else
-                           ii = i - ninact
-                           jj = j - ninact
-                           kk = k - ninact
-                           ll = l - ninact
+                        energy(iroot, 4) = energy(iroot, 4) &
+                                           + (0.5d+00)*dr*cmplxint
+                    else
+                        ii = i - ninact
+                        jj = j - ninact
+                        kk = k - ninact
+                        ll = l - ninact
 
-                           Call dim2_density(ii, jj, kk, ll, dr, di)
+                        Call dim2_density(ii, jj, kk, ll, dr, di)
 
-                           dens = CMPLX(dr, di, 16)
+                        dens = CMPLX(dr, di, 16)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                           if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
 
-                           energy(iroot, 4) = energy(iroot, 4) &
-                                              + (0.5d+00)*dens*cmplxint
-                       end if
+                        energy(iroot, 4) = energy(iroot, 4) &
+                                           + (0.5d+00)*dens*cmplxint
+                    end if
 
-                       if (j == k) then
+                    if (j == k) then
 
-                           dr = 0.0d+00
-                           di = 0.0d+00
+                        dr = 0.0d+00
+                        di = 0.0d+00
 
-                           if (realcvec) then
+                        if (realcvec) then
 
-                               ii = i - ninact
-                               ll = l - ninact
+                            ii = i - ninact
+                            ll = l - ninact
 
-                               Call dim1_density_R(ii, ll, dr)
+                            Call dim1_density_R(ii, ll, dr)
 
-                               energy(iroot, 4) = energy(iroot, 4) &
-                                                  - (0.5d+00)*dr*cmplxint
-                           else
+                            energy(iroot, 4) = energy(iroot, 4) &
+                                               - (0.5d+00)*dr*cmplxint
+                        else
 
-                               ii = i - ninact
-                               ll = l - ninact
+                            ii = i - ninact
+                            ll = l - ninact
 
-                               Call dim1_density(ii, ll, dr, di)
+                            Call dim1_density(ii, ll, dr, di)
 
-                               dens = CMPLX(dr, di, 16)
-                               energy(iroot, 4) = energy(iroot, 4) &
-                                                  - (0.5d+00)*dens*cmplxint
-                           end if
+                            dens = CMPLX(dr, di, 16)
+                            energy(iroot, 4) = energy(iroot, 4) &
+                                               - (0.5d+00)*dens*cmplxint
+                        end if
 
-                       end if
+                    end if
 
-100                end do        ! l
-               end do    ! k
-           end do       ! j
-       end do          ! i
+100             end do        ! l
+            end do    ! k
+        end do       ! j
+    end do          ! i
 
-       energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
+    energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
 
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
 
-       write (*, *) 'energy 1 =', energy(iroot, 1)
-       write (*, *) 'energy 2 =', energy(iroot, 2)
-       write (*, *) 'energy 3 =', energy(iroot, 3)
-       write (*, *) 'energy 4 =', energy(iroot, 4)
+    write (*, *) 'energy 1 =', energy(iroot, 1)
+    write (*, *) 'energy 2 =', energy(iroot, 2)
+    write (*, *) 'energy 3 =', energy(iroot, 3)
+    write (*, *) 'energy 4 =', energy(iroot, 4)
 
-       write (*, *) iroot, 't-energy(1-4)', &
-           energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
+    write (*, *) iroot, 't-energy(1-4)', &
+        energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-       write (*, *) iroot, 't-energy', &
-           eigen(iroot) - ecore
-       write (*, *) iroot, 'eigen e0', &
-           eigen(iroot)
+    write (*, *) iroot, 't-energy', &
+        eigen(iroot) - ecore
+    write (*, *) iroot, 'eigen e0', &
+        eigen(iroot)
 
-       write (*, *) 'C the error ', &
-           eigen(iroot) - ecore &
-           - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
+    write (*, *) 'C the error ', &
+        eigen(iroot) - ecore &
+        - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 !         else
 !            write(*,*)'C the error ', &
@@ -315,57 +315,57 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-       write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+    write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
 
 !!###   end do ! about type
-       if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-           close (5)
-       end if
-1000   continue
-       deallocate (energy)
-       write (*, *) 'e0aftertra end'
-   End subroutine e0aftertra_ty
+    if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        close (5)
+    end if
+1000 continue
+    deallocate (energy)
+    write (*, *) 'e0aftertra end'
+End subroutine e0aftertra_ty
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE e0aftertrac_ty
+SUBROUTINE e0aftertrac_ty
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-       use four_caspt2_module
+    use four_caspt2_module
 
-       Implicit NONE
+    Implicit NONE
 #ifdef HAVE_MPI
-       include "mpif.h"
+    include "mpif.h"
 #endif
-       integer :: ii, jj, kk, ll, typetype
-       integer :: j0, j, i, k, l, i0, i1, nuniq
-       integer :: k0, l0, nint
-       logical :: test
+    integer :: ii, jj, kk, ll, typetype
+    integer :: j0, j, i, k, l, i0, i1, nuniq
+    integer :: k0, l0, nint
+    logical :: test
 
-       real*8 :: i2r, i2i, dr, di, nsign
-       complex*16 :: oneeff, cmplxint, dens, energyHF(2)
-       complex*16, allocatable :: energy(:, :)
+    real*8 :: i2r, i2i, dr, di, nsign
+    complex*16 :: oneeff, cmplxint, dens, energyHF(2)
+    complex*16, allocatable :: energy(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-       Allocate (energy(nroot, 4))
-       energy(1:nroot, 1:4) = 0.0d+00
+    Allocate (energy(nroot, 4))
+    energy(1:nroot, 1:4) = 0.0d+00
 
-       debug = .FALSE.
-       thres = 1.0d-15
+    debug = .FALSE.
+    thres = 1.0d-15
 !        thres = 0.0d+00
-       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-           open (5, file='e0after', status='unknown', form='unformatted')
-       end if
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        open (5, file='e0after', status='unknown', form='unformatted')
+    end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
-       if (rank == 0) then ! Process limits for output
-           write (*, *) 'iroot = ', iroot
-       end if
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'iroot = ', iroot
+    end if
 
 !        Do iroot = 1, nroot
 
@@ -378,24 +378,24 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       energyHF(1) = 0.0d+00
+    energyHF(1) = 0.0d+00
 
-       do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-           ! do i = 1, ninact + nelec
+    do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        ! do i = 1, ninact + nelec
 
-           cmplxint = 0.0d+00
+        cmplxint = 0.0d+00
 
-           Call tramo1_ty(i, i, cmplxint)
+        Call tramo1_ty(i, i, cmplxint)
 !            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
-           energyHF(1) = energyHF(1) + cmplxint
+        energyHF(1) = energyHF(1) + cmplxint
 
-       end do
+    end do
 #ifdef HAVE_MPI
-       call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-       if (rank == 0) then ! Process limits for output
-           write (*, *) 'energyHF(1)', energyHF(1)
-       end if
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'energyHF(1)', energyHF(1)
+    end if
 !         do i = 1, ninact
 !
 !            cmplxint = 0.0d+00
@@ -427,35 +427,35 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       energyHF(2) = 0.0d+00
+    energyHF(2) = 0.0d+00
 
-       do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-           ! do i = 1, ninact + nelec
-           do j = i, ninact + nelec
+    do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        ! do i = 1, ninact + nelec
+        do j = i, ninact + nelec
 
-               Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2_ty(i, i, j, j, cmplxint)
 
-               energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
+            energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
 
-               Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2_ty(i, j, j, i, cmplxint)
 
-               energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
+            energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
 
-           end do
-       end do
+        end do
+    end do
 
-       energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
+    energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 #ifdef HAVE_MPI
-       call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-       if (rank == 0) then ! Process limits for output
-           write (*, *) 'energyHF(2)', energyHF(2)
-       end if
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'energyHF(2)', energyHF(2)
+    end if
 
 !Iwamuro modify
-       if (rank == 0) then ! Process limits for output
-           write (*, *) 'Iwamuro modify'
-       end if
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'Iwamuro modify'
+    end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
@@ -466,14 +466,14 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-           ! do i = 1, ninact
+    do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        ! do i = 1, ninact
 
-           Call tramo1_ty(i, i, cmplxint)
+        Call tramo1_ty(i, i, cmplxint)
 
-           energy(iroot, 1) = energy(iroot, 1) + cmplxint
+        energy(iroot, 1) = energy(iroot, 1) + cmplxint
 
-       end do
+    end do
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 2            !
@@ -484,22 +484,22 @@
 !                             !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-           ! do i = 1, ninact
-           do j = i, ninact
+    do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        ! do i = 1, ninact
+        do j = i, ninact
 
-               Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2_ty(i, i, j, j, cmplxint)
 
-               energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
+            energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
 
-               Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2_ty(i, j, j, i, cmplxint)
 
-               energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
+            energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
 
-           end do
-       end do
+        end do
+    end do
 
-       energy(iroot, 2) = energy(iroot, 2) + CONJG(energy(iroot, 2))
+    energy(iroot, 2) = energy(iroot, 2) + CONJG(energy(iroot, 2))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 3            !
@@ -512,55 +512,55 @@
 !                             !          k
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-       do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-           ! do i = ninact + 1, ninact + nact
-           do j = i, ninact + nact
+    do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        ! do i = ninact + 1, ninact + nact
+        do j = i, ninact + nact
 
-               oneeff = 0.0d+00
+            oneeff = 0.0d+00
 
-               do k = 1, ninact            ! kk is inactive spinor
+            do k = 1, ninact            ! kk is inactive spinor
 
-                   Call tramo2_ty(i, j, k, k, cmplxint)
+                Call tramo2_ty(i, j, k, k, cmplxint)
 
-                   oneeff = oneeff + cmplxint
+                oneeff = oneeff + cmplxint
 
-                   Call tramo2_ty(i, k, k, j, cmplxint)
+                Call tramo2_ty(i, k, k, j, cmplxint)
 
-                   oneeff = oneeff - cmplxint
+                oneeff = oneeff - cmplxint
 
-300            end do           ! k
+300         end do           ! k
 
-               Call tramo1_ty(i, j, cmplxint)
+            Call tramo1_ty(i, j, cmplxint)
 
-               oneeff = oneeff + cmplxint
+            oneeff = oneeff + cmplxint
 
 !___________________________________________________________!
-               !
-               if (i == j) oneeff = 0.5d+00*oneeff             !
+            !
+            if (i == j) oneeff = 0.5d+00*oneeff             !
 !___________________________________________________________!
 
-               if (realcvec) then
+            if (realcvec) then
 
-                   ii = i - ninact
-                   jj = j - ninact
-                   Call dim1_density_R(ii, jj, dr)
+                ii = i - ninact
+                jj = j - ninact
+                Call dim1_density_R(ii, jj, dr)
 
-                   energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
+                energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
 
-               else
-                   ii = i - ninact
-                   jj = j - ninact
-                   Call dim1_density(ii, jj, dr, di)
+            else
+                ii = i - ninact
+                jj = j - ninact
+                Call dim1_density(ii, jj, dr, di)
 
-                   dens = CMPLX(dr, di, 16)
+                dens = CMPLX(dr, di, 16)
 !                  write(*,'(2I4,2E20.10)') i, j,DBLE(oneeff), DBLE(dens)
-                   energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
+                energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
-               end if
-           end do
-       end do
+            end if
+        end do
+    end do
 
-       energy(iroot, 3) = energy(iroot, 3) + CONJG(energy(iroot, 3))
+    energy(iroot, 3) = energy(iroot, 3) + CONJG(energy(iroot, 3))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 4            !
@@ -572,11 +572,11 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
 
-       do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-           ! do i = ninact + 1, ninact + nact
-           do j = ninact + 1, ninact + nact
-               do k = ninact + 1, ninact + nact
-                   do l = i, ninact + nact
+    do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        ! do i = ninact + 1, ninact + nact
+        do j = ninact + 1, ninact + nact
+            do k = ninact + 1, ninact + nact
+                do l = i, ninact + nact
 
 !          if((i < ninact+3).and.(j < ninact+3).and.(k < ninact+3).and.(l < ninact+3)) then
 !             debug = .TRUE. ; write(*,*) i,j,k,l
@@ -584,102 +584,102 @@
 !             debug = .FALSE.
 !          endif
 
-                       Call tramo2_ty(i, j, k, l, cmplxint)
+                    Call tramo2_ty(i, j, k, l, cmplxint)
 
-                       If (i == l) cmplxint = cmplxint*(0.5d+00)
+                    If (i == l) cmplxint = cmplxint*(0.5d+00)
 
-                       if (realcvec) then
-                           ii = i - ninact
-                           jj = j - ninact
-                           kk = k - ninact
-                           ll = l - ninact
+                    if (realcvec) then
+                        ii = i - ninact
+                        jj = j - ninact
+                        kk = k - ninact
+                        ll = l - ninact
 
-                           Call dim2_density_R(ii, jj, kk, ll, dr)
+                        Call dim2_density_R(ii, jj, kk, ll, dr)
 
-                           energy(iroot, 4) = energy(iroot, 4) &
-                                              + (0.5d+00)*dr*cmplxint
-                       else
-                           ii = i - ninact
-                           jj = j - ninact
-                           kk = k - ninact
-                           ll = l - ninact
+                        energy(iroot, 4) = energy(iroot, 4) &
+                                           + (0.5d+00)*dr*cmplxint
+                    else
+                        ii = i - ninact
+                        jj = j - ninact
+                        kk = k - ninact
+                        ll = l - ninact
 
-                           Call dim2_density(ii, jj, kk, ll, dr, di)
+                        Call dim2_density(ii, jj, kk, ll, dr, di)
 
-                           dens = CMPLX(dr, di, 16)
+                        dens = CMPLX(dr, di, 16)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                           if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
 
-                           energy(iroot, 4) = energy(iroot, 4) &
-                                              + (0.5d+00)*dens*cmplxint
-                       end if
+                        energy(iroot, 4) = energy(iroot, 4) &
+                                           + (0.5d+00)*dens*cmplxint
+                    end if
 
-                       if (j == k) then
+                    if (j == k) then
 
-                           dr = 0.0d+00
-                           di = 0.0d+00
+                        dr = 0.0d+00
+                        di = 0.0d+00
 
-                           if (realcvec) then
+                        if (realcvec) then
 
-                               ii = i - ninact
-                               ll = l - ninact
+                            ii = i - ninact
+                            ll = l - ninact
 
-                               Call dim1_density_R(ii, ll, dr)
+                            Call dim1_density_R(ii, ll, dr)
 
-                               energy(iroot, 4) = energy(iroot, 4) &
-                                                  - (0.5d+00)*dr*cmplxint
-                           else
+                            energy(iroot, 4) = energy(iroot, 4) &
+                                               - (0.5d+00)*dr*cmplxint
+                        else
 
-                               ii = i - ninact
-                               ll = l - ninact
+                            ii = i - ninact
+                            ll = l - ninact
 
-                               Call dim1_density(ii, ll, dr, di)
+                            Call dim1_density(ii, ll, dr, di)
 
-                               dens = CMPLX(dr, di, 16)
-                               energy(iroot, 4) = energy(iroot, 4) &
-                                                  - (0.5d+00)*dens*cmplxint
-                           end if
+                            dens = CMPLX(dr, di, 16)
+                            energy(iroot, 4) = energy(iroot, 4) &
+                                               - (0.5d+00)*dens*cmplxint
+                        end if
 
-                       end if
+                    end if
 
-100                end do        ! l
-               end do    ! k
-           end do       ! j
-       end do          ! i
+100             end do        ! l
+            end do    ! k
+        end do       ! j
+    end do          ! i
 
-       energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
+    energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
 
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
 #ifdef HAVE_MPI
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-       call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
-       if (rank == 0) then ! Process limits for output
-           write (*, *) 'energy 1 =', energy(iroot, 1)
-           write (*, *) 'energy 2 =', energy(iroot, 2)
-           write (*, *) 'energy 3 =', energy(iroot, 3)
-           write (*, *) 'energy 4 =', energy(iroot, 4)
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'energy 1 =', energy(iroot, 1)
+        write (*, *) 'energy 2 =', energy(iroot, 2)
+        write (*, *) 'energy 3 =', energy(iroot, 3)
+        write (*, *) 'energy 4 =', energy(iroot, 4)
 
-           write (*, *) iroot, 't-energy(1-4)', &
-               energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
+        write (*, *) iroot, 't-energy(1-4)', &
+            energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-           write (*, *) iroot, 't-energy', &
-               eigen(iroot) - ecore
-           write (*, *) iroot, 'eigen e0', &
-               eigen(iroot)
+        write (*, *) iroot, 't-energy', &
+            eigen(iroot) - ecore
+        write (*, *) iroot, 'eigen e0', &
+            eigen(iroot)
 
-           write (*, *) 'C the error ', &
-               eigen(iroot) - ecore &
-               - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
+        write (*, *) 'C the error ', &
+            eigen(iroot) - ecore &
+            - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 ! Iwamuro modify
-           write (*, *) 'Iwamuro modify'
+        write (*, *) 'Iwamuro modify'
 
 !         else
 !            write(*,*)'C the error ', &
@@ -693,18 +693,18 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           write (*, *) 'CAUTION! HF energy may not be obtained correctly '
-           write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
-       end if
+        write (*, *) 'CAUTION! HF energy may not be obtained correctly '
+        write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+    end if
 !!###   end do ! about type
-       if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-           close (5)
-       end if
-1000   continue
-       deallocate (energy)
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        close (5)
+    end if
+1000 continue
+    deallocate (energy)
 !      write(*,*)'e0aftertrac end'
 ! Iwamuro modify
-       if (rank == 0) then ! Process limits for output
-           write (*, *) 'e0aftertrac_ty end'
-       end if
-   End subroutine e0aftertrac_ty
+    if (rank == 0) then ! Process limits for output
+        write (*, *) 'e0aftertrac_ty end'
+    end if
+End subroutine e0aftertrac_ty

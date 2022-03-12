@@ -3,8 +3,8 @@
 
 SUBROUTINE solvF_ord_ty(e0, e2f)
 
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -39,34 +39,34 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    !      SPACE F IS NOW CALCULATED
-    !
-    !     EatEbu|0>
-    !
-    !   DRAS1 =0   DRAS2 = -2   DRAS3 = +2
-    !
-    !   a > b t > u ( c > d, v > x)
-    !
-    !  S(cvdx,atbu) = d(ac) d(bd)  [ <0|EvtExu|0> - d(xt)<0|Evu|0>]  <= S(vx,tu)
-    !                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    !  S(vx, tu) = <0|EvtExu|0> - d(xt)<0|Evu|0>
-    !
-    !  B(vx, tu) = Siguma_w [eps(w){ <0|EvtExuEww|0> - d(xt)<0|EvuEww|0>}] + S(u,t){-eps(u)-eps(t)}
-    !
-    !  alpha(a, b) = + eps(a) + eps(b) - e0
-    !
-    !  where
-    !
-    !  e0 = Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
-    !
-    !  V(tu,ab)   = SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
-    !
-    !  E2 = SIGUMA_iab,t:dimm |V1(t,ab)|^2|/{(alpha(ab) + wb(t)}
-    !
-    !        thresd = thres
+!      SPACE F IS NOW CALCULATED
+!
+!     EatEbu|0>
+!
+!   DRAS1 =0   DRAS2 = -2   DRAS3 = +2
+!
+!   a > b t > u ( c > d, v > x)
+!
+!  S(cvdx,atbu) = d(ac) d(bd)  [ <0|EvtExu|0> - d(xt)<0|Evu|0>]  <= S(vx,tu)
+!                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!  S(vx, tu) = <0|EvtExu|0> - d(xt)<0|Evu|0>
+!
+!  B(vx, tu) = Siguma_w [eps(w){ <0|EvtExuEww|0> - d(xt)<0|EvuEww|0>}] + S(u,t){-eps(u)-eps(t)}
+!
+!  alpha(a, b) = + eps(a) + eps(b) - e0
+!
+!  where
+!
+!  e0 = Siguma_w [eps(w)<0|Eww|0>] (<== calculated as e0 in calce0.f)
+!
+!  V(tu,ab)   = SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+!
+!  E2 = SIGUMA_iab,t:dimm |V1(t,ab)|^2|/{(alpha(ab) + wb(t)}
+!
+!        thresd = thres
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -123,17 +123,17 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    !     Do isym = nsymrpa+1, 2*nsymrpa
+!     Do isym = nsymrpa+1, 2*nsymrpa
     Do isym = 1, nsymrpa
 
         dimn = 0
         Do it = 1, nact
             jt = it + ninact
-            !           Do iu = 1, nact
+!           Do iu = 1, nact
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                !     EatEbu|0>
+!     EatEbu|0>
 
                 syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
@@ -153,11 +153,11 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         dimn = 0
         Do it = 1, nact
             jt = it + ninact
-            !           Do iu = 1, nact
+!           Do iu = 1, nact
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                !     EatEbu|0>
+!     EatEbu|0>
 
                 syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
@@ -178,7 +178,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call sFmat(dimn, indsym, sc)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         if (rank == 0) then ! Process limits for output
             write (*, *) 'sc matrix is obtained normally'
@@ -189,7 +189,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         Allocate (ws(dimn))
 
         cutoff = .TRUE.
-        !           thresd = 1.0d-15
+!           thresd = 1.0d-15
 
         Allocate (sc0(dimn, dimn))
         sc0 = sc
@@ -200,7 +200,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'after s cdiag, new dimension is', dimm
         end if
@@ -221,7 +221,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
                 write (*, *) 'Check whether U*SU is diagonal'
             end if
             Call checkdgc(dimn, sc0, sc, ws)
-            !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) then ! Process limits for output
                 write (*, *) 'Check whether U*SU is diagonal END'
             end if
@@ -236,7 +236,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call bFmat(dimn, sc0, indsym, bc)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         if (rank == 0) then ! Process limits for output
             write (*, *) 'bc matrix is obtained normally'
@@ -260,7 +260,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'OK ccutoff'
         end if
@@ -276,7 +276,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         deallocate (wsnew)
 
         if (rank == 0) then ! Process limits for output
@@ -326,7 +326,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
-        !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) then ! Process limits for output
             write (*, *) 'end cdiag'
         end if
@@ -339,7 +339,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
                 write (*, *) 'Check whether bc is really diagonalized or not'
             end if
             Call checkdgc(dimm, bc0, bc1, wb)
-            !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) then ! Process limits for output
                 write (*, *) 'Check whether bc is really diagonalized or not END'
             end if
@@ -356,7 +356,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
             ja = ia0(i0)
             jb = ib0(i0)
 
-            !     EatEbu|0>
+!     EatEbu|0>
 
             syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
             syma = MULTB_S(syma, isym)
@@ -426,12 +426,12 @@ end
 
 SUBROUTINE sFmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in space F
 
-    !  S(vx, tu) = <0|EvtExu|0> - d(xt)<0|Evu|0>
-    !
-    !     v > x, t > u
+!  S(vx, tu) = <0|EvtExu|0> - d(xt)<0|Evu|0>
+!
+!     v > x, t > u
 
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -484,12 +484,12 @@ End subroutine sFmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in space F
-    !
-    !  B(vx, tu) = Siguma_w [eps(w){ <0|EvtExuEww|0> - d(xt)<0|EvuEww|0>}] + S(u,t){-eps(u)-eps(t)}
-    !
-    !  v > x, t > u
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+!
+!  B(vx, tu) = Siguma_w [eps(w){ <0|EvtExuEww|0> - d(xt)<0|EvuEww|0>}] + S(u,t){-eps(u)-eps(t)}
+!
+!  v > x, t > u
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -529,7 +529,7 @@ SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
             iu = indsym(2, j)
             ju = iu + ninact
 
-            !  B(vx, tu) = Siguma_w [eps(w){ <0|EvtExuEww|0> - d(xt)<0|EvuEww|0>}] + S(u,t){-eps(u)-eps(t)}
+!  B(vx, tu) = Siguma_w [eps(w){ <0|EvtExuEww|0> - d(xt)<0|EvuEww|0>}] + S(u,t){-eps(u)-eps(t)}
 
             e = -eps(ju) - eps(jt)
 
@@ -573,11 +573,11 @@ End subroutine bFmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 SUBROUTINE vFmat_ord(nab, iab, v)
-    !
-    ! V(tu, ab) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
-    !
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+!
+! V(tu, ab) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+!
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
 
@@ -604,37 +604,37 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     tsectmp1 = tsectmp0
     v = 0.0d+00
 
-    ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
-    !   open(1, file ='Fint', status='old', form='unformatted')  !  (32|32) stored  a > b
+!   open(1, file ='Fint', status='old', form='unformatted')  !  (32|32) stored  a > b
     ! open (1, file=fint, status='old', form='formatted')  !  (32|32) stored  a > b
     open (1, file=fint, status='old', form='unformatted')  !  (32|32) stored  a > b
-    ! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
+! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
 30  read (1, err=10, end=20) i, j, k, l, cint2
 
     if (i <= k) goto 30
 
     tab = iab(i, k)
 
-    !        if (i < k ) then   ! indices exchange i<=>k j<=>l
-    !           save = i
-    !           i    = k
-    !           k    = save
-    !           save = j
-    !           j    = l
-    !           l    = save
-    !        endif
+!        if (i < k ) then   ! indices exchange i<=>k j<=>l
+!           save = i
+!           i    = k
+!           k    = save
+!           save = j
+!           j    = l
+!           l    = save
+!        endif
 
-    !        write(*,'(4I4,2E20.10)') i,j,k,l,cint2
+!        write(*,'(4I4,2E20.10)') i,j,k,l,cint2
 
     ip = j - ninact
     iq = l - ninact
 
-    ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
-    !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
-    !
-    !                             p=j, q=l loop for t and u             u=j, p=l loop for t
-    !
+! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+!                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
+!
+!                             p=j, q=l loop for t and u             u=j, p=l loop for t
+!
     !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,dens)
     Do it = 1, nact
         jt = it + ninact
@@ -661,7 +661,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 
 100 if (rank == 0) write (*, *) 'vFmat_ord is ended'
 
-    !  v(nab, ninact+1:ninact+nact, ninact+1:ninact+nact)
+!  v(nab, ninact+1:ninact+nact, ninact+1:ninact+nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
