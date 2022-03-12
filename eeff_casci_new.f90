@@ -1,130 +1,127 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   PROGRAM eeff_casci  ! Hyperfine coupling constant calculation for perpendicular term at CASCI level
+PROGRAM eeff_casci  ! Hyperfine coupling constant calculation for perpendicular term at CASCI level
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   use four_caspt2_module
+    use four_caspt2_module
 
-        Implicit NONE
-        integer                 :: ii, jj, iq, i, j, imo, jmo, nhomo
-        logical                 :: test, cutoff
-!        real*8                  :: 
-        complex*16              :: dens, eeff
-        complex*16,allocatable  :: ci(:) , eeffmo (:,:)
+    Implicit NONE
+    integer                 :: ii, jj, iq, i, j, imo, jmo, nhomo
+    logical                 :: test, cutoff
+!        real*8                  ::
+    complex*16              :: dens, eeff
+    complex*16, allocatable  :: ci(:), eeffmo(:, :)
 
-        character*50            :: filename
+    character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
 
-      write(*,*)''
-      write(*,*)' Eeff calculation'
-      write(*,*)' at CASCI level written by Abe in 2019'
-      write(*,*)''
+    write (*, *) ''
+    write (*, *) ' Eeff calculation'
+    write (*, *) ' at CASCI level written by Abe in 2019'
+    write (*, *) ''
 
-      open(5,file='active.inp',form='formatted',status='old')
-      read(5,'(I4)')ninact
-      read(5,'(I4)')nact
-      read(5,'(I4)')nsec
-      read(5,'(I4)')nelec
-      read(5,'(I4)')nroot
-      read(5,'(I4)')selectroot
-      close(5)
+    open (5, file='active.inp', form='formatted', status='old')
+    read (5, '(I4)') ninact
+    read (5, '(I4)') nact
+    read (5, '(I4)') nsec
+    read (5, '(I4)') nelec
+    read (5, '(I4)') nroot
+    read (5, '(I4)') selectroot
+    close (5)
 
-      nmo = ninact + nact + nsec
+    nmo = ninact + nact + nsec
 
-      write(*,*)'ninact     =' ,ninact
-      write(*,*)'nact       =' ,nact
-      write(*,*)'nsec       =' ,nsec
-      write(*,*)'nelec      =' ,nelec
-      write(*,*)'nroot      =' ,nroot
-      write(*,*)'selectroot =' ,selectroot
-      write(*,*)'nmo        =' ,nmo
+    write (*, *) 'ninact     =', ninact
+    write (*, *) 'nact       =', nact
+    write (*, *) 'nsec       =', nsec
+    write (*, *) 'nelec      =', nelec
+    write (*, *) 'nroot      =', nroot
+    write (*, *) 'selectroot =', selectroot
+    write (*, *) 'nmo        =', nmo
 
-      filename = 'r4dmoint1relp2'
+    filename = 'r4dmoint1relp2'
 
-      Allocate(eeffmo(nmo,nmo)) 
-      
-      open(unit=12,file=trim(filename), status='old', form='unformatted')
-      read(12)
-      read(12)((eeffmo(jmo,imo),jmo=1,nmo),imo=1,nmo)
-      close(12)
+    Allocate (eeffmo(nmo, nmo))
 
-      open(10,file='CIMAT',form='unformatted',status='old')
+    open (unit=12, file=trim(filename), status='old', form='unformatted')
+    read (12)
+    read (12) ((eeffmo(jmo, imo), jmo=1, nmo), imo=1, nmo)
+    close (12)
 
-      read(10) ndet
-      Allocate(idet(1:ndet))
-      read(10) idet(1:ndet)
+    open (10, file='CIMAT', form='unformatted', status='old')
 
-      close(10)
+    read (10) ndet
+    Allocate (idet(1:ndet))
+    read (10) idet(1:ndet)
 
-      Allocate(ci(1:ndet))
-      ci = 0.0d+00
+    close (10)
 
-      open(10,file='NEWCICOEFF',form='unformatted',status='old')
-      read(10) ci(1:ndet)
-      close(10)
+    Allocate (ci(1:ndet))
+    ci = 0.0d+00
 
-      Do crei = 1, nact
-      Do anhj = 1, nact
+    open (10, file='NEWCICOEFF', form='unformatted', status='old')
+    read (10) ci(1:ndet)
+    close (10)
 
-        dens = 0.0d+00
+    Do crei = 1, nact
+        Do anhj = 1, nact
 
-        Do i0 = 1, ndet
-          i = idet(i0)
+            dens = 0.0d+00
 
-          call one_e_exct(i, crei, anhj, newidet, phase)
-          if(newidet==0) goto 10
-          i = newidet
-          phasenew = phase
-          j0 = 0
+            Do i0 = 1, ndet
+                i = idet(i0)
 
-          do i1 = 1, ndet
-             j = idet(i1)
-             if(j==i) then
-               j0 = i1
-               goto 1
-             endif
-          end do
- 1        continue
+                call one_e_exct(i, crei, anhj, newidet, phase)
+                if (newidet == 0) goto 10
+                i = newidet
+                phasenew = phase
+                j0 = 0
 
-          if(j0 == 0) then
-             go to 10
-          endif
+                do i1 = 1, ndet
+                    j = idet(i1)
+                    if (j == i) then
+                        j0 = i1
+                        goto 1
+                    end if
+                end do
+1               continue
 
-          if(mod(phasenew,2)==0) then
-             dens = dens - ci(j)*DCONJG(ci(i))
-          else
-             dens = dens - ci(j)*DCONJG(ci(i))
-          end if
+                if (j0 == 0) then
+                    go to 10
+                end if
 
-         ii = i + ninact
-         jj = j + ninact
-         if(ABS(dens) > 1.0d-15) write(*,*) 'ii,jj,dens,eeffmo(ii,jj )',ii,jj,dens,eeffmo(ii,jj)
-         eeff = eeff + dens*eeffmo(ii,jj)
+                if (mod(phasenew, 2) == 0) then
+                    dens = dens - ci(j)*DCONJG(ci(i))
+                else
+                    dens = dens - ci(j)*DCONJG(ci(i))
+                end if
 
-      iroot = selectroot                       
-      eeff = 0.0d+00
-      nhomo = nelec + ninact
-      write(*,*) 'nhomo,eeffmo(nhomo,nhomo)   ',nhomo,eeffmo(nhomo,nhomo )
-      write(*,*) 'nhomo,eeffmo(nhomo,nhomo+1) ',nhomo,eeffmo(nhomo,nhomo+1 )
+                ii = i + ninact
+                jj = j + ninact
+                if (ABS(dens) > 1.0d-15) write (*, *) 'ii,jj,dens,eeffmo(ii,jj )', ii, jj, dens, eeffmo(ii, jj)
+                eeff = eeff + dens*eeffmo(ii, jj)
 
-      Do i = 1, nact
-      Do j = 1, nact
-         Call dim1_density_diag     (i, j, dens)
-      End do
-      End do
-      write(*,*)'eeff', eeff
+                iroot = selectroot
+                eeff = 0.0d+00
+                nhomo = nelec + ninact
+                write (*, *) 'nhomo,eeffmo(nhomo,nhomo)   ', nhomo, eeffmo(nhomo, nhomo)
+                write (*, *) 'nhomo,eeffmo(nhomo,nhomo+1) ', nhomo, eeffmo(nhomo, nhomo + 1)
 
-      deallocate(ci)
-      deallocate (idet)  
-      deallocate (eeffmo)
+                Do i = 1, nact
+                    Do j = 1, nact
+                        Call dim1_density_diag(i, j, dens)
+                    End do
+                End do
+                write (*, *) 'eeff', eeff
 
-      END program eeff_casci
+                deallocate (ci)
+                deallocate (idet)
+                deallocate (eeffmo)
 
-
-
+                END program eeff_casci
