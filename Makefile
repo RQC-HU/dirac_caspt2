@@ -164,45 +164,40 @@ NRMOBJS2 = four_caspt2_module.o nbitsa.o \
 	checkdgc.o e0test_v2.o casci.o casdet.o casmat.o r4dcaspt2_ver2_nr.o
 
 # This is a Intel mkl setting for the Institute for Molecular Science's linux server
-# MKLROOT = /local/apl/lx/intel2020update2/compilers_and_libraries_2020.2.254/linux/mkl
  MKLROOT = /local/apl/lx/intel2020update2/mkl
 # MKLROOT = /opt/intel/psxe2019/mkl
-#BLASMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/blas95.mod
-#LAPACKMOD = /local/apli/lx/intel2020update2/mkl/include/intel64/ilp64/lapack95.mod
 #INC = -I$(BLASMOD) -I$(LAPACKMOD)
 INC = -I$(MKLROOT)/include/intel64/ilp64 -i8 -I$(MKLROOT)/include
 # F90C = ifort
  F90C = mpiifort
-# F90FLAGS = $(INC) -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
-# F90FLAGS = -mkl -DHAVE_ERF -FR -pad -O2 -mp1 -integer_size 64 -unroll
+# F90FLAGS = $(INC) -mkl -DDIRAC21 -FR -pad -O2 -mp1 -integer_size 64 -unroll
+# F90FLAGS = -mkl -DDIRAC21 -FR -pad -O2 -mp1 -integer_size 64 -unroll
 
 # Use this flags if normally
 # (Check all warnings except unused variables warnings. Do not generate an interface block for each routine in the source file.)
-# F90FLAGS = -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -O3 -mp1 -integer_size 64 -unroll -qopenmp -warn all -warn nounused -nogen-interfaces # Do all debug calculations
-# F90FLAGS = -xHost -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -Ofast -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces # Use xHost (optimizations for )
-# F90FLAGS = -xHOST -O3 -ipo -no-prec-div -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces -qopt-report-phase=hpo # Use xHost (optimizations for )
-F90FLAGS = -mkl -cpp -DHAVE_ERF -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces -qopt-report-phase=hpo # Use xHost (optimizations for )
-# F90FLAGS = -xHost -mkl -cpp -DCASMAT_DEBUG -DHAVE_ERF -DHAVE_MPI -pad -O3 -mp1 -integer_size 64 -unroll -qopenmp -warn all -warn nounused -nogen-interfaces # Use xHost (optimizations for )
+# F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -O3 -mp1 -integer_size 64 -unroll -qopenmp -warn all -warn nounused -nogen-interfaces # Do all debug calculations
+# F90FLAGS = -xHost -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -Ofast -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces # Use xHost (optimizations for )
+# F90FLAGS = -xHOST -O3 -ipo -no-prec-div -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces -qopt-report-phase=hpo # Use xHost (optimizations for )
+F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -mp1 -integer_size 64 -unroll -warn all -warn nounused -nogen-interfaces -qopt-report-phase=hpo # Use xHost (optimizations for )
+# F90FLAGS = -xHost -mkl -cpp -DCASMAT_DEBUG -DDIRAC21 -DHAVE_MPI -pad -O3 -mp1 -integer_size 64 -unroll -qopenmp -warn all -warn nounused -nogen-interfaces # Use xHost (optimizations for )
 
 
-#  F90FLAGS = -mkl -cpp -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll
-# F90FLAGS = -mkl -cpp -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -qopenmp -warn all -nogen-interfaces
+#  F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -O2 -mp1 -integer_size 64 -unroll
+# F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -O2 -mp1 -integer_size 64 -unroll -qopenmp -warn all -nogen-interfaces
 
 # Use this flags if you want to use gprof
-# F90FLAGS = -mkl -cpp -DHAVE_ERF -pad -O2 -mp1 -integer_size 64 -unroll -pg -qopenmp
+# F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -pad -O2 -mp1 -integer_size 64 -unroll -pg -qopenmp
 
 # Use this flags when debugging (list out of range access)
-# F90FLAGS = -mkl -cpp -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2 -qopenmp
+# F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -debug extended -integer_size 64 -real-size 64 -traceback -g -CB -O2 -qopenmp
 
 # Use this flags when debugging
-# F90FLAGS = -mkl -cpp -debug extended -integer_size 64 -real-size 64 -traceback -g -check -qopenmp
+# F90FLAGS = -mkl -cpp -DDIRAC21 -DHAVE_MPI -debug extended -integer_size 64 -real-size 64 -traceback -g -check -qopenmp
 
 #all : r4divotyexe r4dcascityexe r4dcaspt2otyexe r4dcasciexe r4dcaspt2oexe r4divoexe hfc_casciexe eeff_casciexe
 #all : r4dcasciexe r4dcaspt2oexe r4divoexe
 all : makebindir r4divocoexe r4dcascicoexe r4dcaspt2ocoexe hfc_casciexe eeff_casciexe
 
-#f.o:
-#	$(FORTRAN) $(OPTS) -c $*.f90
 
 .SUFFIXES: .f90 .o
 .f90.o:
