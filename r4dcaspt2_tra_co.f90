@@ -48,12 +48,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then ! Process limits for output
-        ! caspt2.outが存在するかどうか確認,あれば追記,なければ新規追加する
-        ! if (access("./caspt2.out", " ") == 0) then
-        !     open (normal_output, file='caspt2.out', status='old', form='formatted', position='append')
-        ! else
-        !     open (normal_output, file='caspt2.out', status='new', form='formatted')
-        ! end if
         write (*, *) ''
         write (*, *) ' ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23'
         write (*, *) ''
