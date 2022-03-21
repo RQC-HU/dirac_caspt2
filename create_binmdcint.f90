@@ -44,34 +44,34 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     Allocate (rkli(nmo**2))
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) "allocate successed. rank=", rank
+        write (*, *) "allocate successed."
     end if
 #ifdef HAVE_MPI
     ! Broadcast kr and other data that are not included in the MDCINXXX files
     call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
-        write (*, '(a,i4)') "datex broadcast rank=", rank
-        write (*, '(a,i4,a,i4)') "if ierr == 0, datex broadcast successed. ierr=", ierr, "rank=", rank
+        write (*, '(a)') "datex broadcast"
+        write (*, '(a,i4)') "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
-        write (*, '(a,i4)') "timex broadcast rank=", rank
-        write (*, '(a,i4,a,i4)') "if ierr == 0, timex broadcast successed. ierr=", ierr, "rank=", rank
+        write (*, '(a)') "timex broadcast"
+        write (*, '(a,i4)') "if ierr == 0, timex broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
-        write (*, '(a,i4)') "nkr broadcast rank=", rank
-        write (*, '(a,i4,a,i4)') "if ierr == 0, nkr broadcast successed. ierr=", ierr, "rank=", rank
+        write (*, '(a)') "nkr broadcast"
+        write (*, '(a,i4)') "if ierr == 0, nkr broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
-        write (*, '(a,i4)') "kr broadcast rank=", rank
-        write (*, '(a,i4,a,i4)') "if ierr == 0, kr broadcast successed. ierr=", ierr, "rank=", rank
+        write (*, '(a)') "kr broadcast"
+        write (*, '(a,i4)') "if ierr == 0, kr broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(indmor(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
     if (rank == 0) then ! Process limits for output
-        write (*, '(a,i4)') "datex broadcast rank=", rank
-        write (*, '(a,i4,a,i4)') "if ierr == 0, datex broadcast successed. ierr=", ierr, "rank=", rank
+        write (*, '(a)') "datex broadcast"
+        write (*, '(a,i4)') "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
 #endif
     nnkr = 0
@@ -81,7 +81,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     nnz = 1
 
     if (rank == 0) then ! Process limits for output
-        write (*, '(3a,i20)') "end set ", mdcintNew, "valiables. rank=", rank
+        write (*, '(3a)') "end set ", mdcintNew, "valiables"
     end if
     ! mdcint=11
     ! tid = omp_get_thread_num()
@@ -98,7 +98,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 200 realonly = .true.
     if (rank == 0) then ! Process limits for output
-        write (*, *) "realonly = ", realonly, rank
+        write (*, *) "realonly = ", realonly
     end if
 201 close (100)
 
@@ -154,12 +154,12 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 !        Do inz = 1,nz
 
-    if (ikr < 0) then
-        if (rank == 0) then ! Process limits for output
-            write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
-        end if
-!        go to 100
-    end if
+!     if (ikr < 0) then
+!         if (rank == 0) then ! Process limits for output
+!             write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
+!         end if
+! !        go to 100
+!     end if
     if (ikr == 0) then
         if (rank == 0) then ! Process limits for output
             write (*, *) ikr, jkr, nz, mdcint_debug
