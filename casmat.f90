@@ -29,7 +29,7 @@ SUBROUTINE casmat(mat)
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocated oc and vi'
+        write (*, *) 'allocated oc and vi', rank
     end if
 #ifdef BIG_MAT
     ! If only the master process has a matrix named mat,
@@ -246,8 +246,8 @@ SUBROUTINE casmat(mat)
     Deallocate (oc)
     Deallocate (vi)
     if (rank == 0) then ! Process limits for output
-        write (*, '(A,I4)') 'end casmat'
-        write (*, '(A,I4)') 'Reduce mat(:,:)'
+        write (*, '(A,I4)') 'end casmat', rank
+        write (*, '(A,I4)') 'Reduce mat(:,:)', rank
     end if
 #ifdef HAVE_MPI
 #ifdef BIG_MAT
