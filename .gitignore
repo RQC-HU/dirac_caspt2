@@ -17,3 +17,6 @@ config.log
 config.status
 install-sh
 missing
+
+# Ignore Makefile
+Makefile

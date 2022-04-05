@@ -3688,7 +3688,7 @@ fi
 
 done
 
-#gnu Fortran用のmklリンク(使用不可、問題解決中)
+#gnu Fortran用のmklリンク(少なくともrelqc01では使用可能)
 LDFLAGS='-L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential -lpthread -lm'
 #LDFLAGS=`-Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_gf_ilp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a ${MKLROOT}/lib/intel64/libmkl_blacs_openmpi_ilp64.a -Wl,--end-group -lgomp -lpthread -lm -ldl`
 if test $FCNAME == gfortran; then :

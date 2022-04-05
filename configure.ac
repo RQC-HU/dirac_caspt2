@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([relcaspt2_parallel],[0.1.0],[kohei-noda@hiroshima-u.ac.jp])
+AC_INIT([relcaspt2_parallel],[0.4.5],[kohei-noda@hiroshima-u.ac.jp])
 AC_CONFIG_SRCDIR([src])
 
 #デフォルトのコンパイルオプション
