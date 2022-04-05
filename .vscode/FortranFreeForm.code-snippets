@@ -1,0 +1,147 @@
+{
+    // Place your snippets for FortranFreeForm here. Each snippet is defined under a snippet name and has a prefix, body and
+    // description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+    // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the
+    // same ids are connected.
+    // Example:
+    // "Print to console": {
+    // 	"prefix": "log",
+    // 	"body": [
+    // 		"console.log('$1');",
+    // 		"$2"
+    // 	],
+    // 	"description": "Log output to console"
+    // }
+    "main routine template": {
+        "prefix": "prog",
+        "body": [
+            "program $1",
+            "    implicit none",
+            "$0",
+            "end program $1"
+        ],
+        "description": "main routine template"
+    },
+    "sub routine template": {
+        "prefix": "sub",
+        "body": [
+            "subroutine $1",
+            "    implicit none",
+            "$0",
+            "end subroutine $1"
+        ],
+        "description": "main routine template"
+    },
+    "openmp template": {
+        "prefix": "parallel",
+        "body": [
+            "!\\$omp parallel do",
+            "!\\$omp end parallel do"
+        ],
+        "description": "main routine template"
+    },
+    "open formatted file": {
+        "prefix": "openf",
+        "body": [
+            "open(${1:unitNumber},file=\"${2:fileName}\",form=\"formatted\",status=\"unknown\")",
+            "close($1)"
+        ],
+        "description": "open file (formatted)"
+    },
+    "open unformatted file": {
+        "prefix": "openu",
+        "body": [
+            "open(${1:unitNumber},file=\"${2:fileName}\",form=\"unformatted\",status=\"unknown\")",
+            "close($1)"
+        ],
+        "description": "open file (unformatted)"
+    },
+    "mpi init": {
+        "prefix": "mpiinit",
+        "body": [
+            "call MPI_INIT (ierr)",
+            "$0"
+        ],
+        "description": ""
+    },
+    "mpi finalize": {
+        "prefix": "mpifin",
+        "body": [
+            "call MPI_FINALIZE (ierr)",
+            "$0"
+        ],
+        "description": ""
+    },
+    "mpi size": {
+        "prefix": "mpisize",
+        "body": [
+            "call MPI_COMM_SIZE (MPI_COMM_WORLD, $1, ierr)",
+            "$0"
+        ],
+        "description": ""
+    },
+    "mpi rank": {
+        "prefix": "mpirank",
+        "body": [
+            "call MPI_COMM_rank (MPI_COMM_WORLD, $1, ierr)",
+            "$0"
+        ],
+        "description": ""
+    },
+    "mpi broadcast": {
+        "prefix": "mpibcast",
+        "body": [
+            "call MPI_Bcast (${1:buffer}, ${2:count}, ${3:mpi_data_type}, ${4:root_process_rank}, MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": "rootのデータをcount個全プロセスに送信する"
+    },
+    "mpi gather": {
+        "prefix": "mpigather",
+        "body": [
+            "call MPI_Gather (${1:sendbuf}, ${2:sendcount}, ${3:send_mpi_data_type}, ${4:recvbuf}, ${2:recvcount}, ${3:recv_mpi_data_type}, ${5:root_process_rank}, MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": "各プロセスの指定のデータをrootに配置する"
+    },
+    "mpi allgather": {
+        "prefix": "mpiallgather",
+        "body": [
+            "call MPI_Allgather (${1:sendbuf}, ${2:sendcount}, ${3:send_mpi_data_type}, ${4:recvbuf}, ${2:recvcount}, ${3:recv_mpi_data_type}, ${5:root_process_rank}, MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": "各プロセスの指定のデータをrootに配置する"
+    },
+    "mpi scatter": {
+        "prefix": "mpiscatter",
+        "body": [
+            "call MPI_scatter (${1:sendbuf}, ${2:sendcount}, ${3:send_mpi_data_type}, ${4:recvbuf}, ${2:recvcount}, ${3:recv_mpi_data_type}, ${5:root_process_rank}, MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": ""
+    },
+    "mpi reduce": {
+        "prefix": "mpireduce",
+        "body": [
+            "call MPI_Reduce (${1:sendbuf}, ${2:recvbuf}, ${3:count}, ${4:mpi_data_type}, ${5:operand}, ${6:root_process_rank}, MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": "各プロセスのデータcount個に対してoperandの演算を行った結果をrootに送信する"
+    },
+    "mpi allreduce": {
+        "prefix": "mpiallreduce",
+        "body": [
+            "call MPI_Allreduce (${1:sendbuf}, ${2:recvbuf}, ${3:count}, ${4:mpi_data_type}, ${5:operand}, MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": "各プロセスのデータcount個に対してoperandの演算を行った結果を各プロセスに送信する"
+    },
+    "mpi barrier": {
+        "prefix": "mpibarrier",
+        "body": [
+            "call MPI_Barrier (MPI_COMM_WORLD, ierr)",
+            "$0"
+        ],
+        "description": "各プロセスの同期をとる"
+    },
+}

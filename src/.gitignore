@@ -1,7 +1,8 @@
-# Ignore dotfiles (except .gitignore and .vscode)
+# Ignore dotfiles (except .gitignore and .vscode and .editorconfig)
 .*
 !.gitignore
 !.vscode
+!.editorconfig
 # Ignore object files and module files
 *.o
 *.mod
