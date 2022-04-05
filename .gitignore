@@ -1,9 +1,19 @@
 # Ignore dotfiles (except .gitignore)
 .*
 !.gitignore
-!.vscode
-# Ignore object files and module files
-*.o
-*.mod
-bin/*
-*.i90
+
+# Ignore object files
+bin/
+
+# ./configure requires a file named Makefile.in and
+# if you want to generate ./configure, you need at least a file named configure.ac.
+# And if you want to generate Makefile.in, you need at least a file named Makefile.in 
+# Therefore, files other than the ./src files, ./configure, Makefile.in, and Makefile.am
+# don't need to be versioned in git.
+Makefile
+aclocal.m4
+autom4te.cache/
+config.log
+config.status
+install-sh
+missing
