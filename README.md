@@ -1,6 +1,6 @@
 # DIRAC-CASPT2
 
-- DIRAC19or21の1,2電子積分ファイルを用いて、CASCI/CASPT2法またははDMRG/CASPT2法で2次の多配置摂動計算を行います
+- DIRAC19or21の1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
 
 ## How to Install
 
