@@ -46,7 +46,7 @@
 - Intel Fortran(parallel)
 
 ```sh
-    ./configure FC=mpiifort --enable-mpi
+    ./configure FC=mpiifort
     make
 ```
 
@@ -60,7 +60,7 @@
 - GNU Fortran(parallel)
 
 ```sh
-    ./configure FC=mpifort --enable-mpi
+    ./configure FC=mpifort
     make
 ```
 
