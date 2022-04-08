@@ -45,9 +45,9 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     read (mrconee, err=10)
     read (mrconee, err=10) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
 ! read (mrconee, err=10) (((roner(i0, j0, isp), ronei(i0, j0, isp), i0=1, nmo), j0=1, nmo), isp=1, scfru)
-#ifdef DIRAC21
+if (dirac_version >= 21) then
     ronei(:, :, :) = -ronei(:, :, :)
-#endif
+end if
     if (rank == 0) then
         write (*, *) 'Noda RONER RONEI CHECK'
         write (*, *) "i0,j0,RONER(i0,j0,1),RONEI(i0,j0,1)"

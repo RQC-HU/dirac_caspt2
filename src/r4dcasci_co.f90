@@ -71,32 +71,34 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         ! Call timing(val(3), totalsec, date0, tsec)
     end if
 !     end if
-    open (5 + rank, file='active.inp', form='formatted', status='old')
-    read (5 + rank, '(I4)') ninact
-    read (5 + rank, '(I4)') nact
-    read (5 + rank, '(I4)') nsec
-    read (5 + rank, '(I4)') nelec
-    read (5 + rank, '(I4)') nroot
-    read (5 + rank, '(I4)') selectroot
-    read (5 + rank, '(I4)') totsym
-    read (5 + rank, '(I4)') ncore
-    read (5 + rank, '(I4)') nbas
-    read (5 + rank, '(E8.2)') eshift
-    read (5 + rank, '(A6)') ptgrp
-    close (5 + rank)
+    open (5, file='active.inp', form='formatted', status='old')
+    read (5, '(I4)') ninact
+    read (5, '(I4)') nact
+    read (5, '(I4)') nsec
+    read (5, '(I4)') nelec
+    read (5, '(I4)') nroot
+    read (5, '(I4)') selectroot
+    read (5, '(I4)') totsym
+    read (5, '(I4)') ncore
+    read (5, '(I4)') nbas
+    read (5, '(E8.2)') eshift
+    read (5, '(A6)') ptgrp
+    read (5, '(I4)') dirac_version
+    close (5)
 
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'ninact     =', ninact
-        write (*, *) 'nact       =', nact
-        write (*, *) 'nsec       =', nsec
-        write (*, *) 'nelec      =', nelec
-        write (*, *) 'nroot      =', nroot
-        write (*, *) 'selectroot =', selectroot
-        write (*, *) 'totsym     =', totsym
-        write (*, *) 'ncore      =', ncore
-        write (*, *) 'nbas       =', nbas
-        write (*, *) 'eshift     =', eshift
-        write (*, *) 'ptgrp      =', ptgrp
+        write (*, *) 'ninact        =', ninact
+        write (*, *) 'nact          =', nact
+        write (*, *) 'nsec          =', nsec
+        write (*, *) 'nelec         =', nelec
+        write (*, *) 'nroot         =', nroot
+        write (*, *) 'selectroot    =', selectroot
+        write (*, *) 'totsym        =', totsym
+        write (*, *) 'ncore         =', ncore
+        write (*, *) 'nbas          =', nbas
+        write (*, *) 'eshift        =', eshift
+        write (*, *) 'ptgrp         =', ptgrp
+        write (*, *) 'dirac_version =', dirac_version
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
