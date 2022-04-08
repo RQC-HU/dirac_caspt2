@@ -13,7 +13,9 @@
     make
 ```
 
-デフォルトでは gfortranを使用し,DIRAC19用の実行ファイルがビルドされます
+- デフォルトでは gfortranを使用して実行ファイルがビルドされます
+- 現状GNU Fortranはビルドは成功しますが実行時エラーが発生する可能性があるため非推奨です
+- したがって./configure FC=ifort もしくは ./confiugre FC=mpiifort を使用してください
 
 ### Requirements
 
@@ -34,59 +36,31 @@
 
 各種コンパイラは\$PATHに追加されているか、もしくはフルパスを指定する必要があります
 
-- Intel Fortran, DIRAC19
+- Intel Fortran
 
 ```sh
     ./configure FC=ifort
     make
 ```
 
-- Intel Fortran(parallel), DIRAC19
+- Intel Fortran(parallel)
 
 ```sh
     ./configure FC=mpiifort --enable-mpi
     make
 ```
 
-- Intel Fortran, DIRAC21
-
-```sh
-    ./configure FC=ifort --enable-dirac21
-    make
-```
-
-- Intel Fortran(parallel), DIRAC21
-
-```sh
-    ./configure FC=mpiifort --enable-dirac21 --enable-mpi
-    make
-```
-
-- GNU Fortran, DIRAC19
+- GNU Fortran
 
 ```sh
     ./configure FC=gfortran
     make
 ```
 
-- GNU Fortran(parallel), DIRAC19
+- GNU Fortran(parallel)
 
 ```sh
     ./configure FC=mpifort --enable-mpi
-    make
-```
-
-- GNU Fortran, DIRAC21
-
-```sh
-    ./configure FC=gfortran --enable-dirac21
-    make
-```
-
-- GNU Fortran(parallel), DIRAC21
-
-```sh
-    ./configure FC=mpifort --enable-dirac21 --enable-mpi
     make
 ```
 

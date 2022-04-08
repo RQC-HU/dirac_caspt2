@@ -31,7 +31,7 @@ AS_IF(
 	[test $FCNAME == mpiifort],
 	[DEFAULT_FCFLAGS+=$OPT"-DHAVE_MPI "$INTEL_FORTRAN_FLAGS],
 	[test $FCNAME == mpifort],
-    [DEFAULT_FCFLAGS+=$OPT'-L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential -lpthread -lm -DHAVE_MPI -fopenmp']
+  [DEFAULT_FCFLAGS+=$OPT'-L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential -lpthread -lm -DHAVE_MPI -fopenmp -fdefault-integer-8 -m64']
 	[test $FCNAME == ifort],
 	[DEFAULT_FCFLAGS+=$OPT$INTEL_FORTRAN_FLAGS]
 	[echo 'Your fortran compiler is not gfortran or ifort']
@@ -42,25 +42,6 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
 
-#Option for DIRAC version >= 21
-AC_ARG_ENABLE([mpi],
-	[AS_HELP_STRING([--enable-mpi=yes|no],
-	[If you use mpi, Enable this feature (default is no)])],
-	[],
-	[enable_mpi="no"]
-)
-
-#Option for DIRAC version >= 21
-AC_ARG_ENABLE([dirac21],
-	[AS_HELP_STRING([--enable-dirac21=yes|no],
-	[If you use DIRAC version >= 21, Enable this feature (default is no)])],
-	[],
-	[enable_dirac21="no"]
-)
-AS_IF([test "x$enable_dirac21" = xyes],
-	[DIRAC21=-DDIRAC21],
-	[DIRAC21=]
-)
 if test "${FCFLAGS}" == '-g'; then
 FCFLAGS=''
 fi

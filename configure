@@ -725,8 +725,6 @@ ac_user_opts='
 enable_option_checking
 enable_dependency_tracking
 enable_silent_rules
-enable_mpi
-enable_dirac21
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1360,9 +1358,6 @@ Optional Features:
                           speeds up one-time build
   --enable-silent-rules   less verbose build output (undo: "make V=1")
   --disable-silent-rules  verbose build output (undo: "make V=0")
-  --enable-mpi=yes|no     If you use mpi, Enable this feature (default is no)
-  --enable-dirac21=yes|no If you use DIRAC version >= 21, Enable this feature
-                          (default is no)
 
 Some influential environment variables:
   FC          Fortran compiler command
@@ -3696,7 +3691,7 @@ if test $FCNAME == gfortran; then :
 elif test $FCNAME == mpiifort; then :
   DEFAULT_FCFLAGS+=$OPT"-DHAVE_MPI "$INTEL_FORTRAN_FLAGS
 elif test $FCNAME == mpifort; then :
-  DEFAULT_FCFLAGS+=$OPT'-L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential -lpthread -lm -DHAVE_MPI -fopenmp'
+  DEFAULT_FCFLAGS+=$OPT'-L${MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential -lpthread -lm -DHAVE_MPI -fopenmp -fdefault-integer-8 -m64'
 	test $FCNAME == ifort
 else
   DEFAULT_FCFLAGS+=$OPT$INTEL_FORTRAN_FLAGS
@@ -4465,31 +4460,6 @@ fi
 ac_config_files="$ac_config_files Makefile src/Makefile"
 
 
-#Option for DIRAC version >= 21
-# Check whether --enable-mpi was given.
-if test "${enable_mpi+set}" = set; then :
-  enableval=$enable_mpi;
-else
-  enable_mpi="no"
-
-fi
-
-
-#Option for DIRAC version >= 21
-# Check whether --enable-dirac21 was given.
-if test "${enable_dirac21+set}" = set; then :
-  enableval=$enable_dirac21;
-else
-  enable_dirac21="no"
-
-fi
-
-if test "x$enable_dirac21" = xyes; then :
-  DIRAC21=-DDIRAC21
-else
-  DIRAC21=
-
-fi
 if test "${FCFLAGS}" == '-g'; then
 FCFLAGS=''
 fi
