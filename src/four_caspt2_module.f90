@@ -26,6 +26,7 @@ MODULE four_caspt2_module
     integer         :: ncore, nbas
     real(8)         :: eshift
     character       :: ptgrp*6
+    integer         :: ras1_start, ras1num
 
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)
@@ -89,7 +90,7 @@ MODULE four_caspt2_module
     integer, allocatable :: irpmo(:), irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo(:), indmor(:) ! index of MO
     real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
-    real*8, allocatable  :: orbmo(:), orb(:)
+    real*8, allocatable  :: orbmo(:), orb(:), sort_orb(:)
     real*8, allocatable  :: orbmocas(:), orbcas(:)
 
 !   integer, allocatable ::multb_s(:,:), multb_d(:,:), multb_ds(:,:) ! This is for typart

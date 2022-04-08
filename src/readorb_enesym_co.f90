@@ -408,7 +408,29 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
         end do
         w = orb(i0); orb(i0) = orb(m); orb(m) = w
     end do
+    allocate(sort_orb(nmo))
+    sort_orb = orb
+    ! とりあえず水の1sをRAS1としてみる
+    ras1_start = 1
+    ras1num = 2
+    ! write(*,*) 'noda start sort'
+! sort_orbは基本的にorbの順で、RAS1だけinact+1開始としてインデックスの入れ替えをしたもの
+    if (ras1_start /= 1) then ! ras1_start=1のときはいきなりRAS1の領域になるのでif文を無視
+        sort_orb(1:ras1_start - 1) = orb(1:ras1_start - 1) ! RAS1が始まるまではsort_orbとorbは同じ
+        ! write(*,*) 'ras1_start is not 1'
+    end if
+    ! write(*,*) 'before RAS1 sort end'
+    sort_orb(ras1_start:ninact) = orb(ras1_start + ras1num:ninact + ras1num) ! RAS1の領域(ras1_start:ras1_start+rasnum-1)は無視して格納
+    ! write(*,*) 'before RAS1 sort end'
+    sort_orb(ninact + 1:ninact + ras1num) = orb(ras1_start:ras1_start + ras1num - 1) ! RAS1の領域を格納
+    ! write(*,*) 'before RAS1 sort end'
+    sort_orb(ninact + ras1num + 1:nmo) = orb(ninact + ras1num + 1:nmo) ! RAS1以降はsort_orbとorbは同じ
+    write(*,*) 'orb sort end'
 
+    write (*, *) 'Noda: i0,orb(i0),sort_orb(i0)'
+    do i0 = 1, nmo
+        write (*, *) i0, orb(i0), sort_orb(i0)
+    end do
 !         do i0 = 1, nmo
 !            write(*,*)orb(i0)
 !         end do
