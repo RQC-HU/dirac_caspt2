@@ -466,7 +466,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
             write (*, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
         end do
     end if
-    orbmo = orb
+    orbmo = sort_orb
 
     dammo = irpmo
 
