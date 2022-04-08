@@ -410,7 +410,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end do
     allocate(sort_orb(nmo))
     sort_orb = orb
-    ! とりあえず水の1sをRAS1としてみる
+    ! とりあえずN2の1sをRAS1としてみる
     ras1_start = 1
     ras1num = 2
     ! write(*,*) 'noda start sort'
@@ -444,7 +444,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     do i0 = 1, nmo, 2
         m = 0
         do j0 = 1, nmo
-            if (orbmo(j0) == orb(i0)) then  ! orbmo(j0) is i0 th MO
+            ! Noda : Use sort_orb instead of orb
+            if (orbmo(j0) == sort_orb(i0)) then  ! orbmo(j0) is i0 th MO
                 if (m == 0) then
                     indmo(i0) = j0
                     m = m + 1
