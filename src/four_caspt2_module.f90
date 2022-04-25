@@ -21,12 +21,15 @@ MODULE four_caspt2_module
     ! nbas          : Basis set
     ! eshift        : Real shift
     ! ptgrp         : Point group symmetry
+    ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
     integer         :: ncore, nbas
     real(8)         :: eshift
     character       :: ptgrp*6
+    integer         :: dirac_version
     integer         :: ras1_start, ras1num
+
 
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)

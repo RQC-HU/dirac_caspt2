@@ -84,19 +84,21 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     read (5, '(I4)') nbas
     read (5, '(E8.2)') eshift
     read (5, '(A6)') ptgrp
+    read (5, '(I4)') dirac_version
     close (5)
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'ninact     =', ninact
-        write (*, *) 'nact       =', nact
-        write (*, *) 'nsec       =', nsec
-        write (*, *) 'nelec      =', nelec
-        write (*, *) 'nroot      =', nroot
-        write (*, *) 'selectroot =', selectroot
-        write (*, *) 'totsym     =', totsym
-        write (*, *) 'ncore      =', ncore
-        write (*, *) 'nbas       =', nbas
-        write (*, *) 'eshift     =', eshift
-        write (*, *) 'ptgrp      =', ptgrp
+        write (*, *) 'ninact        =', ninact
+        write (*, *) 'nact          =', nact
+        write (*, *) 'nsec          =', nsec
+        write (*, *) 'nelec         =', nelec
+        write (*, *) 'nroot         =', nroot
+        write (*, *) 'selectroot    =', selectroot
+        write (*, *) 'totsym        =', totsym
+        write (*, *) 'ncore         =', ncore
+        write (*, *) 'nbas          =', nbas
+        write (*, *) 'eshift        =', eshift
+        write (*, *) 'ptgrp         =', ptgrp
+        write (*, *) 'dirac_version =', dirac_version
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
