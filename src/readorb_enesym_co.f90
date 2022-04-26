@@ -425,12 +425,15 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     sort_orb(ninact + 1:ninact + ras1num) = orb(ras1_start:ras1_start + ras1num - 1) ! RAS1の領域を格納
     ! write(*,*) 'before RAS1 sort end'
     sort_orb(ninact + ras1num + 1:nmo) = orb(ninact + ras1num + 1:nmo) ! RAS1以降はsort_orbとorbは同じ
-    write(*,*) 'orb sort end'
+    
+    if(rank==0) then
+        write(*,*) 'orb sort end'
 
-    write (*, *) 'Noda: i0,orb(i0),sort_orb(i0)'
-    do i0 = 1, nmo
-        write (*, *) i0, orb(i0), sort_orb(i0)
-    end do
+        write (*, *) 'Noda: i0,orb(i0),sort_orb(i0)'
+        do i0 = 1, nmo
+            write (*, *) i0, orb(i0), sort_orb(i0)
+        end do
+    endif
 !         do i0 = 1, nmo
 !            write(*,*)orb(i0)
 !         end do
@@ -524,4 +527,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     go to 1000
 100 go to 1000
 
-1000 end subroutine readorb_enesym_co
+1000    continue 
+    deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
+    deallocate (sort_orb)
+end subroutine readorb_enesym_co

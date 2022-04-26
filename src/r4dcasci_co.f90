@@ -280,7 +280,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
     deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
-    deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
+    ! deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
     deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
     deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)

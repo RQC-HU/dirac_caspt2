@@ -154,12 +154,12 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 !        Do inz = 1,nz
 
-    if (ikr < 0) then
-        if (rank == 0) then ! Process limits for output
-            write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
-        end if
-!        go to 100
-    end if
+!     if (ikr < 0) then
+!         if (rank == 0) then ! Process limits for output
+!             write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
+!         end if
+! !        go to 100
+!     end if
     if (ikr == 0) then
         if (rank == 0) then ! Process limits for output
             write (*, *) ikr, jkr, nz, mdcint_debug
