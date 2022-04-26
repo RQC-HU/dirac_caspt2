@@ -48,15 +48,6 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 if (dirac_version >= 21) then
     ronei(:, :, :) = -ronei(:, :, :)
 end if
-    if (rank == 0) then
-        write (*, *) 'Noda RONER RONEI CHECK'
-        write (*, *) "i0,j0,RONER(i0,j0,1),RONEI(i0,j0,1)"
-        do i0 = 1, nmo
-            do j0 = 1, nmo
-                Write (*, '(2I4,2X,2F8.5)') i0, j0, RONER(i0, j0, 1), RONEI(i0, j0, 1)
-            end do
-        end do
-    end if
     close (mrconee)
 
     nmom = ninact + nact + nsec
