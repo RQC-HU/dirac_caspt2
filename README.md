@@ -4,7 +4,7 @@
 
 ### Requirements
 
-以下のコンパイラおよびライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
+以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
 
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
 - [CMake](https://cmake.org/)(version>=3.7 が必要です)
