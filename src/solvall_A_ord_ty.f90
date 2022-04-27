@@ -120,6 +120,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                     symb = MULTB_D(irpmo(jy), irpmo(jz))
                     syma = MULTB_S(syma, symb)
 
+                    ! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
                     End if
@@ -147,6 +148,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                     symb = MULTB_D(irpmo(jy), irpmo(jz))
                     syma = MULTB_S(syma, symb)
 
+                    ! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
                         indsym(1, ixyz) = ix
