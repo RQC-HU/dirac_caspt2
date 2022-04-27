@@ -20,10 +20,11 @@
     // Modern Fortran (https://marketplace.visualstudio.com/items?itemName=krvajalm.linter-gfortran) の設定
     // Fortranのファイルを開いたときに右下にgfortranが見つからない旨のエラーメッセージが表示される場合は
     // which gfortran で表示されるgfortranのpathをfortran.gfortranExecutableに設定してください
-    "fortran.gfortranExecutable": "/usr/bin/gfortran",
+    // "fortran.gfortranExecutable": "/usr/bin/gfortran",
     "fortran.formatting.formatter": "fprettify",
     "fortran.formatting.args": [
         "-i 4",
         "--strict-indent"
     ],
+    "cmake.configureOnOpen": false,
 }
