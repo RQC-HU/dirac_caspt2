@@ -2,6 +2,7 @@
 .*
 !.gitignore
 !.editorconfig
+!.vscode
 
 # Ignore object files and module files
 *.o
