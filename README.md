@@ -10,6 +10,7 @@
 - [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
   - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
   - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
+  - [テストについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#テストについて)
 ## Requirements
 
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
@@ -172,3 +173,13 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
 - ビルドには[CMake](https://cmake.org/)を用います
   - ビルドの設定はCMakeLists.txtに書きます
   - 設定を追加したい場合は[公式ドキュメント](https://cmake.org/cmake/help/v3.7/)が正確でかなりわかりやすいので、"cmake やりたいこと"で検索してオプション名を見つけてから公式ドキュメントをみて追加することをお勧めします
+
+### テストについて
+- 今後[安全にコードを変更](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E5%A4%89%E6%9B%B4%E3%81%B8%E3%81%AE%E4%BF%A1%E9%A0%BC)できる(変更後と変更前の振る舞いが変わっていないことを確認する)ようにするために[テスト](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88)を追加する予定です
+- 本来は[単体テスト](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)を用いてプログラムの部品レベルでテストを書くべきですが、本プログラムはテストを前提として書かれておらず[密結合](https://e-words.jp/w/%E5%AF%86%E7%B5%90%E5%90%88.html)のため[単体テストが書きづらい](https://qiita.com/yutachaos/items/857472c7d3c65d3cf316#%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88-1)
+- 当面は複数の分子系で、できるだけ違うタイプのインプットを用いて、最初に基準と定めたアウトプットから**自動的に**(ここがテストの良い点です)判定する形式にする予定です
+  - 例えばCASPT2 energyが一定以上ずれていないかを判定するようにします
+  - いわゆる[統合試験](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E7%B5%B1%E5%90%88%E8%A9%A6%E9%A8%93_(Integration_Testing))のみを行います
+- ツールはFortranのテストツールは機能が貧弱なので、pythonのunittestかpytestを用いる予定です
+  - DIRACもpythonを用いてテストを書いています
+  - python側からビルドしたプログラムを実行し、アウトプットをリファレンス値と比較することで自動テストを実現します
