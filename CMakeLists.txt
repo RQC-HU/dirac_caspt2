@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(simple-dependency Fortran)
+project(dirac_caspt2 Fortran)
 set(CMAKE_VERBOSE_MAKEFILE 1)
 # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
