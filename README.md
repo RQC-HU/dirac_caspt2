@@ -8,7 +8,8 @@
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルド例)
 - [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#開発者のかたへ)
-
+  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#環境構築について)
+  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルドについて)
 ## Requirements
 
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
@@ -22,7 +23,7 @@
     \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
 
     ```sh
-        echo $MKLROOT
+    echo $MKLROOT
     ```
 
 ## How to Install
@@ -30,22 +31,22 @@
 以下のコマンドでmainブランチのソースコードをビルドできます
 
 ```sh
-    git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
-    cd dirac_caspt2
-    mkdir -p build && cd build
-    FC=ifort cmake ..
-    make
+git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
+cd dirac_caspt2
+mkdir -p build && cd build
+FC=ifort cmake ..
+make
 ```
 
-- 現状GNU Fortranはビルドは成功しますが実行時エラーが発生する可能性があるため非推奨です
+- 現状GNU Fortranはビルドは成功しますが実行時エラーが発生する可能性があるため**非推奨**です
 - したがってFC=ifort もしくは FC=mpiifort もしくは FC=mpifort (OpenMPI,ifort) を使用することを推奨します
-- もしCMake version >= 3.13 を使っているなら以下のようにより少ないコマンドでビルドができます
+- CMake version >= 3.13 を使っているなら以下のようなコマンドでもビルドができます
 
 ```sh
-    git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
-    cd dirac_caspt2
-    FC=ifort cmake --build build
-    cmake -B build
+git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
+cd dirac_caspt2
+FC=ifort cmake --build build
+cmake -B build --clean-first
 ```
 
 ### ビルドオプション
@@ -59,18 +60,18 @@
     
         (例)
         ```sh
-            mkdir -p build && cd build
-            FC=mpiifort cmake -DMPI=on ..
-            make
+        mkdir -p build && cd build
+        FC=mpiifort cmake -DMPI=on ..
+        make
         ```
 - OPENMP
     - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します
 
         (例)
         ```sh
-            mkdir -p build && cd build
-            FC=ifort cmake -DOPENMP=on ..
-            make
+        mkdir -p build && cd build
+        FC=ifort cmake -DOPENMP=on ..
+        make
         ```
 ### ビルド例
 
@@ -79,65 +80,65 @@
 - Intel Fortran
 
     ```sh
-        mkdir -p build && cd build
-        FC=ifort cmake ..
-        make
+    mkdir -p build && cd build
+    FC=ifort cmake ..
+    make
     ```
 
 - Intel Fortran (with OpenMP)
 
     ```sh
-        mkdir -p build && cd build
-        FC=ifort cmake -DOPENMP=on ..
-        make
+    mkdir -p build && cd build
+    FC=ifort cmake -DOPENMP=on ..
+    make
     ```
 
 - Intel Fortran(MPI only, Intel MPI)
 
     ```sh
-        mkdir -p build && cd build
-        FC=mpiifort cmake -DMPI=on ..
-        make
+    mkdir -p build && cd build
+    FC=mpiifort cmake -DMPI=on ..
+    make
     ```
 
 - Intel Fortran(MPI/OpenMP hybrid, Intel MPI)
 
     ```sh
-        mkdir -p build && cd build
-        FC=mpiifort cmake -DMPI=on -DOPENMP=on ..
-        make
+    mkdir -p build && cd build
+    FC=mpiifort cmake -DMPI=on -DOPENMP=on ..
+    make
     ```
 
 - GNU Fortran
 
     ```sh
-        mkdir -p build && cd build
-        FC=gfortran cmake ..
-        make
+    mkdir -p build && cd build
+    FC=gfortran cmake ..
+    make
     ```
 
 - GNU Fortran (with OpenMP)
 
     ```sh
-        mkdir -p build && cd build
-        FC=gfortran cmake -DOPENMP=on ..
-        make
+    mkdir -p build && cd build
+    FC=gfortran cmake -DOPENMP=on ..
+    make
     ```
 
 - OpenMPI Fortran(MPI only)
 
     ```sh
-        mkdir -p build && cd build
-        FC=mpifort cmake -DMPI=on ..
-        make
+    mkdir -p build && cd build
+    FC=mpifort cmake -DMPI=on ..
+    make
     ```
 
 - OpenMPI Fortran(MPI/OpenMP hybrid)
 
     ```sh
-        mkdir -p build && cd build
-        FC=mpifort cmake -DMPI=on -DOPENMP=on ..
-        make
+    mkdir -p build && cd build
+    FC=mpifort cmake -DMPI=on -DOPENMP=on ..
+    make
     ```
 
 ## 開発者のかたへ
@@ -168,3 +169,6 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
   ```sh
   cmake --build build --clean-first
   ```
+- ビルドには[CMake](https://cmake.org/)を用います
+  - ビルドの設定はCMakeLists.txtに書きます
+  - 設定を追加したい場合は[公式ドキュメント](https://cmake.org/cmake/help/v3.7/)が正確でかなりわかりやすいので、"cmake やりたいこと"で検索してオプション名を見つけてから公式ドキュメントをみて追加することをお勧めします
