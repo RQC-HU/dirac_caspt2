@@ -25,8 +25,8 @@
 ```sh
     git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
     cd dirac_caspt2
-    mkdir build && cd build
-    FC=ifort cmake -DOPENMP=on ..
+    mkdir -p build && cd build
+    FC=ifort cmake ..
     make
 ```
 
@@ -44,6 +44,7 @@
     
         (例)
         ```sh
+            mkdir -p build && cd build
             FC=mpiifort cmake -DMPI=on ..
             make
         ```
@@ -52,6 +53,7 @@
 
         (例)
         ```sh
+            mkdir -p build && cd build
             FC=ifort cmake -DOPENMP=on ..
             make
         ```
@@ -62,7 +64,7 @@
 - Intel Fortran
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=ifort cmake ..
         make
     ```
@@ -70,7 +72,7 @@
 - Intel Fortran (with OpenMP)
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=ifort cmake -DOPENMP=on ..
         make
     ```
@@ -78,7 +80,7 @@
 - Intel Fortran(MPI only, Intel MPI)
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=mpiifort cmake -DMPI=on ..
         make
     ```
@@ -86,7 +88,7 @@
 - Intel Fortran(MPI/OpenMP hybrid, Intel MPI)
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=mpiifort cmake -DMPI=on -DOPENMP=on ..
         make
     ```
@@ -94,7 +96,7 @@
 - GNU Fortran
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=gfortran cmake ..
         make
     ```
@@ -102,7 +104,7 @@
 - GNU Fortran (with OpenMP)
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=gfortran cmake -DOPENMP=on ..
         make
     ```
@@ -110,7 +112,7 @@
 - OpenMPI Fortran(MPI only)
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=mpifort cmake -DMPI=on ..
         make
     ```
@@ -118,7 +120,7 @@
 - OpenMPI Fortran(MPI/OpenMP hybrid)
 
     ```sh
-        cd dirac_caspt2/build
+        mkdir -p build && cd build
         FC=mpifort cmake -DMPI=on -DOPENMP=on ..
         make
     ```
