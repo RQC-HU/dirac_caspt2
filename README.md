@@ -1,8 +1,15 @@
 # DIRAC-CASPT2
 
-- DIRAC19or21の1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+#### [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
 
-### Requirements
+## 目次
+- [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#requirements)
+- [How to Install](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#how-to-install)
+  - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルドオプション)
+  - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルド例)
+- [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#開発者のかたへ)
+
+## Requirements
 
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
 
@@ -40,7 +47,7 @@
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
 - MPI
-    - MPIを使用するなら必須です.プリプロセッサを追加します
+    - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います
     
         (例)
         ```sh
@@ -124,3 +131,22 @@
         FC=mpifort cmake -DMPI=on -DOPENMP=on ..
         make
     ```
+
+## 開発者のかたへ
+#### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmakeおよびgitの環境を用意しています
+#### 以下の記述を\$HOME/.bashrc に追記するとマシンログイン時に新しいバージョンのcmake,gitが使えます
+
+\$HOME/.bashrc
+```bash
+module use --append "/home/noda/modulefiles" # Add Noda's modules
+module purge            # deactivate all modules
+module load cmake       # Load default cmake
+module load git         # Load git
+source "/home/noda/.config/git/.git-completion.bash" # Activate completions of the git command
+##############################
+# Git prompt
+##############################
+source "/home/noda/.config/git/git-prompt.sh" # This script allows you to see repository status in your prompt
+export GIT_PS1_SHOWDIRTYSTATE=1 # cf. https://github.com/git/git/blob/e8005e4871f130c4e402ddca2032c111252f070a/contrib/completion/git-prompt.sh#L38-L42
+export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\] ' # Change the prompt of your shell
+```
