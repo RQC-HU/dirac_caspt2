@@ -3,13 +3,13 @@
 #### [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
 
 ## 目次
-- [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#requirements)
-- [How to Install](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#how-to-install)
-  - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルドオプション)
-  - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルド例)
-- [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#開発者のかたへ)
-  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#環境構築について)
-  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main#ビルドについて)
+- [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2#requirements)
+- [How to Install](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-install)
+  - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
+  - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
+- [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
+  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
+  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
 ## Requirements
 
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
