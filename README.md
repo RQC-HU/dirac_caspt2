@@ -39,6 +39,14 @@
 
 - 現状GNU Fortranはビルドは成功しますが実行時エラーが発生する可能性があるため非推奨です
 - したがってFC=ifort もしくは FC=mpiifort もしくは FC=mpifort (OpenMPI,ifort) を使用することを推奨します
+- もしCMake version >= 3.13 を使っているなら以下のようにより少ないコマンドでビルドができます
+
+```sh
+    git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
+    cd dirac_caspt2
+    FC=ifort cmake --build build
+    cmake -B build
+```
 
 ### ビルドオプション
 
@@ -133,6 +141,9 @@
     ```
 
 ## 開発者のかたへ
+
+### 環境構築について
+
 #### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmakeおよびgitの環境を用意しています
 #### 以下の記述を\$HOME/.bashrc に追記するとマシンログイン時に新しいバージョンのcmake,gitが使えます
 
@@ -150,3 +161,10 @@ source "/home/noda/.config/git/git-prompt.sh" # This script allows you to see re
 export GIT_PS1_SHOWDIRTYSTATE=1 # cf. https://github.com/git/git/blob/e8005e4871f130c4e402ddca2032c111252f070a/contrib/completion/git-prompt.sh#L38-L42
 export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\] ' # Change the prompt of your shell
 ```
+
+### ビルドについて 
+- デバッグ、リファクタリング時のビルドについて、--clean-first オプションを用いて前のビルド結果を消してから再ビルドすることをお勧めします
+
+  ```sh
+  cmake --build build --clean-first
+  ```
