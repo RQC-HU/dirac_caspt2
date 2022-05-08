@@ -244,7 +244,7 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
   NPROCS=8
   $PAM --mpi=$NPROCS --get="MRCONEE MDCIN*" '--keep_scratch' --mol=${MOLFILE} --inp=${INPFILE} --noarch &> $LOGFILE
   ```
-- 他のバージョンを使いたいときや一旦モジュールの読み込みを解除したいときは
+- 一旦モジュールの読み込みを解除したいときは module unload 解除したいモジュールの名前 を実行します
 
 
 
