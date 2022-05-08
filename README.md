@@ -7,6 +7,7 @@
 - [How to Install](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-install)
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
+- [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
 - [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
   - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
   - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
@@ -141,12 +142,74 @@ cmake -B build --clean-first
     FC=mpifort cmake -DMPI=on -DOPENMP=on ..
     make
     ```
+## How to use
 
+- active.inpという名前のファイルが必要です(ファイル名は必ずactive.inpとしてください)
+- 計算の実行はactive.inpとDIRACの積分ファイル(MDCINT,MRCONEE)があるディレクトリで、ビルドした実行可能ファイル(r4divocoexe, r4dcascicoexe, r4dcaspt2ocoexe)を指定して実行します
+- 以下のようなシェルスクリプトを用意して実行すると簡単に実行できます
+  - スクリプト(非並列)
+  ```sh
+  #!/bin/sh
+
+    PGMIVO=/path/to/dirac_caspt2/bin/r4divocoexe
+    PGMCASCI=/path/to/dirac_caspt2/bin/r4dcascicoexe
+    PGMCASPT2O=/path/to/dirac_caspt2/bin/r4dcaspt2ocoexe
+
+  #-- Execution Sequence ------------------------------------------------------
+
+        $PGMCASCI   &> H2O.caspt2.out
+        $PGMCASPT2O &>> H2O.caspt2.out
+  ```
+  - スクリプト(並列) 
+  ```sh
+  #!/bin/sh
+
+    PGMIVO=/path/to/dirac_caspt2/bin/r4divocoexe
+    PGMCASCI=/path/to/dirac_caspt2/bin/r4dcascicoexe
+    PGMCASPT2O=/path/to/dirac_caspt2/bin/r4dcaspt2ocoexe
+
+  #-- Execution Sequence ------------------------------------------------------
+  NPROCS=8 # 並列数
+        mpiexec -n $NPROCS $PGMCASCI   &> H2O.caspt2.out
+        mpiexec -n $NPROCS $PGMCASPT2O &>> H2O.caspt2.out
+  ```
+- active.inpは以下のような内容を記述してください
+```in
+8
+6
+142
+2
+3
+2
+3
+0
+156
+0.0
+C2
+21
+
+Input for CASCI and CASPT2
+
+        read(5,'(I4)')ninact     # of inactive spinors
+        read(5,'(I4)')nact       # of active spinors
+        read(5,'(I4)')nsec       # of secondary spinors = nbas-ncore-nact-ninact
+        read(5,'(I4)')nelec      # of active electrons in active space
+        read(5,'(I4)')nroot      # of roots
+        read(5,'(I4)')selectroot # which root do you want to obtain
+        read(5,'(I4)')totsym     # total symmetry ex. 5 for Ag in C2h closed shell
+        read(5,'(I4)')ncore      # of core orbital
+        read(5,'(I4)')nbas       # of basis set
+        read(5,'(E8.2)')eshift   # for real shift (if you don't write, it will be 0)
+        read(5,'(A6)')ptgrp      # point group symmtery
+        read(5,'(I4)')dirac_version # DIRAC version
+```
+
+  
 ## 開発者のかたへ
 
 ### 環境構築について
 
-#### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmakeおよびgitの環境を用意しています
+#### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmake、gitおよびDIRAC(19.0,21.1,22.0)の環境を用意しています
 #### 以下の記述を\$HOME/.bashrc に追記するとマシンログイン時に新しいバージョンのcmake,gitが使えます
 
 \$HOME/.bashrc
@@ -163,6 +226,27 @@ source "/home/noda/.config/git/git-prompt.sh" # This script allows you to see re
 export GIT_PS1_SHOWDIRTYSTATE=1 # cf. https://github.com/git/git/blob/e8005e4871f130c4e402ddca2032c111252f070a/contrib/completion/git-prompt.sh#L38-L42
 export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\] ' # Change the prompt of your shell
 ```
+
+#### 用意したDIRACの使い方
+- \$HOME/.bashrcにmodule use --append "/home/noda/modulefiles"を記述します
+- module load DIRAC/19.0 などと入力するとpam-diracコマンドが使えるようになります
+  - DIRACのmoduleはDIRACを使うときだけ一時的にmodule loadすることをお勧めします
+  - 従ってDIRACを実行する際は実行用のシェルスクリプト内でmodule loadすることを推奨します
+  ```sh
+  #!/bin/sh
+
+  module load dirac/21.1 # Load DIRAC 21.1
+
+  MOLECULE=H2O
+  INPFILE=${MOLECULE}.inp
+  MOLFILE=${MOLECULE}.xyz
+  LOGFILE=${MOLECULE}.log
+  NPROCS=8
+  $PAM --mpi=$NPROCS --get="MRCONEE MDCIN*" '--keep_scratch' --mol=${MOLFILE} --inp=${INPFILE} --noarch &> $LOGFILE
+  ```
+- 他のバージョンを使いたいときや一旦モジュールの読み込みを解除したいときは
+
+
 
 ### ビルドについて 
 - デバッグ、リファクタリング時のビルドについて、--clean-first オプションを用いて前のビルド結果を消してから再ビルドすることをお勧めします
