@@ -47,8 +47,8 @@ make
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
 cd dirac_caspt2
-FC=ifort cmake --build build
-cmake -B build --clean-first
+FC=ifort cmake -B build
+cmake --build build --clean-first
 ```
 
 ### ビルドオプション
