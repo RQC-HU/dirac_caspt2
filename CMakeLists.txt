@@ -16,8 +16,8 @@ if(OPENMP)
 endif()
 set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS "")
 if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel)
-    add_compile_options(-cpp -mkl -pad -mp1 -integer_size 64 -unroll -warn nounused -nogen-interface) # "-warn nounused" means "-warn all -warn nounused"
-    link_libraries(-cpp -mkl)
+	add_compile_options(-cpp -i8 -I$ENV{MKLROOT}/include -pad -mp1 -integer-size 64 -unroll -warn nounused -nogen-interface) # "-warn nounused" means "-warn all -warn nounused"
+	link_libraries(-i8 -L$ENV{MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl) # parallel
     if(OPENMP)
         add_compile_options(-qopenmp)
     	link_libraries(-qopenmp)
