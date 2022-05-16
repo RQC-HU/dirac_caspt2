@@ -18,7 +18,6 @@ SUBROUTINE casmat(mat)
     integer              :: phase, phase1, phase2
     real*8               :: nsign, i2r, i2i
     complex*16           :: cmplxint, mat0
-    integer              :: nprocs_for_mat
     integer, allocatable :: ridet(:), oc(:), vi(:)
 
     mat = 0.0d+00
@@ -31,14 +30,7 @@ SUBROUTINE casmat(mat)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'allocated oc and vi', rank
     end if
-#ifdef BIG_MAT
-    ! If only the master process has a matrix named mat,
-    ! this subroutine will also excutes only by the master process.(So nprocs must be 1)
-    nprocs_for_mat = 1
-#else
-    nprocs_for_mat = nprocs
-#endif
-    Do i = rank + 1, ndet, nprocs_for_mat ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+    Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
         occ = 0
         oc = 0
@@ -250,11 +242,7 @@ SUBROUTINE casmat(mat)
         write (*, '(A,I4)') 'Reduce mat(:,:)', rank
     end if
 #ifdef HAVE_MPI
-#ifdef BIG_MAT
-    ! If only the master rank execute casmat.f90, allreduce is not neccesarry.
-#else
     call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-#endif
 #endif
 1000 end subroutine casmat
 
