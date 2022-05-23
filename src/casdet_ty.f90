@@ -43,7 +43,7 @@ SUBROUTINE casdet_ty(totsym)
     !    67108864* 8 / (1024^2) = 500MB, 26 spinor
     Do i = 1, 2**nact - 1
         if (POPCNT(i) == nelec) then
-            is_det_allow = ras1_det_check(i,ras1_bit,1)
+            is_det_allow = ras1_det_check(i,1)
             if(.not. is_det_allow) cycle
             if (trim(ptgrp) == 'C1') then
                 ndet = ndet + 1
