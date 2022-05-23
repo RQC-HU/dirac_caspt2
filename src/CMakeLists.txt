@@ -3,8 +3,10 @@ cmake_minimum_required(VERSION 3.7)
 #bin_PROGRAMS=$(top_builddir)/bin/r4dcascicoexe $(top_builddir)/bin/r4dcaspt2ocoexe
 
 
-add_executable(r4dcascicoexe
+add_executable(
+	r4dcascicoexe
 	four_caspt2_module.f90
+	ras_det_check.f90
 	nbitsa.f90 
 	readvec.f90 
 	read1mo_co.f90 
