@@ -28,7 +28,7 @@ MODULE four_caspt2_module
     real(8)         :: eshift
     character       :: ptgrp*6
     integer         :: dirac_version
-    integer         :: ras1_start, ras1num
+    integer         :: ras1_start, spinor_num_ras1
 
 
     character       :: date*8, time*10
