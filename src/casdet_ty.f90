@@ -13,7 +13,7 @@ SUBROUTINE casdet_ty(totsym)
     integer :: nbitsa
     integer :: i, isym
     integer, allocatable  :: idet0(:)
-    integer :: upper_allowed_hole, ras1_bit
+    integer :: upper_allowed_hole, ras1_bit, allow_det_num
     logical :: is_det_allow
     upper_allowed_hole = 1 ! RAS1の許容されるホール数
 
@@ -31,7 +31,7 @@ SUBROUTINE casdet_ty(totsym)
     ! ras1_bit = 2^4 - 1 = 16 - 1 = 15 となり上の4spinorの例と一致する
 
     ras1_bit = 2**2 -1 ! RAS1のビット表現
-
+    allow_det_num = 0
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter casdet_ty'
     end if
@@ -45,6 +45,7 @@ SUBROUTINE casdet_ty(totsym)
         if (POPCNT(i) == nelec) then
             is_det_allow = ras1_det_check(i,1)
             if(.not. is_det_allow) cycle
+            allow_det_num = allow_det_num + 1
             if (trim(ptgrp) == 'C1') then
                 ndet = ndet + 1
                 idet0(ndet) = i
@@ -64,6 +65,7 @@ SUBROUTINE casdet_ty(totsym)
     Allocate (idet(ndet))
     idet(1:ndet) = idet0(1:ndet)
     if (rank == 0) then ! Process limits for output
+        write (*, *) 'allow  = ', allow_det_num
         write (*, *) 'totsym = ', totsym
         write (*, *) 'ndet   = ', ndet
     end if
