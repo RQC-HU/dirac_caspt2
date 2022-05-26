@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Bug report
+    about: Bug report issue template
+    url: https://github.com/kohei-noda-qcrg/dirac_castp2/issues/new?template=bug-report.md&projects=kohei-noda-qcrg/dirac_castp2/1&labels=bug
+  - name: Feature request
+    about: New feature request issue template
+    url: https://github.com/kohei-noda-qcrg/dirac_castp2/issues/new?template=feature_request.md&projects=kohei-noda-qcrg/dirac_castp2/1&labels=enhancement
