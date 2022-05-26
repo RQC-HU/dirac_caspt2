@@ -3,6 +3,6 @@ contact_links:
   - name: new Feature Issue
     about: new feature Issue template
     url: https://github.com/kohei-noda-qcrg/dirac_caspt2/issues/new?template=feature_request.md&projects=kohei-noda-qcrg/dirac_caspt2/1&labels=enhancement
- - name: Gug Report Issue
+  - name: Gug Report Issue
     about: Bug Report Issue template
     url: https://github.com/kohei-noda-qcrg/dirac_caspt2/issues/new?template=bug-report.md&projects=kohei-noda-qcrg/dirac_caspt2/1&labels=bug
