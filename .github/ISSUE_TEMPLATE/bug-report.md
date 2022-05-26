@@ -4,7 +4,6 @@ about: Create a report to help us improve
 title: ''
 labels: bug
 assignees: ''
-projects: 'Rel-CASPT2-PROJECT' 
 ---
 
 ### どういうバグ？
