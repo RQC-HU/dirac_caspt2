@@ -8,4 +8,4 @@ contact_links:
     url: https://github.com/kohei-noda-qcrg/dirac_caspt2/issues/new?template=bug-report.md&projects=kohei-noda-qcrg/dirac_caspt2/1&labels=bug
   - name: Blank Issue
     about: new Issue with no template file
-    url: https://github.com/kohei-noda-qcrg/dirac_caspt2/issues/new?template=feature_request.md&projects=kohei-noda-qcrg/dirac_caspt2/1&labels=enhancement
+    url: https://github.com/kohei-noda-qcrg/dirac_caspt2/issues/new?template=feature_request.md&projects=kohei-noda-qcrg/dirac_caspt2/1
