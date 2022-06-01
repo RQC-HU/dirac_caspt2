@@ -111,24 +111,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -162,24 +145,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -214,24 +180,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -266,24 +215,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     goto 100
@@ -455,24 +387,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -506,24 +421,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -557,24 +455,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -608,24 +489,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     goto 100
@@ -791,24 +655,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -844,24 +691,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
@@ -945,24 +775,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-!    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     goto 100 ! No error in intra3
 
 10  write (*, *) 'error opening file', rank
@@ -982,35 +795,38 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
 end subroutine intra_3
 
-! subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
-!     use four_caspt2_module, only: nprocs, rank
-!     implicit none
-!     integer                 :: n_cnt, i, j, k, l
-!     integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le
-!     real(8)                 :: thresd
-!     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
-!     ! 4重ループを1重ループに変換する方法
-!     ! 元の記述 : do l=li,le;do k=ki,ke;do j=ji,je;do i=ii,ie;
-!     !-> newle=le-li+1;newke=ke-ki+1;newje=je-ji+1;newie=ie-ii+1
-!     !-> ここまでの処理でdo li,leがdo 1,newleに変換済み
-!     !-> i=mod(idx                      ,newie)+ii
-!     !-> j=mod(idx/newie                ,newje)+ji
-!     !-> k=mod(idx/(newie*newje)        ,newke)+ki
-!     !-> l=mod(idx/(newie*newje*newke)  ,newle)+li
-!     !-> これでwrite(1) i,j,k,l,traint2(i,j,k,l)の記述のまま同じ処理ができる
-!     !-> ほとんど速くならなかったのでrevertした
+subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
+    use four_caspt2_module, only: nprocs, rank
+    implicit none
+    integer                 :: n_cnt, i, j, k, l
+    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le
+    real(8)                 :: thresd
+    complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
+    ! 4重ループを1重ループに変換する方法
+    ! 元の記述 : do l=li,le;do k=ki,ke;do j=ji,je;do i=ii,ie;
+    !-> newle=le-li+1;newke=ke-ki+1;newje=je-ji+1;newie=ie-ii+1
+    !-> ここまでの処理でdo li,leがdo 1,newleに変換済み
+    !-> i=mod(idx                      ,newie)+ii
+    !-> j=mod(idx/newie                ,newje)+ji
+    !-> k=mod(idx/(newie*newje)        ,newke)+ki
+    !-> l=mod(idx/(newie*newje*newke)  ,newle)+li
+    !-> これでwrite(1) i,j,k,l,traint2(i,j,k,l)の記述のまま同じ処理ができる
+    !-> ほとんど速くならなかったのでrevertした
 
-!     n_cnt = 0
-!     Do l = li, le
-!         Do k = ki, ke
-!             Do j = ji, je
-!                 Do i = ii, ie
-!                     if (ABS(traint2(i, j, k, l)) > thresd .and. mod(n_cnt, nprocs) == rank) then
-!                         write (1) i, j, k, l, traint2(i, j, k, l)
-!                         n_cnt = n_cnt + 1
-!                     end if
-!                 End do
-!             End do
-!         End do
-!     End do
-! end subroutine write_traint2_to_disk
+    n_cnt = 0
+    Do l = li, le
+        Do k = ki, ke
+            Do j = ji, je
+                Do i = ii, ie
+                    if (ABS(traint2(i, j, k, l)) > thresd) then
+                        if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
+                            write (1) i, j, k, l, traint2(i, j, k, l)
+                        end if
+                        ! if traint2(i,j,k,l)>thresd, all MPI process need to count up n_cnt!!!
+                        n_cnt = n_cnt + 1
+                    end if
+                End do
+            End do
+        End do
+    End do
+end subroutine write_traint2_to_disk
