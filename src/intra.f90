@@ -23,9 +23,8 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
     integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
     integer :: ii, ji, ki, li, ie, je, ke, le
-    integer :: inz, nmx, ini(3), end(3), isp, isym, imo, ired
+    integer :: nmx, ini(3), end(3), isp, isym, imo
 
-    integer :: n_cnt
     logical :: is_opened
     thresd = 1.0d-15
 
@@ -257,10 +256,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     complex*16              :: cint2
 
     integer :: i, j, k, l
-    integer ::i1, j1, k1, l1, inew, jnew, knew, lnew
-    integer :: ii, ji, ki, li, ie, je, ke, le, lkr0, kkr0
-    integer :: inz, nmx, ini(3), end(3), isp, isym, imo, ired, save
-    integer :: n_cnt
+    integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
+    integer :: ii, ji, ki, li, ie, je, ke, le
+    integer :: nmx, ini(3), end(3), isp, isym, imo, save
 
     logical :: is_opened
     thresd = 1.0d-15
@@ -533,9 +531,8 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer :: i, j, k, l
     integer :: initial_i, initial_j, initial_k, initial_l
     integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
-    integer :: ii, ji, ki, li, ie, je, ke, le, lkr0, kkr0
-    integer :: inz, nmx, ini(3), end(3), isp, isym, imo, ired, save
-    integer :: n_cnt
+    integer :: ii, ji, ki, li, ie, je, ke, le
+    integer :: nmx, ini(3), end(3), isp, isym, imo
 
     logical :: is_opened
     thresd = 1.0d-15
@@ -725,23 +722,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-    n_cnt = 0
-    Do l = li, le
-        Do k = ki, ke
-            Do j = ji, je
-                Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
-                        if (mod(n_cnt, nprocs) == rank) then
-                            write (1) i, j, k, l, traint2(i, j, k, l)
-                        end if
-                        n_cnt = n_cnt + 1
-                        ! write (1, '(4I4, 2e2.1)') i, j, k, l, traint2(i, j, k, l)
-                    end if
-                End do
-            End do
-        End do
-    End do
-
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     traint2 = 0.0d+00
