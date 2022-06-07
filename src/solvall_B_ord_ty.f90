@@ -197,6 +197,12 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'after s cdiag, new dimension is', dimm
         end if
+        if (rank == 0) then
+            print *, 'ws', ws
+            do count = 1, dimn
+                print *, count, sc(count, count)
+            end do
+        end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
