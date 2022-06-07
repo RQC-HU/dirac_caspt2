@@ -11,7 +11,7 @@ contains
         integer :: num_of_electron
         logical :: is_det_allowed
         call conunt_num_of_elec(i, num_of_electron)
-        is_det_allowed = 2 - upper_allowed_hole <= num_of_electron  .and. num_of_electron <= 2
+        is_det_allowed = 2 - upper_allowed_hole <= num_of_electron  .and. num_of_electron <= 1
     end function ras1_det_check
     function ras3_det_check(i,upper_allowed_electron) result(is_det_allowed)
         ! function ras3_det_check(i,upper_allowed_electron) result(is_det_allowed)
