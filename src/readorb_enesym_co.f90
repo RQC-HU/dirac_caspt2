@@ -476,7 +476,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     do i0 = 1, nmo
         irpmo(i0) = dammo(indmo(i0))
         irpamo(i0) = dammo(indmo(i0))
-        indmo(i0) = i0
     end do
 
     if (rank == 0) then
