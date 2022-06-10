@@ -1,12 +1,3 @@
----
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
----
-
 ### 前提と問題点
 > 前提事項と、あれば現状の問題点について記述してください
 
