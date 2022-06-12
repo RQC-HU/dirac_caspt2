@@ -19,7 +19,6 @@
     // Git関連
     "mhutchie.git-graph",
     "donjayamanne.githistory",
-    "KnisterPeter.vscode-github",
     "GitHub.vscode-pull-request-github",
     "eamodio.gitlens",
     // コーディングルール強制
