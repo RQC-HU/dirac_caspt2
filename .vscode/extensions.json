@@ -12,7 +12,6 @@
     "timonwong.shellcheck",
     // Fortran関連
     "ms-vscode.cpptools-extension-pack",
-    "ms-vscode.cmake-tools",
     "fortran-lang.linter-gfortran",
     // Error強調表示
     "usernamehw.errorlens",
