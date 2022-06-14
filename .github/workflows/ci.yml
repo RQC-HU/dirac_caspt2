@@ -54,7 +54,4 @@ jobs:
         run: |
           FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build
           cmake --build build
-      - name: Run unittest
-        timeout-minutes: 15
-        run: |
-          sh runtest.sh
+
