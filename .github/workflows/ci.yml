@@ -4,7 +4,7 @@ on: push # Runs when any push is detected
 
 env:
   KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
-  FC: ifort # Intel-Fortran
+  FC: mpiifort # MPI-Intel-Fortran
 defaults:
   run:
     shell: bash
@@ -52,7 +52,7 @@ jobs:
       - name: Build source code
         timeout-minutes: 1
         run: |
-          FC=ifort cmake -B build
+          FC=mpifort cmake -DMPI=on -DOPENMP=on -B build
           cmake --build build
       - name: Run unittest
         timeout-minutes: 15
