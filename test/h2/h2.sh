@@ -27,5 +27,7 @@ echo "h2.sh abspath $abspath $binarypath $r4dcasci $r4dcaspt2"
 $r4dcasci &> $outpath
 $r4dcaspt2 &>> $outpath
 
+ls $abspath
+cat $outpath
 # Remove unnecessary files
 rm [A-H]*int* MDCINTNEW NEWCICOEFF CIMAT* e0after EPS TRANSFOCK
