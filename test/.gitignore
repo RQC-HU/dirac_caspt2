@@ -1,2 +1,11 @@
 __pycache__/
+
+# Ignore output files
 */*.caspt2.out*
+[A-H]*int*
+CIMAT*
+e0after
+EPS
+MDCINTNEW
+NEWCICOEFF
+TRANSFOCK
