@@ -9,7 +9,10 @@ def test_h2():
     r4dcascicoexe = os.path.join(test_path, "../../bin/r4dcascicoexe")
     r4dcaspt2ocoexe = os.path.join(test_path, "../../bin/r4dcaspt2ocoexe")
     print(test_path, r4dcascicoexe, r4dcaspt2ocoexe)
+    ref_filename = "reference.H2.out"
+    ref_filepath = os.path.join(test_path, ref_filename)
     output_filename = "H2.caspt2.out"
+    output_filepath = os.path.join(test_path, output_filename)
     # Run calculation
     # p = subprocess.run("sh " + test_path + "/h2.sh", shell=True)
     # CASCI
@@ -22,26 +25,21 @@ def test_h2():
     p = subprocess.run(
         "rm [A-H]*int* CIMAT* e0after EPS MDCINTNEW NEWCICOEFF TRANSFOCK", shell=True
     )
+    p = subprocess.run("ls", shell=True)
     ref = subprocess.run(
-        "cat "
-        + test_path
-        + "/reference.H2.out"
-        + " |  awk ' /Total/{print}' | tr -s '\n'",
+        "cat " + ref_filepath + " |  awk ' /Total/{print}' | tr -s '\n'",
         shell=True,
         encoding="utf-8",
         stdout=subprocess.PIPE,
     )  # Get CASPT2 energy and e2sum from the output
+    print("ref output awk end")
     output = subprocess.run(
-        "cat "
-        + test_path
-        + "/"
-        + output_filename
-        + " | awk '/Total/{print}' | tr -s '\n'",
+        "cat " + output_filepath + " | awk '/Total/{print}' | tr -s '\n'",
         shell=True,
         encoding="utf-8",
         stdout=subprocess.PIPE,
     )  # Get CASPT2 energy and e2sum from the output
-
+    print("ref output awk end")
     # Check output for debugging
     print("ref.stdout", ref.stdout)
     print("ref.stdout", output.stdout)
