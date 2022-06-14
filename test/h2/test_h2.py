@@ -34,7 +34,7 @@ def test_h2():
         encoding="utf-8",
         stdout=subprocess.PIPE,
     )  # Get CASPT2 energy and e2sum from the output
-    print("ref output awk end")
+    print("output awk end")
     # Check output for debugging
     print("ref.stdout", ref.stdout)
     print("ref.stdout", output.stdout)

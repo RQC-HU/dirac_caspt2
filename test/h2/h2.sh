@@ -9,8 +9,17 @@ binarypath="../../bin" # Binary path is specified by relative path
 r4dcasci="$binarypath/r4dcascicoexe"
 r4dcaspt2="$binarypath/r4dcaspt2ocoexe"
 
+# Object files check
+echo "Object file check"
+ls $binarypath
+echo "$r4dcasci, $r4dcaspt2"
+
 # Output path
 outpath="$abspath/H2.caspt2.out"
+
+# Ouput file path check
+
+echo "Ouput file path check : $outpath"
 
 echo "h2.sh abspath $abspath $binarypath $r4dcasci $r4dcaspt2"
 # OMP_NUM_THREADS=4
