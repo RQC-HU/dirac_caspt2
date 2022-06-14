@@ -4,7 +4,7 @@ on: push # Runs when any push is detected
 
 env:
   KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
-  FC: mpiifort # Intel-MPI
+  FC: ifort # Intel-Fortran
 defaults:
   run:
     shell: bash
