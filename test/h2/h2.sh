@@ -24,8 +24,8 @@ echo "Ouput file path check : $outpath"
 echo "h2.sh abspath $abspath $binarypath $r4dcasci $r4dcaspt2"
 # OMP_NUM_THREADS=4
 # Execute CASCI/CASPT2 programs
-$r4dcasci &> $outpath
-$r4dcaspt2 &>> $outpath
+$r4dcasci | tee $outpath
+$r4dcaspt2 | tee -a $outpath
 
 ls $abspath
 cat $outpath
