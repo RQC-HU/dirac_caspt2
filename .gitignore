@@ -1,8 +1,9 @@
-# Ignore dotfiles (except .gitignore and .vscode and .editorconfig)
+# Ignore dotfiles (except .gitignore, .vscode, .editorconfig and .github)
 .*
 !.gitignore
 !.vscode
 !.editorconfig
+!.github
 
 # Ignore object files
 bin/
