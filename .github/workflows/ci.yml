@@ -52,7 +52,7 @@ jobs:
       - name: Build source code
         timeout-minutes: 1
         run: |
-          FC=mpiifort cmake -DMPI=on -B build
+          FC=ifort cmake -B build
           cmake --build build
       - name: Run unittest
         timeout-minutes: 15
