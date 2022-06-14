@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 abspath="$(cd "$( dirname "$0" )" && pwd )"
+echo "runtest abspath $abspath"
 # Did you install python on your machine?
 if ! (type "python" >/dev/null 2>&1); then
     echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
