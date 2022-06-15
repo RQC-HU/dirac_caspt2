@@ -14,30 +14,29 @@ if ! (type "python" >/dev/null 2>&1); then
     exit
 fi
 
-# # Built CASCI program already?
-# r4dcasci="$abspath/bin/r4dcascicoexe"
-# echo $r4dcasci
-# if [ -e  $r4dcasci ]; then
-#     echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
-#     echo -e "Error:\t$r4dcasci is missing."
-#     echo "You must build rel-caspt2 program before running tests."
-#     echo "Read $abspath/README.md and try to build this program."
-#     echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
-#     echo "Exit."
-#     exit
-# fi
+# Built CASCI program already?
+r4dcasci="$abspath/bin/r4dcascicoexe"
+if [ ! -f  "$r4dcasci" ]; then
+    echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
+    echo -e "Error:\t$r4dcasci is missing."
+    echo "You must build rel-caspt2 program before running tests."
+    echo "Read $abspath/README.md and try to build this program."
+    echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
+    echo "Exit."
+    exit
+fi
 
-# # Built CASPT2 program already?
-# r4dcaspt2="$abspath/bin/r4dcaspt2ocoexe"
-# if test -f  $r4dcaspt2 ; then
-#     echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
-#     echo -e "Error:\t$r4dcaspt2 is missing."
-#     echo "You must build rel-caspt2 program before running tests."
-#     echo "Read $abspath/README.md and try to build this program."
-#     echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
-#     echo "Exit."
-#     exit
-# fi
+# Built CASPT2 program already?
+r4dcaspt2="$abspath/bin/r4dcaspt2ocoexe"
+if [ ! -f  "$r4dcaspt2" ]; then
+    echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
+    echo -e "Error:\t$r4dcaspt2 is missing."
+    echo "You must build rel-caspt2 program before running tests."
+    echo "Read $abspath/README.md and try to build this program."
+    echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
+    echo "Exit."
+    exit
+fi
 
 # Did you install pytest on your machine?
 if type "pytest" >/dev/null 2>&1; then
