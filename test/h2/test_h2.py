@@ -1,4 +1,3 @@
-from site import abs_paths
 import subprocess
 import os
 import pytest
@@ -13,8 +12,13 @@ def test_h2():
     ref_file_path = os.path.normpath(os.path.join(test_path, ref_filename))
     output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
     output_file_path = os.path.normpath(os.path.join(test_path, output_filename))
-    r4dcasci = os.path.normpath(os.path.join(test_path, "../../bin/r4dcascicoexe"))
-    r4dcaspt2 = os.path.normpath(os.path.join(test_path, "../../bin/r4dcaspt2ocoexe"))
+    bindir = os.path.normpath(os.path.join(test_path, "../../bin"))
+    r4dcasci = os.path.normpath(os.path.join(bindir, "r4dcascicoexe"))
+    r4dcaspt2 = os.path.normpath(os.path.join(bindir, "r4dcaspt2ocoexe"))
+    print(" ".join(["r4dcasci", r4dcasci, "r4dcaspt2", r4dcaspt2]))
+    print("file check start")
+    p = subprocess.run(" ".join(['ls -al', test_path, bindir]))
+    print("file check end")
     # Run calculation
     p = subprocess.run(
         " ".join(
@@ -22,6 +26,9 @@ def test_h2():
         ),
         shell=True,
     )
+    print("file check after calculation start")
+    p = subprocess.run(" ".join(['ls -al', test_path, bindir]))
+    print("file check after calculation end")
     print(
         "CASCI/CASPT2 status", p.returncode
     )  # Check status (If p.returncode != 0, calculation failed.)
