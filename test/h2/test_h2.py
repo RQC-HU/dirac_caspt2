@@ -17,7 +17,7 @@ def test_h2():
     r4dcaspt2 = os.path.normpath(os.path.join(bindir, "r4dcaspt2ocoexe"))
     print(" ".join(["r4dcasci", r4dcasci, "r4dcaspt2", r4dcaspt2]))
     print("file check start")
-    p = subprocess.run(" ".join(['ls -al', test_path, bindir]))
+    p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check end")
     # Run calculation
     p = subprocess.run(
@@ -27,7 +27,7 @@ def test_h2():
         shell=True,
     )
     print("file check after calculation start")
-    p = subprocess.run(" ".join(['ls -al', test_path, bindir]))
+    p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check after calculation end")
     print(
         "CASCI/CASPT2 status", p.returncode
