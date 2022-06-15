@@ -1,3 +1,4 @@
+from site import abs_paths
 import subprocess
 import os
 import pytest
@@ -37,11 +38,16 @@ def test_h2():
     # Delete scratch files
     for d in delete_files:
         files = glob.glob(os.path.normpath(os.path.join(test_path, d)))
+        print("files", files)
         for f in files:
             os.remove(f)
     # Check output
-    with open(output_file_path, encoding="utf-8", mode="r") as f:
-        print(f.read())
+    print("Start printout ")
+    subprocess.run(
+        " ".join(["cat", output_file_path]),
+        shell=True,
+    )
+    print("End printout ")
     # Grep the reference output file
     with open(ref_file_path, encoding="utf-8", mode="r") as f:
         # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
