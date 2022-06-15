@@ -57,4 +57,4 @@ jobs:
       - name: Run unittest
         timeout-minutes: 15
         run: |
-          sh runtest.sh
+          pytest -vv

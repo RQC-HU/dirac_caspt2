@@ -20,6 +20,7 @@ def test_h2():
     p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check end")
     # Run calculation
+    subprocess.run(r4dcasci, shell=True)
     p = subprocess.run(
         " ".join(
             [r4dcasci, "&>", output_file_path, "&&", r4dcaspt2, "&>>", output_file_path]
@@ -50,10 +51,10 @@ def test_h2():
             os.remove(f)
     # Check output
     print("Start printout ")
-    subprocess.run(
-        " ".join(["cat", output_file_path]),
-        shell=True,
-    )
+    # subprocess.run(
+    #     " ".join(["cat", output_file_path]),
+    #     shell=True,
+    # )
     print("End printout ")
     # Grep the reference output file
     with open(ref_file_path, encoding="utf-8", mode="r") as f:
