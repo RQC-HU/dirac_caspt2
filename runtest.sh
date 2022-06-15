@@ -42,7 +42,7 @@ fi
 # Did you install pytest on your machine?
 if type "pytest" >/dev/null 2>&1; then
     cd "$abspath/test" || exit
-    pytest # Run tests!!
+    pytest --tb=short -vv # Run tests!!
 else
     echo "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+"
     echo -e "Warning:\tpytest is not installed."
@@ -53,7 +53,7 @@ else
         python -m pip install pytest
         echo -e "pytest installed.\nStart executing test programs!"
         cd "$abspath/test" || exit
-        pytest #Run tests!
+        pytest --tb=short -vv #Run tests!
     else
         echo "Exit."
     fi
