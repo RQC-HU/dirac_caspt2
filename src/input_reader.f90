@@ -7,48 +7,44 @@ contains
     subroutine ras3_read
         use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
         implicit none
-        integer :: idx, begin, digit
-        integer, parameter :: length = 100
-        character(length) :: line, ras3_chr, line_copy
-        integer :: tmp_ras3(max_ras3_spinor_num)
+        integer :: begin, digit
+        integer, parameter :: max_str_length = 100
+        character(max_str_length) :: string, ras3_chr, string_copy
+        integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
 
-        read (1, '(a)', err=10) line ! Read one line of active.inp
-        line_copy = line
-        idx = index(line, '..')
-        print *, idx
-        do while (idx /= 0)
-            call parse_range_input_int(line, idx)
-            idx = index(line, '..')
-        end do
+        read (1, '(a)', err=10) string ! Read a line of active.inp
+        string_copy = string
+        idx_filled = 0
 
         idx = 1 ! The index of tmp_ras3
         ! The variable begin is the first index that does not contain space or , or ;
-
-        begin = verify(line, ' ,') ! begin is 0 if all characters in line are space or , or ;
+        begin = verify(string, ' ,') ! begin is 0 if all characters in string are space or , or ;
         do while (begin /= 0)
             print *, "begin", begin
-            print *, 'line', line, line(begin:)
-            read (line(begin:), *, err=10) tmp_ras3(idx) ! Read one of the ras3 value
-            if (tmp_ras3(idx) <= 0) then ! Unexpected value error
-                print *, "Unexpected value error!!, value:", tmp_ras3(idx)
-                print *, "List  : ", tmp_ras3(1:idx)
-                print *, "Input : ", line_copy
-                print *, "Exit."
+            print *, 'string', string, string(begin:)
+            idx_filled = idx_filled + 1 ! Count up the index of tmp_ras3
+            read (string(begin:), *, err=9) tmp_ras3(idx_filled) ! Read one of the ras3 value
+            print *, "Compare", tmp_ras3(idx_filled), string(begin:begin)
+            if (tmp_ras3(idx_filled) <= 0) then ! Unexpected value error
+                print *, "ERROR: Unexpected value error!!, value:", tmp_ras3(idx_filled)
+                print *, "List  : ", tmp_ras3(1:idx_filled)
+                print *, "Input : ", string_copy
+                print *, "Exit with an error."
                 stop
             end if
-            write (ras3_chr, *) tmp_ras3(idx) ! ras3_chr is a string expression of tmp_ras3(idx)
-            digit = len(trim(adjustl(ras3_chr))) ! The variable digit is the digit of tmp_ras3(idx) (e.g. -123->4, 10->2)
-            line(begin:begin + digit) = "" ! Replace one of the ras3 value and separator to space (e.g. "10,3,5" -> "   3,5")
-            print *, "After line", line
-            begin = verify(line, ' ,-') ! Update the first index that does not contain space or , or ;
-            idx = idx + 1 ! Count up the index of tmp_ras3
+            write (ras3_chr, *) tmp_ras3(idx_filled) ! ras3_chr is a string expression of tmp_ras3(idx_filled)
+            digit = len(trim(adjustl(ras3_chr))) ! The variable digit is the digit of tmp_ras3(idx_filled) (e.g. -123->4, 10->2)
+            string(begin:begin + digit) = "" ! Replace one of the ras3 value and separator to space (e.g. "10,3,5" -> "   3,5")
+            print *, "After string", string
+            begin = verify(string, ' ,') ! Update the first index that does not contain space or , or ;
         end do
-        idx = idx - 1
-        allocate (ras3_list(idx)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
-        ras3_list(:) = tmp_ras3(1:idx)
-        print *, ras3_list
-        goto 100
-10      print *, "error in input, can't read ras3 value!!. Exit."
+        idx_filled = idx_filled - 1
+        allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
+        ras3_list(:) = tmp_ras3(1:idx_filled)
+        print *, "ras3_list", ras3_list
+        goto 100 ! Read the numbers properly
+9       print *, "ERROR: Error in the section in reading the number, ", string(begin:)
+10      print *, "ERROR: Error in input, can't read ras3 value!!. Exit."
         stop
 100     if (rank == 0) print *, "Read ras3 end"
     end subroutine ras3_read
