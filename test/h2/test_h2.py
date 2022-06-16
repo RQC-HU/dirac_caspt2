@@ -21,13 +21,11 @@ def test_h2():
     p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check end")
     # Run calculation
-    # subprocess.run(r4dcasci, shell=True)
-    p = subprocess.run(
-        " ".join(
-            [r4dcasci, "&>", output_file_path, "&&", r4dcaspt2, "&>>", output_file_path]
-        ),
-        shell=True,
-    )
+    print(p.stdout)
+    with open('H2.caspt2.out','w') as f:
+        p = subprocess.run(r4dcasci, encoding='utf-8', stdout=f)
+    with open("H2.caspt2.out",'a') as f:
+        p = subprocess.run(r4dcaspt2, encoding='utf-8', stdout=f)
     print("file check after calculation start")
     p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check after calculation end")
