@@ -59,7 +59,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns a list of integers
         ! It finds expressions of the form a..b in the input string and expands it to a list.
-        ! (e.g. ) INPUT  : string = "1,2,4..10,13,17..20", list = [1,2,0,0,...,0],                           filled_num = 2
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [1,2,0,0,...,0],                           filled_num = 2
         !         OUTPUT : string = "1,2,      13,17..20", list = [1,2,4,5,6,7,8,9,10,17,18,19,20,0,0,...,0] filled_num = 13
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
@@ -75,7 +75,6 @@ contains
         ! Checks whether the range of allow_int is valid
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=
         if (allow_int_max < allow_int_min) then
-            !
             print *, "ERROR: Allowed range of integer is invalid in parse_range_input_int. &
 &                      MIN:", allow_int_min, "MAX:", allow_int_max
             goto 10 ! Input Error. Stop program
