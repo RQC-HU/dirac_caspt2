@@ -23,9 +23,9 @@ def test_h2():
     # Run calculation
     print(p.stdout)
     with open('H2.caspt2.out','w') as f:
-        p = subprocess.run(r4dcasci, encoding='utf-8', stdout=f)
-    with open("H2.caspt2.out",'a') as f:
-        p = subprocess.run(r4dcaspt2, encoding='utf-8', stdout=f)
+        p = subprocess.run(" ".join([r4dcasci,"&&",r4dcaspt2]), shell=True, encoding='utf-8', stdout=f)
+    # with open("H2.caspt2.out",'a') as f:
+        # p = subprocess.run(r4dcaspt2, encoding='utf-8', stdout=f)
     print("file check after calculation start")
     p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check after calculation end")
@@ -48,14 +48,8 @@ def test_h2():
         print("files", files)
         for f in files:
             os.remove(f)
+
     # Check output
-    print("Start printout ")
-    # subprocess.run(
-    #     " ".join(["cat", output_file_path]),
-    #     shell=True,
-    # )
-    print("End printout ")
-    # Grep the reference output file
     with open(ref_file_path, encoding="utf-8", mode="r") as f:
         # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
         grep_str = [s.strip() for s in f.readlines() if "Total energy is" in s]
