@@ -22,14 +22,31 @@
 - [CMake](https://cmake.org/)(version>=3.7 が必要です)
     - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
-  - 現時点ではMKLのBlas,LapackではなくBlas及びLapack単体でビルドする場合LDFLAGSを手動設定する必要があります
-  - gfortranを使用する場合、MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
+  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
 
     ```sh
     echo $MKLROOT
     ```
+  - 現時点ではMKLのBlas,LapackではなくBlas及びLapack単体でビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります
+    ビルド例
+    ```sh
+    mkdir build
+    cd build
+    LDFLAGS="Replace this by Your BLAS and LAPACK Library link path" FC=gfortran cmake -DMKL=off ..
+    make
+    ```
 
+
+- [Python(version >= 3.6)](https://www.python.org/)
+  - テストを実行するために使用します
+  - Python (version >=3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
+- [pytest](https://docs.pytest.org/)
+  - テストを実行するために使用します
+  - python (version >= 3.6)をインストールしていれば以下のコマンドで入手できます
+  ```sh
+  python -m pip install pytest
+  ```
 ## How to Install
 
 以下のコマンドでmainブランチのソースコードをビルドできます
@@ -53,6 +70,20 @@ FC=ifort cmake -B build
 cmake --build build --clean-first
 ```
 
+### ソフトウェアのテスト
+
+ビルド後はテストを行うことを推奨します  
+テストを行うには[Python(version >= 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です  
+[runtest.sh](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/runtest.sh)を実行するか、testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
+
+```sh
+  sh runtest.sh
+```
+
+```sh
+  pytest
+```
+
 ### ビルドオプション
 
 現時点でサポートしているビルドオプションは以下のとおりです
@@ -60,7 +91,7 @@ cmake --build build --clean-first
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
 - MPI
-    - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います
+    - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
 
         (例)
 
@@ -72,7 +103,7 @@ cmake --build build --clean-first
 
 - OPENMP
 
-    - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します
+    - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します(default:OFF)
 
         (例)
 
@@ -81,7 +112,17 @@ cmake --build build --clean-first
         FC=ifort cmake -DOPENMP=on ..
         make
         ```
+- MKL
 
+    - MKLを使わないときはこのビルドオプションをOFFにする必要があります.デフォルトがONなので指定しなければMKLを使う前提でビルドを行います(default:ON)
+
+        (例)
+
+        ```sh
+        mkdir -p build && cd build
+        LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off ..
+        make
+        ```
 ### ビルド例
 
 各種コンパイラは\$PATHに追加されているか、もしくはフルパスを指定する必要があります
@@ -279,13 +320,26 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
 
 - テストを追加しました!まずはH2分子,STO-3G基底のみ追加しています。CASPT2エネルギーの誤差は10^-8まで許しています
   - 実行するにはpytestをpython -m pip install pytestにより導入する必要があります
-  - その後sh runtest.shでruntest.shを実行します
-  
-- 今後[安全にコードを変更](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E5%A4%89%E6%9B%B4%E3%81%B8%E3%81%AE%E4%BF%A1%E9%A0%BC)できる(変更後と変更前の振る舞いが変わっていないことを確認する)ようにするために[テスト](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88)を追加する予定です
+  - pytestを導したら
+
+  ```sh
+  pytest
+  ```
+
+  を実行するか、このプログラムのルートディレクトリで
+
+  ```sh
+    sh ./runtest.sh
+  ```
+
+  を実行すれば自動的にテストが開始されます
+
+  - また[github actions](https://github.co.jp/features/actions )を使うことで月50時間まではアップロード(push)されたすべてのコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態をつくりました。
+
 - 本来は[単体テスト](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)を用いてプログラムの部品レベルでテストを書くべきですが、本プログラムはテストを前提として書かれておらず[密結合](https://e-words.jp/w/%E5%AF%86%E7%B5%90%E5%90%88.html)のため[単体テストが書きづらい](https://qiita.com/yutachaos/items/857472c7d3c65d3cf316#%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88-1)です
 - 当面は複数の分子系で、できるだけ違うタイプのインプットを用いて、最初に基準と定めたアウトプットから**自動的に**(ここがテストの良い点です)判定する形式にする予定です
   - 例えばCASPT2 energyが一定以上ずれていないかを判定するようにします
   - いわゆる[統合試験](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E7%B5%B1%E5%90%88%E8%A9%A6%E9%A8%93_(Integration_Testing))のみを行います
-- ツールはFortranのテストツールは機能が貧弱なので、pythonのunittestかpytestを用いる予定です
+- ツールはFortranのテストツールは機能が貧弱なので、pythonのpytestを用いました
   - DIRACもpythonを用いてテストを書いています
   - python側からビルドしたプログラムを実行し、アウトプットをリファレンス値と比較することで自動テストを実現します
