@@ -12,7 +12,8 @@ def test_h2():
     ref_file_path = os.path.normpath(os.path.join(test_path, ref_filename))
     output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
     output_file_path = os.path.normpath(os.path.join(test_path, output_filename))
-    bindir = os.path.normpath(os.path.join(test_path, "../../bin"))
+    # bindir = os.path.normpath(os.path.join(test_path, "../../bin"))
+    bindir = "../../bin"
     r4dcasci = os.path.normpath(os.path.join(bindir, "r4dcascicoexe"))
     r4dcaspt2 = os.path.normpath(os.path.join(bindir, "r4dcaspt2ocoexe"))
     print(" ".join(["r4dcasci", r4dcasci, "r4dcaspt2", r4dcaspt2]))
@@ -20,7 +21,7 @@ def test_h2():
     p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
     print("file check end")
     # Run calculation
-    subprocess.run(r4dcasci, shell=True)
+    # subprocess.run(r4dcasci, shell=True)
     p = subprocess.run(
         " ".join(
             [r4dcasci, "&>", output_file_path, "&&", r4dcaspt2, "&>>", output_file_path]
