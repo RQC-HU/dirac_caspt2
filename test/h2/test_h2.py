@@ -5,33 +5,22 @@ import glob
 
 
 def test_h2():
-    test_path = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(test_path)  # Change directory to dirac_caspt2/test/h2
+    test_path = os.path.dirname(os.path.abspath(__file__)) # The path of this file
+    os.chdir(test_path)  # Change directory to the path of this file
     print(test_path)  # Debug output
     ref_filename = "reference.H2.out"  # Reference
-    ref_file_path = os.path.normpath(os.path.join(test_path, ref_filename))
+    ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
     output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
-    output_file_path = os.path.normpath(os.path.join(test_path, output_filename))
-    # bindir = os.path.normpath(os.path.join(test_path, "../../bin"))
-    bindir = "../../bin"
-    r4dcasci = os.path.normpath(os.path.join(bindir, "r4dcascicoexe"))
-    r4dcaspt2 = os.path.normpath(os.path.join(bindir, "r4dcaspt2ocoexe"))
-    print(" ".join(["r4dcasci", r4dcasci, "r4dcaspt2", r4dcaspt2]))
-    print("file check start")
-    p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
-    print("file check end")
+    output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
+    bindir = os.path.abspath(os.path.join(test_path, "../../bin"))  # Build binary directory
+    r4dcasci = os.path.abspath(os.path.join(bindir, "r4dcascicoexe"))  # CASCI
+    r4dcaspt2 = os.path.abspath(os.path.join(bindir, "r4dcaspt2ocoexe"))  # CASPT2
     # Run calculation
-    print(p.stdout)
-    with open('H2.caspt2.out','w') as f:
+    with open(output_file_path,'w') as f:
         p = subprocess.run(" ".join([r4dcasci,"&&",r4dcaspt2]), shell=True, encoding='utf-8', stdout=f)
-    # with open("H2.caspt2.out",'a') as f:
-        # p = subprocess.run(r4dcaspt2, encoding='utf-8', stdout=f)
-    print("file check after calculation start")
-    p = subprocess.run(" ".join(['ls -al', test_path, bindir]), shell=True)
-    print("file check after calculation end")
     print(
         "CASCI/CASPT2 status", p.returncode
-    )  # Check status (If p.returncode != 0, calculation failed.)
+    )  # Debug output, Check status (If p.returncode != 0, calculation failed.)
     delete_files = [
         "[A-H]*int*",
         "MDCINTNEW",
@@ -44,8 +33,8 @@ def test_h2():
 
     # Delete scratch files
     for d in delete_files:
-        files = glob.glob(os.path.normpath(os.path.join(test_path, d)))
-        print("files", files)
+        files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
+        print("files", files) # Debug output
         for f in files:
             os.remove(f)
 
@@ -61,9 +50,9 @@ def test_h2():
 
     # The previous output file is overwritten by the current output file.
     prev_output = "H2.caspt2.out.prev"  # Previous output (After test, the output file is moved to this)
-    prev_file_path = os.path.normpath(os.path.join(test_path, prev_output))
-
+    prev_file_path = os.path.abspath(os.path.join(test_path, prev_output))
     subprocess.run(" ".join(["mv", output_filename, prev_file_path]), shell=True)
+
     # Check whether the output of test run
     # matches the reference to 7th decimal places.
     assert output_energy == pytest.approx(ref_energy, 1e-8)
