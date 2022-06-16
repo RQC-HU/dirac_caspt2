@@ -1,5 +1,3 @@
-__pycache__/
-
 # Ignore output files
 */*.caspt2.out*
 [A-H]*int*
