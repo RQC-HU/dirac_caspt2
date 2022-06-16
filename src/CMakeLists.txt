@@ -5,34 +5,34 @@ add_executable(r4dcascicoexe
 	nbitsa.f90
 	readvec.f90
 	read1mo_co.f90
-    readorb_enesym_co.f90
-    one_e_exct.f90
+	readorb_enesym_co.f90
+	one_e_exct.f90
 	dim.f90
 	diag.f90
 	cutoff.f90
-    readint2_casci_co.f90
+	readint2_casci_co.f90
 	prtoutfock.f90
 	fockhf1_ty.f90
 	fockcasci_ty.f90
-    tramo_ty.f90
+	tramo_ty.f90
 	e0after_tra_ty.f90
 	trac.f90
 	sdet.f90
-    calce0.f90
+	calce0.f90
 	fockdiag_ty.f90
-    takekr.f90
-    intmo_ty.f90
-    timing.f90
+	takekr.f90
+	intmo_ty.f90
+	timing.f90
 	mem.f90
-    uramda_s_half.f90
+	uramda_s_half.f90
 	nrintread.f90
-    checkdgc.f90
+	checkdgc.f90
 	e0test_v2.f90
 	casci_ty.f90
 	casdet_ty.f90
 	casmat.f90
 	r4dcasci_co.f90
-    create_binmdcint.f90
+	create_binmdcint.f90
 	get_filename.f90
 	casmat_modified.f90
 )
@@ -41,29 +41,29 @@ add_executable(r4dcaspt2ocoexe
 	four_caspt2_module.f90
 	nbitsa.f90
 	readvec.f90
-    readorb_enesym_co.f90
+	readorb_enesym_co.f90
 	read1mo_co.f90
-    readint2_ord_co.f90
-    tramo_ty.f90
-    one_e_exct.f90
+	readint2_ord_co.f90
+	tramo_ty.f90
+	one_e_exct.f90
 	dim.f90
 	diag.f90
 	cutoff.f90
-    calce0.f90
-    timing.f90
-    mem.f90
-    intra.f90
-    takekr.f90
-    solvall_A_ord_ty.f90
-    solvall_B_ord_ty.f90
-    solvall_C_ord_ty.f90
-    solvall_D_ord_ty.f90
-    solvall_E_ord_ty.f90
-    solvall_F_ord_ty.f90
-    solvall_G_ord_ty.f90
-    solvall_H_ord_ty.f90
-    uramda_s_half.f90
-    checkdgc.f90
+	calce0.f90
+	timing.f90
+	mem.f90
+	intra.f90
+	takekr.f90
+	solvall_A_ord_ty.f90
+	solvall_B_ord_ty.f90
+	solvall_C_ord_ty.f90
+	solvall_D_ord_ty.f90
+	solvall_E_ord_ty.f90
+	solvall_F_ord_ty.f90
+	solvall_G_ord_ty.f90
+	solvall_H_ord_ty.f90
+	uramda_s_half.f90
+	checkdgc.f90
 	e0test_v2.f90
 	r4dcaspt2_tra_co.f90
 	get_filename.f90
