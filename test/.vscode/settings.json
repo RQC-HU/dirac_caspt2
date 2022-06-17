@@ -22,7 +22,7 @@
     // which gfortran で表示されるgfortranのpathをfortran.gfortranExecutableに設定してください
     // "fortran.gfortranExecutable": "/usr/bin/gfortran",
     "fortran.formatting.formatter": "fprettify",
-    "fortran.formatting.args": [
+    "fortran.formatting.fprettifyArgs": [
         "-i 4",
         "--strict-indent"
     ],
