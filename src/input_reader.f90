@@ -272,8 +272,9 @@ contains
     subroutine create_valid_pattern(int_min, int_max, valid_pattern_string, invalid_message)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns a valid pattern string, valid_pattern_string, and a invalid_message in the event of an error.
-        ! (e.g.)  INPUT  : num = 10, num_min = -1, num_max = 11
-        !         OUTPUT : is_in_range = .true.
+        ! (e.g.)  INPUT  :  int_min = -11, int_max = -5
+        !         OUTPUT :  valid_pattern_string = "-123456789"
+        !                   invalid_message = "ERROR: Detected not minus numbers or Non-integer string."
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
         integer, intent(in) :: int_min, int_max
