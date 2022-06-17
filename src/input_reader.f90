@@ -81,7 +81,7 @@ contains
         character(30) :: right_str, min_str, max_str
         character(:), allocatable  :: pattern, invalid_input_message
         integer :: first_dot_index, stat, rightnum_idx, leftnum_idx, leftnum, rightnum, rightnum_digit, idx
-        logical :: is_varid
+        logical :: is_valid
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=
         ! Checks whether the range of allow_int is valid
@@ -134,8 +134,8 @@ contains
             if (rightnum_idx == 0) goto 10 ! Right num is missing. Stop program
             rightnum_idx = rightnum_idx + first_dot_index - 1 ! Set the first index of the right num in string
             ! Check whether the first character of the right num is valid
-            call is_substring(string(rightnum_idx:rightnum_idx), pattern, is_varid)
-            if (.not. is_varid) then
+            call is_substring(string(rightnum_idx:rightnum_idx), pattern, is_valid)
+            if (.not. is_valid) then
                 ! Right number is NOT a integer or invalid input.
                 print *, invalid_input_message, string(rightnum_idx:)
                 goto 10 ! Input Error. Stop program
@@ -146,8 +146,8 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             read (string(rightnum_idx:), *, err=8) rightnum ! err=8 : Invalid input
             ! Check whether the rightnum is in range [allow_int_min, allow_int_max]
-            call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_varid)
-            if (.not. is_varid) then
+            call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) then
                 ! The rightnum is out of range [allow_int_min, allow_int_max]
                 write (min_str, *) allow_int_min
                 write (max_str, *) allow_int_max
@@ -177,8 +177,8 @@ contains
                 end if
             end do
             ! Check whether the first character of the left num is valid
-            call is_substring(string(leftnum_idx:leftnum_idx), pattern, is_varid)
-            if (.not. is_varid) then
+            call is_substring(string(leftnum_idx:leftnum_idx), pattern, is_valid)
+            if (.not. is_valid) then
                 ! Right number is NOT a integer or invalid input.
                 print *, invalid_input_message, string(leftnum_idx:)
                 goto 10 ! Input Error. Stop program
@@ -189,8 +189,8 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             read (string(leftnum_idx:first_dot_index - 1), *, err=9) leftnum ! err=9 : Invalid input
             ! Check whether the rightnum is in range [allow_int_min, allow_int_max]
-            call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_varid)
-            if (.not. is_varid) then
+            call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) then
                 ! The rightnum is out of range [allow_int_min, allow_int_max]
                 write (min_str, *) allow_int_min
                 write (max_str, *) allow_int_max
