@@ -23,9 +23,8 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
         implicit none
-        integer :: begin
         integer, parameter :: max_str_length = 100
-        character(max_str_length) :: string, ras3_chr, string_copy
+        character(max_str_length) :: string, string_copy
         integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
 
         read (1, '(a)', err=10) string ! Read a line of active.inp
