@@ -251,7 +251,6 @@ contains
             ! Search the first index of the left num
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             leftnum_idx = first_dot_index ! first dot '..' index in string
-            print *, "LEFTNUM IDX:", leftnum_idx
             do while (leftnum_idx > 0)
                 leftnum_idx = leftnum_idx - 1 ! (e.g. "2..5" -> "12..5")
                 stat = verify(string(leftnum_idx:first_dot_index), " ,;") ! stat must be 1 or 2
