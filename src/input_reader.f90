@@ -23,7 +23,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
         implicit none
-        integer :: begin, digit
+        integer :: begin
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string, ras3_chr, string_copy
         integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
@@ -32,39 +32,148 @@ contains
         string_copy = string
         idx_filled = 0
 
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         !  Parse the expressions of the form a..b in the input string and expands it to a list.
-        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],     idx_filled = 0
-        !         OUTPUT : string = "1,3,    ,10", tmp_ras3 = [5,6,7,8,...,0], idx_filled = 4
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_range_input_int(string, tmp_ras3, idx_filled, 0, 10**9)
+        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],                idx_filled = 0
+        !         OUTPUT : string = " , ,    ,  ", tmp_ras3 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9, max_ras3_spinor_num)
 
-        ! The variable begin is the first index that does not contain space or , or ;
-        begin = verify(string, ' ,') ! begin is 0 if all characters in string are space or , or ;
-        do while (begin /= 0)
-            idx_filled = idx_filled + 1 ! Count up the index of tmp_ras3
-            read (string(begin:), *, err=9) tmp_ras3(idx_filled) ! Read one of the ras3 value
-            if (tmp_ras3(idx_filled) <= 0) then ! Unexpected value error
-                print *, "ERROR: Unexpected value error!!, value:", tmp_ras3(idx_filled)
-                print *, "List  : ", tmp_ras3(1:idx_filled)
-                print *, "Input : ", string_copy
-                print *, "Exit with an error."
-                stop
-            end if
-            write (ras3_chr, *) tmp_ras3(idx_filled) ! ras3_chr is a string expression of tmp_ras3(idx_filled)
-            digit = len(trim(adjustl(ras3_chr))) ! The variable digit is the digit of tmp_ras3(idx_filled) (e.g. -123->4, 10->2)
-            string(begin:begin + digit - 1) = "" ! Replace one of the ras3 value and separator to space (e.g. "10,3,5" -> "   3,5")
-            begin = verify(string, ' ,') ! Update the first index that does not contain space or , or ;
-        end do
         allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
         ras3_list(:) = tmp_ras3(1:idx_filled)
         print *, "ras3_list", ras3_list
         goto 100 ! Read the numbers properly
-9       print *, "ERROR: Error in the section in reading the number, ", string(begin:)
 10      print *, "ERROR: Error in input, can't read ras3 value!!. Stop the program."
         stop
 100     if (rank == 0) print *, "Read ras3 end"
     end subroutine ras3_read
+
+    subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max, max_num_of_element)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns a list of integers
+        ! It finds expressions of integer or the form a..b in the input string and expands it to a list.
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [-3,-4,0,0,...,0],                             filled_num = 2
+        !        OUTPUT : string = " , ,     ,  ,      ", list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20,0,0,...,0], filled_num = 14
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        integer, intent(in) :: allow_int_min, allow_int_max, max_num_of_element ! Allow allow_int_min <= x <= allow_int_max
+        character(*), intent(inout) :: string ! Input string
+        integer, intent(inout) :: filled_num ! The number of numbers already filled in list
+        integer, intent(inout) :: list(:) ! A integer list
+        integer :: tmp_list(max_num_of_element)
+
+        ! Initialization
+        tmp_list = list
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! First, we call this subroutine to detect the expression of the form a..b and expand it to a list.
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        call parse_range_input_int(string, list, filled_num, allow_int_min, allow_int_max)
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! Now, input string is seems to contain only space or , or integer
+        ! So we parse integer from input string and expand it to a list
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        call parse_input_int(string, list, filled_num, allow_int_min, allow_int_max)
+
+        goto 100 ! NORMAL END
+100     continue
+    end subroutine parse_input_string_to_int_list
+
+    subroutine parse_input_int(string, list, filled_num, allow_int_min, allow_int_max)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns a list of integers
+        ! It finds expressions of integer in the input string and expands it to a list.
+        ! This subroutine can't detect expressions of the form a..b,
+        ! so You "must" call this subroutine after call "parse_range_input_int" subroutine.
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [1,2,0,0,...,0],                             filled_num = 2
+        !        OUTPUT : string = "1,2,     ,13,      ", list = [1,2,4,5,6,7,8,9,10,17,18,19,20,0,0,...,0], filled_num = 13
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        integer, intent(in) :: allow_int_min, allow_int_max ! Allow allow_int_min <= x <= allow_int_max
+        character(*), intent(inout) :: string ! Input string
+        integer, intent(inout) :: filled_num ! The number of numbers already filled in list
+        integer, intent(inout) :: list(:) ! A integer list
+        character(30) :: min_str, max_str, read_int_str
+        character(:), allocatable  :: pattern, invalid_input_message
+        integer :: read_int, read_int_digit, idx
+        logical :: is_valid
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! Checks for positive and negative integers and sets the first character patten
+        ! and the error message that allowed within that range.
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        call create_valid_pattern(allow_int_min, allow_int_max, pattern, invalid_input_message)
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! Read the number in the input string and store it to the list
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+
+        ! The variable idx is the first index that does not contain space or , or ;
+        idx = verify(string, ' ,') ! idx is 0 if all characters in string are space or , or ;
+        do while (idx /= 0)
+            ! Check whether the strint(idx:idx) is valid
+            call is_substring(string(idx:idx), pattern, is_valid)
+            if (.not. is_valid) then
+                ! Right number is NOT a integer or invalid input.
+                print *, invalid_input_message, string(idx:)
+                goto 10 ! Input Error. Stop program
+            end if
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Now we can get the num (e.g. "12,15" -> 12)
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            read (string(idx:), *, err=9) read_int ! Read one of the ras3 value
+            ! Check whether the read_int is in range [allow_int_min, allow_int_max]
+            call is_in_range_number(read_int, allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) then
+                ! The read_int is out of range [allow_int_min, allow_int_max]
+                write (min_str, *) allow_int_min
+                write (max_str, *) allow_int_max
+                print *, "ERROR: read_int is out of range,", &
+                    "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
+                goto 10 ! Input Error. Stop program
+            end if
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Try to get the digit of read_int to rewrite the section of read_int as blank
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            write (read_int_str, *) read_int ! read_int_str is a string expression of read_int
+            read_int_digit = len(trim(adjustl(read_int_str))) ! The variable read_int_digit is the read_int_digit of read_int (e.g. -123->4, 10->2)
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Check whether we can fill the numbers
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            filled_num = filled_num + 1 ! Count up the index of the list
+            if (size(list, 1) < filled_num) then
+                ! Can't fill numbers because the size of the list
+                print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
+                goto 10 ! Input Error. Stop program
+            end if
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Now we can store the number
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            list(filled_num) = read_int
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Rewrite the section we read as blank. (e.g.) "10,3,5" -> "  ,3,5"
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            string(idx:idx + read_int_digit - 1) = ""
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Find the next index that does not contain space or , or ;
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            idx = verify(string, ' ,')
+
+        end do
+
+        goto 100 ! NORMAL END
+9       print *, "ERROR: Error in the section in reading the number, ", string(idx:); goto 10
+10      print *, "ERROR: Can't parse the input in parse_input_int, input:", string, " Stop the program."
+        stop
+100     continue
+    end subroutine parse_input_int
 
     subroutine parse_range_input_int(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -213,6 +322,7 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             first_dot_index = index(string, '..')
         end do
+
         goto 100 ! End this subroutine
 8       print *, "Can't get rightnum. string:", string, "rightnum", rightnum; goto 10 ! Stop program (error)
 9       print *, "Can't get leftnum. string:", string, "leftnum:", leftnum; goto 10 ! Stop program (error)
