@@ -40,3 +40,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+## CMake
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles
+Makefile
