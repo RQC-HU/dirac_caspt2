@@ -96,26 +96,7 @@ contains
         ! Checks for positive and negative integers and sets the first character patten
         ! and the error message that allowed within that range.
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        if (allow_int_min < 0 .and. 0 <= allow_int_max) then
-            ! (e.g.) [-9, 10]
-            pattern = "-0123456789"
-            invalid_input_message = "ERROR: Detected Non-integer string in parse_range_input_int."
-        elseif (allow_int_min < 0) then
-            ! allow_int_min < 0 and allow_int_max < 0
-            ! (e.g.) [-10, -1]
-            pattern = "-123456789"
-            invalid_input_message = "ERROR: Detected not minus numbers or Non-integer string in parse_range_input_int."
-        elseif (allow_int_min == 0) then
-            ! allow_int_min = 0 and allow_int_max >= 0
-            ! (e.g.) [0, 100]
-            pattern = "0123456789"
-            invalid_input_message = "ERROR: Detected minus numbers or Non-Integer string in parse_range_input_int."
-        else
-            ! allow_int_min >= 0 and allow_int_max >= 0
-            ! (e.g.) [2, 7]
-            pattern = "123456789"
-            invalid_input_message = "ERROR: Detected minus numbers or 0 or Non-Integer string in parse_range_input_int."
-        end if
+        call create_valid_pattern(allow_int_min, allow_int_max, pattern, invalid_input_message)
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! Find the first index of double dots ".."
@@ -287,4 +268,43 @@ contains
             is_in_range = .false.
         end if
     end subroutine is_in_range_real
+
+    subroutine create_valid_pattern(int_min, int_max, valid_pattern_string, invalid_message)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns a valid pattern string, valid_pattern_string, and a invalid_message in the event of an error.
+        ! (e.g.)  INPUT  : num = 10, num_min = -1, num_max = 11
+        !         OUTPUT : is_in_range = .true.
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        integer, intent(in) :: int_min, int_max
+        character(*), intent(out) :: valid_pattern_string, invalid_message
+
+        if (int_min > int_max) then
+            print *, "ERROR: We want to create a allowed pattern of input, but the selected range of integer is invalid.", &
+                "INT_MIN:", int_min, "INT_MAX", int_max
+            print *, "Stop the program"
+            stop
+        end if
+        if (int_min < 0 .and. 0 <= int_max) then
+            ! (e.g.) [-9, 10]
+            valid_pattern_string = "-0123456789"
+            invalid_message = "ERROR: Detected Non-integer string."
+        elseif (int_min < 0) then
+            ! int_min < 0 and int_max < 0
+            ! (e.g.) [-10, -1]
+            valid_pattern_string = "-123456789"
+            invalid_message = "ERROR: Detected not minus numbers or Non-integer string."
+        elseif (int_min == 0) then
+            ! int_min = 0 and int_max >= 0
+            ! (e.g.) [0, 100]
+            valid_pattern_string = "0123456789"
+            invalid_message = "ERROR: Detected minus numbers or Non-Integer string."
+        else
+            ! int_min >= 0 and int_max >= 0
+            ! (e.g.) [2, 7]
+            valid_pattern_string = "123456789"
+            invalid_message = "ERROR: Detected minus numbers or 0 or Non-Integer string."
+        end if
+    end subroutine create_valid_pattern
+
 end module input_reader
