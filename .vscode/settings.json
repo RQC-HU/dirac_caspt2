@@ -27,4 +27,9 @@
         "--strict-indent"
     ],
     "cmake.configureOnOpen": false,
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 }
