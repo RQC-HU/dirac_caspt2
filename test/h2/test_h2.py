@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import os
 import pytest
@@ -51,7 +52,7 @@ def test_h2():
     # The previous output file is overwritten by the current output file.
     prev_output = "H2.caspt2.out.prev"  # Previous output (After test, the output file is moved to this)
     prev_file_path = os.path.abspath(os.path.join(test_path, prev_output))
-    subprocess.run(" ".join(["mv", output_filename, prev_file_path]), shell=True)
+    shutil.move(output_file_path, prev_file_path)
 
     # Check whether the output of test run
     # matches the reference to 7th decimal places.
