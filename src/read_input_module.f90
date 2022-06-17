@@ -1,6 +1,6 @@
-module input_reader
+module read_input_module
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-! input_reader
+! read_input_module
 ! Copyright (c) by the authors of rel-caspt2.
 ! Author K.Noda
 !
@@ -418,4 +418,4 @@ contains
         end if
     end subroutine create_valid_pattern
 
-end module input_reader
+end module read_input_module

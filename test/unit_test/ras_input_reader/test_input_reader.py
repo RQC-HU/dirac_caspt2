@@ -21,7 +21,7 @@ def test_input_reader():
         s2 = s2.split()
     s2_int_list = list(map(int, s2))
     s2_int_list.sort()
-    delete_files = ["file", "a.out"]
+    delete_files = ["file"]
     for d in delete_files:
         files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
         for f in files:
