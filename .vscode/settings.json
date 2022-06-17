@@ -27,4 +27,7 @@
         "--strict-indent"
     ],
     "cmake.configureOnOpen": false,
+    "fortran.linter.includePaths": [
+        "${workspaceFolder}/src"
+    ]
 }
