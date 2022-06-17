@@ -21,7 +21,7 @@ contains
         !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],     idx_filled = 0
         !         OUTPUT : string = "1,3,    ,10", tmp_ras3 = [5,6,7,8,...,0], idx_filled = 4
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_range_input_int(string, tmp_ras3, idx_filled, 0, 10**20)
+        call parse_range_input_int(string, tmp_ras3, idx_filled, 0, 10**9)
 
         ! The variable begin is the first index that does not contain space or , or ;
         begin = verify(string, ' ,') ! begin is 0 if all characters in string are space or , or ;
@@ -44,7 +44,6 @@ contains
             print *, "After string", string
             begin = verify(string, ' ,') ! Update the first index that does not contain space or , or ;
         end do
-        idx_filled = idx_filled - 1
         allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
         ras3_list(:) = tmp_ras3(1:idx_filled)
         print *, "ras3_list", ras3_list
