@@ -278,7 +278,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
         integer, intent(in) :: int_min, int_max
-        character(*), intent(out) :: valid_pattern_string, invalid_message
+        character(:), allocatable, intent(out) :: valid_pattern_string, invalid_message
 
         if (int_min > int_max) then
             print *, "ERROR: We want to create a allowed pattern of input, but the selected range of integer is invalid.", &
