@@ -1,6 +1,6 @@
 *_prev
 sort*
 !sort_test_int.f90
+!sort_test_int_reverse.f90
 !sort_test_real.f90
-
-
+!sort_test_real_reverse.f90

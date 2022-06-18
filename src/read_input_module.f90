@@ -24,11 +24,10 @@ contains
         use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
         implicit none
         integer, parameter :: max_str_length = 100
-        character(max_str_length) :: string, string_copy
+        character(max_str_length) :: string
         integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
 
         read (1, '(a)', err=10) string ! Read a line of active.inp
-        string_copy = string
         idx_filled = 0
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -59,10 +58,6 @@ contains
         character(*), intent(inout) :: string ! Input string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
         integer, intent(inout) :: list(:) ! A integer list
-        integer :: tmp_list(max_num_of_element)
-
-        ! Initialization
-        tmp_list = list
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! First, we call this subroutine to detect the expression of the form a..b and expand it to a list.

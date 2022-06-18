@@ -10,7 +10,15 @@ add_executable(sort_test_int
     ${CMAKE_SOURCE_DIR}/src/module_sort.f90
     sort_test_int.f90
 )
+add_executable(sort_test_int_reverse
+    ${CMAKE_SOURCE_DIR}/src/module_sort.f90
+    sort_test_int_reverse.f90
+)
 add_executable(sort_test_real
     ${CMAKE_SOURCE_DIR}/src/module_sort.f90
     sort_test_real.f90
+)
+add_executable(sort_test_real_reverse
+    ${CMAKE_SOURCE_DIR}/src/module_sort.f90
+    sort_test_real_reverse.f90
 )
