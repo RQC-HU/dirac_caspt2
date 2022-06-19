@@ -19,6 +19,7 @@ def test_h2():
     # Run calculation
     with open(output_file_path,'w') as f:
         p = subprocess.run(" ".join([r4dcasci,"&&",r4dcaspt2]), shell=True, encoding='utf-8', stdout=f)
+    f.close()
     print(
         "CASCI/CASPT2 status", p.returncode
     )  # Debug output, Check status (If p.returncode != 0, calculation failed.)
@@ -44,10 +45,12 @@ def test_h2():
         # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
         grep_str = [s.strip() for s in f.readlines() if "Total energy is" in s]
         ref_energy = float(grep_str[-1].split()[-2])  # (e.g. -1.117672932144052)
+    f.close()
     # Grep the test output file
     with open(output_file_path, encoding="utf-8", mode="r") as f:
         grep_str2 = [s.strip() for s in f.readlines() if "Total energy is" in s]
         output_energy = float(grep_str2[-1].split()[-2])
+    f.close()
 
     # The previous output file is overwritten by the current output file.
     prev_output = "H2.caspt2.out.prev"  # Previous output (After test, the output file is moved to this)
