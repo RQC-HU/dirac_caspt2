@@ -46,7 +46,7 @@ contains
 100     if (rank == 0) print *, "Read ras3 end"
     end subroutine ras3_read
 
-    subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max, max_num_of_element)
+    subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns a list of integers
         ! It finds expressions of integer or the form a..b in the input string and expands it to a list.
@@ -54,7 +54,7 @@ contains
         !        OUTPUT : string = " , ,     ,  ,      ", list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20,0,0,...,0], filled_num = 14
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
-        integer, intent(in) :: allow_int_min, allow_int_max, max_num_of_element ! Allow allow_int_min <= x <= allow_int_max
+        integer, intent(in) :: allow_int_min, allow_int_max ! Allow allow_int_min <= x <= allow_int_max
         character(*), intent(inout) :: string ! Input string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
         integer, intent(inout) :: list(:) ! A integer list
