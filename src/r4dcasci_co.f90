@@ -7,6 +7,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use input_reader
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -84,6 +85,8 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     read (5, '(E8.2)') eshift
     read (5, '(A6)') ptgrp
     read (5, '(I4)') dirac_version
+    print *, dirac_version
+    call ras3_read
     close (5)
 
     if (rank == 0) then ! Process limits for output
