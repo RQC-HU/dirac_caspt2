@@ -27,7 +27,7 @@ contains
         character(max_str_length) :: string
         integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
 
-        read (1, '(a)', err=10) string ! Read a line of active.inp
+        read (5, '(a)', err=10) string ! Read a line of active.inp
         idx_filled = 0
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!

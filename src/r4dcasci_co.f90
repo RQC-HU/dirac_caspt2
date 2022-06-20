@@ -7,7 +7,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-    use input_reader
+    use read_input_module
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -102,6 +102,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
+        print *, 'ras3',ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
