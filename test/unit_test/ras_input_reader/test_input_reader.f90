@@ -1,6 +1,6 @@
 program main
     use four_caspt2_module, only: ras3_list, max_ras3_spinor_num
-    use input_reader
+    use read_input_module
     implicit none
     integer :: i, count
     character(100) :: chr
