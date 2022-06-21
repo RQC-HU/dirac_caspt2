@@ -9,11 +9,49 @@ module read_input_module
 
     implicit none
     private
-    public ras3_read, is_substring
+    public ras1_read, ras3_read, check_ras_is_valid, is_substring
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
     end interface is_in_range_number
 contains
+
+    subroutine ras1_read
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns RAS3 list from the user input
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
+        !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        use four_caspt2_module, only: rank, ras1_list, max_ras1_spinor_num
+        use module_sort_swap, only: heapSort
+        implicit none
+        integer, parameter :: max_str_length = 100
+        character(max_str_length) :: string
+        integer :: tmp_ras1(max_ras1_spinor_num), idx_filled
+
+        read (5, '(a)', err=10) string ! Read a line of active.inp
+        idx_filled = 0
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        !  Parse the expressions of the form a..b in the input string and expands it to a list.
+        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras1 = [0,0,...,0],                idx_filled = 0
+        !         OUTPUT : string = " , ,    ,  ", tmp_ras1 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        call parse_input_string_to_int_list(string, tmp_ras1, idx_filled, 0, 10**9)
+
+        ! Does the input string contain at least one varible?
+        if (idx_filled <= 0) then
+            print *, "string:", string
+            goto 10 ! Input Error. Stop program
+        end if
+        allocate (ras1_list(idx_filled)); Call memplus(KIND(ras1_list), SIZE(ras1_list), 1)
+        ras1_list(:) = tmp_ras1(1:idx_filled)
+        call heapSort(ras1_list, .false.) ! Sort the ras1_list in ascending order (lower to higher)
+        print *, "ras1_list", ras1_list
+        goto 100 ! Read the numbers properly
+10      print *, "ERROR: Error in input, can't read ras1 value!!. Stop the program."
+        stop
+100     if (rank == 0) print *, "Read ras1 end"
+    end subroutine ras1_read
 
     subroutine ras3_read
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -22,12 +60,13 @@ contains
         !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
+        use module_sort_swap, only: heapSort
         implicit none
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string
         integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
 
-        read (1, '(a)', err=10) string ! Read a line of active.inp
+        read (5, '(a)', err=10) string ! Read a line of active.inp
         idx_filled = 0
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -35,10 +74,16 @@ contains
         !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],                idx_filled = 0
         !         OUTPUT : string = " , ,    ,  ", tmp_ras3 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9, max_ras3_spinor_num)
+        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9)
 
+        ! Does the input string contain at least one varible?
+        if (idx_filled <= 0) then
+            print *, "string:", string
+            goto 10 ! Input Error. Stop program
+        end if
         allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
         ras3_list(:) = tmp_ras3(1:idx_filled)
+        call heapSort(ras3_list, .false.) ! Sort the ras3_list in ascending order (lower to higher)
         print *, "ras3_list", ras3_list
         goto 100 ! Read the numbers properly
 10      print *, "ERROR: Error in input, can't read ras3 value!!. Stop the program."
@@ -46,7 +91,7 @@ contains
 100     if (rank == 0) print *, "Read ras3 end"
     end subroutine ras3_read
 
-    subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max, max_num_of_element)
+    subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns a list of integers
         ! It finds expressions of integer or the form a..b in the input string and expands it to a list.
@@ -54,7 +99,7 @@ contains
         !        OUTPUT : string = " , ,     ,  ,      ", list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20,0,0,...,0], filled_num = 14
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
-        integer, intent(in) :: allow_int_min, allow_int_max, max_num_of_element ! Allow allow_int_min <= x <= allow_int_max
+        integer, intent(in) :: allow_int_min, allow_int_max ! Allow allow_int_min <= x <= allow_int_max
         character(*), intent(inout) :: string ! Input string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
         integer, intent(inout) :: list(:) ! A integer list
@@ -411,4 +456,55 @@ contains
         end if
     end subroutine create_valid_pattern
 
+    subroutine check_ras_is_valid
+        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec
+        implicit none
+        integer :: idx
+        logical :: electron_filled(ninact + nact + nsec)
+        electron_filled(:) = .false.
+        do idx = 1, size(ras1_list, 1) ! size(ras1_list,1) is the size of the list.
+            if (electron_filled(ras1_list(idx))) then
+                ! ERROR: The same number of the electron have been selected
+                print *, "ERROR: The number of selected more than once is", ras1_list(idx)
+                goto 10 ! Error in input. Stop the Program
+            end if
+            electron_filled(ras1_list(idx)) = .true. ! Fill ras1_list(idx)
+        end do
+        do idx = 1, size(ras2_list, 1) ! size(ras2_list,1) is the size of the list.
+            if (electron_filled(ras2_list(idx))) then
+                ! ERROR: The same number of the electron have been selected
+                print *, "ERROR: The number of selected more than once is", ras2_list(idx)
+                goto 10 ! Error in input. Stop the Program
+            end if
+            electron_filled(ras2_list(idx)) = .true. ! Fill ras2_list(idx)
+        end do
+        do idx = 1, size(ras3_list, 1) ! size(ras3_list,1) is the size of the list.
+            if (electron_filled(ras3_list(idx))) then
+                ! ERROR: The same number of the electron have been selected
+                print *, "ERROR: The number of selected more than once is", ras3_list(idx)
+                goto 10 ! Error in input. Stop the Program
+            end if
+            electron_filled(ras3_list(idx)) = .true. ! Fill ras3_list(idx)
+        end do
+
+        ! Is the number of RAS equal to the number of active?
+        if (count(electron_filled) /= nact) then
+            goto 11 ! Error in input. Stop the Program
+        end if
+
+        return ! END NORMALLY
+10      print *, "ERROR: Your input is invalid because the same number of the electron have been selected in the RAS" &
+            //" more than once!"
+        print *, "YOUR INPUT"
+        print *, "RAS1 : ", ras1_list
+        print *, "RAS2 : ", ras2_list
+        print *, "RAS3 : ", ras3_list
+        print *, "Stop the program."
+        stop
+11      print *, "ERROR: Your input is invalid because the number of RAS is not equal to the number of active."
+        print *, "active : ", nact
+        print *, "RAS    : ", count(electron_filled)
+        print *, "Stop the program."
+        stop
+    end subroutine check_ras_is_valid
 end module read_input_module
