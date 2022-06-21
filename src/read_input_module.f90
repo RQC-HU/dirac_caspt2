@@ -9,13 +9,14 @@ module read_input_module
 
     implicit none
     private
-    public read_input, is_substring, ras3_read
+    public read_input, is_substring, ras_read
     logical is_end
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
     end interface is_in_range_number
 contains
     subroutine read_input
+        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list
         implicit none
         integer :: idx
         character(100) :: string
@@ -40,7 +41,7 @@ contains
             end if
         end do
         if (.not. is_config_sufficient) goto 11 ! Error in input. Stop the Program
-
+        if (size(ras1_list, 1) > 0 .or. size(ras2_list, 1) > 0 .or. size(ras3_list, 1) > 0) call check_ras_is_valid
         close (5)
         return ! END SUBROUTINE
 10      print *, "YOU NEED TO ADD 'end' in active.inp"
@@ -60,7 +61,6 @@ contains
         logical, intent(inout) :: is_filled(:)
         if (index(string, "ninact") == 1) then
             call read_an_integer(0, 10**9, ninact)
-            print *, 'Noda ninact', ninact
             is_filled(1) = .true.
         else if (index(string, "nact") == 1) then
             call read_an_integer(0, 10**9, nact)
@@ -95,90 +95,61 @@ contains
             call read_an_integer(0, 10**9, dirac_version)
             is_filled(10) = .true.
         else if (index(string, "ras1") == 1) then
-            call ras1_read
+            call ras_read(ras1_list, 1)
         else if (index(string, "ras2") == 1) then
         else if (index(string, "ras3") == 1) then
-            call ras3_read
+            call ras_read(ras3_list, 3)
         else if (index(string, "end") == 1) then
             is_end = .true.
         end if
 
     end subroutine check_input_type
-    subroutine ras1_read
+    subroutine ras_read(ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns RAS3 list from the user input
         ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
         !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: rank, ras1_list, max_ras1_spinor_num
+        use four_caspt2_module, only: max_ras_spinor_num
         use module_sort_swap, only: heapSort
         implicit none
+        integer, allocatable, intent(inout) :: ras_list(:)
+        integer, intent(in) :: ras_num
+        character(100) :: tmp_ras_chr
+        character(:), allocatable :: ras_chr
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string
-        integer :: tmp_ras1(max_ras1_spinor_num), idx_filled
+        integer :: tmp_ras(max_ras_spinor_num), idx_filled
+
+        ! Get the ras_num and store this to ras_chr
+        write (tmp_ras_chr, *) ras_num
+        ras_chr = trim(adjustl(tmp_ras_chr))
 
         read (5, '(a)', err=10) string ! Read a line of active.inp
         idx_filled = 0
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         !  Parse the expressions of the form a..b in the input string and expands it to a list.
-        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras1 = [0,0,...,0],                idx_filled = 0
-        !         OUTPUT : string = " , ,    ,  ", tmp_ras1 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
+        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras = [0,0,...,0],                idx_filled = 0
+        !         OUTPUT : string = " , ,    ,  ", tmp_ras = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_input_string_to_int_list(string, tmp_ras1, idx_filled, 0, 10**9)
+        call parse_input_string_to_int_list(string, tmp_ras, idx_filled, 0, 10**9)
 
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
             print *, "string:", string
             goto 10 ! Input Error. Stop program
         end if
-        allocate (ras1_list(idx_filled)); Call memplus(KIND(ras1_list), SIZE(ras1_list), 1)
-        ras1_list(:) = tmp_ras1(1:idx_filled)
-        call heapSort(ras1_list, .false.) ! Sort the ras1_list in ascending order (lower to higher)
-        print *, "ras1_list", ras1_list
+        allocate (ras_list(idx_filled)); Call memplus(KIND(ras_list), SIZE(ras_list), 1)
+        ras_list(:) = tmp_ras(1:idx_filled)
+        call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
+        print *, "ras"//ras_chr//"_list", ras_list
         goto 100 ! Read the numbers properly
-10      print *, "ERROR: Error in input, can't read ras1 value!!. Stop the program."
+10      print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
         stop
-100     if (rank == 0) print *, "Read ras1 end"
-    end subroutine ras1_read
+100     return ! END SUBROUTINE NORMALLY
+    end subroutine ras_read
 
-    subroutine ras3_read
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! This subroutine returns RAS3 list from the user input
-        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
-        !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
-        use module_sort_swap, only: heapSort
-        implicit none
-        integer, parameter :: max_str_length = 100
-        character(max_str_length) :: string
-        integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
-
-        read (5, '(a)', err=10) string ! Read a line of active.inp
-        idx_filled = 0
-
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        !  Parse the expressions of the form a..b in the input string and expands it to a list.
-        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],                idx_filled = 0
-        !         OUTPUT : string = " , ,    ,  ", tmp_ras3 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9)
-
-        ! Does the input string contain at least one varible?
-        if (idx_filled <= 0) then
-            print *, "string:", string
-            goto 10 ! Input Error. Stop program
-        end if
-        allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
-        ras3_list(:) = tmp_ras3(1:idx_filled)
-        call heapSort(ras3_list, .false.) ! Sort the ras3_list in ascending order (lower to higher)
-        print *, "ras3_list", ras3_list
-        goto 100 ! Read the numbers properly
-10      print *, "ERROR: Error in input, can't read ras3 value!!. Stop the program."
-        stop
-100     if (rank == 0) print *, "Read ras3 end"
-    end subroutine ras3_read
 
     subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!

@@ -101,6 +101,8 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
+        print *, "RAS1 = ",ras1_list
+        print *, "RAS3 = ",ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'

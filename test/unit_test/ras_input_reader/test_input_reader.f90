@@ -1,11 +1,8 @@
 program main
-    use four_caspt2_module, only: ras3_list, max_ras3_spinor_num
+    use four_caspt2_module, only: ras3_list
     use read_input_module
     implicit none
-    integer :: i, count
-    character(100) :: chr
-    integer :: ras3(max_ras3_spinor_num)
-    ras3 = 0
+    integer :: count
     count = 1
 !     open (2, file='ref.ras3')
 !     do
@@ -22,7 +19,7 @@ program main
 !     print *, chr
 !     close (1)
     open (5, file='file2', form='formatted')
-    call ras3_read
+    call ras_read(ras3_list, 3)
     print *, "end"
     close (5)
     print *, "open"
