@@ -9,11 +9,42 @@ module read_input_module
 
     implicit none
     private
-    public ras3_read, is_substring
+    public ras1_read, ras3_read, is_substring
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
     end interface is_in_range_number
 contains
+
+    subroutine ras1_read
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns RAS3 list from the user input
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
+        !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        use four_caspt2_module, only: rank, ras1_list, max_ras1_spinor_num
+        implicit none
+        integer, parameter :: max_str_length = 100
+        character(max_str_length) :: string
+        integer :: tmp_ras1(max_ras1_spinor_num), idx_filled
+
+        read (5, '(a)', err=10) string ! Read a line of active.inp
+        idx_filled = 0
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        !  Parse the expressions of the form a..b in the input string and expands it to a list.
+        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras1 = [0,0,...,0],                idx_filled = 0
+        !         OUTPUT : string = " , ,    ,  ", tmp_ras1 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        call parse_input_string_to_int_list(string, tmp_ras1, idx_filled, 0, 10**9)
+
+        allocate (ras1_list(idx_filled)); Call memplus(KIND(ras1_list), SIZE(ras1_list), 1)
+        ras1_list(:) = tmp_ras1(1:idx_filled)
+        print *, "ras1_list", ras1_list
+        goto 100 ! Read the numbers properly
+10      print *, "ERROR: Error in input, can't read ras3 value!!. Stop the program."
+        stop
+100     if (rank == 0) print *, "Read ras1 end"
+    end subroutine ras1_read
 
     subroutine ras3_read
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
