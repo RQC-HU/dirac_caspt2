@@ -13,19 +13,13 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: ii, jj, kk, ll, typetype, i0, j0
-    integer                 ::  j, i, k, l, nuniq
-    integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
+    integer                 :: i0, nuniq
     integer                 ::  inisym, endsym
 
 !        integer                 ::  val(8), initdate, date0, date1
 !        real*8                  :: totalsec, inittime, tsec0, tsec1, tsec
 
-    logical                 :: test, cutoff
-
-    real*8                  :: i2r, i2i, dr, di, nsign, e0, e2, e2all
-    complex*16              ::  cmplxint, dens, trace1, trace2, dens1, dens2
-
+    logical                 :: test
     character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -101,8 +95,8 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
-        print *, "RAS1 = ",ras1_list
-        print *, "RAS3 = ",ras3_list
+        print *, "RAS1 = ", ras1_list
+        print *, "RAS3 = ", ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
