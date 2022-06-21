@@ -86,7 +86,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     read (5, '(A6)') ptgrp
     read (5, '(I4)') dirac_version
     print *, dirac_version
+    call ras1_read
     call ras3_read
+    call check_ras_is_valid
     close (5)
 
     if (rank == 0) then ! Process limits for output
@@ -102,7 +104,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
-        print *, 'ras3',ras3_list
+        print *, 'ras3', ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
