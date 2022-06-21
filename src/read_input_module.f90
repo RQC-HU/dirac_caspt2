@@ -9,7 +9,7 @@ module read_input_module
 
     implicit none
     private
-    public read_input, is_substring, ras_read
+    public read_input, is_substring, ras_read, lowercase
     logical is_end
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
@@ -41,7 +41,7 @@ contains
             end if
         end do
         if (.not. is_config_sufficient) goto 11 ! Error in input. Stop the Program
-        if (size(ras1_list, 1) > 0 .or. size(ras2_list, 1) > 0 .or. size(ras3_list, 1) > 0) call check_ras_is_valid
+        ! if (size(ras1_list, 1) > 0 .or. size(ras2_list, 1) > 0 .or. size(ras3_list, 1) > 0) call check_ras_is_valid
         close (5)
         return ! END SUBROUTINE
 10      print *, "YOU NEED TO ADD 'end' in active.inp"
@@ -149,7 +149,6 @@ contains
         stop
 100     return ! END SUBROUTINE NORMALLY
     end subroutine ras_read
-
 
     subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -629,4 +628,25 @@ contains
         print *, "Stop the program."
         stop
     end subroutine check_ras_is_valid
+    subroutine lowercase(string)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns the lowercase string
+        ! (e.g.) INPUT  : string = "tHiS"
+        !        OUTPUT : string = "this"
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        character(*), intent(inout) :: string
+        integer :: offset, idx, A_iachar,Z_iachar,chr_iachar
+        offset = iachar('a') - iachar('A') ! offset number to convert uppercase to lowercase
+        A_iachar = iachar('A') ! Ascii code of "A"
+        Z_iachar = iachar('Z') ! Ascii code of "Z"
+        do idx = 1, len(string)
+            chr_iachar = iachar(string(idx:idx))
+            if (A_iachar <= chr_iachar .and. chr_iachar <= Z_iachar) then
+                ! A <= string(idx:idx) <= Z -> a <= string(idx:idx) <= z
+                chr_iachar = chr_iachar + offset
+                string(idx:idx) = achar(chr_iachar)
+            end if
+        end do
+    end subroutine lowercase
 end module read_input_module
