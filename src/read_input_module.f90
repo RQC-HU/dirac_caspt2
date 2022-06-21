@@ -35,7 +35,7 @@ contains
         !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],                idx_filled = 0
         !         OUTPUT : string = " , ,    ,  ", tmp_ras3 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9, max_ras3_spinor_num)
+        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9)
 
         allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
         ras3_list(:) = tmp_ras3(1:idx_filled)
