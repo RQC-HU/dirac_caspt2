@@ -506,5 +506,5 @@ contains
         print *, "RAS    : ", count(electron_filled)
         print *, "Stop the program."
         stop
-end subroutine check_ras_is_valid
+    end subroutine check_ras_is_valid
 end module read_input_module
