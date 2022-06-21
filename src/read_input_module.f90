@@ -59,52 +59,55 @@ contains
         implicit none
         character(*), intent(inout) :: string
         logical, intent(inout) :: is_filled(:)
-        if (index(string, "ninact") == 1) then
+        call lowercase(string)
+        select case (trim(string))
+        case ("ninact")
             call read_an_integer(0, 10**9, ninact)
             is_filled(1) = .true.
-        else if (index(string, "nact") == 1) then
+        case ("nact")
             call read_an_integer(0, 10**9, nact)
             is_filled(2) = .true.
 
-        else if (index(string, "nsec") == 1) then
+        case ("nsec")
             call read_an_integer(0, 10**9, nsec)
             is_filled(3) = .true.
-        else if (index(string, "nelec") == 1) then
+        case ("nelec")
             call read_an_integer(0, 10**9, nelec)
             is_filled(4) = .true.
-        else if (index(string, "nroot") == 1) then
+        case ("nroot")
             call read_an_integer(0, 10**9, nroot)
             is_filled(5) = .true.
 
-        else if (index(string, "selectroot") == 1) then
+        case ("selectroot")
             call read_an_integer(0, 10**9, selectroot)
             is_filled(6) = .true.
-        else if (index(string, "totsym") == 1) then
+        case ("totsym")
             call read_an_integer(0, 10**9, totsym)
             is_filled(7) = .true.
-        else if (index(string, "ncore") == 1) then
+        case ("ncore")
             call read_an_integer(0, 10**9, ncore)
             is_filled(8) = .true.
-        else if (index(string, "nbas") == 1) then
+        case ("nbas")
             call read_an_integer(0, 10**9, nbas)
             is_filled(9) = .true.
-        else if (index(string, "eshift") == 1) then
+        case ("eshift")
             read (5, *) eshift
-        else if (index(string, "ptgrp") == 1) then
+        case ("ptgrp")
             read (5, *) ptgrp
             is_filled(10) = .true.
-        else if (index(string, "diracver") == 1) then
+        case ("diracver")
             call read_an_integer(0, 10**9, dirac_version)
             is_filled(11) = .true.
-        else if (index(string, "ras1") == 1) then
+        case ("ras1")
             call ras_read(ras1_list, 1)
-        else if (index(string, "ras2") == 1) then
-        else if (index(string, "ras3") == 1) then
+        case ("ras2")
+            call ras_read(ras2_list, 2)
+        case ("ras3")
             call ras_read(ras3_list, 3)
-        else if (index(string, "end") == 1) then
+        case ("end")
             is_end = .true.
-        end if
 
+        end select
     end subroutine check_input_type
     subroutine ras_read(ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
