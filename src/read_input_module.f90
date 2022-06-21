@@ -19,12 +19,13 @@ contains
         implicit none
         integer :: idx
         character(100) :: string
-        character(:), allocatable :: essential_variable_names(:)
+        character(11), allocatable :: essential_variable_names(:)
         logical :: is_comment, is_config_sufficient, is_variable_filled(11) = &
                    (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
         essential_variable_names = &
-            (/"ninact", "nact", "nsec", "nroot", "nelec", "selectroot", "totsym", "ncore", "nbas", "ptgrp", "diracver"/)
+            (/"ninact    ", "nact      ", "nsec      ", "nroot     ", "nelec     ", &
+            &  "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
         open (5, file="active.inp", form="formatted")
         do while (.not. is_end)
             read (5, "(a)", end=10) string
@@ -35,7 +36,7 @@ contains
         is_config_sufficient = .true.
         do idx = 1, size(is_variable_filled, 1)
             if (.not. is_variable_filled(idx)) then
-                print *, "ERROR: You must specify a variable "//essential_variable_names(idx)//" before end."
+                print *, "ERROR: You must specify a variable "//trim(essential_variable_names(idx))//" before end."
                 is_config_sufficient = .false.
             end if
         end do
