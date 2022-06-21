@@ -9,12 +9,101 @@ module read_input_module
 
     implicit none
     private
-    public ras1_read, ras3_read, check_ras_is_valid, is_substring
+    public read_input, is_substring, ras3_read
+    logical is_end
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
     end interface is_in_range_number
 contains
+    subroutine read_input
+        implicit none
+        integer :: idx
+        character(100) :: string
+        character(:), allocatable :: essential_variable_names(:)
+        logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
+                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        is_end = .false.
+        essential_variable_names = &
+            (/"ninact", "nact", "nsec", "nroot", "selectroot", "totsym", "ncore", "nbas", "ptgrp", "diracver"/)
+        open (5, file="active.inp", form="formatted")
+        do while (.not. is_end)
+            read (5, "(a)", end=10) string
+            call is_comment_line(string, is_comment)
+            if (is_comment) cycle ! Read the next line
+            call check_input_type(string, is_variable_filled)
+        end do
+        is_config_sufficient = .true.
+        do idx = 1, size(is_variable_filled, 1)
+            if (.not. is_variable_filled(idx)) then
+                print *, "ERROR: You must specify a variable "//essential_variable_names(idx)//" before end."
+                is_config_sufficient = .false.
+            end if
+        end do
+        if (.not. is_config_sufficient) goto 11 ! Error in input. Stop the Program
 
+        close (5)
+        return ! END SUBROUTINE
+10      print *, "YOU NEED TO ADD 'end' in active.inp"
+        stop
+11      print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
+        stop
+    end subroutine read_input
+
+    subroutine check_input_type(string, is_filled)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine recognize the type of input that follows from the next line
+        ! and calls the subroutine that we must call
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        use four_caspt2_module
+        implicit none
+        character(*), intent(inout) :: string
+        logical, intent(inout) :: is_filled(:)
+        if (index(string, "ninact") == 1) then
+            call read_an_integer(0, 10**9, ninact)
+            print *, 'Noda ninact', ninact
+            is_filled(1) = .true.
+        else if (index(string, "nact") == 1) then
+            call read_an_integer(0, 10**9, nact)
+            is_filled(2) = .true.
+
+        else if (index(string, "nsec") == 1) then
+            call read_an_integer(0, 10**9, nsec)
+            is_filled(3) = .true.
+
+        else if (index(string, "nroot") == 1) then
+            call read_an_integer(0, 10**9, nroot)
+            is_filled(4) = .true.
+
+        else if (index(string, "selectroot") == 1) then
+            call read_an_integer(0, 10**9, selectroot)
+            is_filled(5) = .true.
+        else if (index(string, "totsym") == 1) then
+            call read_an_integer(0, 10**9, totsym)
+            is_filled(6) = .true.
+        else if (index(string, "ncore") == 1) then
+            call read_an_integer(0, 10**9, ncore)
+            is_filled(7) = .true.
+        else if (index(string, "nbas") == 1) then
+            call read_an_integer(0, 10**9, nbas)
+            is_filled(8) = .true.
+        else if (index(string, "eshift") == 1) then
+            read (5, *) eshift
+        else if (index(string, "ptgrp") == 1) then
+            read (5, *) ptgrp
+            is_filled(9) = .true.
+        else if (index(string, "diracver") == 1) then
+            call read_an_integer(0, 10**9, dirac_version)
+            is_filled(10) = .true.
+        else if (index(string, "ras1") == 1) then
+            call ras1_read
+        else if (index(string, "ras2") == 1) then
+        else if (index(string, "ras3") == 1) then
+            call ras3_read
+        else if (index(string, "end") == 1) then
+            is_end = .true.
+        end if
+
+    end subroutine check_input_type
     subroutine ras1_read
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns RAS3 list from the user input
@@ -455,6 +544,68 @@ contains
             invalid_message = "ERROR: Detected minus numbers or 0 or Non-Integer string."
         end if
     end subroutine create_valid_pattern
+    subroutine read_an_integer(allowed_min_int, allowed_max_int, result_int)
+        implicit none
+        integer, intent(in) :: allowed_min_int, allowed_max_int
+        integer, intent(inout) :: result_int
+        character(:), allocatable :: pattern, invalid_input_message
+        logical :: is_comment, is_subst
+        character(100) :: input
+        call create_valid_pattern(allowed_min_int, allowed_max_int, pattern, invalid_input_message)
+        do
+            read (5, *) input
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle ! Go to the next line
+            !  Is the input an integer and more than or equal to zero?
+            call is_substring(input(1:1), pattern, is_subst)
+            if (.not. is_subst) then
+                print *, invalid_input_message, input
+                print *, 'invalidinput'
+                goto 10
+            end if
+            read (input, *) result_int ! read an integer
+            exit ! EXIT LOOP
+        end do
+        return ! END SUBROUTINE
+10      print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
+        print *, "input: ", input
+        stop
+    end subroutine read_an_integer
+
+    subroutine is_comment_line(string, is_comment)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns trimmed input string and whether this input is comment line or not
+        ! Comment line must include "!" or "#" in the first of character of input string except space
+        ! (e.g.) INPUT  : string = "1,2,4..10,13!,17..20"
+        !        OUTPUT : string = "1,2,4..10,13", is_comment = .false.
+        !        INPUT2 : string = "#1,2,4..10,13"
+        !        OUTPUT2: string = "#1,2,4..10,13", is_comment = .true.
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        character(*), intent(inout) :: string
+        logical, intent(out) :: is_comment
+        integer  :: comment_idx
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! Trim string
+        ! (e.g.) "   2,3,4" => "2,3,4"
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        string = trim(string)
+        comment_idx = scan(string, '!#')
+        if (comment_idx == 1) then
+            ! Comment line (e.g.) "!2,3,4"
+            is_comment = .true.
+        elseif (comment_idx == 0) then
+            ! NOT Comment line (e.g.) "2,3,4"
+            is_comment = .false.
+        else
+            ! NOT Comment line but include "!" or "#" (e.g.) "2,3,4 ! ras1"
+            is_comment = .false.
+            ! Trim before "!" or "#" (e.g.) "2,3,4 ! ras1" => "2,3,4 "
+            string(:) = string(1:comment_idx - 1)
+        end if
+
+    end subroutine is_comment_line
 
     subroutine check_ras_is_valid
         use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec

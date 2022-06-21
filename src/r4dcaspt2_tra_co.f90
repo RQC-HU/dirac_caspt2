@@ -14,7 +14,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     integer                 :: ii, jj, kk, ll, typetype, i0
     integer                 ::  j, i, k, l, nuniq
     integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
-    integer                 ::  totsym, inisym, endsym, ieshift
+    integer                 :: inisym, endsym, ieshift
 
     logical                 :: test, cutoff
 

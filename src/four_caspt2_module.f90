@@ -17,6 +17,7 @@ MODULE four_caspt2_module
     ! nelec         : The number of electrons in active space
     ! nroot         : The number of roots
     ! selectroot    : Which root do you want to obtain
+    ! totsym
     ! ncore         : The number of core orbitals
     ! nbas          : Basis set
     ! eshift        : Real shift
@@ -24,7 +25,7 @@ MODULE four_caspt2_module
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
-    integer         :: ncore, nbas
+    integer         :: totsym, ncore, nbas
     real(8)         :: eshift
     character       :: ptgrp*6
     integer         :: dirac_version

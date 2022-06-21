@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casci_ty(totsym)
+SUBROUTINE casci_ty
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -9,7 +9,6 @@ SUBROUTINE casci_ty(totsym)
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer, intent(in) :: totsym
     integer :: nbitsa, comb
     integer :: j0, j, i, i0, i1
     integer :: k0, l0, ii, jj, kk, ll, irec, cimat
@@ -27,7 +26,7 @@ SUBROUTINE casci_ty(totsym)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'ndet', ndet
     end if
-    Call casdet_ty(totsym)
+    Call casdet_ty
     if (rank == 0) then
         write (*, *) "before allocate mat(ndet,ndet)"
         write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024

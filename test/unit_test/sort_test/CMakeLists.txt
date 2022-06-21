@@ -7,18 +7,18 @@ message(STATUS "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(sort_test_int
-    ${CMAKE_SOURCE_DIR}/src/module_sort.f90
+    ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
     sort_test_int.f90
 )
 add_executable(sort_test_int_reverse
-    ${CMAKE_SOURCE_DIR}/src/module_sort.f90
+    ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
     sort_test_int_reverse.f90
 )
 add_executable(sort_test_real
-    ${CMAKE_SOURCE_DIR}/src/module_sort.f90
+    ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
     sort_test_real.f90
 )
 add_executable(sort_test_real_reverse
-    ${CMAKE_SOURCE_DIR}/src/module_sort.f90
+    ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
     sort_test_real_reverse.f90
 )

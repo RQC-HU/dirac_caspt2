@@ -1,14 +1,12 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casdet_ty(totsym)
+SUBROUTINE casdet_ty
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
 
     Implicit NONE
-
-    integer, intent(in)   :: totsym
 
     integer :: nbitsa
     integer :: i, isym
