@@ -37,11 +37,16 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         call parse_input_string_to_int_list(string, tmp_ras1, idx_filled, 0, 10**9)
 
+        ! Does the input string contain at least one varible?
+        if (idx_filled <= 0) then
+            print *, "string:", string
+            goto 10 ! Input Error. Stop program
+        end if
         allocate (ras1_list(idx_filled)); Call memplus(KIND(ras1_list), SIZE(ras1_list), 1)
         ras1_list(:) = tmp_ras1(1:idx_filled)
         print *, "ras1_list", ras1_list
         goto 100 ! Read the numbers properly
-10      print *, "ERROR: Error in input, can't read ras3 value!!. Stop the program."
+10      print *, "ERROR: Error in input, can't read ras1 value!!. Stop the program."
         stop
 100     if (rank == 0) print *, "Read ras1 end"
     end subroutine ras1_read
@@ -68,6 +73,11 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9)
 
+        ! Does the input string contain at least one varible?
+        if (idx_filled <= 0) then
+            print *, "string:", string
+            goto 10 ! Input Error. Stop program
+        end if
         allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
         ras3_list(:) = tmp_ras3(1:idx_filled)
         print *, "ras3_list", ras3_list
