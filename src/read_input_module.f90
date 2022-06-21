@@ -16,7 +16,6 @@ module read_input_module
     end interface is_in_range_number
 contains
     subroutine read_input
-        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list
         implicit none
         integer :: idx
         character(100) :: string
