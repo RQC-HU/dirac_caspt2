@@ -21,11 +21,11 @@ contains
         integer :: idx
         character(100) :: string
         character(:), allocatable :: essential_variable_names(:)
-        logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
-                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        logical :: is_comment, is_config_sufficient, is_variable_filled(11) = &
+                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
         essential_variable_names = &
-            (/"ninact", "nact", "nsec", "nroot", "selectroot", "totsym", "ncore", "nbas", "ptgrp", "diracver"/)
+            (/"ninact", "nact", "nsec", "nroot", "nelec", "selectroot", "totsym", "ncore", "nbas", "ptgrp", "diracver"/)
         open (5, file="active.inp", form="formatted")
         do while (.not. is_end)
             read (5, "(a)", end=10) string
@@ -69,31 +69,33 @@ contains
         else if (index(string, "nsec") == 1) then
             call read_an_integer(0, 10**9, nsec)
             is_filled(3) = .true.
-
+        else if (index(string, "nelec") == 1) then
+            call read_an_integer(0, 10**9, nelec)
+            is_filled(4) = .true.
         else if (index(string, "nroot") == 1) then
             call read_an_integer(0, 10**9, nroot)
-            is_filled(4) = .true.
+            is_filled(5) = .true.
 
         else if (index(string, "selectroot") == 1) then
             call read_an_integer(0, 10**9, selectroot)
-            is_filled(5) = .true.
+            is_filled(6) = .true.
         else if (index(string, "totsym") == 1) then
             call read_an_integer(0, 10**9, totsym)
-            is_filled(6) = .true.
+            is_filled(7) = .true.
         else if (index(string, "ncore") == 1) then
             call read_an_integer(0, 10**9, ncore)
-            is_filled(7) = .true.
+            is_filled(8) = .true.
         else if (index(string, "nbas") == 1) then
             call read_an_integer(0, 10**9, nbas)
-            is_filled(8) = .true.
+            is_filled(9) = .true.
         else if (index(string, "eshift") == 1) then
             read (5, *) eshift
         else if (index(string, "ptgrp") == 1) then
             read (5, *) ptgrp
-            is_filled(9) = .true.
+            is_filled(10) = .true.
         else if (index(string, "diracver") == 1) then
             call read_an_integer(0, 10**9, dirac_version)
-            is_filled(10) = .true.
+            is_filled(11) = .true.
         else if (index(string, "ras1") == 1) then
             call ras_read(ras1_list, 1)
         else if (index(string, "ras2") == 1) then
@@ -636,7 +638,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
         character(*), intent(inout) :: string
-        integer :: offset, idx, A_iachar,Z_iachar,chr_iachar
+        integer :: offset, idx, A_iachar, Z_iachar, chr_iachar
         offset = iachar('a') - iachar('A') ! offset number to convert uppercase to lowercase
         A_iachar = iachar('A') ! Ascii code of "A"
         Z_iachar = iachar('Z') ! Ascii code of "Z"
