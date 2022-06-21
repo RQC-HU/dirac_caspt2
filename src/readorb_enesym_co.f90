@@ -410,21 +410,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end do
     allocate (sort_orb(nmo))
     sort_orb = orb
-    ! とりあえずN2の1sをRAS1としてみる
-    ras1_start = 1
-    ras1num = 2
-    ! write(*,*) 'noda start sort'
-! sort_orbは基本的にorbの順で、RAS1だけinact+1開始としてインデックスの入れ替えをしたもの
-    if (ras1_start /= 1) then ! ras1_start=1のときはいきなりRAS1の領域になるのでif文を無視
-        sort_orb(1:ras1_start - 1) = orb(1:ras1_start - 1) ! RAS1が始まるまではsort_orbとorbは同じ
-        ! write(*,*) 'ras1_start is not 1'
-    end if
-    ! write(*,*) 'before RAS1 sort end'
-    sort_orb(ras1_start:ninact) = orb(ras1_start + ras1num:ninact + ras1num) ! RAS1の領域(ras1_start:ras1_start+rasnum-1)は無視して格納
-    ! write(*,*) 'before RAS1 sort end'
-    sort_orb(ninact + 1:ninact + ras1num) = orb(ras1_start:ras1_start + ras1num - 1) ! RAS1の領域を格納
-    ! write(*,*) 'before RAS1 sort end'
-    sort_orb(ninact + ras1num + 1:nmo) = orb(ninact + ras1num + 1:nmo) ! RAS1以降はsort_orbとorbは同じ
+    call sort_list_energy_order_to_ras_order(sort_orb, orb)
 
     if (rank == 0) then
         write (*, *) 'orb sort end'
@@ -529,4 +515,18 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 1000 continue
     deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
     deallocate (sort_orb)
+contains
+    subroutine sort_list_energy_order_to_ras_order(want_to_sort, original_orb_energy_order)
+        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, nelec
+        implicit none
+        real(8), intent(in) :: original_orb_energy_order(:)
+        real(8), intent(inout) :: want_to_sort(:)
+        integer :: current_idx, ras1_idx
+        if (size(ras1_list, 1) == 0 .and. size(ras2_list, 1) == 0 .and. size(ras3_list, 1) == 0) return
+        current_idx = 1
+        ! Fill ninact
+        do while (current_idx <= ninact)
+            ! ras1_idx = 
+        end do
+    end subroutine sort_list_energy_order_to_ras_order
 end subroutine readorb_enesym_co
