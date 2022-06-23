@@ -66,21 +66,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) inittime
         ! Call timing(val(3), totalsec, date0, tsec)
     end if
-!     end if
-    ! open (5, file='active.inp', form='formatted', status='old')
-    ! read (5, '(I4)') ninact
-    ! read (5, '(I4)') nact
-    ! read (5, '(I4)') nsec
-    ! read (5, '(I4)') nelec
-    ! read (5, '(I4)') nroot
-    ! read (5, '(I4)') selectroot
-    ! read (5, '(I4)') totsym
-    ! read (5, '(I4)') ncore
-    ! read (5, '(I4)') nbas
-    ! read (5, '(E8.2)') eshift
-    ! read (5, '(A6)') ptgrp
-    ! read (5, '(I4)') dirac_version
-    ! close (5)
     call read_input
 
     if (rank == 0) then ! Process limits for output
