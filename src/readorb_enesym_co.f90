@@ -410,7 +410,9 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end do
     allocate (sort_orb(nmo))
     sort_orb = orb
-    call sort_list_energy_order_to_ras_order(sort_orb, orb)
+    if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) then
+        call sort_list_energy_order_to_ras_order(sort_orb, orb)
+    end if
 !     ! とりあえずN2の1sをRAS1としてみる
 !     ras1_start = 1
 !     spinor_num_ras1 = 2
@@ -539,16 +541,16 @@ contains
         integer :: current_spinor_idx, current_idx
         integer :: ras1_current_idx, ras2_current_idx, ras3_current_idx, ras1_size, ras2_size, ras3_size
         ras1_size = size(ras1_list, 1); ras2_size = size(ras2_list, 1); ras3_size = size(ras3_list, 1) ! The size of ras list
-        print *, 'sizeofras',ras1_size,ras2_size,ras3_size
+        print *, 'sizeofras', ras1_size, ras2_size, ras3_size
         if (ras1_size == 0 .and. ras2_size == 0 .and. ras3_size == 0) return ! Do nothing because ras is not configured
         current_spinor_idx = 1; current_idx = 1; ras1_current_idx = 1; ras2_current_idx = 1; ras3_current_idx = 1 ! Initialization
         ! Fill ninact
         do while (current_idx <= ninact)
-            if (ras1_size > 0 .and. ras1_list(ras1_current_idx) == current_spinor_idx) then
+            if (is_ras1_configured .and. ras1_list(ras1_current_idx) == current_spinor_idx) then
                 ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
-            elseif (ras2_size > 0 .and. ras2_list(ras2_current_idx) == current_spinor_idx) then
+            elseif (is_ras2_configured .and. ras2_list(ras2_current_idx) == current_spinor_idx) then
                 ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
-            elseif (ras3_size > 0 .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
+            elseif (is_ras3_configured .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
                 ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
             else
                 want_to_sort(current_idx) = current_spinor_idx

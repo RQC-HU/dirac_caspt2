@@ -28,7 +28,7 @@ SUBROUTINE casdet_ty
     ! 実際に4spinorのときを確かめると
     ! ras1_bit = 2^4 - 1 = 16 - 1 = 15 となり上の4spinorの例と一致する
 
-    ras1_bit = 2**2 -1 ! RAS1のビット表現
+    ! ras1_bit = 2**2 - 1 ! RAS1のビット表現
     allow_det_num = 0
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter casdet_ty'
@@ -41,8 +41,12 @@ SUBROUTINE casdet_ty
     !    67108864* 8 / (1024^2) = 500MB, 26 spinor
     Do i = 1, 2**nact - 1
         if (POPCNT(i) == nelec) then
-            is_det_allow = ras1_det_check(i,1)
-            if(.not. is_det_allow) cycle
+            if (is_ras1_configured) then
+                is_det_allow = ras1_det_check(i, 1)
+            else
+                is_det_allow = .true.
+            end if
+            if (.not. is_det_allow) cycle
             allow_det_num = allow_det_num + 1
             if (trim(ptgrp) == 'C1') then
                 ndet = ndet + 1
@@ -50,7 +54,7 @@ SUBROUTINE casdet_ty
                 idetr(i) = ndet
             else
                 Call detsym_ty(i, isym)
-                if ( rank == 0) print '(a,L,a,i4,a,b)','noda is_det_allow', is_det_allow,",i:",i,"bit(i)",i
+                if (rank == 0) print '(a,L,a,i4,a,b20)', 'noda is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
                 if (isym == totsym) then
                     ndet = ndet + 1
                     idet0(ndet) = i
