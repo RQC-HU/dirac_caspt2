@@ -30,7 +30,7 @@ MODULE four_caspt2_module
     character       :: ptgrp*6
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
-    integer         :: ras1_start, ras1num, ras2_start, ras2_num, ras3_start, ras3_num
+    integer         :: ras1_start, ras1num, ras2_start, ras2_num, ras3_start, ras3_num, ras1_max_hole, ras3_max_elec
     logical         :: is_ras1_configured, is_ras2_configured, is_ras3_configured
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer, parameter :: max_ras_spinor_num = 200

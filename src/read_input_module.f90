@@ -125,6 +125,7 @@ contains
 
         case ("ras1")
             call ras_read(ras1_list, 1)
+            call read_an_integer(0, size(ras1_list, 1), ras1_max_hole)
             is_ras1_configured = .true.
 
         case ("ras2")
@@ -133,6 +134,7 @@ contains
 
         case ("ras3")
             call ras_read(ras3_list, 3)
+            call read_an_integer(0, size(ras3_list, 1), ras3_max_elec)
             is_ras3_configured = .true.
 
         case ("calctype")
