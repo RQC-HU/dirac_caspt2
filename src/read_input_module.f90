@@ -6,7 +6,7 @@ module read_input_module
 !
 ! This is a utility module that interpret and parse input strings.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-
+    use four_caspt2_module, only: rank
     implicit none
     private
     public read_input, is_substring, ras_read, lowercase, uppercase
@@ -41,7 +41,7 @@ contains
         is_config_sufficient = .true.
         do idx = 1, size(is_variable_filled, 1)
             if (.not. is_variable_filled(idx)) then
-                print *, "ERROR: You must specify a variable "//trim(essential_variable_names(idx))//" before end."
+                if (rank == 0) print *, "ERROR: You must specify a variable "//trim(essential_variable_names(idx))//" before end."
                 is_config_sufficient = .false.
             end if
         end do
@@ -49,9 +49,9 @@ contains
         if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
         close (5)
         return ! END SUBROUTINE
-10      print *, "YOU NEED TO ADD 'end' in active.inp"
+10      if (rank == 0) print *, "YOU NEED TO ADD 'end' in active.inp"
         stop
-11      print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
+11      if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
         stop
     end subroutine read_input
 
@@ -141,7 +141,7 @@ contains
             call read_a_string(calctype)
             call uppercase(calctype)
             if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
-                print *, "ERROR: calctype must be CASCI or DMRG"
+                if (rank == 0) print *, "ERROR: calctype must be CASCI or DMRG"
                 stop ! ERROR, STOP THE PROGRAM
             end if
 
@@ -183,15 +183,15 @@ contains
 
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
-            print *, "string:", string
+            if (rank == 0) print *, "string:", string
             goto 10 ! Input Error. Stop program
         end if
         allocate (ras_list(idx_filled)); Call memplus(KIND(ras_list), SIZE(ras_list), 1)
         ras_list(:) = tmp_ras(1:idx_filled)
         call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
-        print *, "ras"//ras_chr//"_list", ras_list
+        if (rank == 0) print *, "ras"//ras_chr//"_list", ras_list
         goto 100 ! Read the numbers properly
-10      print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
+10      if (rank == 0) print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
         stop
 100     return ! END SUBROUTINE NORMALLY
     end subroutine ras_read
@@ -260,7 +260,7 @@ contains
             call is_substring(string(idx:idx), pattern, is_valid)
             if (.not. is_valid) then
                 ! Right number is NOT a integer or invalid input.
-                print *, invalid_input_message, string(idx:)
+                if (rank == 0) print *, invalid_input_message, string(idx:)
                 goto 10 ! Input Error. Stop program
             end if
 
@@ -274,7 +274,7 @@ contains
                 ! The read_int is out of range [allow_int_min, allow_int_max]
                 write (min_str, *) allow_int_min
                 write (max_str, *) allow_int_max
-                print *, "ERROR: read_int is out of range,", &
+                if (rank == 0) print *, "ERROR: read_int is out of range,", &
                     "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
                 goto 10 ! Input Error. Stop program
             end if
@@ -291,7 +291,7 @@ contains
             filled_num = filled_num + 1 ! Count up the index of the list
             if (size(list, 1) < filled_num) then
                 ! Can't fill numbers because the size of the list
-                print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
+                if (rank == 0) print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
                 goto 10 ! Input Error. Stop program
             end if
 
@@ -313,8 +313,8 @@ contains
         end do
 
         goto 100 ! NORMAL END
-9       print *, "ERROR: Error in the section in reading the number, ", string(idx:); goto 10
-10      print *, "ERROR: Can't parse the input in parse_input_int, input:", string, " Stop the program."
+9       if (rank == 0) print *, "ERROR: Error in the section in reading the number, ", string(idx:); goto 10
+10      if (rank == 0) print *, "ERROR: Can't parse the input in parse_input_int, input:", string, " Stop the program."
         stop
 100     continue
     end subroutine parse_input_int
@@ -340,7 +340,7 @@ contains
         ! Checks whether the range of allow_int is valid
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=
         if (allow_int_max < allow_int_min) then
-            print *, "ERROR: Allowed range of integer is invalid in parse_range_input_int.", &
+            if (rank == 0) print *, "ERROR: Allowed range of integer is invalid in parse_range_input_int.", &
                 "MIN:", allow_int_min, "MAX:", allow_int_max
             goto 10 ! Input Error. Stop program
         end if
@@ -371,7 +371,7 @@ contains
             call is_substring(string(rightnum_idx:rightnum_idx), pattern, is_valid)
             if (.not. is_valid) then
                 ! Right number is NOT a integer or invalid input.
-                print *, invalid_input_message, string(rightnum_idx:)
+                if (rank == 0) print *, invalid_input_message, string(rightnum_idx:)
                 goto 10 ! Input Error. Stop program
             end if
 
@@ -385,7 +385,7 @@ contains
                 ! The rightnum is out of range [allow_int_min, allow_int_max]
                 write (min_str, *) allow_int_min
                 write (max_str, *) allow_int_max
-                print *, "ERROR: rightnum is out of range,", &
+                if (rank == 0) print *, "ERROR: rightnum is out of range,", &
                     "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
                 goto 10 ! Input Error. Stop program
             end if
@@ -400,7 +400,7 @@ contains
                 leftnum_idx = leftnum_idx - 1 ! (e.g. "2..5" -> "12..5")
                 stat = verify(string(leftnum_idx:first_dot_index), " ,;") ! stat must be 1 or 2
                 if (stat > 2 .or. stat <= 0) then
-                    print *, "Can't get left num. substring:", string(leftnum_idx:first_dot_index)
+                    if (rank == 0) print *, "Can't get left num. substring:", string(leftnum_idx:first_dot_index)
                     goto 10 ! Input Error. Stop program
                 end if
                 ! If stat is 2, we found the index of left num, so exit loop (e.g. string(leftnum_idx:first_dot_index) = ",10.")
@@ -413,7 +413,7 @@ contains
             call is_substring(string(leftnum_idx:leftnum_idx), pattern, is_valid)
             if (.not. is_valid) then
                 ! Right number is NOT a integer or invalid input.
-                print *, invalid_input_message, string(leftnum_idx:)
+                if (rank == 0) print *, invalid_input_message, string(leftnum_idx:)
                 goto 10 ! Input Error. Stop program
             end if
 
@@ -427,7 +427,7 @@ contains
                 ! The rightnum is out of range [allow_int_min, allow_int_max]
                 write (min_str, *) allow_int_min
                 write (max_str, *) allow_int_max
-                print *, "ERROR: rightnum is out of range,", &
+                if (rank == 0) print *, "ERROR: rightnum is out of range,", &
                     "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
                 goto 10 ! Input Error. Stop program
             end if
@@ -442,13 +442,13 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             if (rightnum < leftnum) then
                 ! rightnum must be larger than or equal to leftnum
-                print *, "The specification of the range is invalid. left", leftnum, "right", rightnum
+                if (rank == 0) print *, "The specification of the range is invalid. left", leftnum, "right", rightnum
                 goto 10  ! Input Error. Stop program
             end if
             ! Can fill numbers?
             if (size(list, 1) - filled_num < rightnum - leftnum + 1) then
                 ! Can't fill numbers because the size of the list
-                print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
+                if (rank == 0) print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
                 goto 10 ! Input Error. Stop program
             end if
 
@@ -467,9 +467,9 @@ contains
         end do
 
         goto 100 ! End this subroutine
-8       print *, "Can't get rightnum. string:", string, "rightnum", rightnum; goto 10 ! Stop program (error)
-9       print *, "Can't get leftnum. string:", string, "leftnum:", leftnum; goto 10 ! Stop program (error)
-10      print *, "ERROR: Can't parse the input in parse_range_input_int, input:", string, " Stop the program."
+8       if (rank == 0) print *, "Can't get rightnum. string:", string, "rightnum", rightnum; goto 10 ! Stop program (error)
+9       if (rank == 0) print *, "Can't get leftnum. string:", string, "leftnum:", leftnum; goto 10 ! Stop program (error)
+10      if (rank == 0) print *, "ERROR: Can't parse the input in parse_range_input_int, input:", string, " Stop the program."
         stop ! Stop program (error)
 100     continue ! Read the numbers properly
     end subroutine parse_range_input_int
@@ -534,9 +534,10 @@ contains
         character(:), allocatable, intent(out) :: valid_pattern_string, invalid_message
 
         if (int_min > int_max) then
-            print *, "ERROR: We want to create a allowed pattern of input, but the selected range of integer is invalid.", &
+            if (rank == 0) print *, "ERROR: We want to create a allowed pattern of input, ", &
+                "but the selected range of integer is invalid.", &
                 "INT_MIN:", int_min, "INT_MAX", int_max
-            print *, "Stop the program"
+            if (rank == 0) print *, "Stop the program"
             stop
         end if
         if (int_min < 0 .and. 0 <= int_max) then
@@ -575,16 +576,16 @@ contains
             !  Is the input an integer and more than or equal to zero?
             call is_substring(input(1:1), pattern, is_subst)
             if (.not. is_subst) then
-                print *, invalid_input_message, input
-                print *, 'invalidinput'
+                if (rank == 0) print *, invalid_input_message, input
+                if (rank == 0) print *, 'invalidinput'
                 goto 10
             end if
             read (input, *) result_int ! read an integer
             exit ! EXIT LOOP
         end do
         return ! END SUBROUTINE
-10      print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
-        print *, "input: ", input
+10      if (rank == 0) print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
+        if (rank == 0) print *, "input: ", input
         stop
     end subroutine read_an_integer
 
@@ -652,7 +653,7 @@ contains
             do idx = 1, size(ras1_list, 1) ! size(ras1_list,1) is the size of the list.
                 if (electron_filled(ras1_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
-                    print *, "ERROR: The number of selected more than once is", ras1_list(idx)
+                    if (rank == 0) print *, "ERROR: The number of selected more than once is", ras1_list(idx)
                     goto 10 ! Error in input. Stop the Program
                 end if
                 electron_filled(ras1_list(idx)) = .true. ! Fill ras1_list(idx)
@@ -662,7 +663,7 @@ contains
             do idx = 1, size(ras2_list, 1) ! size(ras2_list,1) is the size of the list.
                 if (electron_filled(ras2_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
-                    print *, "ERROR: The number of selected more than once is", ras2_list(idx)
+                    if (rank == 0) print *, "ERROR: The number of selected more than once is", ras2_list(idx)
                     goto 10 ! Error in input. Stop the Program
                 end if
                 electron_filled(ras2_list(idx)) = .true. ! Fill ras2_list(idx)
@@ -672,7 +673,7 @@ contains
             do idx = 1, size(ras3_list, 1) ! size(ras3_list,1) is the size of the list.
                 if (electron_filled(ras3_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
-                    print *, "ERROR: The number of selected more than once is", ras3_list(idx)
+                    if (rank == 0) print *, "ERROR: The number of selected more than once is", ras3_list(idx)
                     goto 10 ! Error in input. Stop the Program
                 end if
                 electron_filled(ras3_list(idx)) = .true. ! Fill ras3_list(idx)
@@ -685,18 +686,22 @@ contains
         end if
 
         return ! END NORMALLY
-10      print *, "ERROR: Your input is invalid because the same number of the electron have been selected in the RAS" &
-            //" more than once!"
-        print *, "YOUR INPUT"
-        print *, "RAS1 : ", ras1_list
-        print *, "RAS2 : ", ras2_list
-        print *, "RAS3 : ", ras3_list
-        print *, "Stop the program."
+10      if (rank == 0) then
+            print *, "ERROR: Your input is invalid because the same number of the electron have been selected " &
+                //"in the RAS more than once!"
+            print *, "YOUR INPUT"
+            print *, "RAS1 : ", ras1_list
+            print *, "RAS2 : ", ras2_list
+            print *, "RAS3 : ", ras3_list
+            print *, "Stop the program."
+        end if
         stop
-11      print *, "ERROR: Your input is invalid because the number of RAS is not equal to the number of active."
-        print *, "active : ", nact
-        print *, "RAS    : ", count(electron_filled)
-        print *, "Stop the program."
+11      if (rank == 0) then
+            print *, "ERROR: Your input is invalid because the number of RAS is not equal to the number of active."
+            print *, "active : ", nact
+            print *, "RAS    : ", count(electron_filled)
+            print *, "Stop the program."
+        end if
         stop
     end subroutine check_ras_is_valid
     subroutine lowercase(string)
