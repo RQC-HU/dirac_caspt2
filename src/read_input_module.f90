@@ -109,7 +109,7 @@ contains
                 read (5, '(A)') input
                 call is_comment_line(input, is_comment)
                 if (.not. is_comment) then
-                    read (5, *) eshift
+                    read (input, *) eshift
                     exit eshiftloop
                 end if
             end do eshiftloop
