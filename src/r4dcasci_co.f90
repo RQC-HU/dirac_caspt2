@@ -13,19 +13,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: ii, jj, kk, ll, typetype, i0, j0
-    integer                 ::  j, i, k, l, nuniq
-    integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
-    integer                 ::  totsym, inisym, endsym
+    integer                 :: i0, nuniq
+    integer                 ::  inisym, endsym
+    real(16)                :: time0, time1
 
 !        integer                 ::  val(8), initdate, date0, date1
 !        real*8                  :: totalsec, inittime, tsec0, tsec1, tsec
 
-    logical                 :: test, cutoff
-
-    real*8                  :: i2r, i2i, dr, di, nsign, e0, e2, e2all
-    complex*16              ::  cmplxint, dens, trace1, trace2, dens1, dens2
-
+    logical                 :: test
     character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -71,25 +66,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) inittime
         ! Call timing(val(3), totalsec, date0, tsec)
     end if
-!     end if
-    open (5, file='active.inp', form='formatted', status='old')
-    read (5, '(I4)') ninact
-    read (5, '(I4)') nact
-    read (5, '(I4)') nsec
-    read (5, '(I4)') nelec
-    read (5, '(I4)') nroot
-    read (5, '(I4)') selectroot
-    read (5, '(I4)') totsym
-    read (5, '(I4)') ncore
-    read (5, '(I4)') nbas
-    read (5, '(E8.2)') eshift
-    read (5, '(A6)') ptgrp
-    read (5, '(I4)') dirac_version
-    print *, dirac_version
-    call ras1_read
-    call ras3_read
-    call check_ras_is_valid
-    close (5)
+    call read_input
 
     if (rank == 0) then ! Process limits for output
         write (*, *) 'ninact        =', ninact
@@ -104,7 +81,8 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
-        print *, 'ras3', ras3_list
+        print *, "RAS1 = ", ras1_list
+        print *, "RAS3 = ", ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
@@ -170,7 +148,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
     realcvec = .TRUE.
 
-    Call casci_ty(totsym)
+    Call casci_ty
 
 !      goto 1000
 

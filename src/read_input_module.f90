@@ -9,87 +9,186 @@ module read_input_module
 
     implicit none
     private
-    public ras1_read, ras3_read, check_ras_is_valid, is_substring
+    public read_input, is_substring, ras_read, lowercase, uppercase
+    logical is_end
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
     end interface is_in_range_number
 contains
+    subroutine read_input
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine is the entry point to read active.inp
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
 
-    subroutine ras1_read
+        implicit none
+        integer :: idx
+        character(100) :: string
+        character(11), allocatable :: essential_variable_names(:)
+        logical :: is_comment, is_config_sufficient, is_variable_filled(11) = &
+                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        is_end = .false.
+        essential_variable_names = &
+            (/"ninact    ", "nact      ", "nsec      ", "nroot     ", "nelec     ", &
+            &  "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
+        open (5, file="active.inp", form="formatted")
+        do while (.not. is_end)
+            read (5, "(a)", end=10) string
+            call is_comment_line(string, is_comment)
+            if (is_comment) cycle ! Read the next line
+            call check_input_type(string, is_variable_filled)
+        end do
+        is_config_sufficient = .true.
+        do idx = 1, size(is_variable_filled, 1)
+            if (.not. is_variable_filled(idx)) then
+                print *, "ERROR: You must specify a variable "//trim(essential_variable_names(idx))//" before end."
+                is_config_sufficient = .false.
+            end if
+        end do
+        if (.not. is_config_sufficient) goto 11 ! Error in input. Stop the Program
+        ! if (size(ras1_list, 1) > 0 .or. size(ras2_list, 1) > 0 .or. size(ras3_list, 1) > 0) call check_ras_is_valid
+        close (5)
+        return ! END SUBROUTINE
+10      print *, "YOU NEED TO ADD 'end' in active.inp"
+        stop
+11      print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
+        stop
+    end subroutine read_input
+
+    subroutine check_input_type(string, is_filled)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! This subroutine returns RAS3 list from the user input
+        ! This subroutine recognize the type of input that follows from the next line
+        ! and calls the subroutine that we must call
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        use four_caspt2_module
+        implicit none
+        character(*), intent(inout) :: string
+        character(100) :: input
+        logical :: is_comment
+        logical, intent(inout) :: is_filled(:)
+        call lowercase(string)
+        select case (trim(string))
+
+        case ("ninact")
+            call read_an_integer(0, 10**9, ninact)
+            is_filled(1) = .true.
+
+        case ("nact")
+            call read_an_integer(0, 10**9, nact)
+            is_filled(2) = .true.
+
+        case ("nsec")
+            call read_an_integer(0, 10**9, nsec)
+            is_filled(3) = .true.
+
+        case ("nelec")
+            call read_an_integer(0, 10**9, nelec)
+            is_filled(4) = .true.
+
+        case ("nroot")
+            call read_an_integer(0, 10**9, nroot)
+            is_filled(5) = .true.
+
+        case ("selectroot")
+            call read_an_integer(0, 10**9, selectroot)
+            is_filled(6) = .true.
+
+        case ("totsym")
+            call read_an_integer(0, 10**9, totsym)
+            is_filled(7) = .true.
+
+        case ("ncore")
+            call read_an_integer(0, 10**9, ncore)
+            is_filled(8) = .true.
+
+        case ("nbas")
+            call read_an_integer(0, 10**9, nbas)
+            is_filled(9) = .true.
+
+        case ("eshift")
+            eshiftloop: do
+                read (5, '(A)') input
+                call is_comment_line(input, is_comment)
+                if (.not. is_comment) then
+                    read (input, *) eshift
+                    exit eshiftloop
+                end if
+            end do eshiftloop
+
+        case ("ptgrp")
+            call read_a_string(ptgrp)
+            is_filled(10) = .true.
+
+        case ("diracver")
+            call read_an_integer(0, 10**9, dirac_version)
+            is_filled(11) = .true.
+
+        case ("ras1")
+            call ras_read(ras1_list, 1)
+
+        case ("ras2")
+            call ras_read(ras2_list, 2)
+
+        case ("ras3")
+            call ras_read(ras3_list, 3)
+
+        case ("calctype")
+            call read_a_string(calctype)
+            call uppercase(calctype)
+            if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
+                print *, "ERROR: calctype must be CASCI or DMRG"
+                stop ! ERROR, STOP THE PROGRAM
+            end if
+
+        case ("end")
+            is_end = .true.
+
+        end select
+    end subroutine check_input_type
+    subroutine ras_read(ras_list, ras_num)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns RAS[1,2,3] list from the user input
         ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
-        !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
+        !        OUTPUT : ras[1,2,3]_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras[1,2,3]_list is a global list in four_caspt2_module)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: rank, ras1_list, max_ras1_spinor_num
+        use four_caspt2_module, only: max_ras_spinor_num
         use module_sort_swap, only: heapSort
         implicit none
+        integer, allocatable, intent(inout) :: ras_list(:)
+        integer, intent(in) :: ras_num
+        character(100) :: tmp_ras_chr
+        character(:), allocatable :: ras_chr
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string
-        integer :: tmp_ras1(max_ras1_spinor_num), idx_filled
+        integer :: tmp_ras(max_ras_spinor_num), idx_filled
+
+        ! Get the ras_num and store this to ras_chr
+        write (tmp_ras_chr, *) ras_num
+        ras_chr = trim(adjustl(tmp_ras_chr))
 
         read (5, '(a)', err=10) string ! Read a line of active.inp
         idx_filled = 0
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         !  Parse the expressions of the form a..b in the input string and expands it to a list.
-        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras1 = [0,0,...,0],                idx_filled = 0
-        !         OUTPUT : string = " , ,    ,  ", tmp_ras1 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
+        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras = [0,0,...,0],                idx_filled = 0
+        !         OUTPUT : string = " , ,    ,  ", tmp_ras = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_input_string_to_int_list(string, tmp_ras1, idx_filled, 0, 10**9)
+        call parse_input_string_to_int_list(string, tmp_ras, idx_filled, 0, 10**9)
 
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
             print *, "string:", string
             goto 10 ! Input Error. Stop program
         end if
-        allocate (ras1_list(idx_filled)); Call memplus(KIND(ras1_list), SIZE(ras1_list), 1)
-        ras1_list(:) = tmp_ras1(1:idx_filled)
-        call heapSort(ras1_list, .false.) ! Sort the ras1_list in ascending order (lower to higher)
-        print *, "ras1_list", ras1_list
+        allocate (ras_list(idx_filled)); Call memplus(KIND(ras_list), SIZE(ras_list), 1)
+        ras_list(:) = tmp_ras(1:idx_filled)
+        call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
+        print *, "ras"//ras_chr//"_list", ras_list
         goto 100 ! Read the numbers properly
-10      print *, "ERROR: Error in input, can't read ras1 value!!. Stop the program."
+10      print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
         stop
-100     if (rank == 0) print *, "Read ras1 end"
-    end subroutine ras1_read
-
-    subroutine ras3_read
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! This subroutine returns RAS3 list from the user input
-        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
-        !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: rank, ras3_list, max_ras3_spinor_num
-        use module_sort_swap, only: heapSort
-        implicit none
-        integer, parameter :: max_str_length = 100
-        character(max_str_length) :: string
-        integer :: tmp_ras3(max_ras3_spinor_num), idx_filled
-
-        read (5, '(a)', err=10) string ! Read a line of active.inp
-        idx_filled = 0
-
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        !  Parse the expressions of the form a..b in the input string and expands it to a list.
-        !  (e.g.) INPUT  : string = "1,3,5..8,10", tmp_ras3 = [0,0,...,0],                idx_filled = 0
-        !         OUTPUT : string = " , ,    ,  ", tmp_ras3 = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call parse_input_string_to_int_list(string, tmp_ras3, idx_filled, 0, 10**9)
-
-        ! Does the input string contain at least one varible?
-        if (idx_filled <= 0) then
-            print *, "string:", string
-            goto 10 ! Input Error. Stop program
-        end if
-        allocate (ras3_list(idx_filled)); Call memplus(KIND(ras3_list), SIZE(ras3_list), 1)
-        ras3_list(:) = tmp_ras3(1:idx_filled)
-        call heapSort(ras3_list, .false.) ! Sort the ras3_list in ascending order (lower to higher)
-        print *, "ras3_list", ras3_list
-        goto 100 ! Read the numbers properly
-10      print *, "ERROR: Error in input, can't read ras3 value!!. Stop the program."
-        stop
-100     if (rank == 0) print *, "Read ras3 end"
-    end subroutine ras3_read
+100     return ! END SUBROUTINE NORMALLY
+    end subroutine ras_read
 
     subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -455,6 +554,86 @@ contains
             invalid_message = "ERROR: Detected minus numbers or 0 or Non-Integer string."
         end if
     end subroutine create_valid_pattern
+    subroutine read_an_integer(allowed_min_int, allowed_max_int, result_int)
+        implicit none
+        integer, intent(in) :: allowed_min_int, allowed_max_int
+        integer, intent(inout) :: result_int
+        character(:), allocatable :: pattern, invalid_input_message
+        logical :: is_comment, is_subst
+        character(100) :: input
+        call create_valid_pattern(allowed_min_int, allowed_max_int, pattern, invalid_input_message)
+        do
+            read (5, '(a)') input
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle ! Go to the next line
+            !  Is the input an integer and more than or equal to zero?
+            call is_substring(input(1:1), pattern, is_subst)
+            if (.not. is_subst) then
+                print *, invalid_input_message, input
+                print *, 'invalidinput'
+                goto 10
+            end if
+            read (input, *) result_int ! read an integer
+            exit ! EXIT LOOP
+        end do
+        return ! END SUBROUTINE
+10      print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
+        print *, "input: ", input
+        stop
+    end subroutine read_an_integer
+
+    subroutine read_a_string(result_string)
+        implicit none
+        character(*), intent(inout) :: result_string
+        logical :: is_comment
+        character(100) :: input
+        do
+            read (5, '(a)') input
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle ! Go to the next line
+            read (input, *) result_string ! read a string
+            exit ! EXIT LOOP
+        end do
+        return ! END SUBROUTINE
+    end subroutine read_a_string
+
+    subroutine is_comment_line(string, is_comment)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns trimmed input string and whether this input is comment line or not
+        ! Comment line must include "!" or "#" in the first of character of input string except space
+        ! (e.g.) INPUT  : string = "1,2,4..10,13!,17..20"
+        !        OUTPUT : string = "1,2,4..10,13", is_comment = .false.
+        !        INPUT2 : string = "#1,2,4..10,13"
+        !        OUTPUT2: string = "#1,2,4..10,13", is_comment = .true.
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        character(*), intent(inout) :: string
+        logical, intent(out) :: is_comment
+        integer  :: comment_idx
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! Trim string
+        ! (e.g.) "   2,3,4" => "2,3,4"
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        string = trim(adjustl(string))
+        comment_idx = scan(string, '!#')
+        if (verify(string, " ") == 0) then
+            ! Empty line
+            is_comment = .true.
+        elseif (comment_idx == 1) then
+            ! Comment line (e.g.) "!2,3,4"
+            is_comment = .true.
+        elseif (comment_idx == 0) then
+            ! NOT Comment line (e.g.) "2,3,4"
+            is_comment = .false.
+        else
+            ! NOT Comment line but include "!" or "#" (e.g.) "2,3,4 ! ras1"
+            is_comment = .false.
+            ! Trim before "!" or "#" (e.g.) "2,3,4 ! ras1" => "2,3,4 "
+            string(:) = string(1:comment_idx - 1)
+        end if
+
+    end subroutine is_comment_line
 
     subroutine check_ras_is_valid
         use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec
@@ -507,4 +686,46 @@ contains
         print *, "Stop the program."
         stop
     end subroutine check_ras_is_valid
+    subroutine lowercase(string)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns the lowercase string
+        ! (e.g.) INPUT  : string = "tHiS"
+        !        OUTPUT : string = "this"
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        character(*), intent(inout) :: string
+        integer :: offset, idx, A_iachar, Z_iachar, chr_iachar
+        offset = iachar('a') - iachar('A') ! offset number to convert uppercase to lowercase
+        A_iachar = iachar('A') ! Ascii code of "A"
+        Z_iachar = iachar('Z') ! Ascii code of "Z"
+        do idx = 1, len(string)
+            chr_iachar = iachar(string(idx:idx))
+            if (A_iachar <= chr_iachar .and. chr_iachar <= Z_iachar) then
+                ! A <= string(idx:idx) <= Z -> a <= string(idx:idx) <= z
+                chr_iachar = chr_iachar + offset
+                string(idx:idx) = achar(chr_iachar)
+            end if
+        end do
+    end subroutine lowercase
+    subroutine uppercase(string)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns the uppercase string
+        ! (e.g.) INPUT  : string = "tHiS"
+        !        OUTPUT : string = "this"
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        character(*), intent(inout) :: string
+        integer :: offset, idx, a_iachar, z_iachar, chr_iachar
+        offset = iachar('A') - iachar('a') ! offset number to convert uppercase to uppercase
+        a_iachar = iachar('a') ! Ascii code of "a"
+        z_iachar = iachar('z') ! Ascii code of "z"
+        do idx = 1, len(string)
+            chr_iachar = iachar(string(idx:idx))
+            if (A_iachar <= chr_iachar .and. chr_iachar <= Z_iachar) then
+                ! a <= string(idx:idx) <= z -> A <= string(idx:idx) <= Z
+                chr_iachar = chr_iachar + offset
+                string(idx:idx) = achar(chr_iachar)
+            end if
+        end do
+    end subroutine uppercase
 end module read_input_module

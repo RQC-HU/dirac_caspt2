@@ -7,25 +7,17 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use read_input_module, only: read_input
     Implicit NONE
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: ii, jj, kk, ll, typetype, i0
-    integer                 ::  j, i, k, l, nuniq
-    integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
-    integer                 ::  totsym, inisym, endsym, ieshift
-
-    logical                 :: test, cutoff
-
-    real*8                  :: i2r, i2i, dr, di, nsign, e0, e2, e2all, weight0
-    complex*16              ::  cmplxint, dens, trace1, trace2
+    integer                 :: ieshift
+    real*8                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)
-
-    character*50            :: filename
     real(16)                :: time0, time1
-    integer                 :: access ! caspt2.outが存在するか確認するための変数 0:存在する others:存在しない
+    character*50            :: filename
     integer                 :: idetr_array_len ! length of array = idetr(1:2**nact - 1)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -72,20 +64,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     eshift = 0.0d+00
     ieshift = 0
 
-    open (5, file='active.inp', form='formatted', status='old')
-    read (5, '(I4)') ninact
-    read (5, '(I4)') nact
-    read (5, '(I4)') nsec
-    read (5, '(I4)') nelec
-    read (5, '(I4)') nroot
-    read (5, '(I4)') selectroot
-    read (5, '(I4)') totsym
-    read (5, '(I4)') ncore
-    read (5, '(I4)') nbas
-    read (5, '(E8.2)') eshift
-    read (5, '(A6)') ptgrp
-    read (5, '(I4)') dirac_version
-    close (5)
+    call read_input
     if (rank == 0) then ! Process limits for output
         write (*, *) 'ninact        =', ninact
         write (*, *) 'nact          =', nact
@@ -99,6 +78,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
+        if (size(ras1_list, 1) > 0) print *, "RAS1 =", ras1_list
+        if (size(ras2_list, 1) > 0) print *, "RAS2 =", ras2_list
+        if (size(ras3_list, 1) > 0) print *, "RAS3 =", ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

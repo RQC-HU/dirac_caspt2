@@ -229,33 +229,89 @@ cmake --build build --clean-first
 - active.inpは以下のような内容を記述してください
 
 ```in
+ninact
 8
+nact
 6
+nsec
 142
+nelec
 2
+nroot
 3
+selectroot
 2
+totsym
 3
+ncore
 0
+nbas
 156
+eshift
 0.0
+ptgrp
 C2
+diracver
 21
+ras1
+1..4,9,10
+ras2
+5 6
+ras3
+20..30
+end
+```
 
+各パラメータの意味と必須パラメータかどうかについては以下を参照してください
+
+```in
 Input for CASCI and CASPT2
 
-        read(5,'(I4)')ninact     # of inactive spinors
-        read(5,'(I4)')nact       # of active spinors
-        read(5,'(I4)')nsec       # of secondary spinors = nbas-ncore-nact-ninact
-        read(5,'(I4)')nelec      # of active electrons in active space
-        read(5,'(I4)')nroot      # of roots
-        read(5,'(I4)')selectroot # which root do you want to obtain
-        read(5,'(I4)')totsym     # total symmetry ex. 5 for Ag in C2h closed shell
-        read(5,'(I4)')ncore      # of core orbital
-        read(5,'(I4)')nbas       # of basis set
-        read(5,'(E8.2)')eshift   # for real shift (if you don't write, it will be 0)
-        read(5,'(A6)')ptgrp      # point group symmtery
-        read(5,'(I4)')dirac_version # DIRAC version
+ninact     : the number of inactive spinors (required)
+nact       : the number of active spinors (required)
+nsec       : the number of secondary spinors = nbas-ncore-nact-ninact  (required)
+nelec      : the number of active electrons in active space (required)
+nroot      : the number of roots (required)
+selectroot : which root do you want to obtain (required)
+totsym     : total symmetry ex. 5 for Ag in C2h closed shell (required)
+ncore      : the number of core orbital (required)
+nbas       : the number of basis set (required)
+eshift     : for real shift (if you don't write, it will be 0)
+ptgrp      : point group symmtery (required)
+diracver   : DIRAC version (required)
+ras1       : RAS1 spinor list
+ras2       : RAS2 spinor list
+ras3       : RAS3 spinor list
+end        : the identifyer of active.inp (required)
+```
+
+### active.inpの仕様
+
+- 1行あたり100文字を読み取ります
+- endがある行をインプットの終わりと認識します
+- end及びrequiredな変数についての指定がないと不正なインプットとしてプログラムを終了します
+- \!か\#を書くとそれ以降の文字はコメントと認識します
+
+```in
+ nact ! The number of nact
+ ↓
+ nact
+```
+
+- RASについて.(ドット)が2つ以上連続していると範囲指定をしているとみなします(左に小さい数値、右に大きい数値を書く必要があります)
+
+```in
+  1..4
+  ↓
+  1,2,3,4
+```
+
+- RASについて,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
+
+```in
+  1..4, 5   7 10..13
+  ↓
+  1,2,3,4,5,7,10,11,12,13
 ```
 
 ## 開発者のかたへ
