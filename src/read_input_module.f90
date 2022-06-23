@@ -556,7 +556,7 @@ contains
                 print *, 'invalidinput'
                 goto 10
             end if
-            read (input, '(I)') result_int ! read an integer
+            read (input, *) result_int ! read an integer
             exit ! EXIT LOOP
         end do
         return ! END SUBROUTINE
