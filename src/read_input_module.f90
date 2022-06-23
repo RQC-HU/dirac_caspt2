@@ -16,6 +16,10 @@ module read_input_module
     end interface is_in_range_number
 contains
     subroutine read_input
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine is the entry point to read active.inp
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+
         implicit none
         integer :: idx
         character(100) :: string
@@ -61,9 +65,11 @@ contains
         logical, intent(inout) :: is_filled(:)
         call lowercase(string)
         select case (trim(string))
+
         case ("ninact")
             call read_an_integer(0, 10**9, ninact)
             is_filled(1) = .true.
+
         case ("nact")
             call read_an_integer(0, 10**9, nact)
             is_filled(2) = .true.
@@ -71,9 +77,11 @@ contains
         case ("nsec")
             call read_an_integer(0, 10**9, nsec)
             is_filled(3) = .true.
+
         case ("nelec")
             call read_an_integer(0, 10**9, nelec)
             is_filled(4) = .true.
+
         case ("nroot")
             call read_an_integer(0, 10**9, nroot)
             is_filled(5) = .true.
@@ -81,29 +89,39 @@ contains
         case ("selectroot")
             call read_an_integer(0, 10**9, selectroot)
             is_filled(6) = .true.
+
         case ("totsym")
             call read_an_integer(0, 10**9, totsym)
             is_filled(7) = .true.
+
         case ("ncore")
             call read_an_integer(0, 10**9, ncore)
             is_filled(8) = .true.
+
         case ("nbas")
             call read_an_integer(0, 10**9, nbas)
             is_filled(9) = .true.
+
         case ("eshift")
             read (5, *) eshift
+
         case ("ptgrp")
-            read (5, *) ptgrp
+            read (5, '(A)') ptgrp
             is_filled(10) = .true.
+
         case ("diracver")
             call read_an_integer(0, 10**9, dirac_version)
             is_filled(11) = .true.
+
         case ("ras1")
             call ras_read(ras1_list, 1)
+
         case ("ras2")
             call ras_read(ras2_list, 2)
+
         case ("ras3")
             call ras_read(ras3_list, 3)
+
         case ("end")
             is_end = .true.
 
@@ -111,9 +129,9 @@ contains
     end subroutine check_input_type
     subroutine ras_read(ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! This subroutine returns RAS3 list from the user input
+        ! This subroutine returns RAS[1,2,3] list from the user input
         ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
-        !        OUTPUT : ras3_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras3_list is a global list in four_caspt2_module)
+        !        OUTPUT : ras[1,2,3]_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras[1,2,3]_list is a global list in four_caspt2_module)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module, only: max_ras_spinor_num
         use module_sort_swap, only: heapSort
@@ -528,7 +546,7 @@ contains
         character(100) :: input
         call create_valid_pattern(allowed_min_int, allowed_max_int, pattern, invalid_input_message)
         do
-            read (5, *) input
+            read (5, '(a)') input
             call is_comment_line(input, is_comment)
             if (is_comment) cycle ! Go to the next line
             !  Is the input an integer and more than or equal to zero?
@@ -538,7 +556,7 @@ contains
                 print *, 'invalidinput'
                 goto 10
             end if
-            read (input, *) result_int ! read an integer
+            read (input, '(I)') result_int ! read an integer
             exit ! EXIT LOOP
         end do
         return ! END SUBROUTINE
