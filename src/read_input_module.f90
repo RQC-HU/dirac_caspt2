@@ -19,7 +19,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-
+        use four_caspt2_module, only: is_ras1_configured, is_ras2_configured, is_ras3_configured
         implicit none
         integer :: idx
         character(100) :: string
@@ -30,6 +30,7 @@ contains
         essential_variable_names = &
             (/"ninact    ", "nact      ", "nsec      ", "nroot     ", "nelec     ", &
             &  "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
+        is_ras1_configured = .false.; is_ras2_configured = .false.; is_ras3_configured = .false.
         open (5, file="active.inp", form="formatted")
         do while (.not. is_end)
             read (5, "(a)", end=10) string
@@ -45,7 +46,7 @@ contains
             end if
         end do
         if (.not. is_config_sufficient) goto 11 ! Error in input. Stop the Program
-        ! if (size(ras1_list, 1) > 0 .or. size(ras2_list, 1) > 0 .or. size(ras3_list, 1) > 0) call check_ras_is_valid
+        if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
         close (5)
         return ! END SUBROUTINE
 10      print *, "YOU NEED TO ADD 'end' in active.inp"
@@ -124,12 +125,15 @@ contains
 
         case ("ras1")
             call ras_read(ras1_list, 1)
+            is_ras1_configured = .true.
 
         case ("ras2")
             call ras_read(ras2_list, 2)
+            is_ras2_configured = .true.
 
         case ("ras3")
             call ras_read(ras3_list, 3)
+            is_ras3_configured = .true.
 
         case ("calctype")
             call read_a_string(calctype)
@@ -636,35 +640,42 @@ contains
     end subroutine is_comment_line
 
     subroutine check_ras_is_valid
-        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec
+        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, &
+                                      is_ras1_configured, is_ras2_configured, is_ras3_configured
         implicit none
         integer :: idx
         logical :: electron_filled(ninact + nact + nsec)
         electron_filled(:) = .false.
-        do idx = 1, size(ras1_list, 1) ! size(ras1_list,1) is the size of the list.
-            if (electron_filled(ras1_list(idx))) then
-                ! ERROR: The same number of the electron have been selected
-                print *, "ERROR: The number of selected more than once is", ras1_list(idx)
-                goto 10 ! Error in input. Stop the Program
-            end if
-            electron_filled(ras1_list(idx)) = .true. ! Fill ras1_list(idx)
-        end do
-        do idx = 1, size(ras2_list, 1) ! size(ras2_list,1) is the size of the list.
-            if (electron_filled(ras2_list(idx))) then
-                ! ERROR: The same number of the electron have been selected
-                print *, "ERROR: The number of selected more than once is", ras2_list(idx)
-                goto 10 ! Error in input. Stop the Program
-            end if
-            electron_filled(ras2_list(idx)) = .true. ! Fill ras2_list(idx)
-        end do
-        do idx = 1, size(ras3_list, 1) ! size(ras3_list,1) is the size of the list.
-            if (electron_filled(ras3_list(idx))) then
-                ! ERROR: The same number of the electron have been selected
-                print *, "ERROR: The number of selected more than once is", ras3_list(idx)
-                goto 10 ! Error in input. Stop the Program
-            end if
-            electron_filled(ras3_list(idx)) = .true. ! Fill ras3_list(idx)
-        end do
+        if (is_ras1_configured) then
+            do idx = 1, size(ras1_list, 1) ! size(ras1_list,1) is the size of the list.
+                if (electron_filled(ras1_list(idx))) then
+                    ! ERROR: The same number of the electron have been selected
+                    print *, "ERROR: The number of selected more than once is", ras1_list(idx)
+                    goto 10 ! Error in input. Stop the Program
+                end if
+                electron_filled(ras1_list(idx)) = .true. ! Fill ras1_list(idx)
+            end do
+        end if
+        if (is_ras2_configured) then
+            do idx = 1, size(ras2_list, 1) ! size(ras2_list,1) is the size of the list.
+                if (electron_filled(ras2_list(idx))) then
+                    ! ERROR: The same number of the electron have been selected
+                    print *, "ERROR: The number of selected more than once is", ras2_list(idx)
+                    goto 10 ! Error in input. Stop the Program
+                end if
+                electron_filled(ras2_list(idx)) = .true. ! Fill ras2_list(idx)
+            end do
+        end if
+        if (is_ras3_configured) then
+            do idx = 1, size(ras3_list, 1) ! size(ras3_list,1) is the size of the list.
+                if (electron_filled(ras3_list(idx))) then
+                    ! ERROR: The same number of the electron have been selected
+                    print *, "ERROR: The number of selected more than once is", ras3_list(idx)
+                    goto 10 ! Error in input. Stop the Program
+                end if
+                electron_filled(ras3_list(idx)) = .true. ! Fill ras3_list(idx)
+            end do
+        end if
 
         ! Is the number of RAS equal to the number of active?
         if (count(electron_filled) /= nact) then
