@@ -9,7 +9,7 @@ module read_input_module
 
     implicit none
     private
-    public read_input, is_substring, ras_read, lowercase
+    public read_input, is_substring, ras_read, lowercase, uppercase
     logical is_end
     interface is_in_range_number
         module procedure is_in_range_int, is_in_range_real
@@ -691,4 +691,25 @@ contains
             end if
         end do
     end subroutine lowercase
+    subroutine uppercase(string)
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! This subroutine returns the uppercase string
+        ! (e.g.) INPUT  : string = "tHiS"
+        !        OUTPUT : string = "this"
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        implicit none
+        character(*), intent(inout) :: string
+        integer :: offset, idx, a_iachar, z_iachar, chr_iachar
+        offset = iachar('A') - iachar('a') ! offset number to convert uppercase to uppercase
+        a_iachar = iachar('a') ! Ascii code of "a"
+        z_iachar = iachar('z') ! Ascii code of "z"
+        do idx = 1, len(string)
+            chr_iachar = iachar(string(idx:idx))
+            if (A_iachar <= chr_iachar .and. chr_iachar <= Z_iachar) then
+                ! a <= string(idx:idx) <= z -> A <= string(idx:idx) <= Z
+                chr_iachar = chr_iachar + offset
+                string(idx:idx) = achar(chr_iachar)
+            end if
+        end do
+    end subroutine uppercase
 end module read_input_module
