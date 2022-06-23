@@ -538,10 +538,10 @@ contains
         implicit none
         real(8), intent(in) :: original_orb_energy_order(:)
         real(8), intent(inout) :: want_to_sort(:)
-        integer :: current_spinor_idx, current_idx
+        integer :: current_spinor_idx, current_idx, idx
         integer :: ras1_current_idx, ras2_current_idx, ras3_current_idx, ras1_size, ras2_size, ras3_size
         ras1_size = size(ras1_list, 1); ras2_size = size(ras2_list, 1); ras3_size = size(ras3_list, 1) ! The size of ras list
-        print *, 'sizeofras', ras1_size, ras2_size, ras3_size
+        if (rank == 0) print *, 'sizeofras', ras1_size, ras2_size, ras3_size
         if (ras1_size == 0 .and. ras2_size == 0 .and. ras3_size == 0) return ! Do nothing because ras is not configured
         current_spinor_idx = 1; current_idx = 1; ras1_current_idx = 1; ras2_current_idx = 1; ras3_current_idx = 1 ! Initialization
         ! Fill ninact
@@ -553,7 +553,7 @@ contains
             elseif (is_ras3_configured .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
                 ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
             else
-                want_to_sort(current_idx) = current_spinor_idx
+                want_to_sort(current_idx) = original_orb_energy_order(current_spinor_idx)
                 current_idx = current_idx + 1
             end if
             current_spinor_idx = current_spinor_idx + 1 ! Next spinor (energy order)
@@ -569,17 +569,23 @@ contains
         ! Fill active
         ! Fill ras1
         if (ras1_size > 0) then
-            want_to_sort(current_idx:current_idx + ras1_size - 1) = ras1_list
+            do idx = 1, ras1_size
+                want_to_sort(current_idx + idx - 1) = original_orb_energy_order(ras1_list(idx))
+            end do
             current_idx = current_idx + ras1_size
         end if
         ! Fill ras2
         if (ras2_size > 0) then
-            want_to_sort(current_idx:current_idx + ras2_size - 1) = ras2_list
+            do idx = 1, ras2_size
+                want_to_sort(current_idx + idx - 1) = original_orb_energy_order(ras2_list(idx))
+            end do
             current_idx = current_idx + ras2_size
         end if
         ! Fill ras3
         if (ras3_size > 0) then
-            want_to_sort(current_idx:current_idx + ras3_size - 1) = ras3_list
+            do idx = 1, ras3_size
+                want_to_sort(current_idx + idx - 1) = original_orb_energy_order(ras3_list(idx))
+            end do
             current_idx = current_idx + ras3_size
         end if
 
@@ -599,12 +605,10 @@ contains
             elseif (ras3_size > 0 .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
                 ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
             else
-                want_to_sort(current_idx) = current_spinor_idx
+                want_to_sort(current_idx) = original_orb_energy_order(current_spinor_idx)
                 current_idx = current_idx + 1
             end if
             current_spinor_idx = current_spinor_idx + 1 ! Next spinor (energy order)
         end do
-        print *, "SORT END", want_to_sort
-        print *, "ORIGINAL:", original_orb_energy_order
     end subroutine sort_list_energy_order_to_ras_order
 end subroutine readorb_enesym_co
