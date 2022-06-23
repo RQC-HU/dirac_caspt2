@@ -599,9 +599,12 @@ contains
         ! Trim string
         ! (e.g.) "   2,3,4" => "2,3,4"
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        string = trim(string)
+        string = trim(adjustl(string))
         comment_idx = scan(string, '!#')
-        if (comment_idx == 1) then
+        if (verify(string, " ") == 0) then
+            ! Empty line
+            is_comment = .true.
+        elseif (comment_idx == 1) then
             ! Comment line (e.g.) "!2,3,4"
             is_comment = .true.
         elseif (comment_idx == 0) then
