@@ -26,13 +26,6 @@
         "-i 4",
         "--strict-indent"
     ],
+    "fortran.linter.includePaths": ["${workspaceForder}/../src"],
     "cmake.configureOnOpen": false,
-    "fortran.linter.includePaths": [
-        "${workspaceFolder}/src"
-    ],
-    "python.testing.pytestArgs": [
-        "."
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
 }
