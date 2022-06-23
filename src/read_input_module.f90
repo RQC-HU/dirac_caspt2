@@ -115,14 +115,7 @@ contains
             end do eshiftloop
 
         case ("ptgrp")
-            ptgrploop: do
-                read (5, '(A)') input
-                call is_comment_line(input, is_comment)
-                if (.not. is_comment) then
-                    ptgrp = trim(input)
-                    exit ptgrploop
-                end if
-            end do ptgrploop
+            call read_a_string(ptgrp)
             is_filled(10) = .true.
 
         case ("diracver")
@@ -137,6 +130,14 @@ contains
 
         case ("ras3")
             call ras_read(ras3_list, 3)
+
+        case ("calctype")
+            call read_a_string(calctype)
+            call uppercase(calctype)
+            if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
+                print *, "ERROR: calctype must be CASCI or DMRG"
+                stop ! ERROR, STOP THE PROGRAM
+            end if
 
         case ("end")
             is_end = .true.
@@ -580,6 +581,21 @@ contains
         print *, "input: ", input
         stop
     end subroutine read_an_integer
+
+    subroutine read_a_string(result_string)
+        implicit none
+        character(*), intent(inout) :: result_string
+        logical :: is_comment
+        character(100) :: input
+        do
+            read (5, '(a)') input
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle ! Go to the next line
+            read (input, *) result_string ! read a string
+            exit ! EXIT LOOP
+        end do
+        return ! END SUBROUTINE
+    end subroutine read_a_string
 
     subroutine is_comment_line(string, is_comment)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
