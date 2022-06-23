@@ -36,6 +36,7 @@ add_executable(r4dcascicoexe
 	r4dcasci_co.f90
 	create_binmdcint.f90
 	get_filename.f90
+	ras_det_check.f90
 	casmat_modified.f90
 )
 

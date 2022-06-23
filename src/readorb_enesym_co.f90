@@ -411,6 +411,21 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     allocate (sort_orb(nmo))
     sort_orb = orb
     call sort_list_energy_order_to_ras_order(sort_orb, orb)
+!     ! とりあえずN2の1sをRAS1としてみる
+!     ras1_start = 1
+!     spinor_num_ras1 = 2
+!     ! write(*,*) 'noda start sort'
+! ! sort_orbは基本的にorbの順で、RAS1だけinact+1開始としてインデックスの入れ替えをしたもの
+!     if (ras1_start /= 1) then ! ras1_start=1のときはいきなりRAS1の領域になるのでif文を無視
+!         sort_orb(1:ras1_start - 1) = orb(1:ras1_start - 1) ! RAS1が始まるまではsort_orbとorbは同じ
+!         ! write(*,*) 'ras1_start is not 1'
+!     end if
+!     ! write(*,*) 'before RAS1 sort end'
+!     sort_orb(ras1_start:ninact) = orb(ras1_start + spinor_num_ras1:ninact + spinor_num_ras1) ! RAS1の領域(ras1_start:ras1_start+rasnum-1)は無視して格納
+!     ! write(*,*) 'before RAS1 sort end'
+!     sort_orb(ninact + 1:ninact + spinor_num_ras1) = orb(ras1_start:ras1_start + spinor_num_ras1 - 1) ! RAS1の領域を格納
+!     ! write(*,*) 'before RAS1 sort end'
+!     sort_orb(ninact + spinor_num_ras1 + 1:nmo) = orb(ninact + spinor_num_ras1 + 1:nmo) ! RAS1以降はsort_orbとorbは同じ
 
     if (rank == 0) then
         write (*, *) 'orb sort end'
@@ -521,12 +536,73 @@ contains
         implicit none
         real(8), intent(in) :: original_orb_energy_order(:)
         real(8), intent(inout) :: want_to_sort(:)
-        integer :: current_idx, ras1_idx
-        if (size(ras1_list, 1) == 0 .and. size(ras2_list, 1) == 0 .and. size(ras3_list, 1) == 0) return
-        current_idx = 1
+        integer :: current_spinor_idx, current_idx
+        integer :: ras1_current_idx, ras2_current_idx, ras3_current_idx, ras1_size, ras2_size, ras3_size
+        ras1_size = size(ras1_list, 1); ras2_size = size(ras2_list, 1); ras3_size = size(ras3_list, 1) ! The size of ras list
+        print *, 'sizeofras',ras1_size,ras2_size,ras3_size
+        if (ras1_size == 0 .and. ras2_size == 0 .and. ras3_size == 0) return ! Do nothing because ras is not configured
+        current_spinor_idx = 1; current_idx = 1; ras1_current_idx = 1; ras2_current_idx = 1; ras3_current_idx = 1 ! Initialization
         ! Fill ninact
         do while (current_idx <= ninact)
-            ! ras1_idx = 
+            if (ras1_size > 0 .and. ras1_list(ras1_current_idx) == current_spinor_idx) then
+                ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
+            elseif (ras2_size > 0 .and. ras2_list(ras2_current_idx) == current_spinor_idx) then
+                ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
+            elseif (ras3_size > 0 .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
+                ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
+            else
+                want_to_sort(current_idx) = current_spinor_idx
+                current_idx = current_idx + 1
+            end if
+            current_spinor_idx = current_spinor_idx + 1 ! Next spinor (energy order)
         end do
+        ! current_idx must be ninact + 1
+        if (current_idx /= ninact + 1) then
+            print *, "ERROR: Sorting energy ascending order to RAS order is failed... STOP THE PROGRAM"
+            print *, "ORIGINAL ENERGY ORDER LIST : ", original_orb_energy_order
+            print *, "LIST OF SORTING IN PROGRESS: ", want_to_sort(1:current_idx)
+            stop ! ERROR, STOP THE PROGRAM
+        end if
+
+        ! Fill active
+        ! Fill ras1
+        if (ras1_size > 0) then
+            want_to_sort(current_idx:current_idx + ras1_size - 1) = ras1_list
+            current_idx = current_idx + ras1_size
+        end if
+        ! Fill ras2
+        if (ras2_size > 0) then
+            want_to_sort(current_idx:current_idx + ras2_size - 1) = ras2_list
+            current_idx = current_idx + ras2_size
+        end if
+        ! Fill ras3
+        if (ras3_size > 0) then
+            want_to_sort(current_idx:current_idx + ras3_size - 1) = ras3_list
+            current_idx = current_idx + ras3_size
+        end if
+
+        ! current_idx must be ninact + nact +1
+        if (current_idx /= ninact + nact + 1) then
+            print *, "ERROR: Sorting energy ascending order to RAS order is failed... STOP THE PROGRAM"
+            print *, "ORIGINAL ENERGY ORDER LIST : ", original_orb_energy_order
+            print *, "LIST OF SORTING IN PROGRESS: ", want_to_sort(1:current_idx)
+            stop ! ERROR, STOP THE PROGRAM
+        end if
+        ! Fill secondary
+        do while (current_idx <= ninact + nact + nsec)
+            if (ras1_size > 0 .and. ras1_list(ras1_current_idx) == current_spinor_idx) then
+                ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
+            elseif (ras2_size > 0 .and. ras2_list(ras2_current_idx) == current_spinor_idx) then
+                ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
+            elseif (ras3_size > 0 .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
+                ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
+            else
+                want_to_sort(current_idx) = current_spinor_idx
+                current_idx = current_idx + 1
+            end if
+            current_spinor_idx = current_spinor_idx + 1 ! Next spinor (energy order)
+        end do
+        print *, "SORT END", want_to_sort
+        print *, "ORIGINAL:", original_orb_energy_order
     end subroutine sort_list_energy_order_to_ras_order
 end subroutine readorb_enesym_co

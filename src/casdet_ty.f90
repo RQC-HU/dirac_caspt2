@@ -5,13 +5,31 @@ SUBROUTINE casdet_ty
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
-
+    use ras_det_check, only: ras1_det_check
     Implicit NONE
 
     integer :: nbitsa
     integer :: i, isym
     integer, allocatable  :: idet0(:)
+    integer :: upper_allowed_hole, ras1_bit, allow_det_num
+    logical :: is_det_allow
+    upper_allowed_hole = 1 ! RAS1の許容されるホール数
 
+    ! e.g. RAS1が4spinorの場合RAS1のビット表現であるras1_bitはどのように表せるか?
+    ! -> 00001111のようなものが表せていれば良い
+    ! 00001111は10進数で15(=2^0+2^1+2^+2^3)であるので
+    ! ras1_bit = 15
+
+    ! <一般のspinor数nのとき>
+    ! 4spinorのときの例からras1_bitは等比数列の和となるので
+    ! 等比数列の和の公式 a(1-r^n)/(1-r) (ここでa:初項,n:項数,r:公比)より
+    ! 一般のspinor数n(ただしnは自然数)についてras1_bitは
+    ! ras1_bit = 1*(1-2^n)/(1-2) = 2^n - 1 となる
+    ! 実際に4spinorのときを確かめると
+    ! ras1_bit = 2^4 - 1 = 16 - 1 = 15 となり上の4spinorの例と一致する
+
+    ras1_bit = 2**2 -1 ! RAS1のビット表現
+    allow_det_num = 0
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter casdet_ty'
     end if
@@ -23,12 +41,16 @@ SUBROUTINE casdet_ty
     !    67108864* 8 / (1024^2) = 500MB, 26 spinor
     Do i = 1, 2**nact - 1
         if (POPCNT(i) == nelec) then
+            is_det_allow = ras1_det_check(i,1)
+            if(.not. is_det_allow) cycle
+            allow_det_num = allow_det_num + 1
             if (trim(ptgrp) == 'C1') then
                 ndet = ndet + 1
                 idet0(ndet) = i
                 idetr(i) = ndet
             else
                 Call detsym_ty(i, isym)
+                if ( rank == 0) print '(a,L,a,i4,a,b)','noda is_det_allow', is_det_allow,",i:",i,"bit(i)",i
                 if (isym == totsym) then
                     ndet = ndet + 1
                     idet0(ndet) = i
@@ -41,6 +63,7 @@ SUBROUTINE casdet_ty
     Allocate (idet(ndet))
     idet(1:ndet) = idet0(1:ndet)
     if (rank == 0) then ! Process limits for output
+        write (*, *) 'allow  = ', allow_det_num
         write (*, *) 'totsym = ', totsym
         write (*, *) 'ndet   = ', ndet
     end if
