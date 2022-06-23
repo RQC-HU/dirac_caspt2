@@ -62,6 +62,8 @@ contains
         use four_caspt2_module
         implicit none
         character(*), intent(inout) :: string
+        character(100) :: input
+        logical :: is_comment
         logical, intent(inout) :: is_filled(:)
         call lowercase(string)
         select case (trim(string))
@@ -103,10 +105,24 @@ contains
             is_filled(9) = .true.
 
         case ("eshift")
-            read (5, *) eshift
+            eshiftloop: do
+                read (5, '(A)') input
+                call is_comment_line(input, is_comment)
+                if (.not. is_comment) then
+                    read (5, *) eshift
+                    exit eshiftloop
+                end if
+            end do eshiftloop
 
         case ("ptgrp")
-            read (5, '(A)') ptgrp
+            ptgrploop: do
+                read (5, '(A)') input
+                call is_comment_line(input, is_comment)
+                if (.not. is_comment) then
+                    ptgrp = trim(input)
+                    exit ptgrploop
+                end if
+            end do ptgrploop
             is_filled(10) = .true.
 
         case ("diracver")
