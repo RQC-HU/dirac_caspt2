@@ -81,8 +81,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
-        print *, "RAS1 = ", ras1_list
-        print *, "RAS3 = ", ras3_list
+        if (size(ras1_list, 1) > 0) print *, "RAS1 =", ras1_list
+        if (size(ras2_list, 1) > 0) print *, "RAS2 =", ras2_list
+        if (size(ras3_list, 1) > 0) print *, "RAS3 =", ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     filename = 'MRCONEE'
