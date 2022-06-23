@@ -15,6 +15,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 #endif
     integer                 :: i0, nuniq
     integer                 ::  inisym, endsym
+    real(16)                :: time0, time1
 
 !        integer                 ::  val(8), initdate, date0, date1
 !        real*8                  :: totalsec, inittime, tsec0, tsec1, tsec
