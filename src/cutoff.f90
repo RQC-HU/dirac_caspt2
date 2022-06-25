@@ -74,7 +74,7 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, uc, wnew)
 
     j0 = 0
     do i0 = 1, dimn
-        if (ABS(w(i0)) >= thres) then
+        if (w(i0) >= thres) then
             j0 = j0 + 1
             uc(:, j0) = sc(:, i0)
             wnew(j0) = w(i0)

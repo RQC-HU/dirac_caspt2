@@ -230,7 +230,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
 
         j0 = 0
         do i0 = 1, dimn
-            if (ABS(w(i0)) >= thresd) then
+            if (w(i0) >= thresd) then
                 j0 = j0 + 1
             end if
         end do
