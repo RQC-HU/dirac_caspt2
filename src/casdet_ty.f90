@@ -32,6 +32,7 @@ SUBROUTINE casdet_ty
     allow_det_num = 0
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter casdet_ty'
+        print *, "ras1 is configured?",is_ras1_configured
     end if
     Allocate (idet0(ndet))
     Allocate (idetr(2**nact - 1)); call memplus(kind(idetr), size(idetr), 1)
