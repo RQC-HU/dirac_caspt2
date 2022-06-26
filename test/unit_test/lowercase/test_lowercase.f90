@@ -11,7 +11,7 @@ program main
     close (5)
     call lowercase(string)
     print *, "open"
-    open (2, file='output', form="formatted")
+    open (2, file='result', form="formatted")
     print *, 'before write'
     write (2, *) string
     print *, 'end write'
