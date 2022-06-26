@@ -1,24 +1,20 @@
 cmake_minimum_required(VERSION 3.7)
 
-message(STATUS "CMAKE_SOURCE_DIR        =${CMAKE_SOURCE_DIR}")
-message(STATUS "CMAKE_BINARY_DIR        =${CMAKE_BINARY_DIR}")
-message(STATUS "CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(sort_test_int
+add_executable(test_sort_int_exe
     ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
-    sort_test_int.f90
+    test_sort_int.f90
 )
-add_executable(sort_test_int_reverse
+add_executable(test_sort_int_reverse_exe
     ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
-    sort_test_int_reverse.f90
+    test_sort_int_reverse.f90
 )
-add_executable(sort_test_real
+add_executable(test_sort_real_exe
     ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
-    sort_test_real.f90
+    test_sort_real.f90
 )
-add_executable(sort_test_real_reverse
+add_executable(test_sort_real_reverse_exe
     ${CMAKE_SOURCE_DIR}/src/module_sort_swap.f90
-    sort_test_real_reverse.f90
+    test_sort_real_reverse.f90
 )
