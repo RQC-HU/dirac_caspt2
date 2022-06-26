@@ -5,13 +5,12 @@ SUBROUTINE casdet_ty
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
-    use ras_det_check, only: ras1_det_check
+    use ras_det_check
     Implicit NONE
 
-    integer :: nbitsa
     integer :: i, isym
     integer, allocatable  :: idet0(:)
-    integer :: upper_allowed_hole, ras1_bit, allow_det_num
+    integer :: upper_allowed_hole, allow_det_num
     logical :: is_det_allow
     upper_allowed_hole = 1 ! RAS1の許容されるホール数
 
@@ -32,7 +31,6 @@ SUBROUTINE casdet_ty
     allow_det_num = 0
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter casdet_ty'
-        print *, "ras1 is configured?",is_ras1_configured
     end if
     Allocate (idet0(ndet))
     Allocate (idetr(2**nact - 1)); call memplus(kind(idetr), size(idetr), 1)
@@ -42,12 +40,17 @@ SUBROUTINE casdet_ty
     !    67108864* 8 / (1024^2) = 500MB, 26 spinor
     Do i = 1, 2**nact - 1
         if (POPCNT(i) == nelec) then
+            is_det_allow = .true.
             if (is_ras1_configured) then
                 is_det_allow = ras1_det_check(i, 1)
-            else
-                is_det_allow = .true.
+                if (.not. is_det_allow) cycle
             end if
-            if (.not. is_det_allow) cycle
+
+            if (is_ras3_configured) then
+                is_det_allow = ras3_det_check(i, 4)
+                if (.not. is_det_allow) cycle
+            end if
+
             allow_det_num = allow_det_num + 1
             if (trim(ptgrp) == 'C1') then
                 ndet = ndet + 1
