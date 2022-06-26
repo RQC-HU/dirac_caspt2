@@ -1,10 +1,10 @@
 import glob
+import shutil
 import subprocess
 import os
-import shutil
 
 
-def test_lowercase():
+def test_ras_input_reader():
 
     # Current path
     test_path = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +16,7 @@ def test_lowercase():
     ref_filename = "expected"
     result_filename = "result"
     move_filename = "result.prev"
-    exe_filename = "test_lowercase_exe"
+    exe_filename = "test_ras_input_reader_exe"
 
     # Absolute path to input/output/executable files
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
@@ -30,19 +30,21 @@ def test_lowercase():
     # Get values from reference
     with open(ref_file_path) as file_ref:
         string_ref = file_ref.read()
-        string_ref = string_ref.strip()
+        string_ref = string_ref.split()
+    ref_int_list = list(map(int, string_ref))
 
     # Get values from result
     with open(result_file_path) as file_result:
         string_result = file_result.read()
-        string_result = string_result.strip()
+        string_result = string_result.split()
+    result_int_list = list(map(int, string_result))
 
     # Move result files to move_file_path
     shutil.move(result_file_path, move_file_path)
 
     # Evaluate the difference between references and results
-    assert string_ref == string_result
+    assert ref_int_list == result_int_list
 
 
 if __name__ == "__main__":
-    test_lowercase()
+    test_ras_input_reader()
