@@ -18,12 +18,12 @@ program main
 !     read (1, '(a)') chr
 !     print *, chr
 !     close (1)
-    open (5, file='file2', form='formatted')
+    open (5, file='input', form='formatted')
     call ras_read(ras3_list, 3)
     print *, "end"
     close (5)
     print *, "open"
-    open (2, file='file', form="formatted")
+    open (2, file='result', form="formatted")
     print *, 'before write'
     write (2, *) ras3_list
     print *, 'end write'
