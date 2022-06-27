@@ -148,6 +148,9 @@ contains
                 stop ! ERROR, STOP THE PROGRAM
             end if
 
+        case ("minholeras1")
+            call read_an_integer(0, 10**9, min_hole_ras1)
+
         case ("end")
             is_end = .true.
 
@@ -646,11 +649,33 @@ contains
     end subroutine is_comment_line
 
     subroutine check_ras_is_valid
-        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size, &
-                                      is_ras1_configured, is_ras2_configured, is_ras3_configured
+        use four_caspt2_module
         implicit none
         integer :: idx
         logical :: electron_filled(ninact + nact + nsec)
+        print *, "NODA MINHOLERAS1", min_hole_ras1
+        if (min_hole_ras1 > ras1_size) then
+            ! ERROR: The number of minimum hole of ras1 is larger than the number of ras1, It is unavailable.
+            if (rank == 0) then
+                print *, "ERROR: The number of minholeras1 is larger than the number of ras1."
+                print *, "The number of ras1:", ras1_size
+                print *, "The number of minholeras1:", min_hole_ras1
+                print *, "The number of minholeras1 you specified is impossible."
+                print *, "Exit the program."
+                stop ! Error in input. Stop the Program
+            end if
+        end if
+        if (ras3_max_elec > ras3_size) then
+            ! ERROR: The number of max electron of ras3 is larger than the number of ras3, It is unavailable.
+            if (rank == 0) then
+                print *, "ERROR: The max number of allowed electron in ras3 is larger than the number of ras3."
+                print *, "The number of ras3:", ras3_size
+                print *, "The max number of allowed electron in ras3:", ras3_max_elec
+                print *, "The max number of allowed electron in ras3 you specified is impossible."
+                print *, "Exit the program."
+                stop ! Error in input. Stop the Program
+            end if
+        end if
         electron_filled(:) = .false.
         if (is_ras1_configured) then
             do idx = 1, ras1_size ! ras1_size is the size of the list.
