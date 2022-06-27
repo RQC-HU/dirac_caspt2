@@ -255,10 +255,12 @@ diracver
 21
 ras1
 1..4,9,10
+1
 ras2
 5 6
 ras3
 20..30
+3
 end
 ```
 
@@ -267,22 +269,23 @@ end
 ```in
 Input for CASCI and CASPT2
 
-ninact     : the number of inactive spinors (required)
-nact       : the number of active spinors (required)
-nsec       : the number of secondary spinors = nbas-ncore-nact-ninact  (required)
-nelec      : the number of active electrons in active space (required)
-nroot      : the number of roots (required)
-selectroot : which root do you want to obtain (required)
-totsym     : total symmetry ex. 5 for Ag in C2h closed shell (required)
-ncore      : the number of core orbital (required)
-nbas       : the number of basis set (required)
-eshift     : for real shift (if you don't write, it will be 0)
-ptgrp      : point group symmtery (required)
-diracver   : DIRAC version (required)
-ras1       : RAS1 spinor list
-ras2       : RAS2 spinor list
-ras3       : RAS3 spinor list
-end        : the identifyer of active.inp (required)
+ninact      : the number of inactive spinors (required)
+nact        : the number of active spinors (required)
+nsec        : the number of secondary spinors = nbas-ncore-nact-ninact  (required)
+nelec       : the number of active electrons in active space (required)
+nroot       : the number of roots (required)
+selectroot  : which root do you want to obtain (required)
+totsym      : total symmetry ex. 5 for Ag in C2h closed shell (required)
+ncore       : the number of core orbital (required)
+nbas        : the number of basis set (required)
+eshift      : for real shift (if you don't write, it will be 0)
+ptgrp       : point group symmtery (required)
+diracver    : DIRAC version (required)
+ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
+ras2        : RAS2 spinor list
+ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
+minholeras1 : The minimum number of hole in ras1 (If you don't write, it will be 0)
+end         : the identifyer of active.inp (required)
 ```
 
 ### active.inpの仕様
