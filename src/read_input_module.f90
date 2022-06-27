@@ -195,7 +195,6 @@ contains
         allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
         call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
-        if (rank == 0) print *, "ras"//ras_chr//"_list", ras_list
         goto 100 ! Read the numbers properly
 10      if (rank == 0) print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
         stop
@@ -653,7 +652,7 @@ contains
         implicit none
         integer :: idx
         logical :: electron_filled(ninact + nact + nsec)
-        print *, "NODA MINHOLERAS1", min_hole_ras1
+
         if (min_hole_ras1 > ras1_size) then
             ! ERROR: The number of minimum hole of ras1 is larger than the number of ras1, It is unavailable.
             if (rank == 0) then
