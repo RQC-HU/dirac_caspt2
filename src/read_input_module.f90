@@ -125,20 +125,20 @@ contains
 
         case ("ras1")
             call ras_read(ras1_list, 1)
-            call read_an_integer(0, size(ras1_list, 1), ras1_max_hole)
-            ras1_num = size(ras1_list, 1)
+            ras1_size = size(ras1_list, 1)
+            call read_an_integer(0, ras1_size, ras1_max_hole)
             is_ras1_configured = .true.
 
         case ("ras2")
             call ras_read(ras2_list, 2)
             is_ras2_configured = .true.
-            ras2_num = size(ras2_list, 1)
+            ras2_size = size(ras2_list, 1)
 
         case ("ras3")
             call ras_read(ras3_list, 3)
-            call read_an_integer(0, size(ras3_list, 1), ras3_max_elec)
+            ras3_size = size(ras3_list, 1)
+            call read_an_integer(0, ras3_size, ras3_max_elec)
             is_ras3_configured = .true.
-            ras3_num = size(ras3_list, 1)
 
         case ("calctype")
             call read_a_string(calctype)
@@ -189,7 +189,7 @@ contains
             if (rank == 0) print *, "string:", string
             goto 10 ! Input Error. Stop program
         end if
-        allocate (ras_list(idx_filled)); Call memplus(KIND(ras_list), SIZE(ras_list), 1)
+        allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
         call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
         if (rank == 0) print *, "ras"//ras_chr//"_list", ras_list
@@ -646,14 +646,14 @@ contains
     end subroutine is_comment_line
 
     subroutine check_ras_is_valid
-        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, &
+        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size, &
                                       is_ras1_configured, is_ras2_configured, is_ras3_configured
         implicit none
         integer :: idx
         logical :: electron_filled(ninact + nact + nsec)
         electron_filled(:) = .false.
         if (is_ras1_configured) then
-            do idx = 1, size(ras1_list, 1) ! size(ras1_list,1) is the size of the list.
+            do idx = 1, ras1_size ! ras1_size is the size of the list.
                 if (electron_filled(ras1_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
                     if (rank == 0) print *, "ERROR: The number of selected more than once is", ras1_list(idx)
@@ -663,7 +663,7 @@ contains
             end do
         end if
         if (is_ras2_configured) then
-            do idx = 1, size(ras2_list, 1) ! size(ras2_list,1) is the size of the list.
+            do idx = 1, ras2_size ! ras2_size is the size of the list.
                 if (electron_filled(ras2_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
                     if (rank == 0) print *, "ERROR: The number of selected more than once is", ras2_list(idx)
@@ -673,7 +673,7 @@ contains
             end do
         end if
         if (is_ras3_configured) then
-            do idx = 1, size(ras3_list, 1) ! size(ras3_list,1) is the size of the list.
+            do idx = 1, ras3_size ! ras3_size is the size of the list.
                 if (electron_filled(ras3_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
                     if (rank == 0) print *, "ERROR: The number of selected more than once is", ras3_list(idx)

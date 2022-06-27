@@ -7,29 +7,30 @@ contains
     function ras1_det_check(i, upper_allowed_hole) result(is_det_allowed)
         ! function ras1_det_check(i,upper_allowed_hole) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
+        use four_caspt2_module, only: ras1_size
         integer, intent(in) :: i, upper_allowed_hole
         integer :: num_of_electron, ras1_bit
         logical :: is_det_allowed
-        ras1_bit = 2**size(ras1_list, 1) - 1
+        ras1_bit = 2**ras1_size - 1
         call conunt_num_of_elec(i, ras1_bit, num_of_electron)
         is_det_allowed = 2 - upper_allowed_hole <= num_of_electron .and. num_of_electron <= 1
     end function ras1_det_check
     function ras3_det_check(i, upper_allowed_electron) result(is_det_allowed)
         ! function ras3_det_check(i,upper_allowed_electron) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
-        use four_caspt2_module, only: is_ras1_configured, is_ras2_configured
+        use four_caspt2_module, only: is_ras1_configured, is_ras2_configured, ras1_size, ras2_size
         integer, intent(in) :: i, upper_allowed_electron
         integer :: num_of_electron, ras3_bit, width_of_shift
         logical :: is_det_allowed
         ras3_bit = i
         width_of_shift = 0
         if (is_ras1_configured) then
-            ras3_bit = ishft(ras3_bit, -size(ras1_list, 1))
-            width_of_shift = width_of_shift + size(ras1_list, 1)
+            ras3_bit = ishft(ras3_bit, -ras1_size)
+            width_of_shift = width_of_shift + ras1_size
         end if
         if (is_ras2_configured) then
-            ras3_bit = ishft(ras3_bit, -size(ras2_list, 1))
-            width_of_shift = width_of_shift + size(ras2_list, 1)
+            ras3_bit = ishft(ras3_bit, -ras2_size)
+            width_of_shift = width_of_shift + ras2_size
         end if
         ras3_bit = ishft(ras3_bit, width_of_shift)
         call conunt_num_of_elec(i, ras3_bit, num_of_electron)

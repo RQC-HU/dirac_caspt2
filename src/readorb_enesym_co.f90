@@ -534,13 +534,12 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     deallocate (sort_orb)
 contains
     subroutine sort_list_energy_order_to_ras_order(want_to_sort, original_orb_energy_order)
-        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, nelec
+        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
         implicit none
         real(8), intent(in) :: original_orb_energy_order(:)
         real(8), intent(inout) :: want_to_sort(:)
         integer :: current_spinor_idx, current_idx, idx
-        integer :: ras1_current_idx, ras2_current_idx, ras3_current_idx, ras1_size, ras2_size, ras3_size
-        ras1_size = size(ras1_list, 1); ras2_size = size(ras2_list, 1); ras3_size = size(ras3_list, 1) ! The size of ras list
+        integer :: ras1_current_idx, ras2_current_idx, ras3_current_idx
         if (rank == 0) print *, 'sizeofras', ras1_size, ras2_size, ras3_size
         if (ras1_size == 0 .and. ras2_size == 0 .and. ras3_size == 0) return ! Do nothing because ras is not configured
         current_spinor_idx = 1; current_idx = 1; ras1_current_idx = 1; ras2_current_idx = 1; ras3_current_idx = 1 ! Initialization
