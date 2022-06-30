@@ -110,7 +110,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     filename = 'MDCINTNEW'
 
     ! Get MDCINTNEWX's filename and subspace filename
-    call get_mdcint_filename
+    call get_mdcint_filename(0)
     call get_subspace_filename
 
     Call readint2_ord_co(mdcintnew)

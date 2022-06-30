@@ -34,11 +34,11 @@ def test_h2():
     ]
 
     # Delete scratch files
-    # for d in delete_files:
-    #     files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
-    #     print("files", files) # Debug output
-    #     for f in files:
-    #         os.remove(f)
+    for d in delete_files:
+        files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
+        print("files", files) # Debug output
+        for f in files:
+            os.remove(f)
 
     # Check output
     with open(ref_file_path, encoding="utf-8", mode="r") as f:
