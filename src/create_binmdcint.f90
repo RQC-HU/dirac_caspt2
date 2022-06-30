@@ -20,7 +20,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     ! Iwamuro modify
     real    :: cutoff
     integer :: nnkr, iiit, jjjt, kkkt, lllt
-    integer :: nkr, nz
+    integer :: nkr, nz, file_idx
     logical :: is_file_exist
 
     Call timing(date1, tsec1, date0, tsec0)
@@ -78,48 +78,50 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     cutoff = 0.25D-12
     nnz = 1
 
-    if (rank == 0) then ! Process limits for output
-        write (*, '(3a,i20)') "end set ", mdcintNew, "valiables. rank=", rank
-    end if
-    inquire (file=mdcint_filename, exist=is_file_exist)
-    if (is_file_exist) then
-        open (100, file=mdcint_filename, form='unformatted', status='unknown')
-        read (100)
+    ! Initialization
+    file_idx = 0
+    is_file_exist = .true.
+    do while (is_file_exist)
+        call get_mdcint_filename(file_idx)
 
-        read (100, ERR=200) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
-        goto 201
+        inquire (file=mdcint_filename, exist=is_file_exist)
+        if (is_file_exist) then
+            open (100, file=mdcint_filename, form='unformatted', status='unknown')
+            read (100)
 
-200     realonly = .true.
-        if (rank == 0) then ! Process limits for output
-            write (*, *) "realonly = ", realonly, rank
+            read (100, ERR=200) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
+            goto 201
+
+200         realonly = .true.
+            if (rank == 0) then ! Process limits for output
+                write (*, *) "realonly = ", realonly, rank
+            end if
+201         close (100)
+
+            open (100, file=mdcint_filename, form='unformatted', status='unknown')
+            read (100)
         end if
-201     close (100)
-
-        open (100, file=mdcint_filename, form='unformatted', status='unknown')
-        read (100)
-    end if
-    open (200, file=mdcintNew, form='unformatted', status='replace')
-    ! write (*, *) "before read day,time,kr."
-    ! write (*, *) "end read day,time,kr."
-
-    write (200) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-    if (is_file_exist) then
-        nnkr = nkr
-        rkli = 0.0d+00
+        if (file_idx == 0) then
+            open (200, file=mdcintNew, form='unformatted', status='replace')
+            write (200) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+        end if
+        if (is_file_exist) then
+            nnkr = nkr
+            rkli = 0.0d+00
 
 !Iwamuro debug
-        ! write(*,*) "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
-        ! write(*,*) Filename
+            ! write(*,*) "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
+            ! write(*,*) Filename
 
-100     if (realonly) then
-            read (100, end=1000) ikr, jkr, nz, &
-                (indk(inz), indl(inz), inz=1, nz), &
-                (rklr(inz), inz=1, nz)
-        else
-            read (100, end=1000) ikr, jkr, nz, &
-                (indk(inz), indl(inz), inz=1, nz), &
-                (rklr(inz), rkli(inz), inz=1, nz)
-        end if
+100         if (realonly) then
+                read (100, end=1000) ikr, jkr, nz, &
+                    (indk(inz), indl(inz), inz=1, nz), &
+                    (rklr(inz), inz=1, nz)
+            else
+                read (100, end=1000) ikr, jkr, nz, &
+                    (indk(inz), indl(inz), inz=1, nz), &
+                    (rklr(inz), rkli(inz), inz=1, nz)
+            end if
 
 !------------------------------!
 !   Create new ikr for UTChem  !
@@ -132,130 +134,130 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 !        Do inz = 1,nz
 
-        if (ikr < 0) then
-            if (rank == 0) then ! Process limits for output
-                write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
-            end if
+            if (ikr < 0) then
+                if (rank == 0) then ! Process limits for output
+                    write (*, *) "ikr<0. rank=", rank, "ikr=", ikr
+                end if
 !        go to 100
-        end if
-        if (ikr == 0) then
-            if (rank == 0) then ! Process limits for output
-                write (*, *) ikr, jkr, nz, mdcint_debug
             end if
-            write (200) 0, 0, 0
-            ! write(29,'(3I4)') 0, 0, 0
-            ! write(30,'(3I4)') 0, 0, 0
-            go to 1000
-        end if
+            if (ikr == 0) then
+                if (rank == 0) then ! Process limits for output
+                    write (*, *) ikr, jkr, nz, mdcint_debug
+                end if
+                ! write (200) 0, 0, 0
+                ! write(29,'(3I4)') 0, 0, 0
+                ! write(30,'(3I4)') 0, 0, 0
+                go to 1000
+            end if
 
-        n = 1
-10      select case (n)
-        case (1)
-            ikr = ikr
-            jkr = jkr
-            indk(:) = indk(:)
-            indl(:) = indl(:)
-            rklr(:) = rklr(:)
-            rkli(:) = rkli(:)
-        case (2)
-            ikr = -ikr
-            jkr = -jkr
-            indk(:) = -indk(:)
-            indl(:) = -indl(:)
-            rklr(:) = -rklr(:)*sign(1, ikr*jkr*indk(:)*indl(:))
-            rkli(:) = rkli(:)*sign(1, ikr*jkr*indk(:)*indl(:))
-        end select
-        !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
-        Do inz = 1, nz
-            ! write (*, *) "Immediately after the declaration of do. rank=", rank
-            ! write (300, "(5I20,E32.16)") ikr, jkr, nz, indk(inz), indl(inz), rklr(inz)
-            ! Debug output (if write(*,*))
-            ! if (inz == 1) then
-            ! write(*,*)"new_ikr2"
-            ! write(*,*)"Filename:", Filename
-            ! write(*,*)"inz:", inz
-            ! end if
+            n = 1
+10          select case (n)
+            case (1)
+                ikr = ikr
+                jkr = jkr
+                indk(:) = indk(:)
+                indl(:) = indl(:)
+                rklr(:) = rklr(:)
+                rkli(:) = rkli(:)
+            case (2)
+                ikr = -ikr
+                jkr = -jkr
+                indk(:) = -indk(:)
+                indl(:) = -indl(:)
+                rklr(:) = -rklr(:)*sign(1, ikr*jkr*indk(:)*indl(:))
+                rkli(:) = rkli(:)*sign(1, ikr*jkr*indk(:)*indl(:))
+            end select
+            !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
+            Do inz = 1, nz
+                ! write (*, *) "Immediately after the declaration of do. rank=", rank
+                ! write (300, "(5I20,E32.16)") ikr, jkr, nz, indk(inz), indl(inz), rklr(inz)
+                ! Debug output (if write(*,*))
+                ! if (inz == 1) then
+                ! write(*,*)"new_ikr2"
+                ! write(*,*)"Filename:", Filename
+                ! write(*,*)"inz:", inz
+                ! end if
 
-            iii = indmor(kr(ikr))
-            jjj = indmor(kr(jkr))
-            kkk = indmor(kr(indk(inz)))
-            lll = indmor(kr(indl(inz)))
+                iii = indmor(kr(ikr))
+                jjj = indmor(kr(jkr))
+                kkk = indmor(kr(indk(inz)))
+                lll = indmor(kr(indl(inz)))
 
-            iikr = (-1)**(mod(iii, 2) + 1)*(iii/2 + mod(iii, 2))
-            jjkr = (-1)**(mod(jjj, 2) + 1)*(jjj/2 + mod(jjj, 2))
-            kkkr = (-1)**(mod(kkk, 2) + 1)*(kkk/2 + mod(kkk, 2))
-            llkr = (-1)**(mod(lll, 2) + 1)*(lll/2 + mod(lll, 2))
+                iikr = (-1)**(mod(iii, 2) + 1)*(iii/2 + mod(iii, 2))
+                jjkr = (-1)**(mod(jjj, 2) + 1)*(jjj/2 + mod(jjj, 2))
+                kkkr = (-1)**(mod(kkk, 2) + 1)*(kkk/2 + mod(kkk, 2))
+                llkr = (-1)**(mod(lll, 2) + 1)*(lll/2 + mod(lll, 2))
 
-            iiit = iii - (-1)**iii
-            jjjt = jjj - (-1)**jjj
-            kkkt = kkk - (-1)**kkk
-            lllt = lll - (-1)**lll
+                iiit = iii - (-1)**iii
+                jjjt = jjj - (-1)**jjj
+                kkkt = kkk - (-1)**kkk
+                lllt = lll - (-1)**lll
 
 ! Iwamuro debug
-            ! if (inz == 1) then
-            !     ! write(*,*) "new_ikr2", iikr, jjkr, kkkr, llkr
-            ! end if
+                ! if (inz == 1) then
+                !     ! write(*,*) "new_ikr2", iikr, jjkr, kkkr, llkr
+                ! end if
 ! Debug output end (if write(*,*))
 
 !------------------------------------------------------------
 
-            ii = abs(iikr)
-            jj = abs(jjkr)
-            kk = abs(kkkr)
-            ll = abs(llkr)
+                ii = abs(iikr)
+                jj = abs(jjkr)
+                kk = abs(kkkr)
+                ll = abs(llkr)
 
-            !---------------------------
-            ! TYPE1 (++++) = (ij|kl)
-            ! TYPE2 (+-+-) = (ij~|kl~)
-            ! TYPE3 (+--+) = (ij~|k~l)
-            ! TYPE4 (+---) = (ij~|k~l~)
-            !---------------------------
+                !---------------------------
+                ! TYPE1 (++++) = (ij|kl)
+                ! TYPE2 (+-+-) = (ij~|kl~)
+                ! TYPE3 (+--+) = (ij~|k~l)
+                ! TYPE4 (+---) = (ij~|k~l~)
+                !---------------------------
 
-            If (iikr > 0 .and. jjkr > 0 .and. kkkr > 0 .and. llkr > 0) then  !TYPE1
-                if ((ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) .or. &
-                    (ii <= jj .and. ll <= kk .and. (ii < ll .or. (ii == ll .and. jj <= kk)))) then
-                    if (abs(rklr(inz)) > cutoff .or. &
-                        abs(rkli(inz)) > cutoff) then
-                        write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                If (iikr > 0 .and. jjkr > 0 .and. kkkr > 0 .and. llkr > 0) then  !TYPE1
+                    if ((ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) .or. &
+                        (ii <= jj .and. ll <= kk .and. (ii < ll .or. (ii == ll .and. jj <= kk)))) then
+                        if (abs(rklr(inz)) > cutoff .or. &
+                            abs(rkli(inz)) > cutoff) then
+                            write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                        end if
                     end if
-                end if
 
-            Else if (iikr > 0 .and. jjkr < 0 .and. kkkr > 0 .and. llkr < 0) then  !TYPE2
-                if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
-                    if (abs(rklr(inz)) > cutoff .or. &
-                        abs(rkli(inz)) > cutoff) then
-                        write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                Else if (iikr > 0 .and. jjkr < 0 .and. kkkr > 0 .and. llkr < 0) then  !TYPE2
+                    if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
+                        if (abs(rklr(inz)) > cutoff .or. &
+                            abs(rkli(inz)) > cutoff) then
+                            write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                        end if
                     end if
-                end if
 
-            Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr > 0) then  !TYPE3
-                if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
-                    if (abs(rklr(inz)) > cutoff .or. &
-                        abs(rkli(inz)) > cutoff) then
-                        write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr > 0) then  !TYPE3
+                    if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
+                        if (abs(rklr(inz)) > cutoff .or. &
+                            abs(rkli(inz)) > cutoff) then
+                            write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                        end if
                     end if
-                end if
 
-            Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr < 0) then  !TYPE4
-                if (ii <= jj) then
-                    if (abs(rklr(inz)) > cutoff .or. &
-                        abs(rkli(inz)) > cutoff) then
-                        write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr < 0) then  !TYPE4
+                    if (ii <= jj) then
+                        if (abs(rklr(inz)) > cutoff .or. &
+                            abs(rkli(inz)) > cutoff) then
+                            write (200) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                        end if
                     end if
-                end if
-                ! else
-                ! write (200) - iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
-                ! write (300, '(a6,5I4,2E32.16)') 'else', -iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
-            End if
-            ! write(*, *) "before end , inz :", inz
-        End do
+                    ! else
+                    ! write (200) - iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
+                    ! write (300, '(a6,5I4,2E32.16)') 'else', -iikr, -jjkr, nnz, -kkkr, -llkr, rklr(inz), -(rkli(inz))
+                End if
+                ! write(*, *) "before end , inz :", inz
+            End do
 
-        If (n == 1) then
-            n = 2
-            go to 10
-        else
-            go to 100
-        end if
+            If (n == 1) then
+                n = 2
+                go to 10
+            else
+                go to 100
+            end if
 
 !--------------------------------- UTChem integral translation------------------------------------
 !TYPE1       If( ((p10<=p20.and.p30<=p40.and.(p10<p30.or.(p10==p30.and.p20<=p40))) .or. &
@@ -269,8 +271,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !              .or. (isp/=isq) ) then
 !-------------------------------------------------------------------------------------------------
 
-1000    close (100)
-    end if
+1000        close (100)
+            file_idx = file_idx + 1
+        end if
+    end do
+    write (200) 0, 0, 0
     close (200)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)

@@ -93,7 +93,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    call get_mdcint_filename
 
     !Iwamuro create new ikr for dirac
     Call create_newmdcint
