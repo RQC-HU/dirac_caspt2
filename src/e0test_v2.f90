@@ -211,19 +211,10 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         energyHF(1) = 0.0d+00
         ii = 0
         do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            ! do i = 1, ninact + nelec
             cmplxint = 0.0d+00
-                !! Adding one-electron integral to the fock matrics is executed only by the master process
-                !! because DIRAC's one-electron integral file (MRCONEE) is not
-                !! devided even if DIRAC is executed in parallel (MPI).
-            !    if (rank == 0) then
             cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
-            !    end if
-!            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
             energyHF(1) = energyHF(1) + cmplxint
         end do
-
-!         write(*,*)'energyHF(1)',energyHF(1)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF2          !
@@ -237,7 +228,6 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         energyHF(2) = 0.0d+00
 
         do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            ! do i = 1, ninact + nelec
             do j = i, ninact + nelec
 
                 cmplxint = 0.0d+00
@@ -245,14 +235,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 i2i = 0.0d+00
                 nsign = 0.0d+00
 
-                !    nint = ABS(indtwr(i, i, j, j))
-
-                !    nsign = SIGN(1, indtwr(i, i, j, j))
-                !    i2r = int2r(nint)*nsign
                 i2r = inttwr(i, i, j, j)
-
-                !    nsign = SIGN(1, indtwi(i, i, j, j))
-                !    i2i = int2i(nint)*nsign
                 i2i = inttwi(i, i, j, j)
 
                 cmplxint = CMPLX(i2r, i2i, 16)
@@ -264,16 +247,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 nsign = 0.0d+00
                 nint = 0
 
-                !    nint = ABS(indtwr(i, j, j, i))
-
-                !    nsign = SIGN(1, indtwr(i, j, j, i))
-                !    i2r = int2r(nint)*nsign
                 i2r = inttwr(i, j, j, i)
-
-                !    nsign = 0.0d+00
-
-                !    nsign = SIGN(1, indtwi(i, j, j, i))
-                !    i2i = int2i(nint)*nsign
                 i2i = inttwi(i, j, j, i)
 
                 cmplxint = CMPLX(i2r, i2i, 16)
@@ -284,7 +258,6 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
         energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 
-!         write(*,*)'energyHF(2)',energyHF(2)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
@@ -296,10 +269,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
         do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            ! do i = 1, ninact
-            !    if (rank == 0) then
             cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
-            !    end if
             energy(iroot, 1) = energy(iroot, 1) + cmplxint
         end do
 
