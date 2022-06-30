@@ -19,8 +19,7 @@ SUBROUTINE uramda_s_half(ur, wnew, dimn, dimm)
     real*8, intent(in)     :: wnew(dimm)
 
     real*8              :: ramdah(dimm, dimm)                  ! ramdaS^(-1/2)  dimm*dimm matrix
-    integer             :: j0, j, i, i0, i1
-    integer             :: k0, l0, ii, jj, kk, ll
+    integer             :: i0
 
     ramdah(:, :) = 0.0d+00
 
@@ -29,15 +28,6 @@ SUBROUTINE uramda_s_half(ur, wnew, dimn, dimm)
     end do
 
     ur = MATMUL(ur, ramdah) ! ur: N*M ramdah: M*M  then (ur)(randah) : N*M
-
-!        write(*,*) 'urams'
-!        do i0 = 1, dimn
-!        do j0 = 1, dimm
-!           if (ABS(urams(i0,j0))>=0.0001) then
-!              write(*,*) urams (i0,j0)
-!           endif
-!        end do
-!        end do
 
 end subroutine uramda_s_half
 
@@ -62,8 +52,7 @@ SUBROUTINE ucramda_s_half(uc, wnew, dimn, dimm)
     real*8, intent(in)         :: wnew(dimm)
 
     real*8              :: ramdah(dimm, dimm)                  ! ramdaS^(-1/2)  dimm*dimm matrix
-    integer             :: j0, j, i, i0, i1
-    integer             :: k0, l0, ii, jj, kk, ll
+    integer             :: i0
 
     ramdah(:, :) = 0.0d+00
 
@@ -72,14 +61,5 @@ SUBROUTINE ucramda_s_half(uc, wnew, dimn, dimm)
     end do
 
     uc = MATMUL(uc, ramdah) ! ur: N*M ramdah: M*M  then (ur)(randah) : N*M
-
-!        write(*,*) 'uc'
-!        do i0 = 1, dimn
-!        do j0 = 1, dimm
-!           if (ABS(uc(i0,j0))>=0.0001) then
-!              write(*,'("uc",2E15.8,2I4)') uc(i0,j0),i0,j0
-!           endif
-!        end do
-!        end do
 
 end subroutine ucramda_s_half

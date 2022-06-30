@@ -26,7 +26,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     Call timing(date1, tsec1, date0, tsec0)
     date1 = date0
     tsec1 = tsec0
-    casci_mdcint_cnt = 0
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.

@@ -14,28 +14,18 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 #endif
     real*8, intent(in) :: e0
     real*8, intent(out):: e2e
-
-    integer :: dimn, dimm, count, dammy
-
-    integer, allocatable :: indsym(:, :)
-
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
+    integer :: dimn, dimm, dammy
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
     real*8               :: e2(2*nsymrpa), alpha, e
-
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :), vc(:), vc1(:)
-
     logical :: cutoff
-    integer :: j, i, k, syma, symb, isym, indt(1:nact)
+    integer :: j, i, syma, symb, isym, indt(1:nact)
     integer :: ia, it, ij, ii, ja, jt, jj, ji
-
     integer :: i0
     integer, allocatable     :: ia0(:), ii0(:), ij0(:), iaij(:, :, :)
-    integer                  :: naij
-
+    integer :: naij
     real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -69,7 +59,6 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 !
 !  E2 = SIGUMA_iab, dimm |V1(t,ija)|^2|/{(alpha(ija) + wb(t)}
 !
-!        thresd = thres
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -451,8 +440,6 @@ SUBROUTINE sEmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 
             sc(j, i) = DCONJG(sc(i, j))
 
-!              write(*,*)i,j,sc(i,j)
-
         End do               !j
     End do                  !i
     !$OMP end parallel do
@@ -526,8 +513,6 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
 
             bc(i, j) = bc(i, j) + sc(i, j)*eps(jt)
 
-!              write(*,*)'bc',i,j, bc(i,j)
-
             bc(j, i) = DCONJG(bc(i, j))
 
         End do               !i
@@ -582,18 +567,13 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
-!   open(1, file ='Eint', status='old', form='unformatted')  !  (31|21) stored
-    ! open (1, file=eint, status='old', form='formatted')  !  (31|21) stored
     open (1, file=eint, status='old', form='unformatted')  !  (31|21) stored
-! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
 30  read (1, err=10, end=20) i, j, k, l, cint2
 
     if (j == l) goto 30
 
     taij = iaij(i, j, l)
     ik = k - ninact
-
-!        write(*,*) i,j,k,l,taij,cint2
 
     if (j < l) then
         cint2 = -1.0d+00*cint2
@@ -643,7 +623,6 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 10  write (*, *) 'error while opening file Eint'; goto 100
 
 100 if (rank == 0) write (*, *) 'vEmat_ord_ty is ended'
-!  v(naij, ninact+1:ninact+nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), naij*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif

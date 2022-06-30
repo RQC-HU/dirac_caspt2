@@ -13,8 +13,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
     integer, intent(in)  :: occold(nelec), occnew(nelec)
     complex*16, intent(out) :: ds
 
-    integer                  :: i0, j0, i, info, job, ipvt(nelec), n
-    integer                  :: ii, jj
+    integer                  :: i0, j0, i, info, ipvt(nelec), n
     complex*16               :: sini(nelec, nelec), work(nelec), det(2), ds2
     real*8                   :: phase
 
@@ -30,7 +29,6 @@ SUBROUTINE dets(fa, occold, occnew, ds)
     det = 0.0d+00
     ds = 0.0d+00
 
-!        write(*,*)occold(1:nelec),occnew(1:nelec)
 
     Do i0 = 1, nelec
         Do j0 = 1, nelec
@@ -78,8 +76,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
     integer, intent(in)  :: occold(nelec), occnew(nelec)
     complex*16, intent(out) :: ds
 
-    integer                  :: i0, j0, i, info, job, ipvt(nelec), n
-    integer                  :: ii, jj
+    integer                  :: i0, j0, i, info, ipvt(nelec), n
     complex*16               :: sini(nelec, nelec), work(nelec), det(2), ds2
     real*8                   :: phase
 

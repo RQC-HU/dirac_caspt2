@@ -8,28 +8,15 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 
     Implicit NONE
 
-    integer :: mrconee, isp
+    integer :: mrconee, isp, nmom
     character*50, intent(in) :: filename
     integer :: j0, i0
-    ! integer :: j0, j, i, i0, i1
-    integer :: nmom
-    ! integer :: k0, l0, ii, jj, kk, ll, nmom
-
-!        real*8, allocatable :: roner(:,:,:), ronei(:,:,:)
     double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
     if (rank == 0) then
         write (*, *) 'Enter read1mo_co'
     end if
     mrconee = 10
-
-!  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
-!                     BREIT,ETOTAL,scfru
-!  Write(UT_sys_ftmp) NSYMRP,(REPN(IRP),IRP=1,NSYMRP)
-!  Write(UT_sys_ftmp) ((UT_ptgsym_table_single(IJ,II),UT_ptgsym_table_double(IJ,II),IJ=0,NSYMRP-1),II=0,NSYMRP-1)
-!  Write(UT_sys_ftmp) ((IRPMO(IMO,isp),ORBMO(IMO,isp), &
-!                       UTCHEMIMO1(IMO,isp),UTCHEMIMO2(IMO,isp),IMO=1,NMO),isp=1,scfru)
-!  Write(UT_sys_ftmp) (((ONE(JMO,IMO,isp),JMO=1,NMO),IMO=1,NMO),isp=1,scfru)
 
     realc = .true.
 
@@ -44,7 +31,8 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     read (mrconee, err=10)
     read (mrconee, err=10)
     read (mrconee, err=10) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
-! read (mrconee, err=10) (((roner(i0, j0, isp), ronei(i0, j0, isp), i0=1, nmo), j0=1, nmo), isp=1, scfru)
+
+! Reverse the sign of ronei if DIRAC version is larger or equal to 21.
 if (dirac_version >= 21) then
     ronei(:, :, :) = -ronei(:, :, :)
 end if

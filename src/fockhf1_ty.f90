@@ -12,12 +12,7 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer :: ii, jj, kk, ll
-    integer :: j, i, k, l
-    integer :: nint, n
-
-    real*8 :: i2r, i2i, dr, di, nsign
-    complex*16 :: cmplxint, dens
+    integer :: j, i, k, n
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -38,7 +33,7 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
     n = 0
     f = 0.0d+00
 
-    !$OMP parallel do private(j,k,cmplxint)
+    !$OMP parallel do private(j,k)
     do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, ninact + nact
             f(i, j) = DCMPLX(oner(i, j), onei(i, j))
@@ -47,8 +42,6 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
                 f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k), 16)
                 f(i, j) = f(i, j) - CMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j), 16)
 
-!iwamuro modify
-!                     write(*,*)f(i,j)
             End do           ! k
 
             f(j, i) = DCONJG(f(i, j))
@@ -64,8 +57,6 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
                 f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
                 f(i, j) = f(i, j) - DCMPLX(int2r_f2(i, k, k, j), int2i_f2(i, k, k, j))
 
-!Iwamuro modify
-!                     write(*,*)f(i,j)
             End do           ! k
 
             f(j, i) = DCONJG(f(i, j))
@@ -83,7 +74,6 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         do i = 1, ninact + nact + nsec
             do j = i, ninact + nact + nsec
                 if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-6)) then
-!            if(i/=j)then
                     write (*, '(2I4,2E20.10)') i, j, f(i, j)
                 end if
             end do

@@ -16,21 +16,19 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
     real*8, intent(in) :: e0
     real*8, intent(out):: e2c
 
-    integer :: dimn, dimm, count, dammy
+    integer :: dimn, dimm, dammy
 
     integer, allocatable :: indsym(:, :)
 
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
-    real*8               :: e2(nsymrp), dr, di, alpha
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
+    real*8               :: e2(nsymrp), alpha
 
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :, :), vc(:), vc1(:)
 
     logical :: cutoff
-    integer :: j, i, k, syma, symb, isym, sym1, i0
+    integer :: j, i, syma, symb, isym
     integer :: ix, iy, iz, ia, dima, ixyz
     integer :: jx, jy, jz, ja, it
 
@@ -63,7 +61,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
 !
 !  E2 = SIGUMA_a, dimm |V1(dimm,a)|^2|/{(a(a) + wb(dimm)}
 
-!        thresd = thres
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -105,8 +102,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         Do ix = 1, nact
             Do iy = 1, nact
                 Do iz = 1, nact
-                    !             Do iz = 1, ix-1
-                    !                if((ix == iz).and.(iy/=iz)) goto 100
 
                     jx = ix + ninact
                     jy = iy + ninact
@@ -115,14 +110,9 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     symb = MULTB_D(irpmo(jy), irpmo(jz))
                     syma = MULTB_S(syma, symb)
 
-                    !Iwamuro modify
-                    !                write(*,*)"syma1",syma
-
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
                     End if
-                    !Iwamuro modify
-                    !                write(*,*)"ixyz1",ixyz
 
 100             End do
             End do
@@ -140,8 +130,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
             Do iy = 1, nact
                 Do iz = 1, nact
 
-                    !                if((ix == iz).and.(iy/=iz)) goto 200
-
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
@@ -149,8 +137,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     symb = MULTB_D(irpmo(jy), irpmo(jz))
                     syma = MULTB_S(syma, symb)
 
-                    !Iwamuro modify
-                    !                write(*,*)"syma2",syma
 
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
@@ -263,10 +249,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!           Do i0 = 1, dimm
-!           write(*,'(E20.10)') wsnew(i0)
-!           End do
-
         if (rank == 0) then ! Process limits for output
             write (*, *) 'OK ccutoff'
         end if
@@ -364,8 +346,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                 Allocate (vc(dimn))
                 Do it = 1, dimn
                     vc(it) = v(ja, indsym(1, it) + ninact, indsym(2, it) + ninact, indsym(3, it) + ninact)
-!                    write(*,'(4I4,2E20.10)') &
-!                    & ja,indsym(1,it)+ninact,indsym(2,it)+ninact,indsym(3,it)+ninact,vc(it)
                 End do
 
                 Allocate (vc1(dimm))
@@ -435,13 +415,9 @@ SUBROUTINE sCmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 #endif
     integer, intent(in)      :: dimn, indsym(3, dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
-
     real*8  ::a, b
-
     integer :: it, iu, iv, ix, iy, iz
-    integer :: jt, ju, jv, jx, jy, jz
     integer :: i, j
-    integer :: count
 
     sc = 0.0d+00
 
@@ -473,7 +449,7 @@ SUBROUTINE sCmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
     End do                  !i
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce (MPI_IN_PLACE, sc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
 End subroutine sCmat
@@ -599,20 +575,15 @@ SUBROUTINE vCmat_ord_ty(v)
 #endif
     complex*16, intent(out) :: v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
                 &          ninact + 1:ninact + nact, ninact + 1:ninact + nact)
-
-    real*8                  :: dr, di, signkl
-    complex*16              :: cint1, cint2, term1, d
+    real*8                  :: dr, di
+    complex*16              :: cint1, cint2, d
     complex*16              :: effh(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact)
-
-    integer :: i, j, k, l, kkr, lkr, count, dim(nsymrpa)
-    integer :: isym, sym, syma, symb, symc
-
+    integer :: i, j, k, l, dim(nsymrpa)
+    integer :: isym, syma, symb, symc
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
-    logical :: test
-    integer :: it, iu, iv, iw, ia, ip, iq, ir, ik
-    integer :: jt, ju, jv, jw, ja, jp, jq, jr, jk
+    integer :: it, iu, iv, ia, ip
+    integer :: jt, ju, jv, ja, jp
     integer :: i0
-    integer :: loopcnt
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
@@ -640,7 +611,7 @@ SUBROUTINE vCmat_ord_ty(v)
 !
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 
-    if (rank == 0) write(*,*) 'Enter vCmat. Please ignore timer under this line.'
+    if (rank == 0) write (*, *) 'Enter vCmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
@@ -677,8 +648,6 @@ SUBROUTINE vCmat_ord_ty(v)
                         indt(dim(isym), isym) = it
                         indu(dim(isym), isym) = iu
                         indv(dim(isym), isym) = iv
-                        !Iwamuro modify
-                        ! write (*, *) it, iu, iv
                     end if
 100             End do
             End do
@@ -686,12 +655,9 @@ SUBROUTINE vCmat_ord_ty(v)
     End do
     !$OMP end parallel do
     do isym = 1, nsymrpa
-        if (rank == 0) write(*,*) 'solvC: isym, dim(isym)', isym, dim(isym)
+        if (rank == 0) write (*, *) 'solvC: isym, dim(isym)', isym, dim(isym)
     end do
 
-!        Do isym = 1, nsymrpa
-!           write(*,*)dim(isym),isym
-!        Enddo
     !$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
     Do ia = rank + 1, nsec, nprocs
         ja = ia + ninact + nact
@@ -706,14 +672,9 @@ SUBROUTINE vCmat_ord_ty(v)
         End do
     End do
     !$OMP end parallel do
-!  open (1, file='C1int', status='old', form='unformatted')
-    ! open (1, file=c1int, status='old', form='formatted')
     open (1, file=c1int, status='old', form='unformatted')
 
-! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 30  read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
-
-!           write(*,'("TYPE 1  ",4I4,2E20.10)')i,j,k,l,cint2
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! + Siguma_pqr<0|EvuEtrEpq|0>(ar|pq)
@@ -730,16 +691,9 @@ SUBROUTINE vCmat_ord_ty(v)
         ju = iu + ninact
         jv = iv + ninact
 
-!                    test =.FALSE.
-!                    if(j==1.and.jt==3.and.ju==4.and.jv==8) test=.TRUE.
-
         Call dim3_density(iv, iu, it, j - ninact, k - ninact, l - ninact, dr, di)
         d = DCMPLX(dr, di)
         v(i, jt, ju, jv) = v(i, jt, ju, jv) + cint2*d
-
-!                    if(test.and.ABS(d)>1.0d-10.and.AbS(cint2)>1.0d-10) &
-!                    & write(*,'("3dim-2int2",6I4,2E20.10,4I4,2E20.10)') &
-!                    &iv, iu,  i-ninact, it, k-ninact, l-ninact, d, i,j,k,l,cint2
 
     End do
     !$OMP end parallel do
@@ -758,11 +712,8 @@ SUBROUTINE vCmat_ord_ty(v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-!  open (1, file='C2int', status='old', form='unformatted') ! TYPE 2 integrals
-    ! open (1, file=c2int, status='old', form='formatted') ! TYPE 2 integrals
     open (1, file=c2int, status='old', form='unformatted') ! TYPE 2 integrals
 
-! 300 read (1, '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2
 300 read (1, err=10, end=200) i, j, k, l, cint2
 
 !
@@ -787,11 +738,8 @@ SUBROUTINE vCmat_ord_ty(v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-!  open (1, file='C3int', status='old', form='unformatted') ! TYPE 3 integrals
-    ! open (1, file=c3int, status='old', form='formatted') ! TYPE 3 integrals
     open (1, file=c3int, status='old', form='unformatted') ! TYPE 3 integrals
 
-! 3000 read (1, '(4I4, 2e20.10)', err=10, end=2000) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
 3000 read (1, err=10, end=2000) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
 
 !
@@ -814,7 +762,6 @@ SUBROUTINE vCmat_ord_ty(v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    !    effh(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + nact + 1, ninact + 1), nsec*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
@@ -823,14 +770,11 @@ SUBROUTINE vCmat_ord_ty(v)
     !$OMP parallel do schedule(dynamic,1) private(ja,isym,jp,i0,it,iu,iv,jt,ju,jv,dr,di,d)
     Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ja = ia + ninact + nact
-!              write(*,'("effh  ",2I4,2E20.10)')ja, jp, effh(ja,jp)
-
         isym = irpmo(ja)
 
         Do ip = 1, nact
             jp = ip + ninact
 
-!              write(*,'("effh  ",2I4,2E20.10)')ja,jp,effh(ja,jp)
             if (ABS(effh(ja, jp)) < 1.0d-10) goto 70
 
             Do i0 = 1, dim(isym)
@@ -862,13 +806,11 @@ SUBROUTINE vCmat_ord_ty(v)
     deallocate (indu)
     deallocate (indv)
 
-!    Allocate (v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
-!    &          ninact + 1:ninact + nact, ninact + 1:ninact + nact))
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(ninact + nact + 1, ninact + 1, ninact + 1, ninact + 1), nsec*nact**3, &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write(*,*) 'end Allreduce vCmat'
+    if (rank == 0) write (*, *) 'end Allreduce vCmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

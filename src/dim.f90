@@ -10,11 +10,10 @@ subroutine dim1_density(creat1, anhi1, sr, si)
     integer, intent(in) :: creat1, anhi1
     real*8, intent(out) :: sr, si
 
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
-    integer ::  newidet, phase, phasenew, nbitsa
+    integer ::  newidet, phase, phasenew
 
 ! calculation of <0|Ec1a1|0>
 
@@ -29,31 +28,16 @@ subroutine dim1_density(creat1, anhi1, sr, si)
         if (newidet == 0) goto 10
         i = newidet !励起演算子がかかった後の番号
         phasenew = phase
-        ! j0 = 0
 
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
 
-!        write(*,*)creat1,anhi1,i0,j0,phase
-!        write(*,*)cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
-
-!        write(*,*) 'i0,j0,phase ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
 
-!        cmplxs = cmplxcij*DCONJG(cmplxcii)
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
         if (mod(phasenew, 2) == 0) then
@@ -64,18 +48,6 @@ subroutine dim1_density(creat1, anhi1, sr, si)
             si = si - DIMAG(cmplxs)
         end if
 
-!        if(creat1==1.and.anhi1==1) write(*,*)1,1,sr,si
-
-!        if(mod(phasenew,2)==0) then
-!           sr = sr + cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si + cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        else
-!           sr = sr - cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si - cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        end if
-!
-!        write(*,*)'sr',sr
-!        write(*,*)'si',si
 10  end do
 
 end subroutine dim1_density
@@ -92,11 +64,10 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
     integer, intent(in)     :: creat1, anhi1
     complex*16, intent(out) :: s
 
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
-    integer ::  newidet, phase, phasenew, nbitsa
+    integer ::  newidet, phase, phasenew
 
     s = 0.0d+00
     do i0 = 1, ndet
@@ -105,17 +76,7 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
         if (newidet == 0) goto 10
         i = newidet
         phasenew = phase
-        ! j0 = 0
         j0 = idetr(i)
-
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
@@ -148,11 +109,10 @@ subroutine dim1_density_diag(creat1, anhi1, s)
     integer, intent(in)     :: creat1, anhi1
     complex*16, intent(out) :: s
 
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
-    integer ::  newidet, phase, phasenew, nbitsa
+    integer ::  newidet, phase, phasenew
 
     s = 0.0d+00
     do i0 = 1, ndet
@@ -161,16 +121,7 @@ subroutine dim1_density_diag(creat1, anhi1, s)
         if (newidet == 0) goto 10
         i = newidet
         phasenew = phase
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
@@ -202,9 +153,8 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
     real*8, intent(out) :: sr, si
-    integer :: newidet, phase, phasenew, nbitsa
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: newidet, phase, phasenew
+    integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
 ! calculation of <0|Ec1a1Ec2a2|0>
@@ -225,34 +175,17 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
         if (newidet == 0) goto 10
         i = newidet
         phasenew = phasenew + phase
-
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
 
-!        write(*,*)creat1,anhi1,i0,j0,phase
-!        write(*,*)cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
-
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
-
-!        write(*,*) 'i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-!        write(*,*) i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
 
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
 
-!        cmplxs = cmplxcij*DCONJG(cmplxcii)
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
         if (mod(phasenew, 2) == 0) then
@@ -262,22 +195,6 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
             sr = sr - DBLE(cmplxs)
             si = si - DIMAG(cmplxs)
         end if
-
-!        if(mod(phasenew,2)==0) then
-!           sr = sr + cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si + cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        else
-!           sr = sr - cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si - cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        end if
-!
-!!        sr = sr + (-1) **phasenew *(cir(i0,iroot)*cir(j0,iroot) + cii(i0,iroot)*cii(j0,iroot))
-!!                 ! (cir(i0,iroot)*cir(j0,iroot)+(-1)(- cii(j0,iroot))*cii(i0,iroot))
-!!
-!!        si = si + (-1) **phasenew *(cii(i0,iroot)*cir(j0,iroot) - cir(i0,iroot)*cii(j0,iroot))
-!!                 ! (cii(i0,iroot)*cir(j0,iroot)+(- cii(j0,iroot))*cir(i0,iroot))
-!!!        write(*,*)'sr',sr
-!!!        write(*,*)'si',si
 
 10  end do
 
@@ -294,9 +211,8 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
     real*8, intent(out) :: sr, si
-    integer :: newidet, phase, phasenew, nbitsa
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: newidet, phase, phasenew
+    integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3|0>
@@ -323,28 +239,15 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
         i = newidet
         phasenew = phasenew + phase
 
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
 
-!        write(*,*) 'i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-!        write(*,*) i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
-
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
 
-!        cmplxs = cmplxcij*DCONJG(cmplxcii)
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
         if (mod(phasenew, 2) == 0) then
@@ -354,20 +257,6 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
             sr = sr - DBLE(cmplxs)
             si = si - DIMAG(cmplxs)
         end if
-
-!        if(mod(phasenew,2)==0) then
-!           sr = sr + cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si + cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        else
-!           sr = sr - cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si - cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        end if
-
-!!        sr = sr + (-1) **phasenew *(cir(i0,iroot)*cir(j0,iroot) + cii(i0,iroot)*cii(j0,iroot))
-!!                 ! (cir(i0,iroot)*cir(j0,iroot)+(-1)(- cii(j0,iroot))*cii(i0,iroot))
-!!
-!!        si = si + (-1) **phasenew *(cii(i0,iroot)*cir(j0,iroot) - cir(i0,iroot)*cii(j0,iroot))
-!!                 ! (cii(i0,iroot)*cir(j0,iroot)+(- cii(j0,iroot))*cii(i0,iroot))
 
 10  end do
 
@@ -384,9 +273,8 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
     real*8, intent(out) :: sr, si
-    integer :: newidet, phase, phasenew, nbitsa
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: newidet, phase, phasenew
+    integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3Ec4a4|0>
@@ -418,28 +306,15 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
         i = newidet
 
         phasenew = phasenew + phase
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
 
-!        write(*,*) 'i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-!        write(*,*) i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
-
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
 
-!        cmplxs = cmplxcij*DCONJG(cmplxcii)
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
         if (mod(phasenew, 2) == 0) then
@@ -449,20 +324,6 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
             sr = sr - DBLE(cmplxs)
             si = si - DIMAG(cmplxs)
         end if
-
-!        if(mod(phasenew,2)==0) then
-!           sr = sr + cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si + cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        else
-!           sr = sr - cir(i0,iroot) * cir(j0,iroot) + cii(i0,iroot) * cii(j0,iroot)
-!           si = si - cii(i0,iroot) * cir(j0,iroot) - cir(i0,iroot) * cii(j0,iroot)
-!        end if
-
-!!        sr = sr + (-1) **phasenew *(cir(i0,iroot)*cir(j0,iroot) + cii(i0,iroot)*cii(j0,iroot))
-!!                 ! (cir(i0,iroot)*cir(j0,iroot)+(-1)(- cii(j0,iroot))*cii(i0,iroot))
-!!
-!!        si = si + (-1) **phasenew *(cii(i0,iroot)*cir(j0,iroot) - cir(i0,iroot)*cii(j0,iroot))
-!!                 ! (cii(i0,iroot)*cir(j0,iroot)+(- cii(j0,iroot))*cii(i0,iroot))
 
 10  end do
 
@@ -479,10 +340,9 @@ subroutine dim1_density_R(creat1, anhi1, sr)
     Implicit NONE
     integer, intent(in) :: creat1, anhi1
     real*8, intent(out) :: sr
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i, i0
 
-    integer ::  newidet, phase, phasenew, nbitsa
+    integer ::  newidet, phase, phasenew
 
 ! calculation of <0|Ec1a1|0> for REAL
 
@@ -494,37 +354,20 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
         if (newidet == 0) goto 10
-!        write(*,*) i, newidet, phase, creat1-ninact, anhi1-ninact
 
         i = newidet
         phasenew = phase
-        ! j0 = 0
         j0 = idetr(i)
-
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
-
-!        write(*,*) 'i0,j0,iroot,phase ,cir(i0,ir)cir(j0,ir)cii(i0,ir)cii(j0,ir)'
-!        write(*,*) i0,j0,iroot,phase &
-!        , cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
         else
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
-
-!         sr = sr + (-1)**phasenew * cir(i0,iroot) * cir(j0,iroot)
 
 10  end do
 
@@ -541,9 +384,8 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
     real*8, intent(out) :: sr
-    integer :: newidet, phase, phasenew, nbitsa
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: newidet, phase, phasenew
+    integer :: j0, i, i0
 
 ! calculation of <0|Ec1a1Ec2a2|0>
 
@@ -563,16 +405,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
         i = newidet
         phasenew = phasenew + phase
 
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
@@ -580,16 +413,11 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
 
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
 
-!        write(*,*) 'i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-!        write(*,*) i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
-
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
         else
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
-
-!!        sr = sr + (-1) **phasenew *cir(i0,iroot)*cir(j0,iroot)
 
 10  end do
 
@@ -606,9 +434,8 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
     real*8, intent(out) :: sr
-    integer :: newidet, phase, phasenew, nbitsa
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: newidet, phase, phasenew
+    integer :: j0,  i, i0
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3|0>
 
@@ -633,31 +460,17 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
         i = newidet
         phasenew = phasenew + phase
 
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
-
-!        write(*,*) 'i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-!        write(*,*) i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
         else
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
-
-!!         sr = sr + (-1) **phasenew * cir(i0,iroot)*cir(j0,iroot)
 
 10  end do
 
@@ -674,9 +487,8 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
     real*8, intent(out) :: sr
-    integer :: newidet, phase, phasenew, nbitsa
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: newidet, phase, phasenew
+    integer :: j0,  i, i0
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3Ec4a4|0>
 
@@ -706,31 +518,17 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
         i = newidet
 
         phasenew = phasenew + phase
-        ! j0 = 0
         j0 = idetr(i)
-!         do i1 = 1, ndet
-!             j = idet(i1)
-!             if (j == i) then
-!                 j0 = i1
-!                 goto 1
-!             end if
-!         end do
-! 1       continue
 
         if (j0 == 0) then
             go to 10
         end if
-
-!        write(*,*) 'i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)'
-!        write(*,*) i0,j0,phasenew ,cir(i0,iroot) , cir(j0,iroot) , cii(i0,iroot) ,cii(j0,iroot)
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
         else
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
-
-!!         sr = sr + (-1) **phasenew *cir(i0,iroot)*cir(j0,iroot)
 
 10  end do
 

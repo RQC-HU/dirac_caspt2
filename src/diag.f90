@@ -24,8 +24,7 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
     integer :: info, lda, lwork
     character :: jobz*1, uplo*1
     real*8, allocatable  ::  work(:)
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i0
 
     w(:) = 0.0d+00
     jobz = 'V' ! calculate eigenvectors
@@ -109,8 +108,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
 
     complex*16, allocatable  ::  work(:)
     real*8, allocatable      ::  rwork(:)
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i0
 
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Enter cdiagonal part'
@@ -263,10 +261,10 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     real*8, intent(out)     ::  fa(n0:n1, n0:n1)
     real*8, intent(out)     ::  w(n0:n1)
 
-    logical                 ::  test, cutoff
-    integer                 ::  j, i, k, l, dimn, ncount(nsymrp)
-    integer                 ::  ii, jj, sym, isym
-    integer                 ::  nini, nend, ind(n, nsymrp)
+    logical                 ::  cutoff
+    integer                 ::  j, i, dimn, ncount(nsymrp)
+    integer                 ::  ii, sym, isym
+    integer                 ::  ind(n, nsymrp)
 
     real*8, allocatable     ::  mat(:, :), fasym(:, :)
     real*8                  ::  wsym(n)
@@ -389,12 +387,12 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     complex*16, intent(out) ::  fac(n0:n1, n0:n1)
     real*8, intent(out)     ::  wc(n0:n1)
 
-    logical                 ::  test, cutoff, fi
-    integer                 ::  j, i, k, l, dimn, ncount(nsymrpa)
-    integer                 ::  ii, jj, sym, isym
-    integer                 ::  nini, nend, ind(n, nsymrpa)
+    logical                 ::  cutoff, fi
+    integer                 ::  j, i, dimn, ncount(nsymrpa)
+    integer                 ::  ii, sym, isym
+    integer                 ::  ind(n, nsymrpa)
 
-    complex*16, allocatable ::  matc(:, :), facsym(:, :), facsymo(:, :), itrfmo_sym(:, :, :)
+    complex*16, allocatable ::  matc(:, :), facsym(:, :), facsymo(:, :)
     real*8, allocatable      ::  wcsym(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -449,27 +447,6 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 !         write(*,*)'sym,ncount(sym)',(ncount(sym),sym=1,nsymrpa)
 
     Do sym = 1, nsymrpa
-
-!            Do i = 1, ncount(sym)
-!               Do j = i, ncount(sym)
-!                  if(ABS(f(ind(i,sym),ind(j,sym))-DCONJG(f(ind(i,sym+1),ind(j,sym+1)))) &
-!                     & > 1.0d-10) then
-!                     write(*,'(2I4,4E20.10)')i,j,f(ind(i,sym),ind(j,sym)), &
-!                     & f(ind(i,sym+1),ind(j,sym+1))
-!                  Endif
-!               Enddo
-!            Enddo
-!
-!            write(*,'("Difference of absolute values of Fock matrice ")')
-!            Do i = 1, ncount(sym)
-!               Do j = i, ncount(sym)
-!                  if(ABS(ABS(f(ind(i,sym),ind(j,sym)))-ABS(f(ind(i,sym+1),ind(j,sym+1)))) &
-!                     & > 1.0d-10) then
-!                     write(*,'(2I4,4E20.10)')i,j,f(ind(i,sym),ind(j,sym)), &
-!                     & f(ind(i,sym+1),ind(j,sym+1))
-!                  Endif
-!               Enddo
-!            Enddo
 
         Allocate (facsym(ncount(sym), ncount(sym)))
         facsym = 0.0d+00

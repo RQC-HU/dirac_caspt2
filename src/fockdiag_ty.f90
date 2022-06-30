@@ -11,13 +11,8 @@ SUBROUTINE fockdiag_ty
     Implicit NONE
 
     integer                 ::  i, j
-    !    integer                 :: i0, j0, n, dimn, n0, n1, nspace(3, 3)
     integer                 :: i0, n, n0, n1, nspace(3, 3)
-    !    logical                 :: test, cutoff
-
-    !    complex*16              :: trace1, trace2
     real*8, allocatable :: fa(:, :)
-    !    complex*16, allocatable :: fac(:, :), readmo(:, :, :)
     complex*16, allocatable :: fac(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -123,17 +118,6 @@ SUBROUTINE fockdiag_ty
 
     end if
 
-!         Do i0 = (ninact+nact)/2+1, nmo/2
-!         Do j0 = (ninact+nact)/2+1, nmo/2
-!
-!            if(ABS(f(2*i0,2*j0)-DCONJG(f(2*i0-1,2*j0-1))) > 1.0d-10) then
-!               write(*,'(2I4,2E20.10)')2*i0,2*j0,f(2*i0,2*j0)
-!               write(*,'(2I4,2E20.10)')2*i0-1,2*j0-1,f(2*i0-1,2*j0-1)
-!               write(*,*)' '
-!            Endif
-!
-!         Enddo
-!         Enddo
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         open (5, file='TRANSFOCK', status='unknown', form='unformatted')
         write (5) nmo

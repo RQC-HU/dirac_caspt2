@@ -12,13 +12,12 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     Implicit NONE
     real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
-    integer :: i0, j0, i, info, job
-    integer :: ii, jj, ok
+    integer :: i0, j0, i, info
+    integer :: ii, ok
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
-    complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:), z(:)
-    complex*16  :: det(2)
+    complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:)
     logical     :: error
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -227,14 +226,12 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 #endif
     complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
-    integer :: i0, j0, i, info, job
-    integer :: ii, jj, ok
+    integer :: i0, j0, i, info
+    integer :: ii, ok
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
-    complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:), z(:)
-    complex*16  :: det(2)
-    logical     :: error
+    complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -378,9 +375,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
         End do
     End do
 
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) then ! Process limits for output
         If (.not. error) write (*, *) 'Inverse matrix is obtained correclty'
     end if
@@ -402,7 +396,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         open (5, file='NEWCICOEFF', status='unknown', form='unformatted')
         write (5) ci(1:ndet)
-!        write(*,'("ci",2E20.10)') ci(1:ndet)
         close (5)
     end if
 
