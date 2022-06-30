@@ -242,7 +242,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
     end if
 
     if (rank == 0) then ! Process limits for output
-        write (*, '(A,I8)') "end cdiag", rank
+        write (*, *) "end cdiag"
     end if
 1000 continue
 end subroutine cdiag

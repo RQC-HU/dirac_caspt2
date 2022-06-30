@@ -525,7 +525,7 @@ SUBROUTINE bAmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 
     bc(:, :) = 0.0d+00
     if (rank == 0) then
-        write (*, *) 'bAmat loop: rank, nprocs, dimn', rank, nprocs, dimn
+        write (*, *) 'bAmat loop: dimn', dimn
     end if
     !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)

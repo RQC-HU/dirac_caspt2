@@ -97,7 +97,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     !Iwamuro create new ikr for dirac
     Call create_newmdcint
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'Before readint2_casci_co', rank
+        write (*, *) 'Before readint2_casci_co'
     end if
     ! if (rank == 0) then
     filename = 'MDCINTNEW'

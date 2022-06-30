@@ -13,12 +13,12 @@ SUBROUTINE casmat(mat)
     complex*16, intent(out) :: mat(ndet, ndet)
 
     integer              :: occ, vir, indr, inds, inda, indb
-    integer              :: ir, is, ia, ib, imo, nint
+    integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0, i, j, newidet1, newidet2
     integer              :: phase, phase1, phase2
-    real*8               :: nsign, i2r, i2i
+    real*8               :: i2r, i2i
     complex*16           :: cmplxint, mat0
-    integer, allocatable :: ridet(:), oc(:), vi(:)
+    integer, allocatable :: oc(:), vi(:)
 
     mat = 0.0d+00
 
@@ -28,7 +28,7 @@ SUBROUTINE casmat(mat)
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocated oc and vi', rank
+        write (*, *) 'allocated oc and vi'
     end if
     Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
@@ -238,34 +238,10 @@ SUBROUTINE casmat(mat)
     Deallocate (oc)
     Deallocate (vi)
     if (rank == 0) then ! Process limits for output
-        write (*, '(A,I4)') 'end casmat', rank
-        write (*, '(A,I4)') 'Reduce mat(:,:)', rank
+        write (*, *) 'end casmat'
+        write (*, *) 'Reduce mat(:,:)'
     end if
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 1000 end subroutine casmat
-
-! ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-!    SUBROUTINE idetr(iidet, j)
-
-! ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-!        use four_caspt2_module
-
-!        Implicit NONE
-
-!        integer, intent(in)  :: iidet
-!        integer, intent(out) :: j
-!        integer              :: i0
-
-!        j = 0
-
-!        Do i0 = 1, ndet
-!            If (idet(i0) == iidet) then
-!                j = i0
-!            End if
-!        End do
-
-!    END SUBROUTINE idetr

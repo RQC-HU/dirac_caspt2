@@ -31,7 +31,7 @@ SUBROUTINE casmat_modified(not_zero_count)
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocated oc and vi', rank
+        write (*, *) 'allocated oc and vi'
     end if
     write (chr_rank, *) rank
     matfilename = "mat"//trim(adjustl(chr_rank))
@@ -260,8 +260,8 @@ SUBROUTINE casmat_modified(not_zero_count)
     Deallocate (oc)
     Deallocate (vi)
     if (rank == 0) then ! Process limits for output
-        write (*, '(A,I4)') 'end casmat', rank
-        write (*, '(A,I4)') 'Reduce mat(:,:)', rank
+        write (*, *) 'end casmat'
+        write (*, *) 'Reduce mat(:,:)'
     end if
     close (mat_unit_num)
 1000 end subroutine casmat_modified

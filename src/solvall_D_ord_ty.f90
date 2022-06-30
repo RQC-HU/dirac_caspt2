@@ -401,7 +401,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
+1000    if (rank == 0) write (*, '("e2d(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
         e2d = e2d + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
