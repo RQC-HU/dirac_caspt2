@@ -25,15 +25,13 @@ subroutine dim1_density(creat1, anhi1, sr, si)
         i = idet(i0)
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet !励起演算子がかかった後の番号
         phasenew = phase
 
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
@@ -48,7 +46,7 @@ subroutine dim1_density(creat1, anhi1, sr, si)
             si = si - DIMAG(cmplxs)
         end if
 
-10  end do
+    end do
 
 end subroutine dim1_density
 
@@ -73,14 +71,12 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
     do i0 = 1, ndet
         i = idet(i0)
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
@@ -93,7 +89,7 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
             s = s - cmplxs
         end if
 
-10  end do
+    end do
 
 end subroutine dim1_density_nondiag
 
@@ -118,14 +114,12 @@ subroutine dim1_density_diag(creat1, anhi1, s)
     do i0 = 1, ndet
         i = idet(i0)
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
@@ -138,7 +132,7 @@ subroutine dim1_density_diag(creat1, anhi1, s)
             s = s - cmplxs
         end if
 
-10  end do
+    end do
 
 end subroutine dim1_density_diag
 
@@ -167,19 +161,17 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
         i = idet(i0)
 
         call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
 
@@ -196,7 +188,7 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
             si = si - DIMAG(cmplxs)
         end if
 
-10  end do
+    end do
 
 end subroutine dim2_density
 
@@ -225,25 +217,23 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
         i = idet(i0)
 
         call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
 
         call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
@@ -258,7 +248,7 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
             si = si - DIMAG(cmplxs)
         end if
 
-10  end do
+    end do
 
 end subroutine dim3_density
 
@@ -287,30 +277,28 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
         i = idet(i0)
 
         call one_e_exct(i, creat4, anhi4, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
 
         call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
 
         phasenew = phasenew + phase
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
         cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
@@ -325,7 +313,7 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
             si = si - DIMAG(cmplxs)
         end if
 
-10  end do
+    end do
 
 end subroutine dim4_density
 
@@ -353,15 +341,13 @@ subroutine dim1_density_R(creat1, anhi1, sr)
         i = idet(i0)
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
 
         i = newidet
         phasenew = phase
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
@@ -369,7 +355,7 @@ subroutine dim1_density_R(creat1, anhi1, sr)
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
 
-10  end do
+    end do
 
 end subroutine dim1_density_R
 
@@ -396,20 +382,18 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
         i = idet(i0)
 
         call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
 
@@ -419,7 +403,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
 
-10  end do
+    end do
 
 end subroutine dim2_density_R
 
@@ -435,7 +419,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
     real*8, intent(out) :: sr
     integer :: newidet, phase, phasenew
-    integer :: j0,  i, i0
+    integer :: j0, i, i0
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3|0>
 
@@ -446,25 +430,23 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
         i = idet(i0)
 
         call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
 
         call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
@@ -472,7 +454,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
 
-10  end do
+    end do
 
 end subroutine dim3_density_R
 
@@ -488,7 +470,7 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
     real*8, intent(out) :: sr
     integer :: newidet, phase, phasenew
-    integer :: j0,  i, i0
+    integer :: j0, i, i0
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3Ec4a4|0>
 
@@ -499,30 +481,28 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
         i = idet(i0)
 
         call one_e_exct(i, creat4, anhi4, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phase
 
         call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
         phasenew = phasenew + phase
 
         call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) goto 10
+        if (newidet == 0) cycle ! Next i0
         i = newidet
 
         phasenew = phasenew + phase
         j0 = idetr(i)
 
-        if (j0 == 0) then
-            go to 10
-        end if
+        if (j0 == 0) cycle ! Next i0
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
@@ -530,6 +510,6 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
             sr = sr - cir(i0, iroot)*cir(j0, iroot)
         end if
 
-10  end do
+    end do
 
 end subroutine dim4_density_R
