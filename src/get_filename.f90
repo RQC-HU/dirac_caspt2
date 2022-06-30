@@ -13,8 +13,8 @@ subroutine get_mdcint_filename(count)
     else
         filename_idx = count*nprocs + rank
         mdcint_basename = "MDCIN"
-        if (filename_idx >= 10000) then!! "ERROR": over five digit(can't assign)
-            write (*, *) "ERROR: Can't assign MDCINT file to ranks of over five digits. filename_idx:", filename_idx
+        if (filename_idx >= 100000) then!! "ERROR": over six digit(can't assign)
+            write (*, *) "ERROR: Can't assign MDCINT file to ranks of over six digits. filename_idx:", filename_idx
             stop
         else if (filename_idx < 0) then !! "ERROR": minus number filename_idx (can't assign)
             write (*, *) "ERROR: Can't assign MDCINT file to negative number of ranks. filename_idx:", filename_idx
@@ -27,6 +27,8 @@ subroutine get_mdcint_filename(count)
             digit_x_padding = "XX"
         else if (filename_idx < 10000) then ! four digit (1000~9999)
             digit_x_padding = "X"
+        else if (filename_idx < 100000) then ! five digit (10000~99999)
+            digit_x_padding = ""
         end if
         write (chr_rank, *) filename_idx
         mdcint_filename = TRIM(mdcint_baseName)//TRIM(ADJUSTL(digit_x_padding))//TRIM(ADJUSTL(chr_rank))
@@ -61,7 +63,7 @@ subroutine get_subspace_filename
         gint = "Gint"
         hint = "Hint"
     else
-        write (chr_rank, "(I4)") rank
+        write (chr_rank, *) rank
         a1int = "A1int"//TRIM(ADJUSTL(chr_rank))
         a2int = "A2int"//TRIM(ADJUSTL(chr_rank))
         bint = "Bint"//TRIM(ADJUSTL(chr_rank))
