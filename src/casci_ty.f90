@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casci_ty(totsym)
+SUBROUTINE casci_ty
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -9,10 +9,7 @@ SUBROUTINE casci_ty(totsym)
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer, intent(in) :: totsym
-    integer :: nbitsa, comb
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll, irec, cimat
+    integer :: comb, j0, j, i0, irec, cimat
     real*8 :: thresd
 
     complex*16, allocatable :: mat(:, :)
@@ -27,7 +24,7 @@ SUBROUTINE casci_ty(totsym)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'ndet', ndet
     end if
-    Call casdet_ty(totsym)
+    Call casdet_ty
     if (rank == 0) then
         write (*, *) "before allocate mat(ndet,ndet)"
         write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
@@ -83,7 +80,6 @@ SUBROUTINE casci_ty(totsym)
         write (10) ecas(1:ndet)
         write (10) 2**nact - 1 ! idetrの配列の要素数
         write (10) idetr(1:2**nact - 1)
-!        write(10) mat(1:ndet,1:ndet)
         close (10)
 
 ! Print out C1 matrix!

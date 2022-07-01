@@ -1,0 +1,131 @@
+name: rel-CASPT2-CI-test
+
+on:
+  push:
+    paths:
+    # Ref : https://mzqvis6akmakplpmcjx3.hatenablog.com/entry/2021/02/07/134133
+      - "**.f90"
+      - "**.F90"
+      - "**.cmake"
+      - "**/CMakeLists.txt"
+      - "**.py"
+      - ".github/workflows/**"
+
+
+defaults:
+  run:
+    shell: bash
+jobs:
+  test-linux-mpiifort:
+    timeout-minutes: 15 # Max execution time (min)
+    runs-on: ubuntu-latest
+    env:
+      KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
+      FC: mpiifort # MPI-Intel-Fortran
+    steps:
+      - uses: actions/checkout@v3
+      - name: cache install
+        timeout-minutes: 2
+        id: cache-install
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/intel/oneapi
+          key: ${{ runner.os }}-install-${{ env.KEYVERSION }}
+      - name: Setup Intel fortran (apt)
+        timeout-minutes: 2
+        if: steps.cache-install.outputs.cache-hit != 'true'
+        run: |
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          sudo apt-get update
+      - name: Install Intel Fortran compiler
+        timeout-minutes: 8
+        if: steps.cache-install.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
+      - name: Set Intel oneAPI environments
+        timeout-minutes: 1
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+      - name: Install python
+        timeout-minutes: 2
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+      - name: Install pytest for unit test
+        timeout-minutes: 1
+        run: python -m pip install pytest
+      - name: Build source code
+        timeout-minutes: 1
+        run: |
+          cmake -DMPI=on -DOPENMP=on -B build
+          cmake --build build
+      - name: Run unittest
+        timeout-minutes: 15
+        run: |
+          pytest -vv
+
+  test-linux-gfortran:
+    timeout-minutes: 15 # Max execution time (min)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gfortran-version: [9] # If you want to build multiple version, you can add version number at this line.
+    env:
+      KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
+      FC: gfortran
+    steps:
+      - uses: actions/checkout@v3
+      - name: cache install (MKL)
+        timeout-minutes: 2
+        id: cache-install
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/intel/oneapi
+          key: ${{ runner.os }}-install-${{ matrix.gcc-version }}-${{ env.KEYVERSION }}
+      - name: Setup MKL
+        timeout-minutes: 2
+        if: steps.cache-install.outputs.cache-hit != 'true'
+        run: |
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          sudo apt-get update
+      - name: Install MKL
+        timeout-minutes: 8
+        if: steps.cache-install.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install intel-oneapi-mkl
+      - name: Set Intel oneAPI environments
+        timeout-minutes: 1
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+      - name: Install gfortran (apt)
+        timeout-minutes: 2
+        run: |
+          sudo apt-get update
+          sudo apt-get install gfortran-${{ matrix.gfortran-version }}
+      - name: Install python
+        timeout-minutes: 2
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+      - name: Install pytest for unit test
+        timeout-minutes: 1
+        run: python -m pip install pytest
+      - name: Build source code
+        timeout-minutes: 1
+        run: |
+          cmake -DOPENMP=on -B build
+          cmake --build build
+      - name: Run unittest
+        timeout-minutes: 15
+        run: |
+          pytest -vv

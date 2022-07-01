@@ -15,13 +15,11 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     real*8, intent(in) :: e0
     real*8, intent(out):: e2a
 
-    integer :: dimn, dimm, count, dammy
+    integer :: dimn, dimm, dammy
 
     integer, allocatable :: indsym(:, :)
 
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
     real*8               :: e2(2*nsymrp), alpha
 
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
@@ -29,12 +27,10 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :, :), vc(:), vc1(:)
 
     logical :: cutoff
-    integer :: i, j, k, syma, symb, isym, i0, j0, sym1
+    integer :: i, j, syma, symb, isym, sym1
     integer :: ix, iy, iz, ii, dimi, ixyz
-    integer :: jx, jy, jz, ji, it
-
+    integer :: jx, jy, jz, it
     real*8  :: thresd
-    integer :: loopcnt
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -69,7 +65,6 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
 !
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
 
-!        thresd = thres
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -104,7 +99,6 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 !         ExjEyz
-! Noda : Probably need to paralellize it under this
     Do isym = 1, nsymrpa
 
         ixyz = 0
@@ -333,25 +327,25 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
 
-!  If(debug) then
+        If (debug) then
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'Check whether bc is really diagonalized or not'
-        end if
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
+            if (rank == 0) then ! Process limits for output
+                write (*, *) 'Check whether bc is really diagonalized or not'
+            end if
+            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+            datetmp1 = datetmp0
+            tsectmp1 = tsectmp0
 
-        Call checkdgc(dimm, bc0, bc1, wb)
+            Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'Check whether bc is really diagonalized or not END'
-        end if
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
+            if (rank == 0) then ! Process limits for output
+                write (*, *) 'Check whether bc is really diagonalized or not END'
+            end if
+            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+            datetmp1 = datetmp0
+            tsectmp1 = tsectmp0
 
-!  End if
+        End if
         deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
 
         if (rank == 0) then ! Process limits for output
@@ -369,8 +363,6 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                 Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)
                 Do it = 1, dimn
                     vc(it) = v(ii, indsym(1, it) + ninact, indsym(2, it) + ninact, indsym(3, it) + ninact)
-!                    write(*,'(4I4,2E20.10)') &
-!                    & ii,indsym(1,it)+ninact,indsym(2,it)+ninact,indsym(3,it)+ninact,vc(it)
                 End do
 
                 Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
@@ -444,14 +436,11 @@ SUBROUTINE sAmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 #endif
     integer, intent(in)      :: dimn, indsym(3, dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
-
     real*8  ::a, b
-
     integer :: it, iu, iv, ix, iy, iz
-    integer :: jt, ju, jv, jx, jy, jz
     integer :: i, j
-    integer :: count
 
+    ! Initialization
     sc = 0.0d+00
 
     !$OMP parallel do private(i,ix,iy,iz,j,it,iu,iv,a,b)
@@ -523,11 +512,10 @@ SUBROUTINE bAmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 
     real*8               :: e, denr, deni
     complex*16           :: den
-!           write(*,*)'sc0',sc(5,5)
 
     bc(:, :) = 0.0d+00
     if (rank == 0) then
-        write (*, *) 'bAmat loop: rank, nprocs, dimn', rank, nprocs, dimn
+        write (*, *) 'bAmat loop: dimn', dimn
     end if
     !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
@@ -576,15 +564,9 @@ SUBROUTINE bAmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
     End do                  !j
     !$OMP end parallel do
 
-! Noda : なぜかMPI_Reduce ver.だとisym=2のsAmatで実行が止まるのでMPI_Allreduce
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-!    if (rank == 0) then
-!        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-!    else
-!        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-!    end if
 
     if (rank == 0) then ! Process limits for output
         write (*, *) 'bAmat is ended'
@@ -620,21 +602,18 @@ SUBROUTINE vAmat_ord_ty(v)
     complex*16, intent(out) ::  &
     & v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
-    real*8                  :: dr, di, signkl
+    real*8                  :: dr, di
     complex*16              :: cint2, d, dens1(nact, nact), effh(ninact + 1:ninact + nact, ninact)
     complex*16              :: cint1
 
-    integer :: it, iu, iv, ii, ip, iq, ir, ik
-    integer :: jt, ju, jv, ji, jp, jq, jr, jk
-    integer :: i, j, k, l, kkr, lkr, count, dim(nsymrpa)
-    integer :: dim2(nsymrpa), isym, sym, i0, syma, symb, symc
-
+    integer :: it, iu, iv, ii, ip
+    integer :: jt, ju, jv, ji, jp
+    integer :: i, j, k, l, count, dim(nsymrpa)
+    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer, allocatable :: ind2u(:, :), ind2v(:, :)
-    logical :: test
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
-    integer :: loopcnt, idx
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  V(tuv,i)=  - SIGUMA_p,q,r:act <0|EvuEptEqr|0>(pi|qr)
@@ -673,7 +652,6 @@ SUBROUTINE vAmat_ord_ty(v)
     dim = 0
     !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
     Do isym = 1, nsymrpa
-        ! !$OMP parallel do schedule(static,1) private(it,ij,iv,ij,iu,ju,syma,symb,symc) reduction(+:dim)
         Do it = 1, nact
             jt = it + ninact
             Do iv = 1, nact
@@ -735,16 +713,11 @@ SUBROUTINE vAmat_ord_ty(v)
         ji = ii
         Do it = 1, nact
             jt = it + ninact
-
             Call tramo1_ty(jt, ji, cint1)
             effh(jt, ji) = cint1
-!              if(jt==11.and.ji==1) write(*,'("eff 1int",2I4,2E20.10)') jt,ji,cint1
-!              if(jt==11.and.ji==1) write(*,'("eff 1int",2E20.10)') effh(jt,ji)
         End do
     End do
     !$OMP end parallel do
-
-!      write(*,*)'effh(11,1)',effh(11,1)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Two types of integrals are stored
@@ -754,14 +727,11 @@ SUBROUTINE vAmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!   open(1, file ='A1int', status='old', form='unformatted')
-    ! open (1, file=a1int, status='old', form='formatted')
     open (1, file=a1int, status='old', form='unformatted')
     if (rank == 0) then ! Process limits for output
         write (*, *) 'open A1int'
     end if
 
-! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 30  read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -812,11 +782,8 @@ SUBROUTINE vAmat_ord_ty(v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-!  open (1, file='A2int', status='old', form='unformatted') ! TYPE 2 integrals
-    ! open (1, file=a2int, status='old', form='formatted') ! TYPE 2 integrals
     open (1, file=a2int, status='old', form='unformatted') ! TYPE 2 integrals
 
-! 300 read (1, '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
 300 read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
     count = 0
 
@@ -828,12 +795,10 @@ SUBROUTINE vAmat_ord_ty(v)
     if (k == l .and. j /= k) then       ! (PI|KK) type
 
         effh(i, j) = effh(i, j) + cint2
-!           write(*,'("A2int+",4I4,2E20.10)')i,j,k,l,cint2
 
     elseif (j == k .and. k /= l) then       ! (PK|KI) type
 
         effh(i, l) = effh(i, l) - cint2
-!           write(*,'("A2int-",4I4,2E20.10)')i,j,k,l,cint2
 
     end if
 
@@ -844,7 +809,6 @@ SUBROUTINE vAmat_ord_ty(v)
         write (*, *) 'reading A2int2 is over'
     end if
 
-!    effh(ninact + 1:ninact + nact, ninact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
@@ -859,11 +823,6 @@ SUBROUTINE vAmat_ord_ty(v)
     Do ii = rank + 1, ninact, nprocs
         ji = ii
         isym = irpmo(ji)
-
-!           Do ip = 1, nact
-!              jp = ip + ninact
-!              if(ABS(effh(jp,ji)) > 1.0d-10) write(*,'("o effh ",2I4,2E20.10)')jp,ji,effh(jp,ji)
-!           Enddo
 
         Do i0 = 1, dim(isym)
             it = indt(i0, isym)
@@ -904,7 +863,6 @@ SUBROUTINE vAmat_ord_ty(v)
     deallocate (ind2u); Call memminus(KIND(ind2u), SIZE(ind2u), 1)
     deallocate (ind2v); Call memminus(KIND(ind2v), SIZE(ind2v), 1)
 
-!    v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(ninact, ninact + 1, ninact + 1, ninact + 1), ninact*nact*nact*nact, &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)

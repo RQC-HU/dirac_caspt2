@@ -15,8 +15,7 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, ur, wnew)
     integer, intent(in)  :: dimn, dimm
     real*8, intent(in)   :: sr(dimn, dimn), w(dimn)
     real*8, intent(out)  :: ur(dimn, dimm), wnew(dimm)
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i0
 
     write (*, *) 'New dimension becomes ', dimm
 
@@ -64,8 +63,7 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, uc, wnew)
 
     complex*16, intent(in)   :: sc(dimn, dimn)
     complex*16, intent(out)  :: uc(dimn, dimm)
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: j0, i0
     if (rank == 0) then ! Process limits for output
         write (*, *) 'New dimension becomes ', dimm
     end if

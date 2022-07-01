@@ -7,26 +7,19 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use read_input_module, only: read_input
     Implicit NONE
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: ii, jj, kk, ll, typetype, i0
-    integer                 ::  j, i, k, l, nuniq
-    integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
-    integer                 ::  totsym, inisym, endsym, ieshift
-
-    logical                 :: test, cutoff
-
-    real*8                  :: i2r, i2i, dr, di, nsign, e0, e2, e2all, weight0
-    complex*16              ::  cmplxint, dens, trace1, trace2
+    integer                 :: ieshift
+    real*8                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)
-
-    character*50            :: filename
     real(16)                :: time0, time1
-    integer                 :: access ! caspt2.outが存在するか確認するための変数 0:存在する others:存在しない
+    character*50            :: filename
     integer                 :: idetr_array_len ! length of array = idetr(1:2**nact - 1)
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -72,20 +65,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     eshift = 0.0d+00
     ieshift = 0
 
-    open (5, file='active.inp', form='formatted', status='old')
-    read (5, '(I4)') ninact
-    read (5, '(I4)') nact
-    read (5, '(I4)') nsec
-    read (5, '(I4)') nelec
-    read (5, '(I4)') nroot
-    read (5, '(I4)') selectroot
-    read (5, '(I4)') totsym
-    read (5, '(I4)') ncore
-    read (5, '(I4)') nbas
-    read (5, '(E8.2)') eshift
-    read (5, '(A6)') ptgrp
-    read (5, '(I4)') dirac_version
-    close (5)
+    call read_input
     if (rank == 0) then ! Process limits for output
         write (*, *) 'ninact        =', ninact
         write (*, *) 'nact          =', nact
@@ -99,6 +79,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, *) 'eshift        =', eshift
         write (*, *) 'ptgrp         =', ptgrp
         write (*, *) 'dirac_version =', dirac_version
+        if (is_ras1_configured) print *, "RAS1 =", ras1_list
+        if (is_ras2_configured) print *, "RAS2 =", ras2_list
+        if (is_ras3_configured) print *, "RAS3 =", ras3_list
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -117,18 +100,13 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call readorb_enesym_co(filename)
     call read1mo_co(filename)
 
-!       write(*,*)' EXIT READ r4dmoint1'
     if (rank == 0) then ! Process limits for output
         write (*, *) ' EXIT READ MRCONEE'
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         write (*, *) ' ENTER READ MDCINT'
     end if
-    filename = 'MDCINTNEW'
 
     ! Get MDCINTNEWX's filename and subspace filename
-    call get_mdcint_filename
+    call get_mdcint_filename(0)
     call get_subspace_filename
 
     Call readint2_ord_co(mdcintnew)
@@ -184,18 +162,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
 
-!        Do i0 = 1, ndet
-!           write(*,'(2E20.10)')cir(i0,selectroot),cii(i0,selectroot)
-!        End do
-
-!        Do i0 = 1, ndet
-!           write(*,'(2E20.10)')ci(i0)
-!        End do
-
     deallocate (ci)
-
-!        write(*,*)cir(1:ndet,selectroot)
-!        write(*,*)cii(1:ndet,selectroot)
 
     if (rank == 0) then ! Process limits for output
         write (*, *) ' EXIT READ NEWCICOEFF'
@@ -211,9 +178,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     read (10) eps(1:nmo)
 
     close (10)
-!        Do i = 1, nmo
-!           write(*,*)'eps(',i,')= ',eps(i)
-!        Enddo
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -288,7 +252,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_3(2, 1, 1, 1, a2int)
-    ! Call intra_3(2, 1, 1, 1, 'A2int')
     if (rank == 0) then ! Process limits for output
         write (*, *) 'End intra_3 A2int'
     end if
@@ -311,7 +274,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
 
     Call intra_2(2, 1, 2, 1, bint)
-    ! Call intra_2(2, 1, 2, 1, 'Bint ')
     if (rank == 0) then ! Process limits for output
         write (*, *) 'End intra_2 Bint'
     end if
@@ -354,10 +316,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
 
-    ! Call intra_3(3, 2, 2, 2, 'C1int')
-    ! Call intra_3(3, 2, 1, 1, 'C2int')
-    ! Call intra_1(3, 1, 1, 2, 'C3int')
-
     sumc2local = 0.0d+00
     Call solvC_ord_ty(e0, e2)
     e2all = e2all + e2
@@ -389,9 +347,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
-    ! Call intra_3(3, 1, 2, 2, 'D1int')
-    ! Call intra_1(3, 2, 2, 1, 'D2int')
-    ! Call intra_3(3, 1, 1, 1, 'D3int')
+
     sumc2local = 0.0d+00
     Call solvD_ord_ty(e0, e2)
     e2all = e2all + e2
@@ -410,7 +366,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
-    ! Call intra_1(3, 1, 2, 1, 'Eint')
 
     sumc2local = 0.0d+00
     Call solvE_ord_ty(e0, e2)
@@ -430,7 +385,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
-    ! Call intra_2(3, 2, 3, 2, 'Fint ')
 
     sumc2local = 0.0d+00
     Call solvF_ord_ty(e0, e2)
@@ -450,7 +404,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
-    ! Call intra_1(3, 1, 3, 2, 'Gint ')
 
     sumc2local = 0.0d+00
     Call solvG_ord_ty(e0, e2)
@@ -469,7 +422,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
-    ! Call intra_2(3, 1, 3, 1, 'Hint ')
 
     sumc2local = 0.0d+00
     if (rank == 0) then ! Process limits for output
@@ -489,11 +441,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         write (*, '("c^2 ",F30.15)') sumc2
     end if
     weight0 = 1.0d+00/(1.0d+00 + sumc2)
-    ! if (rank == 0) then
-    !     call MPI_Reduce(MPI_IN_PLACE, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    ! else
-    !     call MPI_Reduce(e2all, e2all, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    ! end if
+
     if (rank == 0) then ! Process limits for output
         write (*, '("weight of 0th wave function is",F30.15)') weight0
 
@@ -522,9 +470,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
     time1 = MPI_Wtime()
     if (rank == 0) then ! Process limits for output
-        write (*, "(a,I4,a,e16.6)") "MPI_Wtime, rank:", rank, "time", time1 - time0
+        write (*, "(a,e16.6)") "MPI_Wtime :", time1 - time0
     end if
     call MPI_FINALIZE(ierr)
 #endif
-1000 continue
+
 END program r4dcaspt2_tra_co

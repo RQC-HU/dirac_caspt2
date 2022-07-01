@@ -8,20 +8,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     Implicit NONE
 
-    integer :: mrconee, IMO, JMO, ISP, IRP, TELEC
+    integer :: mrconee, IMO, IRP
     character*50, intent(in) :: filename
-    integer :: j0, j, i, i0, i1, m
-    integer :: k0, l0, ii, jj, kk, ll, nmomax, isym, jsym, ksym
-
+    integer :: i0, j0, k0, i, j, m, isym, jsym, ksym
     integer, allocatable :: dammo(:), UTCHEMIMO1(:, :), UTCHEMIMO2(:, :)
     integer, allocatable :: SD(:, :), DS(:, :)
-
-    real*8 :: w, ETOTAL
-!        logical :: breit
+    real*8 :: w
     logical :: breit
-!Iwamuro modify
-    integer :: dammy1
-    real*8  :: dammy2
 
 !  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
 !                     BREIT,ETOTAL,scfru
@@ -42,12 +35,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 !Iwamuro modify
     scfru = 1
 
-    ! allocate memory
-    ! ---------------
-!     allocate(ONE  (NMO,NMO,scfru))
-!     allocate(IRPMO(NMO    ,scfru))
-!     allocate(ORBMO(NMO    ,scfru))
-!     allocate(ONE  (NMO,NMO))
     allocate (IRPMO(1:NMO))
     allocate (ORBMO(1:NMO))
     allocate (UTCHEMIMO1(1:NMO, 1:scfru))

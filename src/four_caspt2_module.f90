@@ -17,6 +17,7 @@ MODULE four_caspt2_module
     ! nelec         : The number of electrons in active space
     ! nroot         : The number of roots
     ! selectroot    : Which root do you want to obtain
+    ! totsym
     ! ncore         : The number of core orbitals
     ! nbas          : Basis set
     ! eshift        : Real shift
@@ -24,12 +25,16 @@ MODULE four_caspt2_module
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
-    integer         :: ncore, nbas
+    integer         :: totsym, ncore, nbas
     real(8)         :: eshift
     character       :: ptgrp*6
+    character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
-    integer         :: ras1_start, ras1num
-
+    integer         :: ras1_start, ras1_size, ras2_start, ras2_size, ras3_start, ras3_size
+    integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
+    logical         :: is_ras1_configured, is_ras2_configured, is_ras3_configured
+    integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
+    integer, parameter :: max_ras_spinor_num = 200
 
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)
@@ -81,23 +86,16 @@ MODULE four_caspt2_module
     complex*16  ::  coeff1
 ! from MORCONEE
 
-!   real*8 :: ecore, enuc
     real*8 :: enuc
     double precision :: ecore ! core energy
-!   integer :: nsymrp, nsymrpa, multb(128,128), multb2(128,128), nmo, scfru
-!   integer :: nmo
     integer :: nsymrp, nsymrpa, multb(128, 128), multb2(128, 128), nmo, scfru
     character :: repn(64)*14, repna(64)*4, repn_ty(64)*6
-!   character :: repn(50)*14, repna(50)*4, repn_ty(50)*6
-!   integer, allocatable :: irpmo(:), irpamo(:), indmo(:), indmor(:)
     integer, allocatable :: irpmo(:), irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo(:), indmor(:) ! index of MO
     real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
     real*8, allocatable  :: orbmo(:), orb(:), sort_orb(:)
     real*8, allocatable  :: orbmocas(:), orbcas(:)
 
-!   integer, allocatable ::multb_s(:,:), multb_d(:,:), multb_ds(:,:) ! This is for typart
-!   integer, allocatable ::MULTB_DF(:,:), MULTB_DB(:,:), MULTB_SB(:,:)
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart
     integer, allocatable ::MULTB_DF(:, :), MULTB_DB(:, :), MULTB_SB(:, :)
 
@@ -106,7 +104,6 @@ MODULE four_caspt2_module
     complex*16, allocatable :: f(:, :), itrfmo(:, :, :) ! f: fock matrix
 
 ! Iwamuro modify
-!   integer :: nelecd(64)
     integer :: nelecd(64), nfsym, nz1, norbt
     logical :: spfr, sfform, realonly ! realonly : If it is true, only real numbers are written in MDCINT.
 
@@ -154,6 +151,4 @@ MODULE four_caspt2_module
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
     integer, parameter :: normal_output = 3000, read_line_max = 1000
 
-    ! Test for MDCINT_READ_COUNT
-    integer :: casci_mdcint_cnt, caspt2_mdcint_cnt, caspt2_mdcint_cnt2, simple_loop
 end MODULE four_caspt2_module

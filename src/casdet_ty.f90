@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casdet_ty(totsym)
+SUBROUTINE casdet_ty
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -8,9 +8,6 @@ SUBROUTINE casdet_ty(totsym)
 
     Implicit NONE
 
-    integer, intent(in)   :: totsym
-
-    integer :: nbitsa
     integer :: i, isym
     integer, allocatable  :: idet0(:)
 

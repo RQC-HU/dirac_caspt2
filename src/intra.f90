@@ -303,8 +303,6 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 2)
 
-!        write(*,*)ii,ie,ji,je,ki,ke,li,le
-
     traint2 = 0.0d+00
     if (rank == 0) then ! Process limits for output
         write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
@@ -759,7 +757,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     goto 100 ! No error in intra3
 
-10  write (*, *) 'error opening file', rank
+10  write (*, *) 'error opening file'
     inquire (1, opened=is_opened)
     if (is_opened .eqv. .true.) then
         close (1)

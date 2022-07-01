@@ -15,28 +15,19 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
 
     real*8, intent(in) :: e0
     real*8, intent(out):: e2d
-
-    integer :: dimn, dimm, count, dammy
-
+    integer :: dimn, dimm, dammy
     integer, allocatable :: indsym(:, :)
-
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
     real*8               :: e2(nsymrpa*2), e, alpha
-
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
-
     integer, allocatable     :: ia0(:), ii0(:), iai(:, :)
     integer                  :: nai
-
     logical :: cutoff
-    integer :: j, i, k, syma, isym, i0, j0
+    integer :: j, i, syma, isym, i0
     integer :: ia, it, ii, iu
     integer :: ja, jt, ji, ju
-
     real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -73,7 +64,6 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
 !
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
 
-!        thresd = thres
     if (rank == 0) then ! Process limits for output
         write (*, *) ' ENTER solv D part'
         write (*, *) ' nsymrpa', nsymrpa
@@ -88,7 +78,6 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     e2d = 0.0d+00
     dimn = 0
     syma = 0
-
 
     i0 = 0
     Do ia = 1, nsec
@@ -150,7 +139,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
 100         End do               ! iu
         End do                  ! it
 
-!        write(*,*)'isym, dimn',isym, dimn
+        if (rank == 0) print *, 'isym, dimn', isym, dimn
 
         If (dimn == 0) goto 1000
 
@@ -209,9 +198,6 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'after s cdiag'
         end if
-!           Do i0 = 1, dimn
-!           write(*,'(E20.10)') ws(i0)
-!           End do
 
         If (dimm == 0) then
             deallocate (indsym)
@@ -401,7 +387,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2d(",I3,") = ",E20.10,"a.u.",I4)') isym, e2(isym), rank
+1000    if (rank == 0) write (*, '("e2d(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
         e2d = e2d + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
@@ -447,12 +433,9 @@ SUBROUTINE sDmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 #endif
     integer, intent(in)      :: dimn, indsym(2, dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
-
     real*8  :: a, b
-
-    integer :: it, iu, iy, ix, ivx, itu
+    integer :: it, iu, iy, ix
     integer :: i, j
-    integer :: count
 
     sc = 0.0d+00
 
@@ -472,15 +455,11 @@ SUBROUTINE sDmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
             sc(i, j) = DCMPLX(a, b)
             sc(j, i) = DCONJG(sc(i, j))
 
-!              If(ABS(sc(i,j)) > 1.0d+00) then
-!                 write(*,'(2I4,2E20.10)')i,j,sc(i,j)
-!              Endif
-
         End do               !j
     End do                  !i
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce (MPI_IN_PLACE, sc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 End subroutine sDmat
 
@@ -508,7 +487,7 @@ SUBROUTINE bDmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
     real*8              :: e, denr, deni
     complex*16          :: den
 
-    integer :: it, iu, iv, ix, iy, iz, iw
+    integer :: it, iu, ix, iy, iw
     integer :: jt, ju, jy, jx, jw, i, j
 
     bc(:, :) = 0.0d+00
@@ -583,18 +562,15 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     include 'mpif.h'
 #endif
     integer, intent(in)     :: nai, iai(ninact + nact + 1:ninact + nact + nsec, ninact)
-
     complex*16, intent(out) :: v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
-
-    real*8                  :: dr, di, signkl
-    complex*16              :: cint1, cint2, dens, d
+    real*8                  :: dr, di
+    complex*16              :: cint1, cint2,  d
     complex*16              :: effh(ninact + nact + 1:ninact + nact + nsec, ninact)
-
-    integer :: i, j, k, l, tai, ip, iq, save, count
-    integer :: it, jt, ju, iu, ia, ii, ja, ji, kkr, lkr
-    logical :: test
+    integer :: i, j, k, l, tai
+    integer :: it, jt, ju, iu, ia, ii, ja, ji
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+
     if (rank == 0) write (*, *) 'Enter vDmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
@@ -616,7 +592,6 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
             ji = ii
             Call tramo1_ty(ja, ji, cint1)
             effh(ja, ji) = cint1
-!              if(ja==19.and.ji==1) write(*,'("effh int1 ",2I4,2E20.10)')ja,ji,cint1
         End do
     End do
     !$OMP end parallel do
@@ -636,15 +611,12 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!  open (1, file='D1int', status='old', form='unformatted')
     if (rank == 0) write (*, *) 'before d1int'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! open (1, file=d1int, status='old', form='formatted')
     open (1, file=d1int, status='old', form='unformatted')
 
-! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 30  read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -656,7 +628,6 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     ja = i
     ji = j
     tai = iai(ja, ji)
-!           write(*,'("type1 (31|22)",4I4,2E20.10)')i,j,k,l,cint2
 
     !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
     Do it = 1, nact
@@ -684,15 +655,12 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!  open (1, file='D2int', status='old', form='unformatted')
     if (rank == 0) write (*, *) 'before d2int'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! open (1, file=d2int, status='old', form='formatted')
     open (1, file=d2int, status='old', form='unformatted')
 
-! 31  read (1, '(4I4, 2e20.10)', err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
 31  read (1, err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
     ja = i
     ji = l
@@ -718,17 +686,13 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading D2int2 is over'
     end if
-!  open (1, file='D3int', status='old', form='unformatted') ! (ai|jk) is stored
     if (rank == 0) write (*, *) 'before d3int'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! open (1, file=d3int, status='old', form='formatted') ! (ai|jk) is stored
     open (1, file=d3int, status='old', form='unformatted') ! (ai|jk) is stored
 
-! 300 read (1, '(4I4, 2e20.10)', err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
 300 read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
-!        write(*,*)'D1int', i,j,k,l ,cint2
 
     if (j /= k .and. k == l) then !(ai|kk)
 
@@ -750,14 +714,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    !    effh(ninact + nact + 1:ninact + nact + nsec, ninact)
-    ! if (rank == 0) then
-    !     call MPI_Reduce(MPI_IN_PLACE, effh(ninact + nact + 1, 1), nsec*ninact, &
-    !                     MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    ! else
-    !     call MPI_Reduce(effh(ninact + nact + 1, 1), effh(ninact + nact + 1, 1), nsec*ninact, &
-    !                     MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    ! end if
+
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + nact + 1, 1), nsec*ninact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
@@ -765,9 +722,6 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! if (rank /= 0) then
-    !     effh(:, :) = 0
-    ! end if
 
     !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,tai,it,jt,iu,ju,dr,di,d)
     Do ia = rank + 1, nsec, nprocs
@@ -775,7 +729,6 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         Do ii = 1, ninact
             ji = ii
             tai = iai(ja, ji)
-!              if(ABS(effh(ja,ji)) > 1.0d-10) write(*,'("effh ",2I4,2E20.10)')ja,ji,effh(ja,ji)
 
             Do it = 1, nact
                 jt = it + ninact
@@ -798,7 +751,6 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 10  write (*, *) 'error while opening file Dint'; goto 100
 
 100 if (rank == 0) write (*, *) 'vDmat_ord_ty is ended'
-!  v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nai*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
