@@ -8,11 +8,9 @@ SUBROUTINE readvec(filename)
 
     Implicit NONE
 
-    integer :: mdtriv, lenrec, ios, irec, nbitsa, midet
+    integer :: mdtriv, lenrec, ios, irec, midet
     character*50, intent(in) :: filename
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
-!        real*8 :: thres
+    integer :: j, i, i0
 
     mdtriv = 10
     eigen(:) = 0.0d+00
@@ -75,10 +73,6 @@ SUBROUTINE readvec(filename)
         read (mdtriv, rec=irec + 2, err=300) (cir(j, irec), cii(j, irec), j=1, ndet)
     end do
 
-!        write(*,*)'norb=' ,norb
-!        write(*,*)'nelec=' ,nelec
-!        write(*,*)'nroot=',nroot
-!        write(*,*)'ndet=',ndet
 
     do i0 = 1, nroot
         write (*, *) i0, eigen(i0)
@@ -90,7 +84,6 @@ SUBROUTINE readvec(filename)
 
     do irec = 1, nroot
         do j = 1, ndet
-!!            write(*,'(2I4,2(3X,E14.7))') j,irec, cir(j,irec), cii(j,irec)
             if (ABS(cii(j, irec)) > thres) then
                 realcvec = .false.
             end if

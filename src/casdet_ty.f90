@@ -8,7 +8,6 @@ SUBROUTINE casdet_ty
 
     Implicit NONE
 
-    integer :: nbitsa
     integer :: i, isym
     integer, allocatable  :: idet0(:)
 

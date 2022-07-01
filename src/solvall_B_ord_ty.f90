@@ -15,13 +15,11 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     real*8, intent(in) :: e0
     real*8, intent(out):: e2b
 
-    integer :: dimn, dimm, count, dammy
+    integer :: dimn, dimm, dammy
 
     integer, allocatable :: indsym(:, :)
 
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
     real*8               :: e2(2*nsymrpa), e, alpha
 
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
@@ -32,7 +30,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     integer                  :: nij
 
     logical :: cutoff
-    integer :: j, i, k, syma, isym, i0, j0
+    integer :: j, i, syma, isym, i0
     integer :: ij, it, ii, iu, jj, jt, ji, ju
 
     real*8  :: thresd
@@ -70,7 +68,6 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 !
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
 
-!        thresd = thres
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -441,10 +438,8 @@ SUBROUTINE sBmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
     real*8  :: a, b
 
-    integer :: it, iu, iy, ix, ivx, itu
-    integer :: jt, ju, jy, jx
+    integer :: it, iu, iy, ix
     integer :: i, j
-    integer :: count
 
     sc = 0.0d+00
 
@@ -482,11 +477,6 @@ SUBROUTINE sBmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
             If ((it == ix) .and. (iu == iy)) then
                 sc(i, j) = sc(i, j) + 1.0d+00
             End if
-
-!              If((it == iy).and.(iu == ix)) then
-!                 write(*,*)'it == iy).and.(iu == ix)'
-!                 sc(i,j) = sc(i,j) - 1.0d+00
-!              Endif
 
             sc(j, i) = DCONJG(sc(i, j))
 
@@ -527,7 +517,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
     real*8              :: e, denr, deni
     complex*16          :: den
 
-    integer :: it, iu, iv, ix, iy, iz, iw
+    integer :: it, iu, ix, iy, iw
     integer :: jt, ju, jy, jx, jw, i, j
 
     bc(:, :) = 0.0d+00
@@ -596,10 +586,6 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
                 bc(i, j) = bc(i, j) + e0
             End if
 
-!              If((it == iy) .and.(iu == ix)) then        ! THIS TERM IS 0
-!                 bc(i, j) = bc(i, j) - e0
-!              Endif
-
             bc(i, j) = bc(i, j) + sc(i, j)*e
 
             bc(j, i) = DCONJG(bc(i, j))
@@ -643,24 +629,18 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 
     integer, intent(in)     :: nij, iij(ninact, ninact)
     complex*16, intent(out) :: v(nij, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
-
     real*8                  :: dr, di
     complex*16              :: cint2, dens
-
-    integer :: i, j, k, l, tij, ip, iq, save, count
+    integer :: i, j, k, l, tij
     integer :: it, jt, ju, iu
 
     v = 0.0d+00
 
-!   open(1, file ='Bint', status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
-    ! open (1, file=bint, status='old', form='formatted')  !  (21|21) stored (ti|uj) i > j
     open (1, file=bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
 
-! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2                    !  (ij|kl)
 30  read (1, err=10, end=20) i, j, k, l, cint2                    !  (ij|kl)
 
     if (j <= l) goto 30
-!        write(*,'(4I4,2E20.10)')i,j,k,l,cint2
 
 !------------------------------------------------------------------------------------------------
 !  i > j
@@ -724,7 +704,6 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 
 100 if (rank == 0) write (*, *) 'vBmat_ord_ty is ended'
 
-!  v(nij, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nij*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif

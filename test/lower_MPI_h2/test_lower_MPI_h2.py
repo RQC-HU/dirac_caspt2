@@ -5,7 +5,7 @@ import pytest
 import glob
 
 
-def test_h2():
+def test_lower_MPI_h2():
     test_path = os.path.dirname(os.path.abspath(__file__)) # The path of this file
     os.chdir(test_path)  # Change directory to the path of this file
     print(test_path)  # Debug output
@@ -63,4 +63,4 @@ def test_h2():
 
 
 if __name__ == "__main__":
-    test_h2()
+    test_lower_MPI_h2()

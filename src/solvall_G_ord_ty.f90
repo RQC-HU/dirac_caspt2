@@ -15,26 +15,17 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
 
     real*8, intent(in) :: e0
     real*8, intent(out):: e2g
-
-    integer :: dimn, dimm, count, dammy
-
-    integer, allocatable :: indsym(:, :)
-
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
+    integer :: dimn, dimm, dammy
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
     real*8               :: e2(2*nsymrpa), alpha, e
-
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :), vc(:), vc1(:)
-
     logical                  :: cutoff
-    integer                  :: j, i, k, i0, syma, symb, isym, indt(1:nact)
+    integer                  :: j, i, i0, syma, symb, isym, indt(1:nact)
     integer                  :: ia, it, ib, ii, ja, jt, jb, ji
     integer, allocatable     :: ia0(:), ib0(:), ii0(:), iabi(:, :, :)
     integer                  :: nabi
-
     real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -67,7 +58,6 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
 !
 !  E2 = SIGUMA_iab, dimm |V1(t,iab)|^2|/{(alpha(iab) + wb(t)}
 !
-!        thresd = thres
     if (rank == 0) then ! Process limits for output
         write (*, *) ' ENTER solv G part'
         write (*, *) ' nsymrpa', nsymrpa
@@ -431,9 +421,7 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 #endif
     integer, intent(in)      :: dimn, indt(dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
-
     real*8  ::a, b
-
     integer :: it, iu
     integer :: i, j
 
@@ -452,7 +440,6 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 
             sc(i, j) = DCMPLX(a, b)
             sc(j, i) = DCMPLX(a, -b)
-!              write(*,*)i,j,sc(i,j)
         End do               !j
     End do                  !i
 !    !$OMP end parallel do
@@ -519,10 +506,8 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
 
             End do
 
-!              bc(i, j) = bc(i, j) - sc(i, j)*eps(jt)
             bc(i, j) = bc(i, j) - sc(i, j)*eps(ju)
 
-!              write(*,*)'bc',i,j, bc(i,j)
             bc(j, i) = DCONJG(bc(i, j))
 
         End do               !i
@@ -561,7 +546,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
 
     complex*16, intent(out) :: v(nabi, ninact + 1:ninact + nact)
 
-    real*8                  :: dr, di, signij, signkl
+    real*8                  :: dr, di
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, tabi
@@ -580,7 +565,6 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
 30  read (1, err=10, end=20) i, j, k, l, cint2
 
     if (i == k) goto 30
-!        write(*,*) i,j,k,l,tabi,cint2
 
     tabi = iabi(i, k, j)
 
@@ -603,7 +587,6 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
 10  if(rank == 0) write (*, *) 'error while opening file Gint'; goto 100
 
 100 if (rank == 0) write (*, *) 'vGmat_ord_ty is ended'
-    !   v(nabi, ninact+1:ninact+nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif

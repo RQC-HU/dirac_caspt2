@@ -9,9 +9,7 @@ SUBROUTINE casci_ty
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer :: nbitsa, comb
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll, irec, cimat
+    integer :: comb, j0, j, i0, irec, cimat
     real*8 :: thresd
 
     complex*16, allocatable :: mat(:, :)
@@ -82,7 +80,6 @@ SUBROUTINE casci_ty
         write (10) ecas(1:ndet)
         write (10) 2**nact - 1 ! idetrの配列の要素数
         write (10) idetr(1:2**nact - 1)
-!        write(10) mat(1:ndet,1:ndet)
         close (10)
 
 ! Print out C1 matrix!

@@ -14,15 +14,12 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 #endif
     real*8, intent(in) :: e0
     real*8, intent(out):: e2h
-
-    Integer                :: ia, ib, ii, ij, syma, symb, sym1, sym2, i, j, k, l
+    Integer                :: ia, ib, ii, ij, syma, symb, i, j, k, l
     Integer                :: i0, j0, tab, nab, tij, nij, count
     Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
     Complex*16             :: cint2
     Complex*16, allocatable :: v(:, :)
-    Real*8                 :: e, signij, signkl
-
-    real*8  :: thresd
+    Real*8                 :: e
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -100,22 +97,14 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     Allocate (v(nab, nij))
     v = 0.0d+00
 
-! open (1, file='Hint', status='old', form='unformatted')
-!    open (1, file=hint, status='old', form='formatted')
     open (1, file=hint, status='old', form='unformatted')
-! 30     read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
 30  read (1, err=10, end=20) i, j, k, l, cint2
     count = 0
 
-40  if (i <= k .or. j == l) goto 30
-
-!         write(*,*)i,j,k,l,cint2
+    if (i <= k .or. j == l) goto 30
 
     tab = iab(i, k)
     tij = iij(j, l)
-
-!        write(*,*)tab,iab(i,k),i,k
-!  V(aibj)   = (ai|bj) - (aj|bi)     i > j, a > b
 
     if (i > k .and. j > l) then
         v(tab, tij) = v(tab, tij) + cint2
@@ -134,7 +123,6 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     goto 30
 
 20  close (1)
-!    Allocate (v(nab, nij))
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
@@ -181,7 +169,6 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     deallocate (ij0)
 
 10  continue                !write(*,*)'error about opening Hint file' ;stop
-100 continue
     if (rank == 0) then ! Process limits for output
         write (*, *) 'end solvH_ord_ty'
     end if

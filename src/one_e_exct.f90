@@ -11,9 +11,7 @@ subroutine one_e_exct(iidet, creat, anhi, newidet, phase)
     integer, intent(in)  :: iidet, creat, anhi
     integer, intent(out) :: newidet, phase
 
-    integer :: ia, ib, nbitsa, indu, indv
-    integer :: j0, j, i, i0, i1
-    integer :: k0, l0, ii, jj, kk, ll
+    integer :: ia, ib, indu, indv
 
     ia = 0
     ib = 0
@@ -22,8 +20,6 @@ subroutine one_e_exct(iidet, creat, anhi, newidet, phase)
 
 !     Index for only CASCI Active space
 
-!      indu = creat - ninact
-!      indv = anhi  - ninact
     indu = creat
     indv = anhi
 
@@ -37,15 +33,9 @@ subroutine one_e_exct(iidet, creat, anhi, newidet, phase)
         newidet = iidet - 2**(indv - 1) + 2**(indu - 1)
 !        calculation of phase
 
-        ! do i1 = indv, nact - 1
-        !     ia = ia + 2**i1          ! to make sequnece whose bits are all '0' bellow the vth bit
-        ! end do
         if (indv < nact) then
             ia = ia + 2**nact - 2**indv
         end if
-        ! do i1 = indu, nact - 1
-        !     ib = ib + 2**i1          ! to make sequnece whose bits are all '0' bellow the uth bit
-        ! end do
         if (indu < nact) then
             ib = ib + 2**nact - 2**indu
         end if

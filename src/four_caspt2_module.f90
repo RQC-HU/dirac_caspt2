@@ -86,23 +86,16 @@ MODULE four_caspt2_module
     complex*16  ::  coeff1
 ! from MORCONEE
 
-!   real*8 :: ecore, enuc
     real*8 :: enuc
     double precision :: ecore ! core energy
-!   integer :: nsymrp, nsymrpa, multb(128,128), multb2(128,128), nmo, scfru
-!   integer :: nmo
     integer :: nsymrp, nsymrpa, multb(128, 128), multb2(128, 128), nmo, scfru
     character :: repn(64)*14, repna(64)*4, repn_ty(64)*6
-!   character :: repn(50)*14, repna(50)*4, repn_ty(50)*6
-!   integer, allocatable :: irpmo(:), irpamo(:), indmo(:), indmor(:)
     integer, allocatable :: irpmo(:), irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo(:), indmor(:) ! index of MO
     real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
     real*8, allocatable  :: orbmo(:), orb(:)
     real*8, allocatable  :: orbmocas(:), orbcas(:)
 
-!   integer, allocatable ::multb_s(:,:), multb_d(:,:), multb_ds(:,:) ! This is for typart
-!   integer, allocatable ::MULTB_DF(:,:), MULTB_DB(:,:), MULTB_SB(:,:)
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart
     integer, allocatable ::MULTB_DF(:, :), MULTB_DB(:, :), MULTB_SB(:, :)
 
@@ -111,7 +104,6 @@ MODULE four_caspt2_module
     complex*16, allocatable :: f(:, :), itrfmo(:, :, :) ! f: fock matrix
 
 ! Iwamuro modify
-!   integer :: nelecd(64)
     integer :: nelecd(64), nfsym, nz1, norbt
     logical :: spfr, sfform, realonly ! realonly : If it is true, only real numbers are written in MDCINT.
 
@@ -159,6 +151,4 @@ MODULE four_caspt2_module
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
     integer, parameter :: normal_output = 3000, read_line_max = 1000
 
-    ! Test for MDCINT_READ_COUNT
-    integer :: casci_mdcint_cnt, caspt2_mdcint_cnt, caspt2_mdcint_cnt2, simple_loop
 end MODULE four_caspt2_module
