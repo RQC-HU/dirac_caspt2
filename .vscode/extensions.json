@@ -12,15 +12,12 @@
     "timonwong.shellcheck",
     // Fortran関連
     "ms-vscode.cpptools-extension-pack",
-    "ms-vscode.cmake-tools",
-    "ekibun.fortranbreaker",
-    "krvajalm.linter-gfortran",
-    "hansec.fortran-ls",
+    "fortran-lang.linter-gfortran",
+    // Error強調表示
     "usernamehw.errorlens",
     // Git関連
     "mhutchie.git-graph",
     "donjayamanne.githistory",
-    "KnisterPeter.vscode-github",
     "GitHub.vscode-pull-request-github",
     "eamodio.gitlens",
     // コーディングルール強制
