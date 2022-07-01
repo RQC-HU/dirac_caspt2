@@ -29,7 +29,9 @@ contains
         child = 2*parent
         if (is_reverse) then
             do while (child <= last)
-                if (child < last .and. array(child) > array(child + 1)) child = child + 1
+                if (child < last) then
+                    if (array(child) > array(child + 1)) child = child + 1
+                end if
                 if (array(child) >= array(parent)) exit
                 call swap(array, child, parent)
                 parent = child
@@ -37,7 +39,9 @@ contains
             end do
         else
             do while (child <= last)
-                if (child < last .and. array(child) < array(child + 1)) child = child + 1
+                if (child < last) then
+                    if (array(child) < array(child + 1)) child = child + 1
+                end if
                 if (array(child) <= array(parent)) exit
                 call swap(array, child, parent)
                 parent = child
@@ -72,7 +76,9 @@ contains
         child = 2*parent
         if (is_reverse) then
             do while (child <= last)
-                if (child < last .and. array(child) > array(child + 1)) child = child + 1
+                if (child < last) then
+                    if (array(child) > array(child + 1)) child = child + 1
+                end if
                 if (array(child) >= array(parent)) exit
                 call swap(array, child, parent)
                 parent = child
@@ -80,7 +86,9 @@ contains
             end do
         else
             do while (child <= last)
-                if (child < last .and. array(child) < array(child + 1)) child = child + 1
+                if (child < last) then
+                    if (array(child) < array(child + 1)) child = child + 1
+                end if
                 if (array(child) <= array(parent)) exit
                 call swap(array, child, parent)
                 parent = child
