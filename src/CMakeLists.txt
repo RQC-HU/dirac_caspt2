@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 add_executable(r4dcascicoexe
 	four_caspt2_module.f90
+	module_sort_swap.f90
+	read_input_module.f90
 	nbitsa.f90
 	readvec.f90
 	read1mo_co.f90
@@ -39,6 +41,8 @@ add_executable(r4dcascicoexe
 
 add_executable(r4dcaspt2ocoexe
 	four_caspt2_module.f90
+	module_sort_swap.f90
+	read_input_module.f90
 	nbitsa.f90
 	readvec.f90
 	readorb_enesym_co.f90

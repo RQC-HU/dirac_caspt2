@@ -17,6 +17,7 @@ MODULE four_caspt2_module
     ! nelec         : The number of electrons in active space
     ! nroot         : The number of roots
     ! selectroot    : Which root do you want to obtain
+    ! totsym
     ! ncore         : The number of core orbitals
     ! nbas          : Basis set
     ! eshift        : Real shift
@@ -24,10 +25,16 @@ MODULE four_caspt2_module
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
-    integer         :: ncore, nbas
+    integer         :: totsym, ncore, nbas
     real(8)         :: eshift
     character       :: ptgrp*6
+    character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
+    integer         :: ras1_start, ras1_size, ras2_start, ras2_size, ras3_start, ras3_size
+    integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
+    logical         :: is_ras1_configured, is_ras2_configured, is_ras3_configured
+    integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
+    integer, parameter :: max_ras_spinor_num = 200
 
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)
