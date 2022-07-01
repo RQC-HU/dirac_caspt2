@@ -533,11 +533,11 @@ contains
         ! Fill ninact
         do while (current_idx <= ninact)
             if (is_ras1_configured .and. ras1_list(ras1_current_idx) == current_spinor_idx) then
-                if (ras1_size < ras1_current_idx) ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
+                if (ras1_size > ras1_current_idx) ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
             elseif (is_ras2_configured .and. ras2_list(ras2_current_idx) == current_spinor_idx) then
-                if (ras2_size < ras2_current_idx) ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
+                if (ras2_size > ras2_current_idx) ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
             elseif (is_ras3_configured .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
-                if (ras3_size < ras3_current_idx) ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
+                if (ras3_size > ras3_current_idx) ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
             else
                 want_to_sort(current_idx) = original_orb_energy_order(current_spinor_idx)
                 current_idx = current_idx + 1
@@ -585,11 +585,11 @@ contains
         ! Fill secondary
         do while (current_idx <= ninact + nact + nsec)
             if (ras1_size > 0 .and. ras1_list(ras1_current_idx) == current_spinor_idx) then
-                if (ras1_size < ras1_current_idx) ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
+                if (ras1_size > ras1_current_idx) ras1_current_idx = ras1_current_idx + 1 ! Skip ras1_list(ras1_current_idx)
             elseif (ras2_size > 0 .and. ras2_list(ras2_current_idx) == current_spinor_idx) then
-                if (ras2_size < ras2_current_idx) ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
+                if (ras2_size > ras2_current_idx) ras2_current_idx = ras2_current_idx + 1 ! Skip ras2_list(ras2_current_idx)
             elseif (ras3_size > 0 .and. ras3_list(ras3_current_idx) == current_spinor_idx) then
-                if (ras3_size < ras3_current_idx) ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
+                if (ras3_size > ras3_current_idx) ras3_current_idx = ras3_current_idx + 1 ! Skip ras3_list(ras3_current_idx)
             else
                 want_to_sort(current_idx) = original_orb_energy_order(current_spinor_idx)
                 current_idx = current_idx + 1
