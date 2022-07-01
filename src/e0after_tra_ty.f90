@@ -10,12 +10,10 @@ SUBROUTINE e0aftertra_ty
 
     Implicit NONE
 
-    integer :: ii, jj, kk, ll, typetype
-    integer :: j0, j, i, k, l, i0, i1, nuniq
-    integer :: k0, l0, nint
-    logical :: test
+    integer :: ii, jj, kk, ll
+    integer :: j, i, k, l
 
-    real*8 :: i2r, i2i, dr, di, nsign
+    real*8 :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
     complex*16, allocatable :: energy(:, :)
 
@@ -340,12 +338,10 @@ SUBROUTINE e0aftertrac_ty
 #ifdef HAVE_MPI
     include "mpif.h"
 #endif
-    integer :: ii, jj, kk, ll, typetype
-    integer :: j0, j, i, k, l, i0, i1, nuniq
-    integer :: k0, l0, nint
-    logical :: test
+    integer :: ii, jj, kk, ll
+    integer :: j, i, k, l
 
-    real*8 :: i2r, i2i, dr, di, nsign
+    real*8 :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
     complex*16, allocatable :: energy(:, :)
 

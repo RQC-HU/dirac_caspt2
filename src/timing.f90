@@ -24,8 +24,6 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
 
     difsec = tsec - tsec0
 
-!        write(*,*)tsec, tsec0, difsec
-
     if (rank == 0) then ! Process limits for output
         write (*, '("Present time is")')
         write (*, '("year  = ",I4,"month = ",I4,"date  = ",I4 )') val(1), val(2), val(3)
@@ -33,33 +31,17 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
         & val(5), val(6), val(7), val(8)
     end if
 
-!        If(AINT(difsec) > 3600*24) then
+
     day = AINT(difsec)/(3600*24)
     resd = difsec - day*3600*24
-!        Else
-!           day = 0
-!           resd = difsec
-!        Endif
 
-!        If(AINT(resd) > 3600) then
     hour = AINT(resd)/3600
     resd = resd - hour*3600
-!        Else
-!           hour = 0
-!           resd = resd
-!        Endif
 
-!        If(AINT(resd) > 60) then
     min = AINT(resd)/60
     resd = resd - min*60
-!        Else
-!           min  = 0
-!           resd = resd
-!        Endif
 
     sec = resd
-
-!        write(*,'("computational time = ", F20.10,"sec")')difsec
     if (rank == 0) then ! Process limits for output
         write (*, '("computational time = ",I3,"day",I3,"h ",I3, &
         &"min",F7.3,"sec")') day, hour, min, sec

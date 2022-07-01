@@ -70,9 +70,9 @@ SUBROUTINE tramo2_ty(i, j, k, l, int2)
 
     integer     :: i0, j0, k0, l0, sym1, sym2, sym3, sym4, sym5, sym6
     integer     :: n(4, 2), mo(4)
-    integer     :: nint, tcount, count
+    integer     :: tcount, count
 
-    real*8      :: i2r, i2i, nsign, nsign2
+    real*8      :: i2r, i2i
     complex*16  :: cmplxint
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -89,13 +89,6 @@ SUBROUTINE tramo2_ty(i, j, k, l, int2)
     sym5 = MULTB_D(sym1, sym2)
     sym6 = MULTB_D(sym3, sym4)
 
-    ! Iwamuro modify
-!       write(*,*) "sym1 =", sym1
-!       write(*,*) "sym2 =", sym2
-!       write(*,*) "sym3 =", sym3
-!       write(*,*) "sym4 =", sym4
-!       write(*,*) "sym5 =", sym5
-!       write(*,*) "sym6 =", sym6
 
     If (MULTB_S(sym5, sym6) == 1) then
 
@@ -123,10 +116,6 @@ SUBROUTINE tramo2_ty(i, j, k, l, int2)
 
             end if
 
-! Iwamuro modify
-!       write(*,*) " mo(i0), n(i0,1), n(i0,2) =", mo(i0), n(i0,1), n(i0,2)
-!        if(debug) write(*,*) mo(i0), n(i0, 1), n(i0, 2)
-
         End do    ! i0
         tcount = 0
         count = 0
@@ -142,33 +131,18 @@ SUBROUTINE tramo2_ty(i, j, k, l, int2)
                             count = count + 1
                             cmplxint = 0.0d+00
 
-                            !    nint = ABS(indtwr(i0, j0, k0, l0))
-                            !    nsign = SIGN(1, indtwr(i0, j0, k0, l0))
-                            !    i2r = int2r(nint)*nsign
                             i2r = inttwr(i0, j0, k0, l0)
-                            !    nsign2 = SIGN(1, indtwi(i0, j0, k0, l0))
-                            !    i2i = int2i(nint)*nsign2
                             i2i = inttwi(i0, j0, k0, l0)
-
                             cmplxint = CMPLX(i2r, i2i, 16)
 
                             int2 = int2 + DCONJG(f(i0, i))*DCONJG(f(k0, k))*f(j0, j)*f(l0, l)*cmplxint
 
-!Iwamuro modify
-!         write(*,*) "nint, nsign, i2r =", nint, nsign, i2r
-!         write(*,*) "nsign2, i2i, cmplxint =", nsign2, i2i, cmplxint
-!         write(*,*) "int2 =", int2
-
                         End if
-
                     end do
                 end do
             end do
         end do
 
-!Iwamuro modify
-!        write(*,*) "tcount, count =", tcount, count
-!        write(*,*)tcount, count
     End if
 
 End subroutine tramo2_ty

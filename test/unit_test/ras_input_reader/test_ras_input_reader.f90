@@ -4,7 +4,6 @@ program main
     implicit none
     integer :: count
     count = 1
-    print *, "start"
 !     open (2, file='ref.ras3')
 !     do
 !         read (2, *, end=20) ras3(count)

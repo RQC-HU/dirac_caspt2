@@ -14,27 +14,18 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 #endif
     real*8, intent(in) :: e0
     real*8, intent(out):: e2f
-
-    integer :: dimn, dimm, count, dammy
-
+    integer :: dimn, dimm, dammy
     integer, allocatable :: indsym(:, :)
-
-    real*8, allocatable  :: sr(:, :), ur(:, :)
-    real*8, allocatable  :: br(:, :), wsnew(:), ws(:), wb(:)
-    real*8, allocatable  :: br0(:, :), br1(:, :)
+    real*8, allocatable  :: wsnew(:), ws(:), wb(:)
     real*8               :: e2(2*nsymrpa), alpha, e
-
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
-
     logical :: cutoff
-    integer :: j, i, k, syma, isym, i0, j0
+    integer :: j, i, syma, isym, i0
     integer :: ia, it, ib, iu, ja, jt, jb, ju
-
     integer, allocatable     :: ia0(:), ib0(:), iab(:, :)
     integer                  :: nab
-
     real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -123,13 +114,11 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-!     Do isym = nsymrpa+1, 2*nsymrpa
     Do isym = 1, nsymrpa
 
         dimn = 0
         Do it = 1, nact
             jt = it + ninact
-!           Do iu = 1, nact
             Do iu = 1, it - 1
                 ju = iu + ninact
 
@@ -153,7 +142,6 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         dimn = 0
         Do it = 1, nact
             jt = it + ninact
-!           Do iu = 1, nact
             Do iu = 1, it - 1
                 ju = iu + ninact
 
@@ -441,12 +429,9 @@ SUBROUTINE sFmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 #endif
     integer, intent(in)      :: dimn, indsym(2, dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
-
     real*8  :: a, b
-
     integer :: it, iu, iv, ix
     integer :: i, j
-    integer :: count
 
     sc = 0.0d+00
 
@@ -505,7 +490,7 @@ SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
     real*8              :: e, denr, deni
     complex*16          :: den
 
-    integer :: it, iu, iv, ix, iy, iz, iw
+    integer :: it, iu, iv, ix, iw
     integer :: jt, ju, jv, jx, jw, i, j
 
     bc(:, :) = 0.0d+00
@@ -593,7 +578,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
 
-    integer :: i, j, k, l, tab, ip, iq, save
+    integer :: i, j, k, l, tab, ip, iq
     integer :: it, jt, ju, iu
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -606,27 +591,12 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
-!   open(1, file ='Fint', status='old', form='unformatted')  !  (32|32) stored  a > b
-    ! open (1, file=fint, status='old', form='formatted')  !  (32|32) stored  a > b
     open (1, file=fint, status='old', form='unformatted')  !  (32|32) stored  a > b
-! 30  read (1, '(4I4, 2e20.10)', err=10, end=20) i, j, k, l, cint2
 30  read (1, err=10, end=20) i, j, k, l, cint2
 
     if (i <= k) goto 30
 
     tab = iab(i, k)
-
-!        if (i < k ) then   ! indices exchange i<=>k j<=>l
-!           save = i
-!           i    = k
-!           k    = save
-!           save = j
-!           j    = l
-!           l    = save
-!        endif
-
-!        write(*,'(4I4,2E20.10)') i,j,k,l,cint2
-
     ip = j - ninact
     iq = l - ninact
 
@@ -661,7 +631,6 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 
 100 if (rank == 0) write (*, *) 'vFmat_ord is ended'
 
-!  v(nab, ninact+1:ninact+nact, ninact+1:ninact+nact)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif

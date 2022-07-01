@@ -653,6 +653,7 @@ contains
         integer :: idx
         logical :: electron_filled(ninact + nact + nsec)
 
+        ! min_hole_ras1 can't be larger than ras1_size
         if (min_hole_ras1 > ras1_size) then
             ! ERROR: The number of minimum hole of ras1 is larger than the number of ras1, It is unavailable.
             if (rank == 0) then
@@ -664,6 +665,8 @@ contains
                 stop ! Error in input. Stop the Program
             end if
         end if
+
+        ! ras3_max_elec can't be larager than ras3_size
         if (ras3_max_elec > ras3_size) then
             ! ERROR: The number of max electron of ras3 is larger than the number of ras3, It is unavailable.
             if (rank == 0) then
@@ -675,7 +678,10 @@ contains
                 stop ! Error in input. Stop the Program
             end if
         end if
+
+        ! Initialization
         electron_filled(:) = .false.
+
         if (is_ras1_configured) then
             do idx = 1, ras1_size ! ras1_size is the size of the list.
                 if (electron_filled(ras1_list(idx))) then

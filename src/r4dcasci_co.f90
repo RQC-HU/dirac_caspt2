@@ -13,13 +13,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: i0, nuniq
-    integer                 ::  inisym, endsym
-    real(16)                :: time0, time1
-
-!        integer                 ::  val(8), initdate, date0, date1
-!        real*8                  :: totalsec, inittime, tsec0, tsec1, tsec
-
+    integer                 :: i0, nuniq, inisym, endsym
     logical                 :: test
     character*50            :: filename
 
@@ -42,7 +36,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then ! Process limits for output
-        ! open (normal_output, file='caspt2.out', form='formatted', status='unknown')
         write (*, '(A,I8,A,I8)') 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         write (*, *) ''
         write (*, *) ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
@@ -64,7 +57,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         inittime = totalsec
 
         write (*, *) inittime
-        ! Call timing(val(3), totalsec, date0, tsec)
     end if
     call read_input
 
@@ -96,24 +88,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    call get_mdcint_filename
-
     !Iwamuro create new ikr for dirac
     Call create_newmdcint
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'Before readint2_casci_co', rank
+        write (*, '(a)') 'Before readint2_casci_co'
     end if
-    ! if (rank == 0) then
-    filename = 'MDCINTNEW'
 
-    ! Call readint2_casci_co(filename, nuniq)
     Call readint2_casci_co(mdcintnew, nuniq)
 
-!        Allocate(sp(1:nmo)) ;  Call memplus(KIND(sp),SIZE(sp),1)
-!        sp( 1               : ninact           )    = 1
-!        sp( ninact+1        : ninact+nact      )    = 2
-!        sp( ninact+nact+1   : ninact+nact+nsec )    = 3
-!        sp( ninact+nact+nsec: nmo              )    = 4
     if (rank == 0) then ! Process limits for output
         write (*, *) 'nmo        =', nmo
     end if
@@ -134,10 +116,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) then ! Process limits for output
         write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-!   Do totsym = inisym, inisym
-!   Do totsym = inisym, endsym
-
-!      totsym = 4
 
         write (*, *) ' '
         write (*, *) '*******************************'
@@ -150,8 +128,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     realcvec = .TRUE.
 
     Call casci_ty
-
-!      goto 1000
 
 !    This is test for bug fix about realc part
     if (rank == 0) then ! Process limits for output
@@ -238,11 +214,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
             write (*, *) 'eps(', i0, ')=', eps(i0)
         End do
     end if
-!      Do i0 = 1, nmo/2
-!         if(ABS(eps(i0*2)-eps(i0*2-1)) > 1.0d-10) then
-!            write(*,*)i0*2-1,i0*2,eps(i0*2-1),eps(i0*2)
-!         Endif
-!      Enddo
+
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         open (5, file='EPS', form='unformatted', status='unknown')
         write (5) nmo
@@ -266,20 +238,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
     deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
     deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
-
-    ! deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
     deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
     deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
     deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
     deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-    ! deallocate (int2i); Call memminus(KIND(int2i), SIZE(int2i), 1)
     deallocate (inttwi); Call memminus(KIND(inttwi), SIZE(inttwi), 1)
-    ! deallocate (indtwi); Call memminus(KIND(indtwi), SIZE(indtwi), 1)
     deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-    ! deallocate (int2r); Call memminus(KIND(int2r), SIZE(int2r), 1)
     deallocate (inttwr); Call memminus(KIND(inttwr), SIZE(inttwr), 1)
-    ! deallocate (indtwr); Call memminus(KIND(indtwr), SIZE(indtwr), 1)
     deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
     deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
@@ -293,8 +259,5 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif
-    if (rank == 0) then ! Process limits for output
-        write (*, '(a,i4,a,i4)') 'fin. rank:', rank, 'nprocs:', nprocs
-    end if
-1000 continue
+
 END program r4dcasci_co

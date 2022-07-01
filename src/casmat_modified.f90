@@ -13,17 +13,17 @@ SUBROUTINE casmat_modified(not_zero_count)
 !       complex*16, intent(out) :: mat(ndet, ndet)
 
     integer              :: occ, vir, indr, inds, inda, indb
-    integer              :: ir, is, ia, ib, imo, nint
+    integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0, i, j, newidet1, newidet2
     integer              :: phase, phase1, phase2
-    real*8               :: nsign, i2r, i2i
+    real*8               :: i2r, i2i
     complex*16           :: cmplxint, mat0
 
-    integer, allocatable :: ridet(:), oc(:), vi(:)
-    complex*16          :: matval, matval_reverse
+    integer, allocatable :: oc(:), vi(:)
+    complex*16           :: matval
     character(50)        :: matfilename, chr_rank
     integer, parameter   :: mat_unit_num = 1000
-    integer, intent(out)  :: not_zero_count
+    integer, intent(out) :: not_zero_count
 
     if (rank == 0) then ! Process limits for output
         write (*, *) 'Cas mat enter'
@@ -31,7 +31,7 @@ SUBROUTINE casmat_modified(not_zero_count)
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
     if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocated oc and vi', rank
+        write (*, *) 'allocated oc and vi'
     end if
     write (chr_rank, *) rank
     matfilename = "mat"//trim(adjustl(chr_rank))
@@ -260,8 +260,8 @@ SUBROUTINE casmat_modified(not_zero_count)
     Deallocate (oc)
     Deallocate (vi)
     if (rank == 0) then ! Process limits for output
-        write (*, '(A,I4)') 'end casmat', rank
-        write (*, '(A,I4)') 'Reduce mat(:,:)', rank
+        write (*, *) 'end casmat'
+        write (*, *) 'Reduce mat(:,:)'
     end if
     close (mat_unit_num)
 1000 end subroutine casmat_modified
