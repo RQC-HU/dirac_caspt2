@@ -171,7 +171,7 @@ contains
         character(:), allocatable :: ras_chr
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string
-        integer :: tmp_ras(max_ras_spinor_num), idx_filled
+        integer :: tmp_ras(max_ras_spinor_num), idx_filled, idx
 
         ! Get the ras_num and store this to ras_chr
         write (tmp_ras_chr, *) ras_num
@@ -195,6 +195,19 @@ contains
         allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
         call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
+
+        ! Check the specification of input is kramers pair?
+        if (mod(size(ras_list), 2) /= 0) then
+            if (rank == 0) print *, "ERROR: The number of ras_list is not even."
+            goto 10 ! Input Error. Stop program
+        end if
+        do idx = 1, size(ras_list), 2
+            if (ras_list(idx) + 1 /= ras_list(idx + 1)) then
+                if (rank == 0) print *, "ERROR: The ras_list is not kramers pair."
+                goto 10 ! Input Error. Stop program
+            end if
+        end do
+
         goto 100 ! Read the numbers properly
 10      if (rank == 0) print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
         stop
