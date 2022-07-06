@@ -13,7 +13,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     integer :: i0, j0, k0, i, j, m, isym, jsym, ksym
     integer, allocatable :: dammo(:), UTCHEMIMO1(:, :), UTCHEMIMO2(:, :)
     integer, allocatable :: SD(:, :), DS(:, :)
-    real*8 :: w
     logical :: breit
 
 !  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
@@ -365,8 +364,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
         call sort_list_energy_order_to_ras_order(sort_orb, orb)
     end if
 
-
-
 !! orb_sort is lower order of orbmo
 
     do i0 = 1, nmo, 2
@@ -384,11 +381,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
             end if
         end do
     end do
-
-
-
-
-
 
     if (rank == 0) then
         write (*, *) 'orb sort end'
