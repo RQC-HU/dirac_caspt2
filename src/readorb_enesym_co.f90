@@ -5,7 +5,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
-
+    use module_sort_swap
     Implicit NONE
 
     integer :: mrconee, IMO, IRP
@@ -350,89 +350,24 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 !Iwamuro modify
     irpmo(:) = irpamo(:)
 
-!    Do IMO=1,NMO
-!      Write(*,*) IRPMO(IMO),ORBMO(IMO)
-!    Enddo
-
-!Iwamuro modify
-!        Do i = 1,nmo
-
-!           If( irpmo(i) <= 8 ) then !keep irpmo
-!           Elseif (irpmo(i) <= 16 ) then
-!              goto 100 ! error
-!           Elseif (irpmo(i) <= 24) then
-!               irpmo(i) = irpmo (i) - 8
-!           Else
-!              goto 100   !error
-!           Endif
-
-!           If (irpmo(i) == 3) then
-!              irpmo(i) = 4
-!           Elseif (irpmo(i) == 4) then
-!              irpmo(i) = 3
-!           Elseif (irpmo(i) == 11) then
-!              irpmo(i) = 12
-!           Elseif (irpmo(i) == 12) then
-!     irpmo(i) = 11
-!           Endif
-
-!        Enddo
-
-!        write(*,*) "Modify irpmo"
-
     if (rank == 0) then
         write (*, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
     end if
-!        orbmo(:) = 0.0d+00
+
     orb = orbmo
 
 ! orb is lower order of orbmo
-
-    do i0 = 1, nmo - 1
-        m = i0
-        do j0 = i0 + 1, nmo
-            if (orb(j0) < orb(m)) m = j0
-        end do
-        w = orb(i0); orb(i0) = orb(m); orb(m) = w
-    end do
+    call heapSort(orb, .false.)
     allocate (sort_orb(nmo))
     sort_orb = orb
+! RAS sort
     if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) then
         call sort_list_energy_order_to_ras_order(sort_orb, orb)
     end if
-!     ! とりあえずN2の1sをRAS1としてみる
-!     ras1_start = 1
-!     spinor_num_ras1 = 2
-!     ! write(*,*) 'noda start sort'
-! ! sort_orbは基本的にorbの順で、RAS1だけinact+1開始としてインデックスの入れ替えをしたもの
-!     if (ras1_start /= 1) then ! ras1_start=1のときはいきなりRAS1の領域になるのでif文を無視
-!         sort_orb(1:ras1_start - 1) = orb(1:ras1_start - 1) ! RAS1が始まるまではsort_orbとorbは同じ
-!         ! write(*,*) 'ras1_start is not 1'
-!     end if
-!     ! write(*,*) 'before RAS1 sort end'
-!     sort_orb(ras1_start:ninact) = orb(ras1_start + spinor_num_ras1:ninact + spinor_num_ras1) ! RAS1の領域(ras1_start:ras1_start+rasnum-1)は無視して格納
-!     ! write(*,*) 'before RAS1 sort end'
-!     sort_orb(ninact + 1:ninact + spinor_num_ras1) = orb(ras1_start:ras1_start + spinor_num_ras1 - 1) ! RAS1の領域を格納
-!     ! write(*,*) 'before RAS1 sort end'
-!     sort_orb(ninact + spinor_num_ras1 + 1:nmo) = orb(ninact + spinor_num_ras1 + 1:nmo) ! RAS1以降はsort_orbとorbは同じ
 
-    if (rank == 0) then
-        write (*, *) 'orb sort end'
 
-        write (*, *) 'Noda: i0,orb(i0),sort_orb(i0)'
-        do i0 = 1, nmo
-            write (*, *) i0, orb(i0), sort_orb(i0)
-        end do
-    end if
-!         do i0 = 1, nmo
-!            write(*,*)orb(i0)
-!         end do
 
-!         do i0 = 1, nmo
-!            write(*,*)orbmo(i0)
-!        end do
-
-!! orb is lower order of orbmo
+!! orb_sort is lower order of orbmo
 
     do i0 = 1, nmo, 2
         m = 0
@@ -449,6 +384,20 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
             end if
         end do
     end do
+
+
+
+
+
+
+    if (rank == 0) then
+        write (*, *) 'orb sort end'
+
+        write (*, *) 'i0,orb(i0),sort_orb(i0)'
+        do i0 = 1, nmo
+            write (*, *) i0, orb(i0), sort_orb(i0)
+        end do
+    end if
 
     do i0 = 1, nmo
         indmor(indmo(i0)) = i0  ! i0 is energetic order, indmo(i0) is symmtric order (MRCONEE order)
