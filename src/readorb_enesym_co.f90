@@ -357,7 +357,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
 ! orb is lower order of orbmo
     call heapSort(orb, .false.)
-    allocate (sort_orb(nmo))
+    allocate (sort_orb(nmo)); Call memplus(KIND(sort_orb), SIZE(sort_orb), 1)
     sort_orb = orb
 ! RAS sort
     if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) then
@@ -459,7 +459,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
 1000 continue
     deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
-    deallocate (sort_orb)
+    deallocate (sort_orb); Call memminus(KIND(sort_orb), SIZE(sort_orb), 1)
 contains
     subroutine sort_list_energy_order_to_ras_order(want_to_sort, original_orb_energy_order)
         use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
