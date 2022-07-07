@@ -352,6 +352,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     CLOSE (mrconee)
 
+
 !Iwamuro modify
     irpmo(:) = irpamo(:)
 
@@ -372,10 +373,10 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
 !! orb_sort is lower order of orbmo
 
+    ! sort_orb(i0) and sort_orb(i0+1) should be same orbital energy (kramers pair)
     do i0 = 1, nmo, 2
         m = 0
         do j0 = 1, nmo
-            ! Noda : Use sort_orb instead of orb
             if (orbmo(j0) == sort_orb(i0)) then  ! orbmo(j0) is i0 th MO
                 if (m == 0) then
                     indmo(i0) = j0
