@@ -59,7 +59,7 @@ SUBROUTINE casci_ty
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
 
-    if (rank == 0) write (*, *) 'Noda ndet before cdiag', ndet
+    if (rank == 0) write (*, *) 'ndet before cdiag', ndet
     Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
 
 #ifdef HAVE_MPI

@@ -223,9 +223,6 @@ SUBROUTINE casmat_modified(not_zero_count)
                         j = idetr(newidet2)
                         matval = 0.0d+00
                         If (j > i) then
-                            ! if (rank == 0) write (*, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
-                            ! if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
-                            ! if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
                             phase = (-1)**mod(phase1 + phase2, 2)
 
 ! two electron integral : (ir, ia | is, ib)
