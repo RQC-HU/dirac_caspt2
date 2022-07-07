@@ -39,7 +39,5 @@ SUBROUTINE calce0(e0)
     End do
 
     if (rank == 0) write (*, *) 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
-
-1000 continue
     if (rank == 0) write (*, *) 'end'
 end subroutine calce0

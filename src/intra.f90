@@ -22,10 +22,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     complex*16              :: cint2
 
     integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
-    integer :: ii, ji, ki, li, ie, je, ke, le
+    integer :: ii, ji, ki, li, ie, je, ke, le, iostat
     integer :: nmx, ini(3), end(3), isp, isym, imo
 
-    logical :: is_opened
     thresd = 1.0d-15
 
     ini(1) = 1
@@ -77,27 +76,36 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')  ! no symmetry about spi,spj,spk,spl
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-30  read (1, err=10, end=20) i, j, k, l, cint2
+        isym = irpmo(l)
 
-    isym = irpmo(l)
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        Call takekr(i, j, k, l, cint2)
+        isym = irpmo(l)
 
-    Call takekr(i, j, k, l, cint2)
-    isym = irpmo(l)
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+    end do
 
-    goto 30 ! Continue to read 2-integrals
-
-20  close (1)
+    close (1)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -121,18 +129,26 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-31  read (1, err=10, end=21) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
+        isym = irpmo(k)
 
-    isym = irpmo(k)
+        Do knew = 1, nsym(spk, isym)
+            k1 = indsym(spk, isym, knew)
+            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
+        End do
 
-    Do knew = 1, nsym(spk, isym)
-        k1 = indsym(spk, isym, knew)
-        traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
-    End do
-
-    goto 31 ! Continue to read integrals
-
-21  close (1)
+    end do
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -155,19 +171,27 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
+        isym = irpmo(j)
 
-32  read (1, err=10, end=22) i, j, k, l, cint2
+        Do jnew = 1, nsym(spj, isym)
+            j1 = indsym(spj, isym, jnew)
+            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
+        End do
 
-    isym = irpmo(j)
+    end do
 
-    Do jnew = 1, nsym(spj, isym)
-        j1 = indsym(spj, isym, jnew)
-        traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
-    End do
-
-    goto 32 ! Continue to read 2-integrals
-
-22  close (1)
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -190,19 +214,26 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
+        isym = irpmo(i)
 
-33  read (1, err=10, end=23) i, j, k, l, cint2
+        Do inew = 1, nsym(spi, isym)
+            i1 = indsym(spi, isym, inew)
+            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
+        End do
 
-    isym = irpmo(i)
-
-    Do inew = 1, nsym(spi, isym)
-        i1 = indsym(spi, isym, inew)
-        traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
-    End do
-
-    goto 33 ! Continue to read 2-integrals
-
-23  close (1)
+    end do
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -217,14 +248,6 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
-    goto 100
-10  write (*, *) 'error opening file'
-    inquire (1, opened=is_opened)
-    if (is_opened .eqv. .true.) then
-        close (1)
-    end if
-
-100 continue
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -258,9 +281,8 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     integer :: i, j, k, l
     integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
     integer :: ii, ji, ki, li, ie, je, ke, le
-    integer :: nmx, ini(3), end(3), isp, isym, imo, save
+    integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
 
-    logical :: is_opened
     thresd = 1.0d-15
 
     if (.not. (spi == spk .and. spj == spl)) then
@@ -314,63 +336,75 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-30  read (1, err=10, end=20) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
+        isym = irpmo(l)
 
-    isym = irpmo(l)
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        if (i == k .and. j == l) then
+            continue
+        else if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
+        & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) then
+            continue
+        else
 
-    if (i == k .and. j == l) goto 50
-    if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
-    & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) goto 50
+            ! swap indices i = k, j = l, k = i, l = j
+            save = i
+            i = k
+            k = save
+            save = j
+            j = l
+            l = save
+            isym = irpmo(l)
 
-    ! swap indices i = k, j = l, k = i, l = j
-    save = i
-    i = k
-    k = save
-    save = j
-    j = l
-    l = save
-    isym = irpmo(l)
+            Do lnew = 1, nsym(spl, isym)
+                l1 = indsym(spl, isym, lnew)
+                traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            End do
+        end if
+        Call takekr(i, j, k, l, cint2)
+        isym = irpmo(l)
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-50  Call takekr(i, j, k, l, cint2)
-    isym = irpmo(l)
+        if (i == k .and. j == l) cycle ! Continue to read 2-integrals
+        if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
+        & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) cycle ! Continue to read 2-integrals
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        ! swap indecis i = k, j = l, k = i, l = j
+        save = i
+        i = k
+        k = save
+        save = j
+        j = l
+        l = save
 
-    if (i == k .and. j == l) goto 30 ! Continue to read 2-integrals
-    if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
-    & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) goto 30 ! Continue to read 2-integrals
+        isym = irpmo(l)
 
-    ! swap indecis i = k, j = l, k = i, l = j
-    save = i
-    i = k
-    k = save
-    save = j
-    j = l
-    l = save
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    isym = irpmo(l)
+    end do
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
-
-    goto 30 ! Continue to read 2-integrals
-
-20  close (1)
+    close (1)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -394,18 +428,28 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-31  read (1, err=10, end=21) i, j, k, l, cint2
+    do
 
-    isym = irpmo(k)
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    Do knew = 1, nsym(spk, isym)
-        k1 = indsym(spk, isym, knew)
-        traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
-    End do
+        isym = irpmo(k)
 
-    goto 31 ! Continue to read 2-integrals
+        Do knew = 1, nsym(spk, isym)
+            k1 = indsym(spk, isym, knew)
+            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
+        End do
+    end do
 
-21  close (1)
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -428,18 +472,28 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-32  read (1, err=10, end=22) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    isym = irpmo(j)
+        isym = irpmo(j)
 
-    Do jnew = 1, nsym(spj, isym)
-        j1 = indsym(spj, isym, jnew)
-        traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
-    End do
+        Do jnew = 1, nsym(spj, isym)
+            j1 = indsym(spj, isym, jnew)
+            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
+        End do
 
-    goto 32
+    end do
 
-22  close (1)
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -462,18 +516,29 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-33  read (1, err=10, end=23) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
 
-    isym = irpmo(i)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    Do inew = 1, nsym(spi, isym)
-        i1 = indsym(spi, isym, inew)
-        traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
-    End do
+        isym = irpmo(i)
 
-    goto 33 ! Continue to read 2-integrals
+        Do inew = 1, nsym(spi, isym)
+            i1 = indsym(spi, isym, inew)
+            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
+        End do
 
-23  close (1)
+    end do
+
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -488,14 +553,6 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
-    goto 100
-10  write (*, *) 'error opening file'
-    inquire (1, opened=is_opened)
-    if (is_opened .eqv. .true.) then
-        close (1)
-    end if
-
-100 continue
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -530,9 +587,8 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer :: initial_i, initial_j, initial_k, initial_l
     integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
     integer :: ii, ji, ki, li, ie, je, ke, le
-    integer :: nmx, ini(3), end(3), isp, isym, imo
+    integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
-    logical :: is_opened
     thresd = 1.0d-15
 
     if (.not. (spk == spl)) then
@@ -588,57 +644,69 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-30  read (1, err=10, end=20) i, j, k, l, cint2
-    ! save initial indices i,j,k,l to initial_i,initial_j,initial_k,initial_l, respectively.
-    initial_i = i
-    initial_j = j
-    initial_k = k
-    initial_l = l
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
 
-    isym = irpamo(l)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        ! save initial indices i,j,k,l to initial_i,initial_j,initial_k,initial_l, respectively.
+        initial_i = i
+        initial_j = j
+        initial_k = k
+        initial_l = l
 
-    Call takekr(i, j, k, l, cint2)
-    isym = irpamo(l)
+        isym = irpamo(l)
+
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
+
+        Call takekr(i, j, k, l, cint2)
+        isym = irpamo(l)
 !Iwamuro modify
 !           write(*,'("takekr",4I4,2E20.10)')i,j,k,l,cint2
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    if (ABS(k - l) == 1 .and. ABS(k/2 - l/2) == 1) goto 30 ! Continue to read 2-integrals
+        if (ABS(k - l) == 1 .and. ABS(k/2 - l/2) == 1) cycle ! Continue to read 2-integrals
 
-    i = initial_i
-    j = initial_j
-    if (mod(initial_k, 2) == 0) l = initial_k - 1
-    if (mod(initial_k, 2) == 1) l = initial_k + 1
-    if (mod(initial_l, 2) == 0) k = initial_l - 1
-    if (mod(initial_l, 2) == 1) k = initial_l + 1
-    cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*cint2
-    isym = irpamo(l)
+        i = initial_i
+        j = initial_j
+        if (mod(initial_k, 2) == 0) l = initial_k - 1
+        if (mod(initial_k, 2) == 1) l = initial_k + 1
+        if (mod(initial_l, 2) == 0) k = initial_l - 1
+        if (mod(initial_l, 2) == 1) k = initial_l + 1
+        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*cint2
+        isym = irpamo(l)
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    Call takekr(i, j, k, l, cint2)
-    isym = irpamo(l)
+        Call takekr(i, j, k, l, cint2)
+        isym = irpamo(l)
 
-    Do lnew = 1, nsym(spl, isym)
-        l1 = indsym(spl, isym, lnew)
-        traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
-    End do
+        Do lnew = 1, nsym(spl, isym)
+            l1 = indsym(spl, isym, lnew)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+        End do
 
-    goto 30 ! Continue to read 2-integrals
+    end do
 
-20  close (1)
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -664,18 +732,29 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
         write (*, *) 'Read intergals  and second index transformation'
     end if
     open (1, file=trim(fname), status='old', form='unformatted')
-31  read (1, err=10, end=21) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
 
-    isym = irpamo(k)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    Do knew = 1, nsym(spk, isym)
-        k1 = indsym(spk, isym, knew)
-        traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
-    End do
+        isym = irpamo(k)
 
-    goto 31
+        Do knew = 1, nsym(spk, isym)
+            k1 = indsym(spk, isym, knew)
+            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
+        End do
 
-21  close (1)
+    end do
+
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -697,18 +776,29 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-32  read (1, err=10, end=22) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
 
-    isym = irpamo(j)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    Do jnew = 1, nsym(spj, isym)
-        j1 = indsym(spj, isym, jnew)
-        traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
-    End do
+        isym = irpamo(j)
 
-    goto 32
+        Do jnew = 1, nsym(spj, isym)
+            j1 = indsym(spj, isym, jnew)
+            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
+        End do
 
-22  close (1)
+    end do
+
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -731,18 +821,29 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='old', form='unformatted')
-33  read (1, err=10, end=23) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
 
-    isym = irpamo(i)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of '//trim(fname)
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            print *, "Error : Error in reading file ", trim(fname)
+            stop
+        end if
 
-    Do inew = 1, nsym(spi, isym)
-        i1 = indsym(spi, isym, inew)
-        traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
-    End do
+        isym = irpamo(i)
 
-    goto 33
+        Do inew = 1, nsym(spi, isym)
+            i1 = indsym(spi, isym, inew)
+            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
+        End do
 
-23  close (1)
+    end do
+
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -755,18 +856,8 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     open (1, file=trim(fname), status='replace', form='unformatted')
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    goto 100 ! No error in intra3
 
-10  write (*, *) 'error opening file'
-    inquire (1, opened=is_opened)
-    if (is_opened .eqv. .true.) then
-        close (1)
-    end if
-    goto 101
-
-100 continue
     if (rank == 0) write (*, *) 'read and write file properly. filename : ', trim(fname)
-101 continue
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)

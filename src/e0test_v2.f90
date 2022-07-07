@@ -258,7 +258,6 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
         energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 
-
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
 !"""""""""""""""""""""""""""""!
@@ -445,7 +444,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                         end if
 
-100                 end do        ! ll
+                    end do        ! ll
                 end do    ! kk
             end do       ! jj
         end do          ! ii
@@ -480,7 +479,6 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
             write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
         end if
     end if
-1000 continue
     deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'e0test end'

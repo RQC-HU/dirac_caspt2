@@ -54,9 +54,9 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
 
     deallocate (work)
 
-    if (info /= 0 .and. rank == 0) then
-        write (*, *) 'error in diagonalization, info = ', info
-        goto 1000
+    if (info /= 0) then
+        if (rank == 0) write (*, *) 'error in diagonalization, info = ', info
+        return
     end if
 
     if (cutoff) then
@@ -210,10 +210,8 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
         write (*, *) 'Finish zheev info = ', info
     end if
     if (info /= 0) then
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'error in diagonalization, info = ', info
-        end if
-        goto 1000
+        if (rank == 0)  write (*, *) 'error in diagonalization, info = ', info
+        return
     end if
 
 !        Do i0 = 1, dimn
@@ -242,7 +240,6 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
     if (rank == 0) then ! Process limits for output
         write (*, *) "end cdiag"
     end if
-1000 continue
 end subroutine cdiag
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

@@ -138,7 +138,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'isym, dimn', isym, dimn
         end if
-        If (dimn == 0) goto 1000
+        If (dimn == 0) cycle ! Go to the next isym
 
         Allocate (sc(dimn, dimn))
         sc = 0.0d+00            ! sc N*N
@@ -182,7 +182,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
             deallocate (sc0)
             deallocate (sc)
             deallocate (ws)
-            goto 1000
+            cycle ! Go to the next isym
         End if
 
         If (debug) then
@@ -366,7 +366,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2e(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+        if (rank == 0) write (*, '("e2e(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
         e2e = e2e + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
@@ -555,7 +555,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, taij
-    integer :: it, jt, ik
+    integer :: it, jt, ik, iostat
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -568,31 +568,40 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
     open (1, file=eint, status='old', form='unformatted')  !  (31|21) stored
-30  read (1, err=10, end=20) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of Eint'
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading Eint'
+        end if
 
-    if (j == l) goto 30
+        if (j == l) cycle ! Read the next 2-integral if j equal to l
 
-    taij = iaij(i, j, l)
-    ik = k - ninact
+        taij = iaij(i, j, l)
+        ik = k - ninact
 
-    if (j < l) then
-        cint2 = -1.0d+00*cint2
-    end if
+        if (j < l) then
+            cint2 = -1.0d+00*cint2
+        end if
 
-    v(taij, k) = v(taij, k) - cint2
+        v(taij, k) = v(taij, k) - cint2
 
-    !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens)
-    Do it = 1, nact
-        jt = ninact + it
-        Call dim1_density(it, ik, dr, di)          ! ik corresponds to p in above formula
-        dens = DCMPLX(dr, di)
-        v(taij, jt) = v(taij, jt) + cint2*dens
-    End do                  ! it
-    !$OMP end parallel do
+        !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens)
+        Do it = 1, nact
+            jt = ninact + it
+            Call dim1_density(it, ik, dr, di)          ! ik corresponds to p in above formula
+            dens = DCMPLX(dr, di)
+            v(taij, jt) = v(taij, jt) + cint2*dens
+        End do                  ! it
+        !$OMP end parallel do
 
-    if (j < l) then
-        cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
-    end if
+        if (j < l) then
+            cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
+        end if
 
 !! Take Kramers conjugate !
 !
@@ -615,18 +624,15 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 !           dens = DCMPLX(dr, di)
 !           v(taij,jt) = v(taij, jt) + cint2*dens
 !        End do                  ! it
+    end do
 
-    goto 30
+    close (1)
+    if (rank == 0) print *, 'vEmat_ord_ty is ended'
 
-20  close (1); goto 100
-
-10  write (*, *) 'error while opening file Eint'; goto 100
-
-100 if (rank == 0) write (*, *) 'vEmat_ord_ty is ended'
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), naij*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    if (rank == 0) print *, 'end Allreduce vEmat'
 #endif
-    if (rank == 0) write (*, *) 'end Allreduce vEmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

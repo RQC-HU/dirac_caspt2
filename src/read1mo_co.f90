@@ -8,7 +8,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 
     Implicit NONE
 
-    integer :: mrconee, isp, nmom
+    integer :: mrconee, isp, nmom, iostat
     character*50, intent(in) :: filename
     integer :: j0, i0
     double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
@@ -23,28 +23,39 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     Allocate (roner(nmo, nmo, scfru)); Call memplus(KIND(roner), SIZE(roner), 1)
     Allocate (ronei(nmo, nmo, scfru)); Call memplus(KIND(ronei), SIZE(ronei), 1)
 
-    open (mrconee, file=trim(filename), status='old', form='unformatted', err=10)
+    open (mrconee, file=trim(filename), status='old', form='unformatted', iostat=iostat)
+
+    ! File status check
+    if (iostat /= 0) then
+        print *, 'ERROR: Error opening ', trim(filename), ', rank = ', rank
+        print *, "Stop the program"
+        stop
+    end if
+
     rewind (mrconee)
-    read (mrconee, err=10)
-    read (mrconee, err=10)
-    read (mrconee, err=10)
-    read (mrconee, err=10)
-    read (mrconee, err=10)
-    read (mrconee, err=10) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
+    read (mrconee, iostat=iostat)
+    read (mrconee, iostat=iostat)
+    read (mrconee, iostat=iostat)
+    read (mrconee, iostat=iostat)
+    read (mrconee, iostat=iostat)
+    read (mrconee, iostat=iostat) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
+
+    ! File status check
+    if (iostat < 0) then
+        print *, 'WARNING: End of file detected in ', trim(filename), ', rank = ', rank
+        print *, "Continue the program, but we don't set oner,onei"
+        return
+    else if (iostat > 0) then
+        print *, 'ERROR: Error reading ', trim(filename), ', rank = ', rank
+        print *, "Stop the program"
+        stop
+    end if
 
 ! Reverse the sign of ronei if DIRAC version is larger or equal to 21.
     if (dirac_version >= 21) then
         ronei(:, :, :) = -ronei(:, :, :)
     end if
-    ! if (rank == 0) then
-    !     write (*, *) 'Noda RONER RONEI CHECK'
-    !     write (*, *) "i0,j0,RONER(i0,j0,1),RONEI(i0,j0,1)"
-    !     do i0 = 1, nmo
-    !         do j0 = 1, nmo
-    !             Write (*, '(2I4,2X,2F8.5)') i0, j0, RONER(i0, j0, 1), RONEI(i0, j0, 1)
-    !         end do
-    !     end do
-    ! end if
+
     close (mrconee)
 
     nmom = ninact + nact + nsec

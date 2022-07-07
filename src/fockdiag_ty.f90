@@ -125,11 +125,6 @@ SUBROUTINE fockdiag_ty
         close (5)
     end if
 
-    goto 1000
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'reading err in orbcoeff'
-    end if
-1000 continue
     if (rank == 0) then ! Process limits for output
         write (*, *) 'fockdiag end'
     end if

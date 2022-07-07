@@ -46,4 +46,4 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
         write (*, '("computational time = ",I3,"day",I3,"h ",I3, &
         &"min",F7.3,"sec")') day, hour, min, sec
     end if
-100 end subroutine timing
+end subroutine timing

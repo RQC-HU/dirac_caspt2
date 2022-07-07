@@ -141,7 +141,7 @@ SUBROUTINE casci_ty
         end do
     end if
     Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
-1000 end subroutine casci_ty
+end subroutine casci_ty
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

@@ -119,13 +119,13 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                         ixyz = ixyz + 1
                     End if
 
-100             End do
+                End do
             End do
         End do
 
         dimn = ixyz
 
-        If (dimn == 0) goto 1000
+        If (dimn == 0) cycle ! Go to the next isym.
 
         Allocate (indsym(3, dimn)); Call memplus(KIND(indsym), SIZE(indsym), 1)
 
@@ -150,7 +150,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                         indsym(3, ixyz) = iz
                     End if
 
-200             End do
+                End do
             End do
         End do
 
@@ -201,7 +201,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
             deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
             deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
             deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
-            goto 1000
+            cycle ! Go to the next isym.
         End if
 
         If (debug) then
@@ -399,7 +399,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-1000 End do                  ! isym
+    End do                  ! isym
 
     if (rank == 0) then ! Process limits for output
         write (*, '("e2a      = ",E20.10," a.u.")') e2a
@@ -608,8 +608,8 @@ SUBROUTINE vAmat_ord_ty(v)
 
     integer :: it, iu, iv, ii, ip
     integer :: jt, ju, jv, ji, jp
-    integer :: i, j, k, l, count, dim(nsymrpa)
-    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc
+    integer :: i, j, k, l, dim(nsymrpa)
+    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer, allocatable :: ind2u(:, :), ind2v(:, :)
     integer :: datetmp0, datetmp1
@@ -731,8 +731,16 @@ SUBROUTINE vAmat_ord_ty(v)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'open A1int'
     end if
-
-30  read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        ! Exit the loop if iostat is less than 0
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of A1int'
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading A1int'
+        end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  V(tuv,i)=  - SIGUMA_p,q,r:act <0|EvuEptEqr|0>(pi|qr)
@@ -742,41 +750,41 @@ SUBROUTINE vAmat_ord_ty(v)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !           write(*,'("TYPE 1  ",4I4,2E20.10)')i,j,k,l,cint2
 
-    isym = irpmo(j)
-    !$OMP parallel do private(it,iu,iv,jt,ju,jv,dr,di,d)
-    Do i0 = 1, dim(isym)
-        it = indt(i0, isym)
-        iu = indu(i0, isym)
-        iv = indv(i0, isym)
-        jt = it + ninact
-        ju = iu + ninact
-        jv = iv + ninact
+        isym = irpmo(j)
+        !$OMP parallel do private(it,iu,iv,jt,ju,jv,dr,di,d)
+        Do i0 = 1, dim(isym)
+            it = indt(i0, isym)
+            iu = indu(i0, isym)
+            iv = indv(i0, isym)
+            jt = it + ninact
+            ju = iu + ninact
+            jv = iv + ninact
 
-        Call dim3_density(iv, iu, i - ninact, it, k - ninact, l - ninact, dr, di)
-        d = DCMPLX(dr, di)
-        v(j, jt, ju, jv) = v(j, jt, ju, jv) - cint2*d
+            Call dim3_density(iv, iu, i - ninact, it, k - ninact, l - ninact, dr, di)
+            d = DCMPLX(dr, di)
+            v(j, jt, ju, jv) = v(j, jt, ju, jv) - cint2*d
 
-    End do
-    !$OMP end parallel do
+        End do
+        !$OMP end parallel do
 
-    isym = MULTB_D(irpmo(i), irpmo(j))           ! j coresponds to ii, i coresponds to it
+        isym = MULTB_D(irpmo(i), irpmo(j))           ! j coresponds to ii, i coresponds to it
 
-    !$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
-    Do i0 = 1, dim2(isym)
-        iu = ind2u(i0, isym)
-        iv = ind2v(i0, isym)
-        ju = iu + ninact
-        jv = iv + ninact
+        !$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
+        Do i0 = 1, dim2(isym)
+            iu = ind2u(i0, isym)
+            iv = ind2v(i0, isym)
+            ju = iu + ninact
+            jv = iv + ninact
 
-        Call dim2_density(iv, iu, k - ninact, l - ninact, dr, di)
-        d = DCMPLX(dr, di)
-        v(j, i, ju, jv) = v(j, i, ju, jv) + cint2*d
-    End do
-    !$OMP end parallel do
+            Call dim2_density(iv, iu, k - ninact, l - ninact, dr, di)
+            d = DCMPLX(dr, di)
+            v(j, i, ju, jv) = v(j, i, ju, jv) + cint2*d
+        End do
+        !$OMP end parallel do
 
-    goto 30
+    end do
 
-20  close (1)
+    close (1)
 
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -784,25 +792,31 @@ SUBROUTINE vAmat_ord_ty(v)
 
     open (1, file=a2int, status='old', form='unformatted') ! TYPE 2 integrals
 
-300 read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
-    count = 0
-
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        ! Exit the loop if iostat is less than 0
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of A2int'
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading A2int'
+        end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  effh(p,i) = h(pi)+ SIGUMA_k:inact{(pi|kk)-(pk|ki)}
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (k == l .and. j /= k) then       ! (PI|KK) type
+        if (k == l .and. j /= k) then       ! (PI|KK) type
 
-        effh(i, j) = effh(i, j) + cint2
+            effh(i, j) = effh(i, j) + cint2
 
-    elseif (j == k .and. k /= l) then       ! (PK|KI) type
+        elseif (j == k .and. k /= l) then       ! (PK|KI) type
 
-        effh(i, l) = effh(i, l) - cint2
+            effh(i, l) = effh(i, l) - cint2
 
-    end if
-
-    goto 300
+        end if
+    end do
 
 200 close (1)
     if (rank == 0) then ! Process limits for output
@@ -850,12 +864,7 @@ SUBROUTINE vAmat_ord_ty(v)
     End do                  !ii
     !$OMP end parallel do
 
-    goto 100
-
-10  write (*, *) 'error while opening file Aint'; goto 1000
-100 continue
-
-1000 if (rank == 0) write (*, *) 'vAmat_ord_ty is ended'
+    if (rank == 0) write (*, *) 'vAmat_ord_ty is ended'
 
     deallocate (indt); Call memminus(KIND(indt), SIZE(indt), 1)
     deallocate (indu); Call memminus(KIND(indu), SIZE(indu), 1)
@@ -866,8 +875,9 @@ SUBROUTINE vAmat_ord_ty(v)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(ninact, ninact + 1, ninact + 1, ninact + 1), ninact*nact*nact*nact, &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-#endif
+
     if (rank == 0) write (*, *) 'end allreduce vAmat'
+#endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

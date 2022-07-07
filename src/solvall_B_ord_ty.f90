@@ -139,7 +139,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'isym, dimn', isym, dimn
         end if
-        If (dimn == 0) goto 1000
+        If (dimn == 0) cycle ! Go to the next isym.
 
         Allocate (indsym(2, dimn)); Call memplus(KIND(indsym), SIZE(indsym), 1)
 
@@ -156,7 +156,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
                     indsym(1, dimn) = it
                     indsym(2, dimn) = iu
                 End if
-200         End do               ! iu
+            End do               ! iu
         End do                  ! it
 
         Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
@@ -208,7 +208,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
             deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
             deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
-            goto 1000
+            cycle ! Go to the next isym.
         End if
 
         Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
@@ -396,7 +396,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Deallocate (wb); Call memminus(KIND(wb), SIZE(wb), 1)
         Deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 2)
 
-1000    e2b = e2b + e2(isym)
+        e2b = e2b + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
         end if
@@ -638,15 +638,26 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
     integer :: i, j, k, l, tij
-    integer :: it, jt, ju, iu
+    integer :: it, jt, ju, iu, iostat
 
     v = 0.0d+00
 
     open (1, file=bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
 
-30  read (1, err=10, end=20) i, j, k, l, cint2                    !  (ij|kl)
+        ! Exit the loop if iostat is less than 0
+        if (iostat < 0) then
+            if (rank == 0) then
+                write (*, *) 'End of B1int'
+            end if
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading Bint'
+        end if
 
-    if (j <= l) goto 30
+        if (j <= l) cycle ! Read the next line if j <= l
 
 !------------------------------------------------------------------------------------------------
 !  i > j
@@ -659,56 +670,52 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 !
 !------------------------------------------------------------------------------------------------
 
-    tij = iij(j, l)
+        tij = iij(j, l)
 
 !        write(*,'(5I4,2E20.10)')i,j,k,l,tij,cint2
 
-    ! Term 3 !        + (ti|uj)  - (ui|tj)  (i > j)
+        ! Term 3 !        + (ti|uj)  - (ui|tj)  (i > j)
 
-    v(tij, i, k) = v(tij, i, k) + cint2 !  + (ti|uj)
-    v(tij, k, i) = v(tij, k, i) - cint2 !  - (ui|tj)
+        v(tij, i, k) = v(tij, i, k) + cint2 !  + (ti|uj)
+        v(tij, k, i) = v(tij, k, i) - cint2 !  - (ui|tj)
 
-    ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
-    !                             ===========================      ================
-    !                                loop for t                     loop for u(variable u is renamed to t)
-    !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens,iu,ju)
-    Do it = 1, nact
-        jt = it + ninact
+        ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
+        !                             ===========================      ================
+        !                                loop for t                     loop for u(variable u is renamed to t)
+        !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens,iu,ju)
+        Do it = 1, nact
+            jt = it + ninact
 
-        Call dim1_density(k - ninact, it, dr, di)
-        dens = DCMPLX(dr, di)
-        v(tij, jt, i) = v(tij, jt, i) + cint2*dens
-        v(tij, i, jt) = v(tij, i, jt) - cint2*dens
-
-        Call dim1_density(i - ninact, it, dr, di)
-        dens = DCMPLX(dr, di)
-        v(tij, jt, k) = v(tij, jt, k) - cint2*dens
-
-        ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
-        !                             ==================
-        !                              loop for t and u
-
-        Do iu = 1, it - 1
-            ju = iu + ninact
-            Call dim2_density(i - ninact, it, k - ninact, iu, dr, di)
+            Call dim1_density(k - ninact, it, dr, di)
             dens = DCMPLX(dr, di)
-            v(tij, jt, ju) = v(tij, jt, ju) + cint2*dens
+            v(tij, jt, i) = v(tij, jt, i) + cint2*dens
+            v(tij, i, jt) = v(tij, i, jt) - cint2*dens
+
+            Call dim1_density(i - ninact, it, dr, di)
+            dens = DCMPLX(dr, di)
+            v(tij, jt, k) = v(tij, jt, k) - cint2*dens
+
+            ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
+            !                             ==================
+            !                              loop for t and u
+
+            Do iu = 1, it - 1
+                ju = iu + ninact
+                Call dim2_density(i - ninact, it, k - ninact, iu, dr, di)
+                dens = DCMPLX(dr, di)
+                v(tij, jt, ju) = v(tij, jt, ju) + cint2*dens
+            End do
+
         End do
+        !$OMP end parallel do
+    end do
 
-    End do
-    !$OMP end parallel do
-
-    goto 30
-
-20  close (1)
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading int2 is over'
     end if
-    goto 100
 
-10  write (*, *) 'error while opening file Bint'; goto 100
-
-100 if (rank == 0) write (*, *) 'vBmat_ord_ty is ended'
+    if (rank == 0) write (*, *) 'vBmat_ord_ty is ended'
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nij*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)

@@ -15,7 +15,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     real*8, intent(in) :: e0
     real*8, intent(out):: e2h
     Integer                :: ia, ib, ii, ij, syma, symb, i, j, k, l
-    Integer                :: i0, j0, tab, nab, tij, nij, count
+    Integer                :: i0, j0, tab, nab, tij, nij, iostat
     Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
     Complex*16             :: cint2
     Complex*16, allocatable :: v(:, :)
@@ -98,31 +98,38 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     v = 0.0d+00
 
     open (1, file=hint, status='old', form='unformatted')
-30  read (1, err=10, end=20) i, j, k, l, cint2
-    count = 0
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of Eint'
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading Eint'
+        end if
+        if (i <= k .or. j == l) cycle ! Read the next line if i <= k or j == l
 
-    if (i <= k .or. j == l) goto 30
+        tab = iab(i, k)
+        tij = iij(j, l)
 
-    tab = iab(i, k)
-    tij = iij(j, l)
+        if (i > k .and. j > l) then
+            v(tab, tij) = v(tab, tij) + cint2
 
-    if (i > k .and. j > l) then
-        v(tab, tij) = v(tab, tij) + cint2
+        elseif (i > k .and. j < l) then
+            v(tab, tij) = v(tab, tij) - cint2
 
-    elseif (i > k .and. j < l) then
-        v(tab, tij) = v(tab, tij) - cint2
+        elseif (i < k .and. j > l) then               ! (kl|ij)  l > j + ; l < j -
+            v(tab, tij) = v(tab, tij) - cint2
 
-    elseif (i < k .and. j > l) then               ! (kl|ij)  l > j + ; l < j -
-        v(tab, tij) = v(tab, tij) - cint2
+        elseif (i < k .and. j < l) then
+            v(tab, tij) = v(tab, tij) + cint2
 
-    elseif (i < k .and. j < l) then
-        v(tab, tij) = v(tab, tij) + cint2
+        end if
 
-    end if
+    end do
 
-    goto 30
-
-20  close (1)
+    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
@@ -168,7 +175,6 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     deallocate (ii0)
     deallocate (ij0)
 
-10  continue                !write(*,*)'error about opening Hint file' ;stop
     if (rank == 0) then ! Process limits for output
         write (*, *) 'end solvH_ord_ty'
     end if

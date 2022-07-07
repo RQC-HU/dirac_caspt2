@@ -37,7 +37,7 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, ur, wnew)
 !           write(*,*) ur(:,i0)
     end do
 
-1000 continue
+
 end subroutine rcutoff
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -79,14 +79,5 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, uc, wnew)
         end if
     end do
 
-!test
 
-!!!        write(*,*) 'Eigenvalue and eigen vector becomes'
-!!!        do i0 = 1, dimm
-!!!           write(*,*) i0, 'th state'
-!!!           write(*,*) wnew(i0)
-!!!!           write(*,*) uc(:,i0)
-!!!        end do
-
-1000 continue
 end subroutine ccutoff

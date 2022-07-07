@@ -70,7 +70,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     end if
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
-    tsectmp1 = tsectmp0;
+    tsectmp1 = tsectmp0; 
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -136,12 +136,12 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
                 End if
-100         End do               ! iu
+            End do               ! iu
         End do                  ! it
 
         if (rank == 0) print *, 'isym, dimn', isym, dimn
 
-        If (dimn == 0) goto 1000
+        If (dimn == 0) cycle ! Go to the next isym
 
         Allocate (indsym(2, dimn))
         indsym = 0
@@ -159,7 +159,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
                     indsym(1, dimn) = it
                     indsym(2, dimn) = iu
                 End if
-200         End do               ! iu
+            End do               ! iu
         End do                  ! it
 
         Allocate (sc(dimn, dimn))
@@ -204,7 +204,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             deallocate (sc0)
             deallocate (sc)
             deallocate (ws)
-            goto 1000
+            cycle ! Go to the next isym
         End if
 
         If (debug) then
@@ -387,7 +387,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2d(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+        if (rank == 0) write (*, '("e2d(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
         e2d = e2d + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
@@ -564,9 +564,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     integer, intent(in)     :: nai, iai(ninact + nact + 1:ninact + nact + nsec, ninact)
     complex*16, intent(out) :: v(nai, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
     real*8                  :: dr, di
-    complex*16              :: cint1, cint2,  d
+    complex*16              :: cint1, cint2, d
     complex*16              :: effh(ninact + nact + 1:ninact + nact + nsec, ninact)
-    integer :: i, j, k, l, tai
+    integer :: i, j, k, l, tai, iostat
     integer :: it, jt, ju, iu, ia, ii, ja, ji
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -616,8 +616,16 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     open (1, file=d1int, status='old', form='unformatted')
-
-30  read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of D1int'
+            exit
+        else if (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading D1int'
+        end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -625,26 +633,25 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 ! + <0|Eut|0>[hai +{ SIGUMA_k:inactive(ai|kk) - (ak|ki)}]
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    ja = i
-    ji = j
-    tai = iai(ja, ji)
+        ja = i
+        ji = j
+        tai = iai(ja, ji)
 
-    !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
-    Do it = 1, nact
-        jt = it + ninact
-        Do iu = 1, nact
-            ju = iu + ninact
+        !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
+        Do it = 1, nact
+            jt = it + ninact
+            Do iu = 1, nact
+                ju = iu + ninact
 
-            Call dim2_density(iu, it, k - ninact, l - ninact, dr, di)
-            d = DCMPLX(dr, di)
-            v(tai, jt, ju) = v(tai, jt, ju) + d*cint2
+                Call dim2_density(iu, it, k - ninact, l - ninact, dr, di)
+                d = DCMPLX(dr, di)
+                v(tai, jt, ju) = v(tai, jt, ju) + d*cint2
 
+            End do
         End do
-    End do
-    !$OMP end parallel do
-
-    goto 30
-20  close (1)
+        !$OMP end parallel do
+    end do
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading D1int2 is over'
     end if
@@ -660,29 +667,37 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     open (1, file=d2int, status='old', form='unformatted')
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of D2int'
+            exit
+        else if (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading D2int'
+        end if
 
-31  read (1, err=10, end=21) i, j, k, l, cint2 !  (ij|kl)
-    ja = i
-    ji = l
-    tai = iai(ja, ji)
-    !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
-    Do it = 1, nact
-        jt = it + ninact
-        Do iu = 1, nact
-            ju = iu + ninact
+        ja = i
+        ji = l
+        tai = iai(ja, ji)
+        !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
+        Do it = 1, nact
+            jt = it + ninact
+            Do iu = 1, nact
+                ju = iu + ninact
 
-            Call dim2_density(iu, it, k - ninact, j - ninact, dr, di)
-            d = DCMPLX(dr, di)
+                Call dim2_density(iu, it, k - ninact, j - ninact, dr, di)
+                d = DCMPLX(dr, di)
 
-            v(tai, jt, ju) = v(tai, jt, ju) - d*cint2
+                v(tai, jt, ju) = v(tai, jt, ju) - d*cint2
 
+            End do
         End do
-    End do
-    !$OMP end parallel do
+        !$OMP end parallel do
+    end do
 
-    goto 31
-
-21  close (1)
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading D2int2 is over'
     end if
@@ -691,22 +706,30 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     open (1, file=d3int, status='old', form='unformatted') ! (ai|jk) is stored
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
 
-300 read (1, err=10, end=200) i, j, k, l, cint2 !  (ij|kl)
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of D3int'
+            exit
+        else if (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading D3int'
+        end if
 
-    if (j /= k .and. k == l) then !(ai|kk)
+        if (j /= k .and. k == l) then !(ai|kk)
 
-        effh(i, j) = effh(i, j) + cint2
+            effh(i, j) = effh(i, j) + cint2
 
-    elseif (j == k .and. k /= l) then !(ak|ki)
+        elseif (j == k .and. k /= l) then !(ak|ki)
 
-        effh(i, l) = effh(i, l) - cint2
+            effh(i, l) = effh(i, l) - cint2
 
-    end if
+        end if
+    end do
 
-    goto 300
-
-200 close (1)
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading D3int2 is over'
     end if
@@ -746,15 +769,11 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     End do
     !$OMP end parallel do
 
-    goto 100
-
-10  write (*, *) 'error while opening file Dint'; goto 100
-
-100 if (rank == 0) write (*, *) 'vDmat_ord_ty is ended'
+    if (rank == 0) write (*, *) 'vDmat_ord_ty is ended'
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nai*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) write (*, *) 'end Allreduce vDmat'
+#endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

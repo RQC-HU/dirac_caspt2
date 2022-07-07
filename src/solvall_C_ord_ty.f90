@@ -114,13 +114,13 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                         ixyz = ixyz + 1
                     End if
 
-100             End do
+                End do
             End do
         End do
 
         dimn = ixyz
 
-        If (dimn == 0) goto 1000
+        If (dimn == 0) cycle ! Go to the next isym
 
         Allocate (indsym(3, dimn))
         indsym = 0
@@ -137,7 +137,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     symb = MULTB_D(irpmo(jy), irpmo(jz))
                     syma = MULTB_S(syma, symb)
 
-
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                         ixyz = ixyz + 1
@@ -146,7 +145,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                         indsym(3, ixyz) = iz
                     End if
 
-200             End do
+                End do
             End do
         End do
 
@@ -198,7 +197,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
             deallocate (sc0)
             deallocate (sc)
             deallocate (ws)
-            goto 1000
+            cycle ! Go to the next isym
         End if
 
         If (debug) then
@@ -382,7 +381,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-1000 End do                  ! isym
+    End do                  ! isym
 
     if (rank == 0) then ! Process limits for output
         write (*, '("e2c      = ",E20.10,"a.u.")') e2c
@@ -583,7 +582,7 @@ SUBROUTINE vCmat_ord_ty(v)
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer :: it, iu, iv, ia, ip
     integer :: jt, ju, jv, ja, jp
-    integer :: i0
+    integer :: i0, iostat
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
@@ -649,7 +648,7 @@ SUBROUTINE vCmat_ord_ty(v)
                         indu(dim(isym), isym) = iu
                         indv(dim(isym), isym) = iv
                     end if
-100             End do
+                End do
             End do
         End do
     End do
@@ -674,38 +673,47 @@ SUBROUTINE vCmat_ord_ty(v)
     !$OMP end parallel do
     open (1, file=c1int, status='old', form='unformatted')
 
-30  read (1, err=10, end=20) i, j, k, l, cint2 !  (ij|kl)
-
+    do ! Read TYPE 1 integrals C1int until EOF
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        ! Exit loop if the iostat is less than 0  (End of File)
+        if (iostat < 0) then
+            if (rank == 0) then
+                write (*, *) 'End of C1int'
+            end if
+            exit
+        else if (iostat > 0) then
+            ! Stop the program if the iostat is greater than 0
+            stop 'Error: Error in reading C1int'
+        end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! + Siguma_pqr<0|EvuEtrEpq|0>(ar|pq)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    isym = irpmo(i)   ! i corresponds to a
-    !$OMP parallel do schedule(static,1) private(it,iu,iv,jt,ju,jv,dr,di,d)
-    Do i0 = 1, dim(isym)
-        it = indt(i0, isym)
-        iu = indu(i0, isym)
-        iv = indv(i0, isym)
-        jt = it + ninact
-        ju = iu + ninact
-        jv = iv + ninact
+        isym = irpmo(i)   ! i corresponds to a
+        !$OMP parallel do schedule(static,1) private(it,iu,iv,jt,ju,jv,dr,di,d)
+        Do i0 = 1, dim(isym)
+            it = indt(i0, isym)
+            iu = indu(i0, isym)
+            iv = indv(i0, isym)
+            jt = it + ninact
+            ju = iu + ninact
+            jv = iv + ninact
 
-        Call dim3_density(iv, iu, it, j - ninact, k - ninact, l - ninact, dr, di)
-        d = DCMPLX(dr, di)
-        v(i, jt, ju, jv) = v(i, jt, ju, jv) + cint2*d
+            Call dim3_density(iv, iu, it, j - ninact, k - ninact, l - ninact, dr, di)
+            d = DCMPLX(dr, di)
+            v(i, jt, ju, jv) = v(i, jt, ju, jv) + cint2*d
 
-    End do
-    !$OMP end parallel do
+        End do
+        !$OMP end parallel do
 !  effh(a,p) =  hap + Siguma_k(is oqqupied)[(ap|kk)-(ak|kp)] - Siguma_w(aw|wp)
 !                                                           ~~~~~~~~~~~~~~~~~~~
-    if (j == k) then
-        effh(i, l) = effh(i, l) - cint2
-    end if
+        if (j == k) then
+            effh(i, l) = effh(i, l) - cint2
+        end if
+    end do
 
-    goto 30
-
-20  close (1)
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading C1int2 is over'
     end if
@@ -714,23 +722,32 @@ SUBROUTINE vCmat_ord_ty(v)
     tsectmp1 = tsectmp0
     open (1, file=c2int, status='old', form='unformatted') ! TYPE 2 integrals
 
-300 read (1, err=10, end=200) i, j, k, l, cint2
-
+    do ! Read TYPE 2 integrals C2int until EOF
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit loop if the iostat is less than 0  (End of File)
+        if (iostat < 0) then
+            if (rank == 0) then
+                write (*, *) 'End of C2int'
+            end if
+            exit
+        else if (iostat > 0) then
+            ! Stop the program if the iostat is greater than 0
+            stop 'Error: Error in reading C2int'
+        end if
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  effh(a,p) =  hap + Siguma_k(is oqqupied)[(ap|kk)-(ak|kp)] - Siguma_w(aw|wp)
 !                                          ========
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (k == l) then
+        if (k == l) then
 
-        effh(i, j) = effh(i, j) + cint2
+            effh(i, j) = effh(i, j) + cint2
 
-    end if
+        end if
+    end do
 
-    goto 300
-
-200 close (1)
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading C2int2 is over'
     end if
@@ -740,22 +757,31 @@ SUBROUTINE vCmat_ord_ty(v)
 
     open (1, file=c3int, status='old', form='unformatted') ! TYPE 3 integrals
 
-3000 read (1, err=10, end=2000) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
-
+    do ! Read TYPE 3 integrals C3int until EOF
+        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
+        ! Exit loop if the iostat is less than 0 (End of File)
+        if (iostat < 0) then
+            if (rank == 0) then
+                write (*, *) 'End of C3int'
+            end if
+            exit
+        else if (iostat > 0) then
+            ! Stop the program if the iostat is greater than 0
+            stop 'Error: Error in reading C3int'
+        end if
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  effh(a,p) =  hap + Siguma_k(is oqqupied)[(ap|kk)-(ak|kp)] - Siguma_w(aw|wp)
 !                                                  =========
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if (j == k) then
+        if (j == k) then
 
-        effh(i, l) = effh(i, l) - cint2
+            effh(i, l) = effh(i, l) - cint2
 
-    end if
+        end if
 
-    goto 3000
-
-2000 close (1)
+    end do
+    close (1)
     if (rank == 0) then ! Process limits for output
         write (*, *) 'reading C3int2 is over'
     end if
@@ -775,7 +801,8 @@ SUBROUTINE vCmat_ord_ty(v)
         Do ip = 1, nact
             jp = ip + ninact
 
-            if (ABS(effh(ja, jp)) < 1.0d-10) goto 70
+            ! Go to the next ip if the value of effh(ja,jp) is nearly zero
+            if (ABS(effh(ja, jp)) < 1.0d-10) cycle
 
             Do i0 = 1, dim(isym)
                 it = indt(i0, isym)
@@ -792,15 +819,11 @@ SUBROUTINE vCmat_ord_ty(v)
 
             End do            !i0
 
-70      End do               !ip
+        End do               !ip
     End do                  !ia
     !$OMP end parallel do
 
-    goto 101
-
-10  write (*, *) 'error while opening file Cint'; goto 101
-
-101 if (rank == 0) write (*, *) 'vCmat_ord is ended'
+    if (rank == 0) write (*, *) 'vCmat_ord is ended'
 
     deallocate (indt)
     deallocate (indu)
@@ -809,8 +832,9 @@ SUBROUTINE vCmat_ord_ty(v)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(ninact + nact + 1, ninact + 1, ninact + 1, ninact + 1), nsec*nact**3, &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-#endif
+
     if (rank == 0) write (*, *) 'end Allreduce vCmat'
+#endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

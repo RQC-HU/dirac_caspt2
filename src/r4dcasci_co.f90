@@ -223,6 +223,8 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
     ! end if
 
+    if (allocated(ras1_list)) deallocate (ras1_list); Call memminus(KIND(ras1_list), SIZE(ras1_list), 1)
+    if (allocated(ras2_list)) deallocate (ras2_list); Call memminus(KIND(ras2_list), SIZE(ras2_list), 1)
     if (allocated(ras3_list)) deallocate (ras3_list); Call memminus(KIND(ras3_list), SIZE(ras3_list), 1)
     deallocate (sp); Call memminus(KIND(sp), SIZE(sp), 1)
     deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
