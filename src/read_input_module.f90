@@ -196,12 +196,27 @@ contains
         ras_list(:) = tmp_ras(1:idx_filled)
         call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
 
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! Check the specification of input is kramers pair?
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+
+        ! The size of ras_list must be even.
         if (mod(size(ras_list), 2) /= 0) then
             if (rank == 0) print *, "ERROR: The number of ras_list is not even."
             goto 10 ! Input Error. Stop program
         end if
-        do idx = 1, size(ras_list), 2
+
+        ! ras_list(idx) (idx : odd) must be odd number and equal to ras_list(idx+1) (idx : even)
+        do idx = 1, size(ras_list, 1), 2
+            ! Check the ras_list(idx) (idx : odd)  is odd number?
+            if (mod(ras_list(idx), 2) /= 1) then
+                if (rank == 0) then
+                    print *, "ERROR: ras_list(idx) (idx : odd) must be odd number."
+                    print *, "idx,ras_list(idx) :", idx, ras_list(idx)
+                end if
+                goto 10 ! Input Error. Stop program
+            end if
+            ! Check the ras_list(idx+1) (idx : even) is equal to ras_list(idx) + 1 (idx : odd)?
             if (ras_list(idx) + 1 /= ras_list(idx + 1)) then
                 if (rank == 0) print *, "ERROR: The ras_list is not kramers pair."
                 goto 10 ! Input Error. Stop program
