@@ -21,7 +21,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module, only: is_ras1_configured, is_ras2_configured, is_ras3_configured
         implicit none
-        integer :: idx
+        integer :: idx, iostat
         character(100) :: string
         character(11), allocatable :: essential_variable_names(:)
         logical :: is_comment, is_config_sufficient, is_variable_filled(11) = &
@@ -33,7 +33,14 @@ contains
         is_ras1_configured = .false.; is_ras2_configured = .false.; is_ras3_configured = .false.
         open (5, file="active.inp", form="formatted")
         do while (.not. is_end)
-            read (5, "(a)", end=10) string
+            read (5, "(a)", iostat=iostat) string
+            if (iostat < 0) then ! Cannot find end. Stop the program.
+                if (rank == 0) print *, "YOU NEED TO ADD 'end' at the end of active.inp"
+                stop
+            else if (iostat > 0) then ! Error in reading. Stop the program.
+                if (rank == 0) print *, "Error: Error detected in the section of read_input_module"
+                stop
+            end if
             call is_comment_line(string, is_comment)
             if (is_comment) cycle ! Read the next line
             call check_input_type(string, is_variable_filled)
@@ -45,14 +52,14 @@ contains
                 is_config_sufficient = .false.
             end if
         end do
-        if (.not. is_config_sufficient) goto 11 ! Error in input. Stop the Program
+        if (.not. is_config_sufficient) then ! Error in input. Stop the program.
+            if (rank == 0) print *, "ERROR: Error in input, valiables you specified are insufficient!!. Stop the program."
+            stop
+        end if
         if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
         close (5)
         return ! END SUBROUTINE
-10      if (rank == 0) print *, "YOU NEED TO ADD 'end' in active.inp"
-        stop
-11      if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
-        stop
+
     end subroutine read_input
 
     subroutine check_input_type(string, is_filled)
@@ -253,8 +260,6 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         call parse_input_int(string, list, filled_num, allow_int_min, allow_int_max)
 
-        goto 100 ! NORMAL END
-100     continue
     end subroutine parse_input_string_to_int_list
 
     subroutine parse_input_int(string, list, filled_num, allow_int_min, allow_int_max)
@@ -617,8 +622,10 @@ contains
             exit ! EXIT LOOP
         end do
         return ! END SUBROUTINE
-10      if (rank == 0) print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
-        if (rank == 0) print *, "input: ", input
+10      if (rank == 0) then
+            print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
+            print *, "input: ", input
+        end if
         stop
     end subroutine read_an_integer
 
@@ -656,6 +663,8 @@ contains
         ! (e.g.) "   2,3,4" => "2,3,4"
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         string = trim(adjustl(string))
+
+        ! Find the index of comment character (comment_idx = 0 if the comment character is not found)
         comment_idx = scan(string, '!#')
         if (verify(string, " ") == 0) then
             ! Empty line
