@@ -41,9 +41,9 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     Allocate (indl((nmo/2)**2)); Call memplus(KIND(indl), SIZE(indl), 1)
     Allocate (rklr((nmo/2)**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
     Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "enter readint2_ord_co"
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    if (rank == 0) then
+        print *, "enter readint2_ord_co"
+        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
     end if
     indk(:) = 0
     indl(:) = 0
@@ -93,9 +93,9 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
         stop
     end if
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) datex, timex
-        write (*, *) 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
+    if (rank == 0) then
+        print *, datex, timex
+        print *, 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
     end if
 
     ! Continue to read the file until the end of the file is reached
@@ -153,7 +153,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
                 if (k > l) then ! (22|21) => (21|22)
                     write (unit_a1) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a1', ioerr, 'rank', rank
+                        print *, 'error write unit_a1', ioerr, 'rank', rank
                     else
 
                         a1_cnt = a1_cnt + 1
@@ -163,7 +163,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a1, IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a1', ioerr, 'rank', rank
+                        print *, 'error write unit_a1', ioerr, 'rank', rank
                     else
 
                         a1_cnt = a1_cnt + 1
@@ -176,7 +176,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a1', ioerr, 'rank', rank
+                        print *, 'error write unit_a1', ioerr, 'rank', rank
                     else
 
                         a1_cnt = a1_cnt + 1
@@ -186,7 +186,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a1, IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a1', ioerr, 'rank', rank
+                        print *, 'error write unit_a1', ioerr, 'rank', rank
                     else
 
                         a1_cnt = a1_cnt + 1
@@ -200,7 +200,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a2', ioerr, 'rank', rank
+                        print *, 'error write unit_a2', ioerr, 'rank', rank
                     else
 
                         a2_cnt = a2_cnt + 1
@@ -210,7 +210,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a2, IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a2', ioerr, 'rank', rank
+                        print *, 'error write unit_a2', ioerr, 'rank', rank
                     else
 
                         a2_cnt = a2_cnt + 1
@@ -223,7 +223,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a2', ioerr, 'rank', rank
+                        print *, 'error write unit_a2', ioerr, 'rank', rank
                     else
 
                         a2_cnt = a2_cnt + 1
@@ -233,7 +233,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_a2, IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_a2', ioerr, 'rank', rank
+                        print *, 'error write unit_a2', ioerr, 'rank', rank
                     else
 
                         a2_cnt = a2_cnt + 1
@@ -252,7 +252,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_b, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_b', ioerr, 'rank', rank
+                        print *, 'error write unit_b', ioerr, 'rank', rank
                     else
 
                         b_cnt = b_cnt + 1
@@ -261,7 +261,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_b, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_b', ioerr, 'rank', rank
+                        print *, 'error write unit_b', ioerr, 'rank', rank
                     else
 
                         b_cnt = b_cnt + 1
@@ -270,7 +270,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_b, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_b', ioerr, 'rank', rank
+                        print *, 'error write unit_b', ioerr, 'rank', rank
                     else
 
                         b_cnt = b_cnt + 1
@@ -279,7 +279,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_b, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_b', ioerr, 'rank', rank
+                        print *, 'error write unit_b', ioerr, 'rank', rank
                     else
 
                         b_cnt = b_cnt + 1
@@ -296,7 +296,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c1', ioerr, 'rank', rank
+                        print *, 'error write unit_c1', ioerr, 'rank', rank
                     else
 
                         c1_cnt = c1_cnt + 1
@@ -306,7 +306,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c1, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c1', ioerr, 'rank', rank
+                        print *, 'error write unit_c1', ioerr, 'rank', rank
                     else
 
                         c1_cnt = c1_cnt + 1
@@ -319,7 +319,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c1, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c1', ioerr, 'rank', rank
+                        print *, 'error write unit_c1', ioerr, 'rank', rank
                     else
 
                         c1_cnt = c1_cnt + 1
@@ -328,7 +328,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c1', ioerr, 'rank', rank
+                        print *, 'error write unit_c1', ioerr, 'rank', rank
                     else
 
                         c1_cnt = c1_cnt + 1
@@ -345,7 +345,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c2', ioerr, 'rank', rank
+                        print *, 'error write unit_c2', ioerr, 'rank', rank
                     else
 
                         c2_cnt = c2_cnt + 1
@@ -354,7 +354,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c2, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c2', ioerr, 'rank', rank
+                        print *, 'error write unit_c2', ioerr, 'rank', rank
                     else
 
                         c2_cnt = c2_cnt + 1
@@ -367,7 +367,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c2', ioerr, 'rank', rank
+                        print *, 'error write unit_c2', ioerr, 'rank', rank
                     else
 
                         c2_cnt = c2_cnt + 1
@@ -376,7 +376,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_c2, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c2', ioerr, 'rank', rank
+                        print *, 'error write unit_c2', ioerr, 'rank', rank
                     else
 
                         c2_cnt = c2_cnt + 1
@@ -393,14 +393,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -409,14 +409,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -425,14 +425,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -441,14 +441,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -461,14 +461,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -477,14 +477,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -493,14 +493,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -509,14 +509,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_e, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_e', ioerr, 'rank', rank
+                        print *, 'error write unit_e', ioerr, 'rank', rank
                     else
 
                         e_cnt = e_cnt + 1
                     end if
                     write (unit_c3, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_c3', ioerr, 'rank', rank
+                        print *, 'error write unit_c3', ioerr, 'rank', rank
                     else
 
                         c3_cnt = c3_cnt + 1
@@ -533,7 +533,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then !ioerr /= 0
-                        write (*, *) 'error write unit_d1', ioerr, 'rank', rank
+                        print *, 'error write unit_d1', ioerr, 'rank', rank
                     else
 
                         d1_cnt = d1_cnt + 1
@@ -542,7 +542,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d1, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d1', ioerr, 'rank', rank
+                        print *, 'error write unit_d1', ioerr, 'rank', rank
                     else
 
                         d1_cnt = d1_cnt + 1
@@ -555,7 +555,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d1, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d1', ioerr, 'rank', rank
+                        print *, 'error write unit_d1', ioerr, 'rank', rank
                     else
 
                         d1_cnt = d1_cnt + 1
@@ -564,7 +564,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d1', ioerr, 'rank', rank
+                        print *, 'error write unit_d1', ioerr, 'rank', rank
                     else
 
                         d1_cnt = d1_cnt + 1
@@ -581,7 +581,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -590,7 +590,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -599,7 +599,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -608,7 +608,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -621,7 +621,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -630,7 +630,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -639,7 +639,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -648,7 +648,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d2, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d2', ioerr, 'rank', rank
+                        print *, 'error write unit_d2', ioerr, 'rank', rank
                     else
 
                         d2_cnt = d2_cnt + 1
@@ -665,7 +665,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d3, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d3', ioerr, 'rank', rank
+                        print *, 'error write unit_d3', ioerr, 'rank', rank
                     else
 
                         d3_cnt = d3_cnt + 1
@@ -674,7 +674,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d3, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d3', ioerr, 'rank', rank
+                        print *, 'error write unit_d3', ioerr, 'rank', rank
                     else
 
                         d3_cnt = d3_cnt + 1
@@ -687,7 +687,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d3, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d3', ioerr, 'rank', rank
+                        print *, 'error write unit_d3', ioerr, 'rank', rank
                     else
 
                         d3_cnt = d3_cnt + 1
@@ -696,7 +696,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_d3, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_d3', ioerr, 'rank', rank
+                        print *, 'error write unit_d3', ioerr, 'rank', rank
                     else
 
                         d3_cnt = d3_cnt + 1
@@ -713,7 +713,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_f, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_f', ioerr, 'rank', rank
+                        print *, 'error write unit_f', ioerr, 'rank', rank
                     else
 
                         f_cnt = f_cnt + 1
@@ -722,7 +722,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_f, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_f', ioerr, 'rank', rank
+                        print *, 'error write unit_f', ioerr, 'rank', rank
                     else
 
                         f_cnt = f_cnt + 1
@@ -731,7 +731,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_f, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_f', ioerr, 'rank', rank
+                        print *, 'error write unit_f', ioerr, 'rank', rank
                     else
 
                         f_cnt = f_cnt + 1
@@ -740,7 +740,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_f, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_f', ioerr, 'rank', rank
+                        print *, 'error write unit_f', ioerr, 'rank', rank
                     else
 
                         f_cnt = f_cnt + 1
@@ -757,7 +757,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -767,7 +767,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -777,7 +777,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -787,7 +787,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -801,7 +801,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -811,17 +811,17 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
-                    end if                   !    write (*, '("Gint6",4I4,2E20.10)') ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
+                    end if                   !    print '("Gint6",4I4,2E20.10)', ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
                 elseif (i > j .and. k > l) then ! (32|31)=>(31|32)
 
                     write (unit_g, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -831,7 +831,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_g, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_g', ioerr, 'rank', rank
+                        print *, 'error write unit_g', ioerr, 'rank', rank
                     else
 
                         g_cnt = g_cnt + 1
@@ -849,7 +849,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_h, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_h', ioerr, 'rank', rank
+                        print *, 'error write unit_h', ioerr, 'rank', rank
                     else
 
                         h_cnt = h_cnt + 1
@@ -859,7 +859,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_h, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_h', ioerr, 'rank', rank
+                        print *, 'error write unit_h', ioerr, 'rank', rank
                     else
 
                         h_cnt = h_cnt + 1
@@ -869,7 +869,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_h, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_h', ioerr, 'rank', rank
+                        print *, 'error write unit_h', ioerr, 'rank', rank
                     else
 
                         h_cnt = h_cnt + 1
@@ -879,7 +879,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                     write (unit_h, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                     if (ioerr .ne. 0) then
-                        write (*, *) 'error write unit_h', ioerr, 'rank', rank
+                        print *, 'error write unit_h', ioerr, 'rank', rank
                     else
 
                         h_cnt = h_cnt + 1
@@ -891,7 +891,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
         end do ! Next inz
     end do ! Continue to read 2-integrals
 
-10  if (rank == 0) write (*, *) 'error for opening mdcint 10'
+10  if (rank == 0) print *, 'error for opening mdcint 10'
     go to 100
 
 100 continue
@@ -910,13 +910,11 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     close (unit_f)
     close (unit_g)
     close (unit_h)
-    deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
-    deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
-    deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
-    deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
-    deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "end readint2_ord_co"
-    end if
+    if (allocated(indk)) deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
+    if (allocated(indl)) deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
+    if (allocated(rklr)) deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
+    if (allocated(rkli)) deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
+    if (allocated(kr)) deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
+    if (rank == 0) print *, "end readint2_ord_co"
 
 end subroutine readint2_ord_co

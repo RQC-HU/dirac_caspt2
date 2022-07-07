@@ -41,35 +41,32 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     Allocate (rklr(nmo**2))
     Allocate (rkli(nmo**2))
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "allocate successed."
-    end if
 #ifdef HAVE_MPI
     ! Broadcast kr and other data that are not included in the MDCINXXX files
     call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "datex broadcast"
-        write (*, *) "if ierr == 0, datex broadcast successed. ierr=", ierr
+    if (rank == 0) then
+        print *, "datex broadcast"
+        print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "timex broadcast"
-        write (*, *) "if ierr == 0, timex broadcast successed. ierr=", ierr
+    if (rank == 0) then
+        print *, "timex broadcast"
+        print *, "if ierr == 0, timex broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "nkr broadcast"
-        write (*, *) "if ierr == 0, nkr broadcast successed. ierr=", ierr
+    if (rank == 0) then
+        print *, "nkr broadcast"
+        print *, "if ierr == 0, nkr broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "kr broadcast"
-        write (*, *) "if ierr == 0, kr broadcast successed. ierr=", ierr
+    if (rank == 0) then
+        print *, "kr broadcast"
+        print *, "if ierr == 0, kr broadcast successed. ierr=", ierr
     end if
     call MPI_Bcast(indmor(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "datex broadcast"
-        write (*, *) "if ierr == 0, datex broadcast successed. ierr=", ierr
+    if (rank == 0) then
+        print *, "datex broadcast"
+        print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
 #endif
     nnkr = 0
@@ -100,9 +97,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
             realonly = .false. ! Complex
         else ! 2-integral values are only real numbers if iostat /= 0
             realonly = .true.  ! Real
-            if (rank == 0) then ! Process limits for output
-                write (*, *) "realonly = ", realonly
-            end if
+            if (rank == 0) print *, "realonly = ", realonly
         end if
         close (mdcint_unit_num)
 
@@ -112,8 +107,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         rkli = 0.0d+00
 
 !Iwamuro debug
-        ! write(*,*) "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
-        ! write(*,*) Filename
+        ! print *, "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
+        ! print *, Filename
 
         ! Continue to read 2-electron integrals until mdcint_filename reaches the end of file.
         mdcint_file_read: do
@@ -129,12 +124,10 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
             ! iostat is less than 0 if end-of-file is reached.
             if (iostat < 0) then
-                if (rank == 0) then ! Process limits for output
-                    print *, "end-of-file reached."
-                end if
+                if (rank == 0) print *, "end-of-file reached."
                 exit mdcint_file_read
             else if (iostat > 0) then
-                if (rank == 0) then ! Process limits for output
+                if (rank == 0) then
                     ! Error in reading 2-electron integrals.
                     print *, "error in reading 2-electron integrals. Filename", mdcint_filename
                 end if
@@ -151,9 +144,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !           lkr = llkr
 
             if (ikr == 0) then
-                if (rank == 0) then ! Process limits for output
-                    write (*, *) ikr, jkr, nz, mdcint_debug
-                end if
+                if (rank == 0) print *, ikr, jkr, nz, mdcint_debug
                 exit mdcint_file_read ! End of file
             end if
 
@@ -260,9 +251,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     end do
     write (mdcintnew_unit_num) 0, 0, 0
     close (mdcintnew_unit_num)
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     Call timing(date1, tsec1, date0, tsec0)
     date1 = date0
     tsec1 = tsec0
@@ -271,8 +259,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     deallocate (rklr)
     deallocate (rkli)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'end create_binmdcint.'
-    end if
+    if (rank == 0) print *, 'end create_binmdcint.'
     deallocate (kr)
 end Subroutine create_newmdcint

@@ -21,57 +21,48 @@ SUBROUTINE casci_ty
     real(8) :: tsectmp0, tsectmp1
 
     ndet = comb(nact, nelec)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'ndet', ndet
-    end if
+    if (rank == 0) print *, 'ndet', ndet
     Call casdet_ty
     if (rank == 0) then
-        write (*, *) "before allocate mat(ndet,ndet)"
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-        write (*, *) 'kind of complex16 array named mat is ', kind(mat)
+        print *, "before allocate mat(ndet,ndet)"
+        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        print *, 'kind of complex16 array named mat is ', kind(mat)
         expected_mem = tmem + (ndet**2)*16
-        write (*, *) 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
+        print *, 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
     end if
 
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
     Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
-    if (rank == 0) then
-        write (*, *) "end allocate mat(ndet,ndet)"
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-    end if
+    if (rank == 0) print *, "end allocate mat(ndet,ndet)"
     Call casmat(mat)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'before allocate ecas(ndet)'
-    end if
+    if (rank == 0) print *, 'before allocate ecas(ndet)'
     Allocate (ecas(ndet))
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocate ecas(ndet)'
-    end if
+    if (rank == 0) print *, 'allocate ecas(ndet)'
     ecas = 0.0d+00
     thresd = 1.0d-15
     cutoff = .FALSE.
-    if (rank == 0) write (*, *) 'Start mat cdiag'
+    if (rank == 0) print *, 'Start mat cdiag'
     datetmp1 = date0; datetmp0 = date0
 
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
 
-    if (rank == 0) write (*, *) 'ndet before cdiag', ndet
+    if (rank == 0) print *, 'ndet before cdiag', ndet
     Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
 
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'End mat cdiag'
+    if (rank == 0) print *, 'End mat cdiag'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        write (*, *) 'debug1'
+        print *, 'debug1'
         cimat = 10
         filename = 'CIMAT'
         open (10, file='CIMAT', status='unknown', form='unformatted')
@@ -86,7 +77,7 @@ SUBROUTINE casci_ty
 
 ! Print out CI matrix!
 
-        write (*, *) 'debug2'
+        print *, 'debug2'
 
         cimat = 10
         filename = 'CIMAT1'
@@ -99,9 +90,7 @@ SUBROUTINE casci_ty
     end if
 ! Print out C1 matrix!
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'debug3'
-    end if
+    if (rank == 0) print *, 'debug3'
     Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
     Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
     Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
@@ -113,27 +102,27 @@ SUBROUTINE casci_ty
     cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
     cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
     Deallocate (ecas)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'debug4'
+    if (rank == 0) then
+        print *, 'debug4'
 
-        write (*, '("CASCI ENERGY FOR ",I2," STATE")') totsym
+        print '("CASCI ENERGY FOR ",I2," STATE")', totsym
         Do irec = 1, nroot
-            write (*, '(I4,F30.15)') irec, eigen(irec)
+            print '(I4,F30.15)', irec, eigen(irec)
         End do
-
-        do j = 1, ndet
-            if (ABS(DIMAG(mat(j, selectroot))) > thres) then
-                realcvec = .false.
-            end if
-        end do
-
+    end if
+    do j = 1, ndet
+        if (ABS(DIMAG(mat(j, selectroot))) > thres) then
+            realcvec = .false.
+        end if
+    end do
+    if (rank == 0) then
         do irec = 1, nroot
-            write (*, '("Root = ",I4)') irec
+            print '("Root = ",I4)', irec
             do j = 1, ndet
                 if ((ABS(mat(j, irec))**2) > 1.0d-02) then
                     i0 = idet(j)
-                    write (*, *) (btest(i0, j0), j0=0, nact - 1)
-                    write (*, '(I4,2(3X,E14.7)," Weights ",E14.7)') &
+                    print *, (btest(i0, j0), j0=0, nact - 1)
+                    print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
                     & j, mat(j, irec), &
                     & ABS(mat(j, irec))**2
                 end if

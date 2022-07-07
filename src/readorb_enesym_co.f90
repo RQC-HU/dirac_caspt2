@@ -35,8 +35,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     Read (mrconee) NMO, BREIT, ECORE  ! NMO is nbas - ncore
     if (rank == 0) then
-        write (*, *) 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
-        write (*, *) NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
+        print *, 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
+        print *, NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
     end if
 !Iwamuro modify
     scfru = 1
@@ -53,13 +53,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     Read (mrconee) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
 
     if (rank == 0) then
-        write (*, *) ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
-        write (*, *) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
+        print *, ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
+        print *, NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
     end if
 !Iwamuro modify
     Read (mrconee) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
     if (rank == 0) then
-        write (*, *) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+        print *, nsymrpa, (repna(i0), i0=1, nsymrpa*2)
     end if
     allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
     allocate (MULTB_D(1:NSYMRPA, 1:NSYMRPA))  ! dagger
@@ -110,18 +110,18 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     End do
 
     if (rank == 0) then
-        write (*, *) 'MULTB'
+        print *, 'MULTB'
 
         Do i0 = 1, 2*nsymrpa
-            write (*, '(400I3)') (MULTB(i0, j0), j0=1, 2*nsymrpa)
+            print '(400I3)', (MULTB(i0, j0), j0=1, 2*nsymrpa)
         End do
 
-        write (*, *) 'MULTB2'
+        print *, 'MULTB2'
 
         Do i0 = 1, 2*nsymrpa
-            write (*, '(400I3)') (MULTB2(i0, j0), j0=1, 2*nsymrpa)
+            print '(400I3)', (MULTB2(i0, j0), j0=1, 2*nsymrpa)
         End do
-        write (*, *) 'end multb1,2'
+        print *, 'end multb1,2'
     end if
 ! create MULTB_S, MULTB_D
 
@@ -137,16 +137,16 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     MULTB_D = MULTB_D - nsymrpa
 
     if (rank == 0) then
-        write (*, *) 'MULTB_S'
+        print *, 'MULTB_S'
 
         Do i0 = 1, nsymrpa
-            write (*, '(200I3)') (MULTB_S(i0, j0), j0=1, nsymrpa)
+            print '(200I3)', (MULTB_S(i0, j0), j0=1, nsymrpa)
         End do
 
-        write (*, *) 'MULTB_D'
+        print *, 'MULTB_D'
 
         Do i0 = 1, nsymrpa
-            write (*, '(200I3)') (MULTB_D(i0, j0), j0=1, nsymrpa)
+            print '(200I3)', (MULTB_D(i0, j0), j0=1, nsymrpa)
         End do
     end if
 
@@ -162,7 +162,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     sp(ninact + nact + nsec + 1:nmo) = 4
 
     if (rank == 0) then
-        write (*, *) 'moint1 is closed.'
+        print *, 'moint1 is closed.'
     end if
 !     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1
 
@@ -170,7 +170,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     If (trim(ptgrp) == 'C1') then  ! C1 symmetry
         if (rank == 0) then
-            write (*, *) 'If pgsym=c1, this route goes through.'
+            print *, 'If pgsym=c1, this route goes through.'
         end if
         NSYMRP = 1
         NSYMRPA = 1
@@ -184,7 +184,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
         !Iwamuro modify
         ! Not C1 symmetry
         if (rank == 0) then
-            write (*, *) 'if pgsym=c1, this route does not go through. '
+            print *, 'if pgsym=c1, this route does not go through. '
         end if
 
         Do jsym = 1, nsymrpa
@@ -209,19 +209,19 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
         End do
 
         if (rank == 0) then
-            write (*, *) 'MULTB_SB'
+            print *, 'MULTB_SB'
             Do I = 1, nsymrpa
-                write (*, '(50I3)') (MULTB_SB(I, J), J=1, NSYMRPA)
+                print '(50I3)', (MULTB_SB(I, J), J=1, NSYMRPA)
             End do
 
-            write (*, *) 'MULTB_DF'
+            print *, 'MULTB_DF'
             Do I = 1, nsymrpa
-                write (*, '(50I3)') (MULTB_DF(I, J), J=1, NSYMRPA)
+                print '(50I3)', (MULTB_DF(I, J), J=1, NSYMRPA)
             End do
 
-            write (*, *) 'MULTB_DB'
+            print *, 'MULTB_DB'
             Do I = 1, nsymrpa
-                write (*, '(50I3)') (MULTB_DB(I, J), J=1, NSYMRPA)
+                print '(50I3)', (MULTB_DB(I, J), J=1, NSYMRPA)
             End do
         end if
 !     Write(*,'("UTCHEMIMO1",50I3)') (UTCHEMIMO1(IMO,1),IMO=1,nmo)
@@ -313,9 +313,9 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     If (trim(ptgrp) /= 'C1') nsymrp = nsymrpa
 
     if (rank == 0) then
-        write (*, *) 'MULTB_SD'
+        print *, 'MULTB_SD'
         Do i = 1, nsymrpa
-            write (*, '(50I3)') (SD(i, j), j=1, nsymrpa)
+            print '(50I3)', (SD(i, j), j=1, nsymrpa)
         End do
     end if
     Do i = 1, nsymrpa
@@ -325,9 +325,9 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     End do
 
     if (rank == 0) then
-        write (*, *) 'MULTB_DS'
+        print *, 'MULTB_DS'
         Do i = 1, nsymrpa
-            write (*, '(50I3)') (DS(i, j), j=1, nsymrpa)
+            print '(50I3)', (DS(i, j), j=1, nsymrpa)
         End do
     end if
     MULTB_DS(:, :) = DS(:, :)
@@ -352,12 +352,11 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     CLOSE (mrconee)
 
-
 !Iwamuro modify
     irpmo(:) = irpamo(:)
 
     if (rank == 0) then
-        write (*, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
+        print '("irpamo ",20I2)', (irpamo(i0), i0=1, nmo)
     end if
 
     orb = orbmo
@@ -384,17 +383,16 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
                 else
                     indmo(i0 + 1) = j0
                 end if
-
             end if
         end do
     end do
 
     if (rank == 0) then
-        write (*, *) 'orb sort end'
+        print *, 'orb sort end'
 
-        write (*, *) 'i0,orb(i0),sort_orb(i0)'
+        print *, 'i0,orb(i0),sort_orb(i0)'
         do i0 = 1, nmo
-            write (*, *) i0, orb(i0), sort_orb(i0)
+            print *, i0, orb(i0), sort_orb(i0)
         end do
     end if
 
@@ -404,7 +402,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     if (rank == 0) then
         do i0 = 1, nmo
-            write (*, '("indmor output",3I4)') indmor(i0), indmo(i0), i0
+            print '("indmor output",3I4)', indmor(i0), indmo(i0), i0
         end do
     end if
     orbmo = sort_orb
@@ -417,32 +415,29 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end do
 
     if (rank == 0) then
-        write (*, '("irpamo ",20I2)') (irpamo(i0), i0=1, nmo)
+        print '("irpamo ",20I2)', (irpamo(i0), i0=1, nmo)
 
-        write (*, *) 'inactive'
+        print *, 'inactive'
         do i0 = 1, ninact
-            write (*, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4)', i0, indmo(i0), orbmo(i0), irpmo(i0)
         end do
 
-        write (*, *) 'active'
+        print *, 'active'
         do i0 = ninact + 1, ninact + nact
-            write (*, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4)', i0, indmo(i0), orbmo(i0), irpmo(i0)
         end do
 
-        write (*, *) 'secondary'
+        print *, 'secondary'
         do i0 = ninact + nact + 1, ninact + nact + nsec
-            write (*, '(2I4,2X,E20.10,2X,I4)') i0, indmo(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4)', i0, indmo(i0), orbmo(i0), irpmo(i0)
         end do
     end if
-!        do i0 = 1, nmo
-!           indmo(i0)=i0
-!        end do
 
-    deallocate (dammo); Call memminus(KIND(dammo), SIZE(dammo), 1)
-
-    deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
-    deallocate (sort_orb); Call memminus(KIND(sort_orb), SIZE(sort_orb), 1)
+    if (allocated(dammo)) deallocate (dammo); Call memminus(KIND(dammo), SIZE(dammo), 1)
+    if (allocated(orb)) deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
+    if (allocated(sort_orb)) deallocate (sort_orb); Call memminus(KIND(sort_orb), SIZE(sort_orb), 1)
 contains
+
     subroutine sort_list_energy_order_to_ras_order(want_to_sort, original_orb_energy_order)
         use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
         implicit none

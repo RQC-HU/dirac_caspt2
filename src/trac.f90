@@ -24,9 +24,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     occ = 0
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter TRACI'
-    end if
+    if (rank == 0) print *, 'Enter TRACI'
 
     Do i0 = 1, ndet
         i = 0
@@ -103,9 +101,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 ! for a while !        End do
 ! for a while !        End do
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Obtain inverse of ds matrix'
-    end if
+    if (rank == 0) print *, 'Obtain inverse of ds matrix'
 
     Allocate (IPIV(ndet))
     Allocate (dsold(ndet, ndet))
@@ -113,16 +109,12 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     dsold = ds
 
     Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'info', info
-    end if
+    if (rank == 0) print *, 'info', info
 
     Allocate (work(ndet))
 
     Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'info', info
-    end if
+    if (rank == 0) print *, 'info', info
 
 ! for a while !      write(*,'(/,"REAL")')
 ! for a while !        Do i0 = 1, ndet
@@ -151,9 +143,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 
     Deallocate (work)
     Deallocate (IPIV)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Check whether inverese matrix is really so'
-    end if
+    if (rank == 0) print *, 'Check whether inverese matrix is really so'
 
     error = .FALSE.
 
@@ -163,22 +153,16 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 
             If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                 error = .TRUE.
-                if (rank == 0) then ! Process limits for output
-                    write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
-                end if
+                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
             Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                 error = .TRUE.
-                if (rank == 0) then ! Process limits for output
-                    write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
-                end if
+                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
             End if
 
         End do
     End do
 
-    if (rank == 0) then ! Process limits for output
-        If (.not. error) write (*, *) 'Inverse matrix is obtained correclty'
-    end if
+    if (rank == 0) print *, 'Inverse matrix is obtained correclty'
     Deallocate (dsold)
 
 !        Now ds is inverse matrix!
@@ -238,9 +222,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     occ = 0
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter TRACI'
-    end if
+    if (rank == 0) print *, 'Enter TRACI'
     datetmp1 = date0; datetmp0 = date0
 
     Call timing(date0, tsec0, datetmp0, tsectmp0)
@@ -262,14 +244,14 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 200         end if
         End do
     End do
-    if (rank == 0) write (*, *) 'Before allocate a matrix named ds'
+    if (rank == 0) print *, 'Before allocate a matrix named ds'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Allocate (ds(ndet, ndet))
 
     ds = 0.0d+00
-    if (rank == 0) write (*, *) 'Initialized a matrix named ds'
+    if (rank == 0) print *, 'Initialized a matrix named ds'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -282,18 +264,16 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 
         End do
     End do
-    if (rank == 0) write (*, *) 'End detsc'
+    if (rank == 0) print *, 'End detsc'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Obtain inverse of ds matrix'
-    end if
+    if (rank == 0) print *, 'Obtain inverse of ds matrix'
     Allocate (IPIV(ndet))
     Allocate (dsold(ndet, ndet))
 
     dsold = ds
-    if (rank == 0) write (*, *) 'Start get LU factorization of ds'
+    if (rank == 0) print *, 'Start get LU factorization of ds'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -303,38 +283,32 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     ! ZGETRIはLU分解したものを使って逆行列を計算する
     ! つまりZGETRF+ZGETRIの計算量はO(n^3)でcdiagと同等の計算量が必要
     Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'info', info
-    end if
+    if (rank == 0) print *, 'info', info
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'End get LU factorization of ds'
+    if (rank == 0) print *, 'End get LU factorization of ds'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Allocate (work(ndet))
-    if (rank == 0) write (*, *) 'Start get a inverse matrix of ds'
+    if (rank == 0) print *, 'Start get a inverse matrix of ds'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'info', info
-    end if
+    if (rank == 0) print *, 'info', info
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'End get a inverse matrix of ds, ndet', ndet
+    if (rank == 0) print *, 'End get a inverse matrix of ds, ndet', ndet
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Deallocate (work)
     Deallocate (IPIV)
 #ifdef DEBUG
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Check whether inverese matrix is really so'
-    end if
+    if (rank == 0) print *, 'Check whether inverese matrix is really so'
     error = .FALSE.
 
     ! Noda ndet^2で回っているので遅くなりそう
@@ -345,7 +319,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'End dsold = matmul(ds, dsold) so dsold should be a identity matrix.'
+    if (rank == 0) print *, 'End dsold = matmul(ds, dsold) so dsold should be a identity matrix.'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -354,7 +328,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     !    end do
     !    if (maxval(abs(real(dsold))) > 1.0d-10) then
     !        if (rank == 0) then
-    !            write (*, '(E13.5)') maxval(abs(real(dsold)))
+    !            print '(E13.5)', maxval(abs(real(dsold)))
     !        end if
     !    end if
     Do i0 = 1, ndet
@@ -362,22 +336,16 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 
             If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
                 error = .TRUE.
-                if (rank == 0) then ! Process limits for output
-                    write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
-                end if
+                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
             Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
                 error = .TRUE.
-                if (rank == 0) then ! Process limits for output
-                    write (*, '(2I4,2E13.5)') i0, j0, dsold(i0, j0)
-                end if
+                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
             End if
 
         End do
     End do
 
-    if (rank == 0) then ! Process limits for output
-        If (.not. error) write (*, *) 'Inverse matrix is obtained correclty'
-    end if
+    if (rank == 0) print *, 'Inverse matrix is obtained correclty'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0

@@ -21,9 +21,7 @@ SUBROUTINE calce0(e0)
     e0 = 0.0d+00
     dr = 0.0d+00
     di = 0.0d+00
-    if (rank == 0) then ! Process limits for output
-        write (*, *) iroot, 'iroot'
-    end if
+    if (rank == 0) print *, iroot, 'iroot'
     Do i = 1, nact
         ii = i
 
@@ -32,12 +30,14 @@ SUBROUTINE calce0(e0)
             e0 = e0 + dr*eps(i + ninact)
         Else
             Call dim1_density(ii, ii, dr, di)
-            if (ABS(di) > 1.0d-10 .and. rank == 0) write (*, *) '1dim density is complex! strange', i, di
+            if (ABS(di) > 1.0d-10 .and. rank == 0) print *, '1dim density is complex! strange', i, di
             e0 = e0 + dr*eps(i + ninact)
         End if
 
     End do
 
-    if (rank == 0) write (*, *) 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
-    if (rank == 0) write (*, *) 'end'
+    if (rank == 0) then
+        print *, 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
+        print *, 'end'
+    end if
 end subroutine calce0

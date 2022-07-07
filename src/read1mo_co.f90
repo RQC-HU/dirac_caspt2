@@ -14,7 +14,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
     if (rank == 0) then
-        write (*, *) 'Enter read1mo_co'
+        print *, 'Enter read1mo_co'
     end if
     mrconee = 10
 
@@ -77,17 +77,6 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     deallocate (ronei); Call memminus(KIND(ronei), SIZE(ronei), 1)
 
     if (rank == 0) then
-        write (*, *) realc, 'realc'
+        print *, realc, 'realc'
     end if
-    goto 1000
-
-10  if (rank == 0) then
-        write (*, *) 'err 10 mo1'
-    end if
-    go to 1000
-    if (rank == 0) then
-        write (*, *) 'err 11 mo1'
-    end if
-    go to 1000
-
-1000 end subroutine read1mo_co
+end subroutine read1mo_co

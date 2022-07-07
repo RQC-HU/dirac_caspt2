@@ -29,9 +29,7 @@ SUBROUTINE casdet_ty
 
     ! ras1_bit = 2**2 - 1 ! RAS1のビット表現
     allow_det_num = 0
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter casdet_ty'
-    end if
+    if (rank == 0) print *, 'Enter casdet_ty'
     Allocate (idet0(ndet))
     Allocate (idetr(2**nact - 1)); call memplus(kind(idetr), size(idetr), 1)
     idet0 = 0
@@ -70,12 +68,12 @@ SUBROUTINE casdet_ty
 
     Allocate (idet(ndet))
     idet(1:ndet) = idet0(1:ndet)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'allow  = ', allow_det_num
-        write (*, *) 'totsym = ', totsym
-        write (*, *) 'ndet   = ', ndet
+    if (rank == 0) then
+        print *, 'allow  = ', allow_det_num
+        print *, 'totsym = ', totsym
+        print *, 'ndet   = ', ndet
     end if
-!        write(*,*)idet(1:ndet)
+!        print *,idet(1:ndet)
     Deallocate (idet0)
 
 end subroutine casdet_ty
@@ -104,23 +102,17 @@ SUBROUTINE detsym_ty(ii, isym)
             jsym = irpamo(j)
             if (mod(ielec, 2) == 1) then
                 isym1 = MULTB_DS(jsym, isym) ! isym will be double irrep: odd number of electron
-                if (rank == 0) then ! Process limits for output
-                    if (isym1 > nsymrp) write (*, *) 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
-                end if
                 isym = isym1
+                if (isym1 > nsymrp .and. rank == 0) print *, 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
             else
                 if (mod(jsym, 2) == 1) then
                     isym1 = MULTB_D(jsym + 1, isym) ! isym will be single irrep: even number of electron !MULTB_D is (fai*|fai)
-                    if (rank == 0) then ! Process limits for output
-                        if (isym1 > nsymrp) write (*, *) 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
-                    end if
                     isym = isym1
+                    if (isym1 > nsymrp .and. rank == 0) print *, 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
                 else
                     isym1 = MULTB_D(jsym - 1, isym) ! isym will be single irrep: even number of electron
-                    if (rank == 0) then ! Process limits for output
-                        if (isym1 > nsymrp) write (*, *) 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
-                    end if
                     isym = isym1
+                    if (isym1 > nsymrp .and. rank == 0) print *, 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
                 end if
             end if
 

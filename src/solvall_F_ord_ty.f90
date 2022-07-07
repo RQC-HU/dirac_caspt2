@@ -100,15 +100,13 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'end before v matrices'
+    if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vFmat_ord(nab, iab, v)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'come'
-    end if
-    if (rank == 0) write (*, *) 'end after vFmat'
+    if (rank == 0) print *, 'come'
+    if (rank == 0) print *, 'end after vFmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -193,14 +191,10 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether U*SU is diagonal'
-            end if
+            if (rank == 0) print *, 'Check whether U*SU is diagonal'
             Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether U*SU is diagonal END'
-            end if
+            if (rank == 0) print *, 'Check whether U*SU is diagonal END'
         End if
 
         Allocate (bc(dimn, dimn))                                 ! bc N*N
@@ -256,16 +250,16 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc1 is hermite or not'
+            if (rank == 0) then
+                print *, 'Check whether bc1 is hermite or not'
                 Do i = 1, dimm
                     Do j = i, dimm
                         if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
-                            write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
+                            print '(2I4,2E15.7)', i, j, bc1(i, j) - bc1(j, i)
                         End if
                     End do
                 End do
-                write (*, *) 'Check whether bc1 is hermite or not END'
+                print *, 'Check whether bc1 is hermite or not END'
             end if
         End if
 
@@ -344,7 +338,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         deallocate (wb)
         Deallocate (bc1)
 
-        if (rank == 0) write (*, '("e2f(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+        if (rank == 0) print '("e2f(",I3,") = ",E20.10,"a.u.")', isym, e2(isym)
         e2f = e2f + e2(isym)
         if (rank == 0) print *, 'End e2(isym) add'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -352,9 +346,9 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         tsectmp1 = tsectmp0
     End do                  ! isym
 
-    if (rank == 0) then ! Process limits for output
-        write (*, '("e2f      = ",E20.10,"a.u.")') e2f
-        write (*, '("sumc2,f  = ",E20.10)') sumc2local
+    if (rank == 0) then
+        print '("e2f      = ",E20.10,"a.u.")', e2f
+        print '("sumc2,f  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local
 

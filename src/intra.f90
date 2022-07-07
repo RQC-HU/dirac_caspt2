@@ -66,9 +66,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !        write(*,'("C1int",8I4)')ii,ie,ji,je,ki,ke,li,leE
 
     traint2 = 0.0d+00
-    if (rank == 0) then ! Process limits for output
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-    end if
+    if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -286,7 +284,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     thresd = 1.0d-15
 
     if (.not. (spi == spk .and. spj == spl)) then
-        write (*, *) 'error intra_2', spi, spj, spk, spl
+        print *, 'error intra_2', spi, spj, spk, spl
         stop
     end if
 
@@ -326,9 +324,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 2)
 
     traint2 = 0.0d+00
-    if (rank == 0) then ! Process limits for output
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-    end if
+    if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -592,7 +588,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     thresd = 1.0d-15
 
     if (.not. (spk == spl)) then
-        write (*, *) 'error intra_3', spi, spj, spk, spl
+        print *, 'error intra_3', spi, spj, spk, spl
         stop
     end if
     ini(1) = 1
@@ -634,9 +630,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !        write(*,'("intra_3",8I4)')ii,ie,ji,je,ki,ke,li,le
 
     traint2 = 0.0d+00
-    if (rank == 0) then ! Process limits for output
-        write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-    end if
+    if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -728,9 +722,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Read intergals  and second index transformation'
-    end if
+    if (rank == 0) print *, 'Read intergals  and second index transformation'
     open (1, file=trim(fname), status='old', form='unformatted')
     do
         read (1, iostat=iostat) i, j, k, l, cint2
@@ -857,7 +849,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     open (1, file=trim(fname), status='replace', form='unformatted')
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
 
-    if (rank == 0) write (*, *) 'read and write file properly. filename : ', trim(fname)
+    if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)

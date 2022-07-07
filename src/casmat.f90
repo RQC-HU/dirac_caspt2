@@ -22,14 +22,10 @@ SUBROUTINE casmat(mat)
 
     mat = 0.0d+00
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Cas mat enter'
-    end if
+    if (rank == 0) print *, 'Cas mat enter'
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocated oc and vi'
-    end if
+    if (rank == 0) print *, 'allocated oc and vi'
     Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
         occ = 0
@@ -46,11 +42,6 @@ SUBROUTINE casmat(mat)
                 vi(vir) = imo
             End if
         End do
-
-!           write(*,*) 'i, idet(i)',i, idet(i)
-!           write(*,*) occ, oc(1:occ)
-!           write(*,*) vir, vi(1:vir)
-!           write(*,*) ' '
 
 !! IDENTICAL DETERMINANT => DIAGONAL TERM
         !   diagonal term is same as Hartree-Fock's expression
@@ -226,11 +217,12 @@ SUBROUTINE casmat(mat)
 
     Deallocate (oc)
     Deallocate (vi)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'end casmat'
-        write (*, *) 'Reduce mat(:,:)'
+    if (rank == 0) then
+        print *, 'end casmat'
+        print *, 'Reduce mat(:,:)'
     end if
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
 end subroutine casmat

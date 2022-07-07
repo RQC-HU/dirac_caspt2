@@ -133,9 +133,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'reading int2 is over'
-    end if
+    if (rank == 0) print *, 'reading int2 is over'
 
     Do i0 = 1, nab
         ia = ia0(i0)
@@ -161,9 +159,9 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
         End do
     End do
 
-    if (rank == 0) then ! Process limits for output
-        write (*, '("e2h      = ",E20.10,"a.u.")') e2h
-        write (*, '("sumc2,h  = ",E20.10)') sumc2local
+    if (rank == 0) then
+        print '("e2h      = ",E20.10,"a.u.")', e2h
+        print '("sumc2,h  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local
 
@@ -175,7 +173,5 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     deallocate (ii0)
     deallocate (ij0)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'end solvH_ord_ty'
-    end if
+    if (rank == 0) print *, 'end solvH_ord_ty'
 End SUBROUTINE solvH_ord_ty
