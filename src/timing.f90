@@ -25,7 +25,7 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
     difsec = tsec - tsec0
 
     if (rank == 0) then
-        print *, "Present time is"
+        print '("Present time is")'
         print '("year  = ",I4,"month = ",I4,"date  = ",I4 )', val(1), val(2), val(3)
         print '(14X,I4,"h   ",I4,"min  ",I2,".",I3,"sec  " )',&
         & val(5), val(6), val(7), val(8)
