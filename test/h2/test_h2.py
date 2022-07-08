@@ -6,16 +6,25 @@ import pytest
 import glob
 
 
-def test_h2():
+# Delete delete_files in the test_path
+def delete_scratch_files(delete_files, test_path):
+    for d in delete_files:
+        files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
+        for f in files:
+            os.remove(f)
+
+
+def test_H2(the_number_of_process):
 
     # Initialization
-    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
-    os.chdir(test_path)  # Change directory to the path of this file
-    print(test_path, "test start")  # Debug output
     # Set file names
     ref_filename = "reference.H2.out"  # Reference
     output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.H2.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    # Get this files path and change directory to this path
+    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
+    os.chdir(test_path)  # Change directory to the path of this file
+    print(test_path, "test start")  # Debug output
     # Set file paths
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
@@ -29,6 +38,21 @@ def test_h2():
     r4dcaspt2 = os.path.abspath(
         os.path.join(binary_dir, "r4dcaspt2ocoexe")
     )  # CASPT2 binary
+    # Set delete file list
+    delete_files = [
+        "[A-H]*int*",  # 2-integrals per subspace
+        "MDCINTNEW*",  # 2-integrals per MPI process
+        "NEWCICOEFF",  # Coefficients of CI
+        "CIMAT*",  # CI matrix
+        "e0after",  # Energy after CASCI
+        "EPS",  # epsilon
+        "TRANSFOCK",  # Transformation matrix
+        "*mat*",  # Matrix for DMRG
+        "fort.*",  # Fortran files
+    ]
+
+    # Delete files because of previous test may illegally failed and created files that are not expected
+    delete_scratch_files(delete_files, test_path)
 
     # Check binary files are exist
     if os.path.exists(r4dcasci) is False:
@@ -46,10 +70,16 @@ def test_h2():
         # Exit with error message
         sys.exit(error_message)
 
+    # Set test command
+    test_command = ""
+    if the_number_of_process > 1:
+        test_command = f"mpirun -np {the_number_of_process} {r4dcasci} && mpirun -np {the_number_of_process} {r4dcaspt2}"
+    else:
+        test_command = f"{r4dcasci} && {r4dcaspt2}"
     # Run calculation
     with open(output_file_path, "w") as f:
         p = subprocess.run(
-            " ".join([r4dcasci, "&&", r4dcaspt2]),
+            test_command,
             shell=True,
             encoding="utf-8",
             stdout=f,
@@ -58,23 +88,8 @@ def test_h2():
     status = "CASCI/CASPT2 status " + str(p.returncode)
     print(status)  # Print status (If p.returncode != 0, probably calculation failed.)
 
-    # Set delete file list
-    delete_files = [
-        "[A-H]*int*",  # 2-integrals per subspace
-        "MDCINTNEW*",  # 2-integrals per MPI process
-        "NEWCICOEFF",  # Coefficients of CI
-        "CIMAT*",  # CI matrix
-        "e0after",  # Energy after CASCI
-        "EPS",  # epsilon
-        "TRANSFOCK",  # Transformation matrix
-        "*mat*",  # Matrix for DMRG
-    ]
-
     # Delete scratch files
-    for d in delete_files:
-        files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
-        for f in files:
-            os.remove(f)
+    delete_scratch_files(delete_files, test_path)
 
     # Check output
     with open(ref_file_path, encoding="utf-8", mode="r") as f:
@@ -102,7 +117,3 @@ def test_h2():
     assert output_energy == pytest.approx(ref_energy, 1e-8)
     # The latest passed output file is overwritten by the current output file if assert equals True.
     shutil.copy(output_file_path, latest_passed_path)
-
-
-if __name__ == "__main__":
-    test_h2()

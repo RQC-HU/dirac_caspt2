@@ -4,6 +4,7 @@ on:
   push:
     paths:
     # Ref : https://mzqvis6akmakplpmcjx3.hatenablog.com/entry/2021/02/07/134133
+    # Run CI when only source code, build configuration, test files or files related to CI are modified.
       - "**.f90"
       - "**.F90"
       - "**.cmake"
@@ -64,10 +65,10 @@ jobs:
         run: |
           cmake -DMPI=on -DOPENMP=on -B build
           cmake --build build
-      - name: Run unittest
+      - name: Run unittest (parallel)
         timeout-minutes: 15
         run: |
-          pytest -vv
+          pytest --parallel=4
 
   test-linux-gfortran:
     timeout-minutes: 15 # Max execution time (min)
@@ -128,4 +129,4 @@ jobs:
       - name: Run unittest
         timeout-minutes: 15
         run: |
-          pytest -vv
+          pytest
