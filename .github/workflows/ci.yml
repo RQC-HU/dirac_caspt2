@@ -60,11 +60,11 @@ jobs:
       - name: Install pytest for unit test
         timeout-minutes: 1
         run: python -m pip install pytest
-      - name: Build source code
+      - name: Build source code (parallel)
         timeout-minutes: 1
         run: |
           cmake -DMPI=on -DOPENMP=on -B build
-          cmake --build build
+          cmake --build build -j4
       - name: Run unittest (parallel)
         timeout-minutes: 15
         run: |
