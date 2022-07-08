@@ -27,7 +27,7 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
     end if
     datetmp0 = initdate
     tsectmp0 = inittime
-    if (rank == 0) call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
+    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
     datetmp0 = datetmp1
     tsectmp0 = tsectmp1
 
@@ -100,7 +100,7 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
     if (rank == 0) then  ! Process limits for output
         write (*, *) 'fockcasci before f allreduce'
     end if
-    if (rank == 0) call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
+    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
     datetmp0 = datetmp1
     tsectmp0 = tsectmp1
 #ifdef HAVE_MPI
