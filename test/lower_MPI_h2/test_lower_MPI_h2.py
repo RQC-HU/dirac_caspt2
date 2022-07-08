@@ -6,19 +6,27 @@ import glob
 
 
 def test_lower_MPI_h2():
-    test_path = os.path.dirname(os.path.abspath(__file__)) # The path of this file
+    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
     os.chdir(test_path)  # Change directory to the path of this file
     print(test_path)  # Debug output
     ref_filename = "reference.H2.out"  # Reference
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
     output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
-    bindir = os.path.abspath(os.path.join(test_path, "../../bin"))  # Build binary directory
+    bindir = os.path.abspath(
+        os.path.join(test_path, "../../bin")
+    )  # Build binary directory
     r4dcasci = os.path.abspath(os.path.join(bindir, "r4dcascicoexe"))  # CASCI
     r4dcaspt2 = os.path.abspath(os.path.join(bindir, "r4dcaspt2ocoexe"))  # CASPT2
     # Run calculation
-    with open(output_file_path,'w') as f:
-        p = subprocess.run(" ".join([r4dcasci,"&&",r4dcaspt2]), shell=True, encoding='utf-8', stdout=f)
+    with open(output_file_path, "w") as f:
+        p = subprocess.run(
+            " ".join([r4dcasci, "&&", r4dcaspt2]),
+            shell=True,
+            encoding="utf-8",
+            stdout=f,
+            stderr=f,
+        )
     f.close()
     print(
         "CASCI/CASPT2 status", p.returncode
@@ -36,7 +44,7 @@ def test_lower_MPI_h2():
     # Delete scratch files
     for d in delete_files:
         files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
-        print("files", files) # Debug output
+        print("files", files)  # Debug output
         for f in files:
             os.remove(f)
 

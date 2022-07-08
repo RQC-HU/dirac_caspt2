@@ -18,7 +18,8 @@ def test_h2():
     r4dcaspt2 = os.path.abspath(os.path.join(bindir, "r4dcaspt2ocoexe"))  # CASPT2
     # Run calculation
     with open(output_file_path,'w') as f:
-        p = subprocess.run(" ".join([r4dcasci,"&&",r4dcaspt2]), shell=True, encoding='utf-8', stdout=f)
+        p = subprocess.run(" ".join([r4dcasci,"&&",r4dcaspt2]), shell=True, encoding='utf-8', stdout=f,
+            stderr=f,)
     f.close()
     print(
         "CASCI/CASPT2 status", p.returncode
@@ -31,6 +32,8 @@ def test_h2():
         "e0after",
         "EPS",
         "TRANSFOCK",
+        "fort.*",
+        "*mat*",
     ]
 
     # Delete scratch files

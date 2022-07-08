@@ -1,0 +1,50 @@
+ninact
+6
+nact
+6
+nsec
+48
+nelec
+4
+totsym
+3
+nbas
+60
+nroot
+3
+selectroot
+1
+ncore
+0
+ptgrp
+C2
+diracver
+21
+end
+4
+12
+140
+6
+3
+1
+3
+0
+156
+0.0
+C2
+21
+
+Input for CASCI and CASPT2
+
+        read(5,'(I4)')ninact     # of inactive spinors
+        read(5,'(I4)')nact       # of active spinors
+        read(5,'(I4)')nsec       # of secondary spinors = nbas-ncore-nact-ninact
+        read(5,'(I4)')nelec      # of active electrons in active space
+        read(5,'(I4)')nroot      # of roots
+        read(5,'(I4)')selectroot # which root do you want to obtain
+        read(5,'(I4)')totsym     # total symmetry ex. 5 for Ag in C2h closed shell
+        read(5,'(I4)')ncore      # of core orbital
+        read(5,'(I4)')nbas       # of basis set
+        read(5,'(E8.2)')eshift   # for real shift (if you don't write, it will be 0)
+        read(5,'(A6)')ptgrp      # point group symmtery
+        read(5,'(A6)')dirac_version # DIRAC version

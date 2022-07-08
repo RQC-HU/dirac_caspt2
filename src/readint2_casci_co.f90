@@ -93,7 +93,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
         print *, 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
     end if
     do while (continue_read)
-        do idx = 1, read_line_len
+        do idx = 1, read_line_max
             read (mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
                 (indk(idx, inz), indl(idx, inz), rklr(idx, inz), rkli(idx, inz), inz=1, nz(idx))
             ! File status check
@@ -109,8 +109,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
             end if
         end do
 
-        ! The length of read line is equal to read_line_len
-        read_line_len = idx
+        ! The length of read line is equal to min(read_line_max, idx)
+        read_line_len = min(read_line_max, idx)
 
         !$OMP parallel do private(idx,itr,jtr,i0,itr0,j0,jtr0,inz,k,ktr,l,ltr,SIGNIJ,SIGNKL,cint2,save,count) &
         !$OMP & reduction(+:totalint,nuniq)
