@@ -3,17 +3,12 @@ program main
     implicit none
     character(100) :: input
     character(:), allocatable :: string
-    integer :: count
-    count = 1
     open (5, file='input', form='formatted')
     read (5, '(a)') input
     string = trim(input)
     close (5)
     call uppercase(string)
-    print *, "open"
-    open (2, file='output', form="formatted")
-    print *, 'before write'
+    open (2, file='result.out', form="formatted")
     write (2, *) string
-    print *, 'end write'
     close (2)
 end program main
