@@ -76,8 +76,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         write (*, *) ' ENTER solv C part'
         write (*, *) ' nsymrpa', nsymrpa
     end if
-    Allocate (v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
-    &          ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+    Allocate (v(nsec, nact, nact, nact))
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
@@ -136,7 +135,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     syma = MULTB_D(isym, irpmo(jx))
                     symb = MULTB_D(irpmo(jy), irpmo(jz))
                     syma = MULTB_S(syma, symb)
-
 
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
@@ -345,7 +343,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
 
                 Allocate (vc(dimn))
                 Do it = 1, dimn
-                    vc(it) = v(ja, indsym(1, it) + ninact, indsym(2, it) + ninact, indsym(3, it) + ninact)
+                    vc(it) = v(ia, indsym(1, it), indsym(2, it), indsym(3, it))
                 End do
 
                 Allocate (vc1(dimm))
@@ -368,7 +366,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         End do
 
         if (rank == 0) then ! Process limits for output
-            write (*, '("e2c(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+            write (*, '("e2c(",I3,") = ",E20.10," a.u.")') isym, e2(isym)
         end if
         deallocate (bc1)
         deallocate (indsym)
@@ -385,7 +383,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
 1000 End do                  ! isym
 
     if (rank == 0) then ! Process limits for output
-        write (*, '("e2c      = ",E20.10,"a.u.")') e2c
+        write (*, '("e2c      = ",E20.10," a.u.")') e2c
         write (*, '("sumc2,c  = ",E20.10)') sumc2local
     end if
     sumc2 = sumc2 + sumc2local
@@ -573,11 +571,10 @@ SUBROUTINE vCmat_ord_ty(v)
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    complex*16, intent(out) :: v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
-                &          ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nsec, nact, nact, nact)
     real*8                  :: dr, di
     complex*16              :: cint1, cint2, d
-    complex*16              :: effh(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact)
+    complex*16              :: effh(nsec, nact)
     integer :: i, j, k, l, dim(nsymrpa)
     integer :: isym, syma, symb, symc
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
@@ -666,7 +663,7 @@ SUBROUTINE vCmat_ord_ty(v)
 
             Call tramo1_ty(ja, jt, cint1)
 
-            effh(ja, jt) = cint1
+            effh(ia, it) = cint1
             !              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
 
         End do
@@ -681,7 +678,7 @@ SUBROUTINE vCmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    isym = irpmo(i)   ! i corresponds to a
+    isym = irpmo(i + ninact + nact)   ! i corresponds to a
     !$OMP parallel do schedule(static,1) private(it,iu,iv,jt,ju,jv,dr,di,d)
     Do i0 = 1, dim(isym)
         it = indt(i0, isym)
@@ -691,9 +688,9 @@ SUBROUTINE vCmat_ord_ty(v)
         ju = iu + ninact
         jv = iv + ninact
 
-        Call dim3_density(iv, iu, it, j - ninact, k - ninact, l - ninact, dr, di)
+        Call dim3_density(iv, iu, it, j, k, l, dr, di)
         d = DCMPLX(dr, di)
-        v(i, jt, ju, jv) = v(i, jt, ju, jv) + cint2*d
+        v(i, it, iu, iv) = v(i, it, iu, iv) + cint2*d
 
     End do
     !$OMP end parallel do
@@ -763,7 +760,7 @@ SUBROUTINE vCmat_ord_ty(v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + nact + 1, ninact + 1), nsec*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, effh(1, 1), nsec*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
@@ -775,7 +772,7 @@ SUBROUTINE vCmat_ord_ty(v)
         Do ip = 1, nact
             jp = ip + ninact
 
-            if (ABS(effh(ja, jp)) < 1.0d-10) goto 70
+            if (ABS(effh(ia, ip)) < 1.0d-10) goto 70
 
             Do i0 = 1, dim(isym)
                 it = indt(i0, isym)
@@ -788,7 +785,7 @@ SUBROUTINE vCmat_ord_ty(v)
                 Call dim2_density(iv, iu, it, ip, dr, di)
                 d = DCMPLX(dr, di)
 
-                v(ja, jt, ju, jv) = v(ja, jt, ju, jv) + effh(ja, jp)*d
+                v(ia, it, iu, iv) = v(ia, it, iu, iv) + effh(ia, ip)*d
 
             End do            !i0
 
@@ -807,8 +804,7 @@ SUBROUTINE vCmat_ord_ty(v)
     deallocate (indv)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(ninact + nact + 1, ninact + 1, ninact + 1, ninact + 1), nsec*nact**3, &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1, 1), nsec*nact**3, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
     if (rank == 0) write (*, *) 'end Allreduce vCmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

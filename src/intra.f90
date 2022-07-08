@@ -214,7 +214,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     goto 100
@@ -485,7 +485,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     close (1)
 
     goto 100
@@ -754,7 +754,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
     goto 100 ! No error in intra3
 
 10  write (*, *) 'error opening file'
@@ -773,6 +773,91 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
 end subroutine intra_3
+
+subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
+    !==============================================================================================
+    ! This is a writing subroutine for two-electron integrals
+    ! after the fourth integral transformation.
+    !
+    ! For the clarity of later processing, this subroutine will write the numbers
+    ! within each subspace orbitals,
+    ! instead of the numbers of the entire inactive, active, and secondary orbitals.
+    !
+    ! Author: K.Noda
+    !==============================================================================================
+    use four_caspt2_module, only: nprocs, rank
+    implicit none
+    integer                 :: n_cnt, i, j, k, l
+    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le
+    real(8)                 :: thresd
+    complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
+    integer                 :: i_tra, j_tra, k_tra, l_tra
+    integer                 :: i_ini, i_end, j_ini, j_end, k_ini, k_end, l_ini, l_end
+
+    ! Initialization
+    i_ini = ii; i_end = ie; j_ini = ji; j_end = je; k_ini = ki; k_end = ke; l_ini = li; l_end = le
+
+    ! Check where to start and end the writing
+    call where_subspace_is(i_ini, i_end)
+    call where_subspace_is(j_ini, j_end)
+    call where_subspace_is(k_ini, k_end)
+    call where_subspace_is(l_ini, l_end)
+
+    ! Write the integrals to disk
+    n_cnt = 0
+    i_tra = ii - 1
+    j_tra = ji - 1
+    k_tra = ki - 1
+    l_tra = li - 1
+    Do l = i_ini, l_end
+        Do k = i_ini, k_end
+            Do j = i_ini, j_end
+                Do i = i_ini, i_end
+                    !===================================================================================================
+                    ! About the index of traint2
+                    ! If ii is in the active subspace, ii is equal to nact + 1,
+                    ! so i + i_tra is needed to get the correct index. (The same applies to inactive and secondary.)
+                    ! When nact is zero, it never pass through the do loop even once, so there is no problem.
+                    !===================================================================================================
+                    if (ABS(traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)) > thresd) then
+                        if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
+                            write (1) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)
+                        end if
+                        n_cnt = n_cnt + 1
+                    end if
+                End do
+            End do
+        End do
+    End do
+
+    return
+contains
+    subroutine where_subspace_is(ini, end)
+        !=============================================================================================
+        ! This subroutine returns the indices of the subspace where the integrals are to be written
+        ! to disk.
+        ! (e.g.) (input)  ini = ninact + 1, end = ninact + nact
+        !        (output) ini = 1,          end = nact  => the subspace is the active space
+        !=============================================================================================
+        use four_caspt2_module, only: ninact, nact, nsec
+        implicit none
+        integer, intent(inout) :: ini, end
+        if (end == 0) then
+            ini = 1
+            end = ninact
+        elseif (ini <= ninact) then
+            ini = 1
+            end = ninact
+        else if (ini <= ninact + nact) then
+            ini = 1
+            end = nact
+        else
+            ini = 1
+            end = nsec
+        end if
+
+    end subroutine where_subspace_is
+end subroutine write_traint2_to_disk_fourth
 
 subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
     use four_caspt2_module, only: nprocs, rank

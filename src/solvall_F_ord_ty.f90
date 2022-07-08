@@ -79,7 +79,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     End do
 
     nab = i0
-    Allocate (iab(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec))
+    Allocate (iab(nsec, nsec))
     iab = 0
     Allocate (ia0(nab))
     Allocate (ib0(nab))
@@ -90,14 +90,14 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         Do ib = 1, ia - 1
             jb = ib + ninact + nact
             i0 = i0 + 1
-            iab(ja, jb) = i0
-            iab(jb, ja) = i0
-            ia0(i0) = ja
-            ib0(i0) = jb
+            iab(ia, ib) = i0
+            iab(ib, ia) = i0
+            ia0(i0) = ia
+            ib0(i0) = ib
         End do
     End do
 
-    Allocate (v(nab, ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+    Allocate (v(nab, nact, nact))
     v = 0.0d+00
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
@@ -341,8 +341,8 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         e2 = 0.0d+00
 
         Do i0 = 1, nab
-            ja = ia0(i0)
-            jb = ib0(i0)
+            ja = ia0(i0) + ninact + nact
+            jb = ib0(i0) + ninact + nact
 
 !     EatEbu|0>
 
@@ -353,7 +353,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
                 Allocate (vc(dimn))
                 Do it = 1, dimn
-                    vc(it) = v(i0, indsym(1, it) + ninact, indsym(2, it) + ninact)
+                    vc(it) = v(i0, indsym(1, it), indsym(2, it))
                 End do
                 Allocate (vc1(dimm))
                 vc1 = 0.0d+00
@@ -382,7 +382,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2f(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+1000    if (rank == 0) write (*, '("e2f(",I3,") = ",E20.10," a.u.")') isym, e2(isym)
         e2f = e2f + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
@@ -393,7 +393,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     End do                  ! isym
 
     if (rank == 0) then ! Process limits for output
-        write (*, '("e2f      = ",E20.10,"a.u.")') e2f
+        write (*, '("e2f      = ",E20.10," a.u.")') e2f
         write (*, '("sumc2,f  = ",E20.10)') sumc2local
     end if
     sumc2 = sumc2 + sumc2local
@@ -571,9 +571,9 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     include 'mpif.h'
 #endif
 
-    integer, intent(in)     :: nab, iab(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec)
+    integer, intent(in)     :: nab, iab(nsec, nsec)
 
-    complex*16, intent(out) :: v(nab, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nab, nact, nact)
 
     real*8                  :: dr, di
     complex*16              :: cint2, dens
@@ -597,8 +597,8 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     if (i <= k) goto 30
 
     tab = iab(i, k)
-    ip = j - ninact
-    iq = l - ninact
+    ! ip = j - ninact
+    ! iq = l - ninact
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
@@ -611,14 +611,14 @@ SUBROUTINE vFmat_ord(nab, iab, v)
         Do iu = 1, it - 1
             ju = iu + ninact
 
-            Call dim2_density(it, ip, iu, iq, dr, di)
+            Call dim2_density(it, j, iu, l, dr, di)
             dens = DCMPLX(dr, di)
-            v(tab, jt, ju) = v(tab, jt, ju) + cint2*dens
+            v(tab, it, iu) = v(tab, it, iu) + cint2*dens
         End do               ! iu
 
-        Call dim1_density(it, iq, dr, di)
+        Call dim1_density(it, l, dr, di)
         dens = DCMPLX(dr, di)
-        v(tab, jt, j) = v(tab, jt, j) - cint2*dens
+        v(tab, it, j) = v(tab, it, j) - cint2*dens
 
     End do                  ! ip
     !$OMP end parallel do
@@ -632,7 +632,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 100 if (rank == 0) write (*, *) 'vFmat_ord is ended'
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
     if (rank == 0) write (*, *) 'end allreduce vFmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
