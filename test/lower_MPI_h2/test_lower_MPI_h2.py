@@ -7,7 +7,7 @@ import glob
 
 
 # Delete delete_files in the test_path
-def delete_scratch_files(delete_files, test_path: str) -> None:
+def delete_scratch_files(delete_files: "list[str]", test_path: str) -> None:
     for d in delete_files:
         files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
         for f in files:
