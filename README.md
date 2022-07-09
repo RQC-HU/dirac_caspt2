@@ -6,6 +6,7 @@
 
 - [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2#requirements)
 - [How to Install](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-install)
+  - [ソフトウェアのテスト](https://github.com/kohei-noda-qcrg/dirac_caspt2#ソフトウェアのテスト)
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
@@ -55,12 +56,10 @@
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
 cd dirac_caspt2
 mkdir -p build && cd build
-FC=ifort cmake ..
+FC=ifort cmake .. --clean-first
 make
 ```
 
-- 現状GNU Fortranはビルドは成功しますが実行時エラーが発生する可能性があるため**非推奨**です
-- したがってFC=ifort もしくは FC=mpiifort もしくは FC=mpifort (OpenMPI,ifort) を使用することを推奨します
 - CMake version >= 3.13 を使っているなら以下のようなコマンドでもビルドができます
 
 ```sh
@@ -70,19 +69,32 @@ FC=ifort cmake -B build
 cmake --build build --clean-first
 ```
 
+- 現在Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
+
+```sh
+git clone[ h](https://github.com/kohei-noda-qcrg/dirac_caspt2)
+cd dirac_caspt2
+FC=ifort cmake -B build
+cmake --build build -j4 --clean-first
+```
+
 ### ソフトウェアのテスト
 
 ビルド後はテストを行うことを推奨します  
 テストを行うには[Python(version >= 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です  
-[runtest.sh](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/runtest.sh)を実行するか、testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
+testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
 
 ```sh
-  sh runtest.sh
+pytest
 ```
 
+並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合  
+pytestコマンドに--paralles=並列数を付け加え、並列用テストを行うことを推奨します
+
 ```sh
-  pytest
+pytest --parallel=4
 ```
+
 
 ### ビルドオプション
 
@@ -123,6 +135,7 @@ cmake --build build --clean-first
         LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off ..
         make
         ```
+
 ### ビルド例
 
 各種コンパイラは\$PATHに追加されているか、もしくはフルパスを指定する必要があります
@@ -385,13 +398,12 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
   pytest
   ```
 
-  を実行するか、このプログラムのルートディレクトリで
+を実行すれば自動的にテストが開始されます  
+またmpiifortやmpif90,mpifortなどの並列コンパイラでかつビルド時に-DMPI=onオプションを有効にした場合、MPI並列用テストを以下のコマンドで行うことを推奨します
 
   ```sh
-    sh ./runtest.sh
+  pytest --parallel=4
   ```
-
-  を実行すれば自動的にテストが開始されます
 
   - また[github actions](https://github.co.jp/features/actions )を使うことで月50時間まではアップロード(push)されたすべてのコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態をつくりました。
 
