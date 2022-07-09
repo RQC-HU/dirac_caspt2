@@ -64,7 +64,7 @@ jobs:
         timeout-minutes: 1
         run: |
           cmake -DMPI=on -DOPENMP=on -B build
-          cmake --build build -j4
+          cmake --build build -j4 --clean-first
       - name: Run unittest (parallel)
         timeout-minutes: 15
         run: |
@@ -125,7 +125,7 @@ jobs:
         timeout-minutes: 1
         run: |
           cmake -DOPENMP=on -B build
-          cmake --build build
+          cmake --build build --clean-first
       - name: Run unittest
         timeout-minutes: 15
         run: |
