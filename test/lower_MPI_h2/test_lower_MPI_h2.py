@@ -7,41 +7,45 @@ import glob
 
 
 # Delete delete_files in the test_path
-def delete_scratch_files(delete_files, test_path):
+def delete_scratch_files(delete_files, test_path: str) -> None:
     for d in delete_files:
         files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
         for f in files:
             os.remove(f)
 
 
-def test_lower_MPI_h2(the_number_of_process):
+def test_lower_MPI_h2(the_number_of_process: int) -> None:
 
     # Set file names
-    ref_filename = "reference.H2.out"  # Reference
-    output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
-    latest_passed_output = "latest_passed.H2.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    ref_filename: str = "reference.H2.out"  # Reference
+    output_filename: str = (
+        "H2.caspt2.out"  # Output (This file is compared with Reference)
+    )
+    latest_passed_output: str = "latest_passed.H2.caspt2.out"  # latest passed output (After test, the output file is moved to this)
 
     # Get this files path and change directory to this path
-    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
+    test_path: str = os.path.dirname(os.path.abspath(__file__))  # The path of this file
     os.chdir(test_path)  # Change directory to the path of this file
     print(test_path, "test start")  # Debug output
 
     # Set file paths
-    ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
-    output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
-    latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    binary_dir = os.path.abspath(
+    ref_file_path: str = os.path.abspath(os.path.join(test_path, ref_filename))
+    output_file_path: str = os.path.abspath(os.path.join(test_path, output_filename))
+    latest_passed_path: str = os.path.abspath(
+        os.path.join(test_path, latest_passed_output)
+    )
+    binary_dir: str = os.path.abspath(
         os.path.join(test_path, "../../bin")
     )  # Set the Built binary directory
-    r4dcasci = os.path.abspath(
+    r4dcasci: str = os.path.abspath(
         os.path.join(binary_dir, "r4dcascicoexe")
     )  # CASCI binary
-    r4dcaspt2 = os.path.abspath(
+    r4dcaspt2: str = os.path.abspath(
         os.path.join(binary_dir, "r4dcaspt2ocoexe")
     )  # CASPT2 binary
 
     # Set delete file list
-    delete_files = [
+    delete_files: list[str] = [
         "[A-H]*int*",  # 2-integrals per subspace
         "MDCINTNEW*",  # 2-integrals per MPI process
         "NEWCICOEFF",  # Coefficients of CI
@@ -58,14 +62,14 @@ def test_lower_MPI_h2(the_number_of_process):
 
     # Check binary files are exist
     if os.path.exists(r4dcasci) is False:
-        error_message = (
+        error_message: str = (
             f"ERROR: {r4dcasci} is not exist.\nPlease build {r4dcasci} first."
         )
         print(error_message, file=sys.stderr)
         # Exit with error message
         sys.exit(error_message)
     if os.path.exists(r4dcaspt2) is False:
-        error_message = (
+        error_message: str = (
             f"ERROR: {r4dcaspt2} is not exist.\nPlease build {r4dcaspt2} first."
         )
         print(error_message, file=sys.stderr)
@@ -73,21 +77,21 @@ def test_lower_MPI_h2(the_number_of_process):
         sys.exit(error_message)
 
     # Set test command
-    test_command = ""
+    test_command: str = ""
     if the_number_of_process > 1:  # If the number of process is greater than 1, use MPI
-        test_command = f"mpirun -np {the_number_of_process} {r4dcasci} && mpirun -np {the_number_of_process} {r4dcaspt2}"
+        test_command: str = f"mpirun -np {the_number_of_process} {r4dcasci} && mpirun -np {the_number_of_process} {r4dcaspt2}"
     else:  # If the number of process is 1, use serial
-        test_command = f"{r4dcasci} && {r4dcaspt2}"
+        test_command: str = f"{r4dcasci} && {r4dcaspt2}"
     # Run calculation
     with open(output_file_path, "w") as file_output:
-        p = subprocess.run(
+        p: subprocess.CompletedProcess[str] = subprocess.run(
             test_command,
             shell=True,
             encoding="utf-8",
             stdout=file_output,  # Redirect output to file_output
             stderr=file_output,  # Redirect stderr to file_output
         )
-    status = "CASCI/CASPT2 status " + str(p.returncode)
+    status: str = "CASCI/CASPT2 status " + str(p.returncode)
     # If the return code is not 0, print error message, probably calculation failed
     if p.returncode != 0:
         print(status, file=sys.stderr)
