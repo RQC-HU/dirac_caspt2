@@ -298,7 +298,8 @@ ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in 
 ras2        : RAS2 spinor list
 ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 minholeras1 : The minimum number of hole in ras1 (If you don't write, it will be 0)
-end         : the identifyer of active.inp (required)
+calctype    : The type of calculation. only CASCI or DMRG are currently supported. (if you don't write, it will be CASCI(default))
+end         : The identifier at the end of active.inp (required)
 ```
 
 ### active.inpの仕様
