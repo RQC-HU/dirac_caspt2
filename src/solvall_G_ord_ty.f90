@@ -103,8 +103,8 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
                 i0 = i0 + 1
                 iabi(ia, ib, ii) = i0
                 iabi(ib, ia, ii) = i0
-                ia0(i0) = ia
-                ib0(i0) = ib
+                ia0(i0) = ia + ninact + nact ! secondary
+                ib0(i0) = ib + ninact + nact ! secondary
                 ii0(i0) = ii
             End do
         End do
@@ -117,14 +117,14 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         write (*, *) 'come'
     end if
 #ifdef HAVE_MPI
-    call MPI_Barrier (MPI_COMM_WORLD, ierr)
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write(*,*) 'end before v matrices'
+    if (rank == 0) write (*, *) 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vGmat_ord_ty(nabi, iabi, v)
-    if (rank == 0) write(*,*) 'end after vGmat'
+    if (rank == 0) write (*, *) 'end after vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -331,8 +331,8 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         e2 = 0.0d+00
 
         Do i0 = 1, nabi
-            ja = ia0(i0) + ninact + nact
-            jb = ib0(i0) + ninact + nact
+            ja = ia0(i0)
+            jb = ib0(i0)
             ji = ii0(i0)
 
 !     EaiEbt|0>
@@ -444,7 +444,7 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
     End do                  !i
 !    !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce (MPI_IN_PLACE, sc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
 End subroutine sGmat
@@ -486,7 +486,7 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
         write (*, *) 'G space Bmat iroot=', iroot
     end if
 
-  !  !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
+    !  !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
         iu = indt(i)
         ju = iu + ninact
@@ -512,7 +512,7 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
 
         End do               !i
     End do                  !j
- !   !$OMP end parallel do
+    !   !$OMP end parallel do
 #ifdef HAVE_MPI
     if (rank == 0) then
         call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
@@ -575,7 +575,6 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     ! il = l - ninact
 
     Do it = 1, nact
-        jt = ninact + it
         Call dim1_density(it, l, dr, di)
         dens = DCMPLX(dr, di)
         v(tabi, it) = v(tabi, it) + cint2*dens
@@ -584,13 +583,13 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     goto 30
 
 20  close (1); goto 100
-10  if(rank == 0) write (*, *) 'error while opening file Gint'; goto 100
+10  if (rank == 0) write (*, *) 'error while opening file Gint'; goto 100
 
 100 if (rank == 0) write (*, *) 'vGmat_ord_ty is ended'
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if(rank == 0) write(*,*) 'end allreduce vGmat'
+    if (rank == 0) write (*, *) 'end allreduce vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

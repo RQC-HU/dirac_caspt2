@@ -97,8 +97,8 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         Do ii = 1, ninact
             i0 = i0 + 1
             iai(ia, ii) = i0
-            ia0(i0) = ia
-            ii0(i0) = ii
+            ia0(i0) = ia + ninact + nact ! Secondary
+            ii0(i0) = ii ! inactive
         End do
     End do
     Allocate (v(nai, nact, nact))
@@ -347,7 +347,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         end if
         e2 = 0.0d+00
         Do i0 = 1, nai
-            ja = ia0(i0) + ninact + nact
+            ja = ia0(i0)
             ji = ii0(i0)
 
             syma = MULTB_D(irpmo(ja), irpmo(ji))
@@ -664,11 +664,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     ja = i
     ji = l
     tai = iai(ja, ji)
-    !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
+    !$OMP parallel do schedule(dynamic,1) private(it,ju,dr,di,d)
     Do it = 1, nact
-        jt = it + ninact
         Do iu = 1, nact
-            ju = iu + ninact
 
             Call dim2_density(iu, it, k, j, dr, di)
             d = DCMPLX(dr, di)
@@ -724,16 +722,10 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 
     !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,tai,it,jt,iu,ju,dr,di,d)
     Do ia = rank + 1, nsec, nprocs
-        ja = ia + ninact + nact
         Do ii = 1, ninact
-            ji = ii
             tai = iai(ia, ii)
-
             Do it = 1, nact
-                jt = it + ninact
                 Do iu = 1, nact
-                    ju = iu + ninact
-
                     Call dim1_density(iu, it, dr, di)
 
                     d = DCMPLX(dr, di)

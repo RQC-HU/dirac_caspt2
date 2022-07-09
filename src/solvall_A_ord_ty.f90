@@ -815,7 +815,7 @@ SUBROUTINE vAmat_ord_ty(v)
 
 !  - SIGUMA_p:act <0|EvuEpt|0>effh(pi)  +  <0|Evu|0>effh(ti)
 
-    !$OMP parallel do private(ji,isym,it,iu,iv,jt,ju,jv,dr,di,d,ip,jp)
+    !$OMP parallel do private(ji,isym,it,iu,iv,dr,di,d,ip,jp)
     Do ii = rank + 1, ninact, nprocs
         ji = ii
         isym = irpmo(ji)
@@ -824,9 +824,6 @@ SUBROUTINE vAmat_ord_ty(v)
             it = indt(i0, isym)
             iu = indu(i0, isym)
             iv = indv(i0, isym)
-            jt = it + ninact
-            ju = iu + ninact
-            jv = iv + ninact
 
             Call dim1_density(iv, iu, dr, di)
 
@@ -841,7 +838,6 @@ SUBROUTINE vAmat_ord_ty(v)
                 v(ii, it, iu, iv) = v(ii, it, iu, iv) - effh(ip, ii)*d
 
             End do            ! ip
-
         End do               !i0
     End do                  !ii
     !$OMP end parallel do

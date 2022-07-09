@@ -92,8 +92,8 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
             i0 = i0 + 1
             iab(ia, ib) = i0
             iab(ib, ia) = i0
-            ia0(i0) = ia
-            ib0(i0) = ib
+            ia0(i0) = ia + ninact + nact ! secondary
+            ib0(i0) = ib + ninact + nact ! secondary
         End do
     End do
 
@@ -107,9 +107,6 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vFmat_ord(nab, iab, v)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'come'
-    end if
     if (rank == 0) write (*, *) 'end after vFmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -341,8 +338,8 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         e2 = 0.0d+00
 
         Do i0 = 1, nab
-            ja = ia0(i0) + ninact + nact
-            jb = ib0(i0) + ninact + nact
+            ja = ia0(i0)
+            jb = ib0(i0)
 
 !     EatEbu|0>
 
@@ -605,16 +602,13 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 !
 !                             p=j, q=l loop for t and u             u=j, p=l loop for t
 !
-    !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,dens)
+    !$OMP parallel do schedule(dynamic,1) private(it,iu,dr,di,dens)
     Do it = 1, nact
-        jt = it + ninact
         Do iu = 1, it - 1
-            ju = iu + ninact
-
             Call dim2_density(it, j, iu, l, dr, di)
             dens = DCMPLX(dr, di)
             v(tab, it, iu) = v(tab, it, iu) + cint2*dens
-        End do               ! iu
+        End do  ! iu
 
         Call dim1_density(it, l, dr, di)
         dens = DCMPLX(dr, di)

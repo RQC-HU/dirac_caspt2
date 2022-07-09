@@ -679,14 +679,11 @@ SUBROUTINE vCmat_ord_ty(v)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     isym = irpmo(i + ninact + nact)   ! i corresponds to a
-    !$OMP parallel do schedule(static,1) private(it,iu,iv,jt,ju,jv,dr,di,d)
+    !$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
     Do i0 = 1, dim(isym)
         it = indt(i0, isym)
         iu = indu(i0, isym)
         iv = indv(i0, isym)
-        jt = it + ninact
-        ju = iu + ninact
-        jv = iv + ninact
 
         Call dim3_density(iv, iu, it, j, k, l, dr, di)
         d = DCMPLX(dr, di)
@@ -764,13 +761,12 @@ SUBROUTINE vCmat_ord_ty(v)
 #endif
 
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
-    !$OMP parallel do schedule(dynamic,1) private(ja,isym,jp,i0,it,iu,iv,jt,ju,jv,dr,di,d)
+    !$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
     Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ja = ia + ninact + nact
         isym = irpmo(ja)
 
         Do ip = 1, nact
-            jp = ip + ninact
 
             if (ABS(effh(ia, ip)) < 1.0d-10) goto 70
 

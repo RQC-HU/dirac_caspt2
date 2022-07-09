@@ -97,9 +97,9 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
                 i0 = i0 + 1
                 iaij(ia, ii, ij) = i0
                 iaij(ia, ij, ii) = i0
-                ia0(i0) = ia
-                ii0(i0) = ii
-                ij0(i0) = ij
+                ia0(i0) = ia + ninact + nact ! secondary
+                ii0(i0) = ii ! inactive
+                ij0(i0) = ij ! inactive
             End do
         End do
     End do
@@ -319,7 +319,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         e2 = 0.0d+00
 
         Do i0 = 1, naij
-            ja = ia0(i0) + ninact + nact
+            ja = ia0(i0)
             ji = ii0(i0)
             jj = ij0(i0)
 
@@ -578,9 +578,8 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
     v(taij, k) = v(taij, k) - cint2
 
-    !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens)
+    !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
     Do it = 1, nact
-        jt = ninact + it
         Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
         dens = DCMPLX(dr, di)
         v(taij, it) = v(taij, it) + cint2*dens

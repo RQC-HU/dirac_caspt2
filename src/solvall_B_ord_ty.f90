@@ -665,9 +665,8 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
     !                             ===========================      ================
     !                                loop for t                     loop for u(variable u is renamed to t)
-    !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens,iu,ju)
+    !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu,ju)
     Do it = 1, nact
-        jt = it + ninact
 
         Call dim1_density(k, it, dr, di)
         dens = DCMPLX(dr, di)

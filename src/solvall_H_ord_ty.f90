@@ -65,8 +65,8 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
             i0 = i0 + 1
             iab(ia, ib) = i0
             iab(ib, ia) = i0
-            ia0(i0) = ia
-            ib0(i0) = ib
+            ia0(i0) = ia + ninact + nact ! secondary
+            ib0(i0) = ib + ninact + nact ! secondary
         End do
     End do
 
@@ -131,8 +131,8 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     end if
 
     Do i0 = 1, nab
-        ia = ia0(i0) + ninact + nact
-        ib = ib0(i0) + ninact + nact
+        ia = ia0(i0)
+        ib = ib0(i0)
 
 !     EaiEbj|0>         a > b, i > j
 
