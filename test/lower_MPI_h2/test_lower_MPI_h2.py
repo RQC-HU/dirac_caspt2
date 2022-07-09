@@ -17,24 +17,20 @@ def delete_scratch_files(delete_files: "list[str]", test_path: str) -> None:
 def test_lower_MPI_h2(the_number_of_process: int) -> None:
 
     # Set file names
-    ref_filename: str = "reference.H2.out"  # Reference
-    output_filename: str = (
-        "H2.caspt2.out"  # Output (This file is compared with Reference)
-    )
-    latest_passed_output: str = "latest_passed.H2.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    ref_filename = "reference.H2.out"  # Reference
+    output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
+    latest_passed_output = "latest_passed.H2.caspt2.out"  # latest passed output (After test, the output file is moved to this)
 
     # Get this files path and change directory to this path
-    test_path: str = os.path.dirname(os.path.abspath(__file__))  # The path of this file
+    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
     os.chdir(test_path)  # Change directory to the path of this file
     print(test_path, "test start")  # Debug output
 
     # Set file paths
-    ref_file_path: str = os.path.abspath(os.path.join(test_path, ref_filename))
-    output_file_path: str = os.path.abspath(os.path.join(test_path, output_filename))
-    latest_passed_path: str = os.path.abspath(
-        os.path.join(test_path, latest_passed_output)
-    )
-    binary_dir: str = os.path.abspath(
+    ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
+    output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
+    latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
+    binary_dir = os.path.abspath(
         os.path.join(test_path, "../../bin")
     )  # Set the Built binary directory
     r4dcasci: str = os.path.abspath(
@@ -62,14 +58,14 @@ def test_lower_MPI_h2(the_number_of_process: int) -> None:
 
     # Check binary files are exist
     if os.path.exists(r4dcasci) is False:
-        error_message: str = (
+        error_message = (
             f"ERROR: {r4dcasci} is not exist.\nPlease build {r4dcasci} first."
         )
         print(error_message, file=sys.stderr)
         # Exit with error message
         sys.exit(error_message)
     if os.path.exists(r4dcaspt2) is False:
-        error_message: str = (
+        error_message = (
             f"ERROR: {r4dcaspt2} is not exist.\nPlease build {r4dcaspt2} first."
         )
         print(error_message, file=sys.stderr)
@@ -77,21 +73,21 @@ def test_lower_MPI_h2(the_number_of_process: int) -> None:
         sys.exit(error_message)
 
     # Set test command
-    test_command: str = ""
+    test_command = ""
     if the_number_of_process > 1:  # If the number of process is greater than 1, use MPI
-        test_command: str = f"mpirun -np {the_number_of_process} {r4dcasci} && mpirun -np {the_number_of_process} {r4dcaspt2}"
+        test_command = f"mpirun -np {the_number_of_process} {r4dcasci} && mpirun -np {the_number_of_process} {r4dcaspt2}"
     else:  # If the number of process is 1, use serial
-        test_command: str = f"{r4dcasci} && {r4dcaspt2}"
+        test_command = f"{r4dcasci} && {r4dcaspt2}"
     # Run calculation
     with open(output_file_path, "w") as file_output:
-        p: subprocess.CompletedProcess[str] = subprocess.run(
+        p = subprocess.run(
             test_command,
             shell=True,
             encoding="utf-8",
             stdout=file_output,  # Redirect output to file_output
             stderr=file_output,  # Redirect stderr to file_output
         )
-    status: str = "CASCI/CASPT2 status " + str(p.returncode)
+    status = "CASCI/CASPT2 status " + str(p.returncode)
     # If the return code is not 0, print error message, probably calculation failed
     if p.returncode != 0:
         print(status, file=sys.stderr)
@@ -103,7 +99,7 @@ def test_lower_MPI_h2(the_number_of_process: int) -> None:
     with open(ref_file_path, encoding="utf-8", mode="r") as file_ref:
         try:  # Try to get the reference data
             # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
-            grep_str_ref = [
+            grep_str_ref: list[str] = [
                 s.strip() for s in file_ref.readlines() if "Total energy is" in s
             ]
             ref_energy = float(
@@ -117,7 +113,7 @@ def test_lower_MPI_h2(the_number_of_process: int) -> None:
     # Grep the test output file
     with open(output_file_path, encoding="utf-8", mode="r") as file_output:
         try:  # Try to get the test data
-            grep_str_output = [
+            grep_str_output: list[str] = [
                 s.strip() for s in file_output.readlines() if "Total energy is" in s
             ]
             output_energy = float(grep_str_output[-1].split()[-2])

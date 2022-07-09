@@ -30,7 +30,7 @@ def test_int_sort():
         print(status, file=sys.stderr)
 
     # Reference data
-    ref = [
+    reference_list:list[int] = [
         8,
         9,
         10,
@@ -53,7 +53,7 @@ def test_int_sort():
         156,
         189,
     ]
-    ref.sort()  # 1,3,5,8,9,10,11,12,13,14,15,16,156,169,170,171,172,173,174,175,189
+    reference_list.sort()  # 1,3,5,8,9,10,11,12,13,14,15,16,156,169,170,171,172,173,174,175,189
 
     # Get values from result
     with open(output_file_path) as file_result:
@@ -67,8 +67,8 @@ def test_int_sort():
             sys.exit(error_message)
 
     # Evaluate the difference between references and results
-    for out, ref in zip(result_real_list, ref):
-        assert ref == pytest.approx(out, 5e-7)
+    for out, ref in zip(result_real_list, reference_list):
+        assert ref == out
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
@@ -100,7 +100,7 @@ def test_int_sort_reverse():
         print(status, file=sys.stderr)
 
     # Reference data
-    ref = [
+    reference_list: list[int] = [
         8,
         9,
         10,
@@ -123,7 +123,7 @@ def test_int_sort_reverse():
         156,
         189,
     ]
-    ref.sort(
+    reference_list.sort(
         reverse=True
     )  # 189,175,174,173,172,171,170,169,156,16,15,14,13,12,11,10,9,8,5,3,1
 
@@ -139,8 +139,8 @@ def test_int_sort_reverse():
             sys.exit(error_message)
 
     # Evaluate the difference between references and results
-    for out, ref in zip(result_real_list, ref):
-        assert ref == pytest.approx(out, 5e-7)
+    for out, ref in zip(result_real_list, reference_list):
+        assert ref == out
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
@@ -172,8 +172,8 @@ def test_real_sort():
         print(status, file=sys.stderr)
 
     # Reference data
-    ref = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
-    ref.sort()  # -897, -9.2, 0.0000000010, 8.1, 10000.58, 123456789
+    reference_list: list[float] = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
+    reference_list.sort()  # -897, -9.2, 0.0000000010, 8.1, 10000.58, 123456789
 
     # Get values from result
     with open(output_file_path) as file_result:
@@ -187,7 +187,7 @@ def test_real_sort():
             sys.exit(error_message)
 
     # Evaluate the difference between references and results
-    for out, ref in zip(result_real_list, ref):
+    for out, ref in zip(result_real_list, reference_list):
         assert ref == pytest.approx(out, 5e-7)
 
     # If it reaches this point, the result of assert is true.
@@ -222,22 +222,24 @@ def test_real_sort_reverse():
         print(status, file=sys.stderr)
 
     # Reference data
-    ref = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
-    ref.sort(reverse=True)  # 123456789, 10000.58, 8.1, 0.0000000010, -9.2, -897
+    reference_list: list[float] = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
+    reference_list.sort(
+        reverse=True
+    )  # 123456789, 10000.58, 8.1, 0.0000000010, -9.2, -897
 
     # Get values from result
     with open(output_file_path) as file_result:
         try:  # Try to get the result data
             string_result = file_result.read()
             string_result = string_result.strip().split()
-            result_real_list = list(map(float, string_result))
+            result_real_list: list[float] = list(map(float, string_result))
         except Exception as error:  # Failed to get the result data
             error_message = f"{error}\nERROR: Failed to get the data from the test file {output_file_path}."
             # Exit with error message
             sys.exit(error_message)
 
     # Evaluate the difference between references and results
-    for out, ref in zip(result_real_list, ref):
+    for out, ref in zip(result_real_list, reference_list):
         assert ref == pytest.approx(out, 5e-7)
 
     # If it reaches this point, the result of assert is true.

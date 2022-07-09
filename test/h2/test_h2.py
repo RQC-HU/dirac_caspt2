@@ -7,14 +7,14 @@ import glob
 
 
 # Delete delete_files in the test_path
-def delete_scratch_files(delete_files, test_path):
+def delete_scratch_files(delete_files: "list[str]", test_path: str) -> None:
     for d in delete_files:
         files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
         for f in files:
             os.remove(f)
 
 
-def test_h2(the_number_of_process):
+def test_h2(the_number_of_process: int) -> None:
 
     # Set file names
     ref_filename = "reference.H2.out"  # Reference
@@ -33,15 +33,15 @@ def test_h2(the_number_of_process):
     binary_dir = os.path.abspath(
         os.path.join(test_path, "../../bin")
     )  # Set the Built binary directory
-    r4dcasci = os.path.abspath(
+    r4dcasci: str = os.path.abspath(
         os.path.join(binary_dir, "r4dcascicoexe")
     )  # CASCI binary
-    r4dcaspt2 = os.path.abspath(
+    r4dcaspt2: str = os.path.abspath(
         os.path.join(binary_dir, "r4dcaspt2ocoexe")
     )  # CASPT2 binary
 
     # Set delete file list
-    delete_files = [
+    delete_files: list[str] = [
         "[A-H]*int*",  # 2-integrals per subspace
         "MDCINTNEW*",  # 2-integrals per MPI process
         "NEWCICOEFF",  # Coefficients of CI
@@ -99,7 +99,7 @@ def test_h2(the_number_of_process):
     with open(ref_file_path, encoding="utf-8", mode="r") as file_ref:
         try:  # Try to get the reference data
             # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
-            grep_str_ref = [
+            grep_str_ref: list[str] = [
                 s.strip() for s in file_ref.readlines() if "Total energy is" in s
             ]
             ref_energy = float(
@@ -113,7 +113,7 @@ def test_h2(the_number_of_process):
     # Grep the test output file
     with open(output_file_path, encoding="utf-8", mode="r") as file_output:
         try:  # Try to get the test data
-            grep_str_output = [
+            grep_str_output: list[str] = [
                 s.strip() for s in file_output.readlines() if "Total energy is" in s
             ]
             output_energy = float(grep_str_output[-1].split()[-2])
