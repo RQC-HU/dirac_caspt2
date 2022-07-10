@@ -809,9 +809,9 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
     j_tra = ji - 1
     k_tra = ki - 1
     l_tra = li - 1
-    Do l = i_ini, l_end
-        Do k = i_ini, k_end
-            Do j = i_ini, j_end
+    Do l = l_ini, l_end
+        Do k = k_ini, k_end
+            Do j = j_ini, j_end
                 Do i = i_ini, i_end
                     !===================================================================================================
                     ! About the index of traint2
