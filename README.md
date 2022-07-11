@@ -72,7 +72,7 @@ cmake --build build --clean-first
 - 現在Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
 
 ```sh
-git clone[ h](https://github.com/kohei-noda-qcrg/dirac_caspt2)
+git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
 cd dirac_caspt2
 FC=ifort cmake -B build
 cmake --build build -j4 --clean-first
