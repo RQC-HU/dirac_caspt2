@@ -84,7 +84,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     End do
 
     naij = i0
-    Allocate (iaij(ninact + nact + 1:ninact + nact + nsec, 1:ninact, 1:ninact))
+    Allocate (iaij(nsec, ninact, ninact))
     iaij = 0
     Allocate (ia0(naij))
     Allocate (ii0(naij))
@@ -92,22 +92,19 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
     i0 = 0
     Do ia = 1, nsec
-        ja = ia + ninact + nact
         Do ii = 1, ninact
-            ji = ii
             Do ij = 1, ii - 1                ! i > j
-                jj = ij
                 i0 = i0 + 1
-                iaij(ja, ji, jj) = i0
-                iaij(ja, jj, ji) = i0
-                ia0(i0) = ja
-                ii0(i0) = ji
-                ij0(i0) = jj
+                iaij(ia, ii, ij) = i0
+                iaij(ia, ij, ii) = i0
+                ia0(i0) = ia + ninact + nact ! secondary
+                ii0(i0) = ii ! inactive
+                ij0(i0) = ij ! inactive
             End do
         End do
     End do
 
-    Allocate (v(naij, ninact + 1:ninact + nact))
+    Allocate (v(naij, nact))
     v = 0.0d+00
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
@@ -337,7 +334,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
                 Allocate (vc(dimn))
 
                 Do it = 1, dimn
-                    vc(it) = v(i0, indt(it) + ninact)
+                    vc(it) = v(i0, indt(it))
                 End do
 
                 Allocate (vc1(dimm))
@@ -366,7 +363,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2e(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+1000    if (rank == 0) write (*, '("e2e(",I3,") = ",E20.10," a.u.")') isym, e2(isym)
         e2e = e2e + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
@@ -377,7 +374,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     End do                  ! isym
 
     if (rank == 0) then ! Process limits for output
-        write (*, '("e2e      = ",E20.10,"a.u.")') e2e
+        write (*, '("e2e      = ",E20.10," a.u.")') e2e
 
         write (*, '("sumc2,e  = ",E20.10)') sumc2local
     end if
@@ -547,9 +544,9 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     include 'mpif.h'
 #endif
 
-    integer, intent(in)     :: naij, iaij(ninact + nact + 1:ninact + nact + nsec, 1:ninact, 1:ninact)
+    integer, intent(in)     :: naij, iaij(nsec, ninact, ninact)
 
-    complex*16, intent(out) :: v(naij, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(naij, nact)
 
     real*8                  :: dr, di
     complex*16              :: cint2, dens
@@ -581,12 +578,11 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
     v(taij, k) = v(taij, k) - cint2
 
-    !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens)
+    !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
     Do it = 1, nact
-        jt = ninact + it
-        Call dim1_density(it, ik, dr, di)          ! ik corresponds to p in above formula
+        Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
         dens = DCMPLX(dr, di)
-        v(taij, jt) = v(taij, jt) + cint2*dens
+        v(taij, it) = v(taij, it) + cint2*dens
     End do                  ! it
     !$OMP end parallel do
 
@@ -624,7 +620,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
 100 if (rank == 0) write (*, *) 'vEmat_ord_ty is ended'
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), naij*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), naij*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
     if (rank == 0) write (*, *) 'end Allreduce vEmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

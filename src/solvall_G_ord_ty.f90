@@ -87,7 +87,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
     End do
 
     nabi = i0
-    Allocate (iabi(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, 1:ninact))
+    Allocate (iabi(nsec, nsec, ninact))
     iabi = 0
     Allocate (ia0(nabi))
     Allocate (ib0(nabi))
@@ -101,30 +101,30 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
             Do ii = 1, ninact
                 ji = ii
                 i0 = i0 + 1
-                iabi(ja, jb, ji) = i0
-                iabi(jb, ja, ji) = i0
-                ia0(i0) = ja
-                ib0(i0) = jb
-                ii0(i0) = ji
+                iabi(ia, ib, ii) = i0
+                iabi(ib, ia, ii) = i0
+                ia0(i0) = ia + ninact + nact ! secondary
+                ib0(i0) = ib + ninact + nact ! secondary
+                ii0(i0) = ii
             End do
         End do
     End do
 
-    Allocate (v(nabi, ninact + 1:ninact + nact))
+    Allocate (v(nabi, nact))
     v = 0.0d+00
 
     if (rank == 0) then ! Process limits for output
         write (*, *) 'come'
     end if
 #ifdef HAVE_MPI
-    call MPI_Barrier (MPI_COMM_WORLD, ierr)
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write(*,*) 'end before v matrices'
+    if (rank == 0) write (*, *) 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vGmat_ord_ty(nabi, iabi, v)
-    if (rank == 0) write(*,*) 'end after vGmat'
+    if (rank == 0) write (*, *) 'end after vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -346,7 +346,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
                 Allocate (vc(dimn))
 
                 Do it = 1, dimn
-                    vc(it) = v(i0, indt(it) + ninact)
+                    vc(it) = v(i0, indt(it))
                 End do
 
                 Allocate (vc1(dimm))
@@ -375,7 +375,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2g(",I3,") = ",E20.10,"a.u.")') isym, e2(isym)
+1000    if (rank == 0) write (*, '("e2g(",I3,") = ",E20.10," a.u.")') isym, e2(isym)
         e2g = e2g + e2(isym)
         if (rank == 0) then ! Process limits for output
             write (*, *) 'End e2(isym) add'
@@ -386,7 +386,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
     End do                  ! isym
 
     if (rank == 0) then ! Process limits for output
-        write (*, '("e2g      = ",E20.10,"a.u.")') e2g
+        write (*, '("e2g      = ",E20.10," a.u.")') e2g
         write (*, '("sumc2,g  = ",E20.10)') sumc2local
     end if
     sumc2 = sumc2 + sumc2local
@@ -444,7 +444,7 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
     End do                  !i
 !    !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce (MPI_IN_PLACE, sc(1,1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
 End subroutine sGmat
@@ -486,7 +486,7 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
         write (*, *) 'G space Bmat iroot=', iroot
     end if
 
-  !  !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
+    !  !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
         iu = indt(i)
         ju = iu + ninact
@@ -512,7 +512,7 @@ SUBROUTINE bGmat(dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B in s
 
         End do               !i
     End do                  !j
- !   !$OMP end parallel do
+    !   !$OMP end parallel do
 #ifdef HAVE_MPI
     if (rank == 0) then
         call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
@@ -542,9 +542,9 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     include 'mpif.h'
 #endif
 
-    integer, intent(in)     :: nabi, iabi(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, 1:ninact)
+    integer, intent(in)     :: nabi, iabi(nsec, nsec, ninact)
 
-    complex*16, intent(out) :: v(nabi, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nabi, nact)
 
     real*8                  :: dr, di
     complex*16              :: cint2, dens
@@ -572,25 +572,24 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
         cint2 = -1.0d+00*cint2
     end if
 
-    il = l - ninact
+    ! il = l - ninact
 
     Do it = 1, nact
-        jt = ninact + it
-        Call dim1_density(it, il, dr, di)
+        Call dim1_density(it, l, dr, di)
         dens = DCMPLX(dr, di)
-        v(tabi, jt) = v(tabi, jt) + cint2*dens
+        v(tabi, it) = v(tabi, it) + cint2*dens
     End do                  ! it
 
     goto 30
 
 20  close (1); goto 100
-10  if(rank == 0) write (*, *) 'error while opening file Gint'; goto 100
+10  if (rank == 0) write (*, *) 'error while opening file Gint'; goto 100
 
 100 if (rank == 0) write (*, *) 'vGmat_ord_ty is ended'
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if(rank == 0) write(*,*) 'end allreduce vGmat'
+    if (rank == 0) write (*, *) 'end allreduce vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
