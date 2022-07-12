@@ -77,7 +77,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     End do
 
     nab = i0
-    Allocate (iab(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec))
+    Allocate (iab(nsec, nsec))
     iab = 0
     Allocate (ia0(nab))
     Allocate (ib0(nab))
@@ -88,14 +88,14 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         Do ib = 1, ia - 1
             jb = ib + ninact + nact
             i0 = i0 + 1
-            iab(ja, jb) = i0
-            iab(jb, ja) = i0
-            ia0(i0) = ja
-            ib0(i0) = jb
+            iab(ia, ib) = i0
+            iab(ib, ia) = i0
+            ia0(i0) = ia + ninact + nact ! secondary
+            ib0(i0) = ib + ninact + nact ! secondary
         End do
     End do
 
-    Allocate (v(nab, ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+    Allocate (v(nab, nact, nact))
     v = 0.0d+00
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
@@ -105,7 +105,6 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vFmat_ord(nab, iab, v)
-    if (rank == 0) print *, 'come'
     if (rank == 0) print *, 'end after vFmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -309,7 +308,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
                 Allocate (vc(dimn))
                 Do it = 1, dimn
-                    vc(it) = v(i0, indsym(1, it) + ninact, indsym(2, it) + ninact)
+                    vc(it) = v(i0, indsym(1, it), indsym(2, it))
                 End do
                 Allocate (vc1(dimm))
                 vc1 = 0.0d+00
@@ -518,9 +517,9 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     include 'mpif.h'
 #endif
 
-    integer, intent(in)     :: nab, iab(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec)
+    integer, intent(in)     :: nab, iab(nsec, nsec)
 
-    complex*16, intent(out) :: v(nab, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nab, nact, nact)
 
     real*8                  :: dr, di
     complex*16              :: cint2, dens
@@ -552,28 +551,25 @@ SUBROUTINE vFmat_ord(nab, iab, v)
         if (i <= k) cycle ! Read the next line if i is less than or equal to k
 
         tab = iab(i, k)
-        ip = j - ninact
-        iq = l - ninact
+        ! ip = j - ninact
+        ! iq = l - ninact
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
 !
 !                             p=j, q=l loop for t and u             u=j, p=l loop for t
 !
-        !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,dens)
+        !$OMP parallel do schedule(dynamic,1) private(it,iu,dr,di,dens)
         Do it = 1, nact
-            jt = it + ninact
             Do iu = 1, it - 1
-                ju = iu + ninact
-
-                Call dim2_density(it, ip, iu, iq, dr, di)
+                Call dim2_density(it, j, iu, l, dr, di)
                 dens = DCMPLX(dr, di)
-                v(tab, jt, ju) = v(tab, jt, ju) + cint2*dens
-            End do               ! iu
+                v(tab, it, iu) = v(tab, it, iu) + cint2*dens
+            End do  ! iu
 
-            Call dim1_density(it, iq, dr, di)
+            Call dim1_density(it, l, dr, di)
             dens = DCMPLX(dr, di)
-            v(tab, jt, j) = v(tab, jt, j) - cint2*dens
+            v(tab, it, j) = v(tab, it, j) - cint2*dens
 
         End do                  ! ip
         !$OMP end parallel do
@@ -584,7 +580,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     if (rank == 0) print *, 'vFmat_ord is ended'
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
     if (rank == 0) print *, 'end allreduce vFmat'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

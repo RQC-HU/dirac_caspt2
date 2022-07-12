@@ -76,8 +76,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         print *, ' ENTER solv C part'
         print *, ' nsymrpa', nsymrpa
     end if
-    Allocate (v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
-    &          ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+    Allocate (v(nsec, nact, nact, nact))
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
@@ -304,7 +303,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
 
                 Allocate (vc(dimn))
                 Do it = 1, dimn
-                    vc(it) = v(ja, indsym(1, it) + ninact, indsym(2, it) + ninact, indsym(3, it) + ninact)
+                    vc(it) = v(ia, indsym(1, it), indsym(2, it), indsym(3, it))
                 End do
 
                 Allocate (vc1(dimm))
@@ -522,11 +521,10 @@ SUBROUTINE vCmat_ord_ty(v)
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    complex*16, intent(out) :: v(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact,  &
-                &          ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nsec, nact, nact, nact)
     real*8                  :: dr, di
     complex*16              :: cint1, cint2, d
-    complex*16              :: effh(ninact + nact + 1:ninact + nact + nsec, ninact + 1:ninact + nact)
+    complex*16              :: effh(nsec, nact)
     integer :: i, j, k, l, dim(nsymrpa)
     integer :: isym, syma, symb, symc
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
@@ -615,7 +613,7 @@ SUBROUTINE vCmat_ord_ty(v)
 
             Call tramo1_ty(ja, jt, cint1)
 
-            effh(ja, jt) = cint1
+            effh(ia, it) = cint1
             !              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
 
         End do
@@ -638,19 +636,16 @@ SUBROUTINE vCmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        isym = irpmo(i)   ! i corresponds to a
-        !$OMP parallel do schedule(static,1) private(it,iu,iv,jt,ju,jv,dr,di,d)
+        isym = irpmo(i + ninact + nact)   ! i corresponds to a
+        !$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
         Do i0 = 1, dim(isym)
             it = indt(i0, isym)
             iu = indu(i0, isym)
             iv = indv(i0, isym)
-            jt = it + ninact
-            ju = iu + ninact
-            jv = iv + ninact
 
-            Call dim3_density(iv, iu, it, j - ninact, k - ninact, l - ninact, dr, di)
+            Call dim3_density(iv, iu, it, j, k, l, dr, di)
             d = DCMPLX(dr, di)
-            v(i, jt, ju, jv) = v(i, jt, ju, jv) + cint2*d
+            v(i, it, iu, iv) = v(i, it, iu, iv) + cint2*d
 
         End do
         !$OMP end parallel do
@@ -731,20 +726,19 @@ SUBROUTINE vCmat_ord_ty(v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + nact + 1, ninact + 1), nsec*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, effh(1, 1), nsec*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
-    !$OMP parallel do schedule(dynamic,1) private(ja,isym,jp,i0,it,iu,iv,jt,ju,jv,dr,di,d)
+    !$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
     Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ja = ia + ninact + nact
         isym = irpmo(ja)
 
         Do ip = 1, nact
-            jp = ip + ninact
 
             ! Go to the next ip if the value of effh(ja,jp) is nearly zero
-            if (ABS(effh(ja, jp)) < 1.0d-10) cycle
+            if (ABS(effh(ia, ip)) < 1.0d-10) cycle
 
             Do i0 = 1, dim(isym)
                 it = indt(i0, isym)
@@ -757,7 +751,7 @@ SUBROUTINE vCmat_ord_ty(v)
                 Call dim2_density(iv, iu, it, ip, dr, di)
                 d = DCMPLX(dr, di)
 
-                v(ja, jt, ju, jv) = v(ja, jt, ju, jv) + effh(ja, jp)*d
+                v(ia, it, iu, iv) = v(ia, it, iu, iv) + effh(ia, ip)*d
 
             End do            !i0
 
@@ -772,9 +766,7 @@ SUBROUTINE vCmat_ord_ty(v)
     deallocate (indv)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(ninact + nact + 1, ninact + 1, ninact + 1, ninact + 1), nsec*nact**3, &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1, 1), nsec*nact**3, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
     if (rank == 0) print *, 'end Allreduce vCmat'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

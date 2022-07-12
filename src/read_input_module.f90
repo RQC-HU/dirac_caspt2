@@ -34,11 +34,11 @@ contains
         open (5, file="active.inp", form="formatted")
         do while (.not. is_end)
             read (5, "(a)", iostat=iostat) string
-            if (iostat < 0) then ! Cannot find end. Stop the program.
-                if (rank == 0) print *, "YOU NEED TO ADD 'end' at the end of active.inp"
+            if (iostat < 0) then
+                if (rank == 0) print *, "ERROR: YOU NEED TO ADD 'end' in active.inp"
                 stop
-            else if (iostat > 0) then ! Error in reading. Stop the program.
-                if (rank == 0) print *, "Error: Error detected in the section of read_input_module"
+            else if (iostat > 0) then
+                if (rank == 0) print *, "ERROR: Error in input, failed to read active.inp"
                 stop
             end if
             call is_comment_line(string, is_comment)
@@ -52,14 +52,13 @@ contains
                 is_config_sufficient = .false.
             end if
         end do
-        if (.not. is_config_sufficient) then ! Error in input. Stop the program.
-            if (rank == 0) print *, "ERROR: Error in input, valiables you specified are insufficient!!. Stop the program."
+        if (.not. is_config_sufficient) then! Error in input. Stop the Program
+            if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
             stop
         end if
         if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
         close (5)
         return ! END SUBROUTINE
-
     end subroutine read_input
 
     subroutine check_input_type(string, is_filled)
@@ -161,7 +160,11 @@ contains
         case ("end")
             is_end = .true.
 
+        case default
+            if (rank == 0) print *, "ERROR: Unknown input: ", trim(string)
+            stop ! ERROR, STOP THE PROGRAM
         end select
+
     end subroutine check_input_type
     subroutine ras_read(ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -178,13 +181,17 @@ contains
         character(:), allocatable :: ras_chr
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string
-        integer :: tmp_ras(max_ras_spinor_num), idx_filled, idx
+        integer :: tmp_ras(max_ras_spinor_num), idx_filled, iostat, idx
 
         ! Get the ras_num and store this to ras_chr
         write (tmp_ras_chr, *) ras_num
         ras_chr = trim(adjustl(tmp_ras_chr))
 
-        read (5, '(a)', err=10) string ! Read a line of active.inp
+        read (5, '(a)', iostat=iostat) string ! Read a line of active.inp
+        if (iostat /= 0) then
+            if (rank == 0) print *, "ERROR: ras_read: iostat = ", iostat, ", string =", string
+            stop ! ERROR, STOP THE PROGRAM
+        end if
         idx_filled = 0
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -196,8 +203,11 @@ contains
 
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
-            if (rank == 0) print *, "string:", string
-            goto 10 ! Input Error. Stop program
+            if (rank == 0) then
+                print *, "string:", string
+                print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
+            end if
+            stop ! ERROR, STOP THE PROGRAM
         end if
         allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
@@ -278,7 +288,7 @@ contains
         integer, intent(inout) :: list(:) ! A integer list
         character(30) :: min_str, max_str, read_int_str
         character(:), allocatable  :: pattern, invalid_input_message
-        integer :: read_int, read_int_digit, idx
+        integer :: read_int, read_int_digit, idx, iostat
         logical :: is_valid
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -305,7 +315,14 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             ! Now we can get the num (e.g. "12,15" -> 12)
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            read (string(idx:), *, err=9) read_int ! Read one of the ras3 value
+            read (string(idx:), *, iostat=iostat) read_int ! Read one of the ras3 value
+            if (iostat /= 0) then
+                if (rank == 0) then
+                    print *, "Error in the section in reading the number, iostat = ", iostat, &
+                        ", string = ", string(idx:)
+                end if
+                goto 10 ! Input Error. Stop program
+            end if
             ! Check whether the read_int is in range [allow_int_min, allow_int_max]
             call is_in_range_number(read_int, allow_int_min, allow_int_max, is_valid)
             if (.not. is_valid) then
@@ -350,11 +367,9 @@ contains
 
         end do
 
-        goto 100 ! NORMAL END
-9       if (rank == 0) print *, "ERROR: Error in the section in reading the number, ", string(idx:); goto 10
+        return ! NORMAL END
 10      if (rank == 0) print *, "ERROR: Can't parse the input in parse_input_int, input:", string, " Stop the program."
         stop
-100     continue
     end subroutine parse_input_int
 
     subroutine parse_range_input_int(string, list, filled_num, allow_int_min, allow_int_max)
@@ -371,7 +386,7 @@ contains
         integer, intent(inout) :: list(:) ! A integer list
         character(30) :: right_str, min_str, max_str
         character(:), allocatable  :: pattern, invalid_input_message
-        integer :: first_dot_index, stat, rightnum_idx, leftnum_idx, leftnum, rightnum, rightnum_digit, idx
+        integer :: first_dot_index, stat, rightnum_idx, leftnum_idx, leftnum, rightnum, rightnum_digit, idx, iostat
         logical :: is_valid
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=
@@ -416,7 +431,13 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             ! Now we can get the right num (e.g. "12..15" -> 15)
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            read (string(rightnum_idx:), *, err=8) rightnum ! err=8 : Invalid input
+            read (string(rightnum_idx:), *, iostat=iostat) rightnum
+            if (iostat /= 0) then
+                if (rank == 0) then
+                    print *, "Can't get rightnum. string:", string, "rightnum", rightnum
+                end if
+                goto 10 ! Stop program (error)
+            end if
             ! Check whether the rightnum is in range [allow_int_min, allow_int_max]
             call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_valid)
             if (.not. is_valid) then
@@ -458,7 +479,13 @@ contains
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             ! Now we can get the left num (e.g. "12..15" -> 12)
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            read (string(leftnum_idx:first_dot_index - 1), *, err=9) leftnum ! err=9 : Invalid input
+            read (string(leftnum_idx:first_dot_index - 1), *, iostat=iostat) leftnum
+            if (iostat /= 0) then
+                if (rank == 0) then
+                    print *, "Can't get leftnum. string:", string, "leftnum", leftnum
+                end if
+                goto 10 ! Stop program (error)
+            end if
             ! Check whether the rightnum is in range [allow_int_min, allow_int_max]
             call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_valid)
             if (.not. is_valid) then
@@ -505,8 +532,6 @@ contains
         end do
 
         goto 100 ! End this subroutine
-8       if (rank == 0) print *, "Can't get rightnum. string:", string, "rightnum", rightnum; goto 10 ! Stop program (error)
-9       if (rank == 0) print *, "Can't get leftnum. string:", string, "leftnum:", leftnum; goto 10 ! Stop program (error)
 10      if (rank == 0) print *, "ERROR: Can't parse the input in parse_range_input_int, input:", string, " Stop the program."
         stop ! Stop program (error)
 100     continue ! Read the numbers properly
@@ -599,6 +624,7 @@ contains
             invalid_message = "ERROR: Detected minus numbers or 0 or Non-Integer string."
         end if
     end subroutine create_valid_pattern
+
     subroutine read_an_integer(allowed_min_int, allowed_max_int, result_int)
         implicit none
         integer, intent(in) :: allowed_min_int, allowed_max_int
@@ -752,7 +778,14 @@ contains
 
         ! Is the number of RAS equal to the number of active?
         if (count(electron_filled) /= nact) then
-            goto 11 ! Error in input. Stop the Program
+            ! Error in input. Stop the Program
+            if (rank == 0) then
+                print *, "ERROR: Your input is invalid because the number of RAS is not equal to the number of active."
+                print *, "active : ", nact
+                print *, "RAS    : ", count(electron_filled)
+                print *, "Stop the program."
+            end if
+            stop
         end if
 
         return ! END NORMALLY
@@ -766,14 +799,8 @@ contains
             print *, "Stop the program."
         end if
         stop
-11      if (rank == 0) then
-            print *, "ERROR: Your input is invalid because the number of RAS is not equal to the number of active."
-            print *, "active : ", nact
-            print *, "RAS    : ", count(electron_filled)
-            print *, "Stop the program."
-        end if
-        stop
     end subroutine check_ras_is_valid
+
     subroutine lowercase(string)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns the lowercase string
@@ -795,6 +822,7 @@ contains
             end if
         end do
     end subroutine lowercase
+
     subroutine uppercase(string)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns the uppercase string
@@ -816,4 +844,5 @@ contains
             end if
         end do
     end subroutine uppercase
+
 end module read_input_module

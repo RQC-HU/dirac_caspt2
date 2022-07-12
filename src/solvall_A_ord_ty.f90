@@ -81,7 +81,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         print *, ' nsymrpa', nsymrpa
     end if
 
-    Allocate (v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+    Allocate (v(ninact, nact, nact, nact))
     Call memplus(KIND(v), SIZE(v), 2)
 
     if (rank == 0) print *, 'before vAmat'
@@ -320,7 +320,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
 
                 Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)
                 Do it = 1, dimn
-                    vc(it) = v(ii, indsym(1, it) + ninact, indsym(2, it) + ninact, indsym(3, it) + ninact)
+                    vc(it) = v(ii, indsym(1, it), indsym(2, it), indsym(3, it))
                 End do
 
                 Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
@@ -549,11 +549,9 @@ SUBROUTINE vAmat_ord_ty(v)
     include 'mpif.h'
 #endif
 
-    complex*16, intent(out) ::  &
-    & v(ninact, ninact + 1:ninact + nact, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
-
+    complex*16, intent(out) :: v(ninact, nact, nact, nact)
     real*8                  :: dr, di
-    complex*16              :: cint2, d, dens1(nact, nact), effh(ninact + 1:ninact + nact, ninact)
+    complex*16              :: cint2, d, dens1(nact, nact), effh(nact, ninact)
     complex*16              :: cint1
 
     integer :: it, iu, iv, ii, ip
@@ -662,7 +660,7 @@ SUBROUTINE vAmat_ord_ty(v)
         Do it = 1, nact
             jt = it + ninact
             Call tramo1_ty(jt, ji, cint1)
-            effh(jt, ji) = cint1
+            effh(it, ii) = cint1
         End do
     End do
     !$OMP end parallel do
@@ -706,14 +704,14 @@ SUBROUTINE vAmat_ord_ty(v)
             ju = iu + ninact
             jv = iv + ninact
 
-            Call dim3_density(iv, iu, i - ninact, it, k - ninact, l - ninact, dr, di)
+            Call dim3_density(iv, iu, i, it, k, l, dr, di)
             d = DCMPLX(dr, di)
-            v(j, jt, ju, jv) = v(j, jt, ju, jv) - cint2*d
+            v(j, it, iu, iv) = v(j, it, iu, iv) - cint2*d
 
         End do
         !$OMP end parallel do
 
-        isym = MULTB_D(irpmo(i), irpmo(j))           ! j coresponds to ii, i coresponds to it
+        isym = MULTB_D(irpmo(i + ninact), irpmo(j))           ! j coresponds to ii, i coresponds to it
 
         !$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
         Do i0 = 1, dim2(isym)
@@ -722,9 +720,9 @@ SUBROUTINE vAmat_ord_ty(v)
             ju = iu + ninact
             jv = iv + ninact
 
-            Call dim2_density(iv, iu, k - ninact, l - ninact, dr, di)
+            Call dim2_density(iv, iu, k, l, dr, di)
             d = DCMPLX(dr, di)
-            v(j, i, ju, jv) = v(j, i, ju, jv) + cint2*d
+            v(j, i, iu, iv) = v(j, i, iu, iv) + cint2*d
         End do
         !$OMP end parallel do
 
@@ -768,7 +766,7 @@ SUBROUTINE vAmat_ord_ty(v)
     if (rank == 0) print *, 'reading A2int2 is over'
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, effh(ninact + 1, 1), nact*ninact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, effh(1, 1), nact*ninact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -777,7 +775,7 @@ SUBROUTINE vAmat_ord_ty(v)
 
 !  - SIGUMA_p:act <0|EvuEpt|0>effh(pi)  +  <0|Evu|0>effh(ti)
 
-    !$OMP parallel do private(ji,isym,it,iu,iv,jt,ju,jv,dr,di,d,ip,jp)
+    !$OMP parallel do private(ji,isym,it,iu,iv,dr,di,d,ip,jp)
     Do ii = rank + 1, ninact, nprocs
         ji = ii
         isym = irpmo(ji)
@@ -786,24 +784,20 @@ SUBROUTINE vAmat_ord_ty(v)
             it = indt(i0, isym)
             iu = indu(i0, isym)
             iv = indv(i0, isym)
-            jt = it + ninact
-            ju = iu + ninact
-            jv = iv + ninact
 
             Call dim1_density(iv, iu, dr, di)
 
             d = DCMPLX(dr, di)
-            v(ji, jt, ju, jv) = v(ji, jt, ju, jv) + effh(jt, ji)*d
+            v(ii, it, iu, iv) = v(ii, it, iu, iv) + effh(it, ii)*d
 
             Do ip = 1, nact
                 jp = ip + ninact
 
                 Call dim2_density(iv, iu, ip, it, dr, di)
                 d = DCMPLX(dr, di)
-                v(ji, jt, ju, jv) = v(ji, jt, ju, jv) - effh(jp, ji)*d
+                v(ii, it, iu, iv) = v(ii, it, iu, iv) - effh(ip, ii)*d
 
             End do            ! ip
-
         End do               !i0
     End do                  !ii
     !$OMP end parallel do
@@ -817,7 +811,7 @@ SUBROUTINE vAmat_ord_ty(v)
     deallocate (ind2v); Call memminus(KIND(ind2v), SIZE(ind2v), 1)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(ninact, ninact + 1, ninact + 1, ninact + 1), ninact*nact*nact*nact, &
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1, 1), ninact*nact*nact*nact, &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 
     if (rank == 0) print *, 'end allreduce vAmat'

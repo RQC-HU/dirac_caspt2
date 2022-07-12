@@ -54,19 +54,19 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 
     nab = i0
 
-    Allocate (iab(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec))
+    Allocate (iab(nsec, nsec))
     Allocate (ia0(nab))
     Allocate (ib0(nab))
     iab = 0
 
     i0 = 0
-    Do ia = ninact + nact + 1, ninact + nact + nsec
-        Do ib = ninact + nact + 1, ia - 1
+    Do ia = 1, nsec
+        Do ib = 1, ia - 1
             i0 = i0 + 1
             iab(ia, ib) = i0
             iab(ib, ia) = i0
-            ia0(i0) = ia
-            ib0(i0) = ib
+            ia0(i0) = ia + ninact + nact ! secondary
+            ib0(i0) = ib + ninact + nact ! secondary
         End do
     End do
 

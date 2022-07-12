@@ -87,7 +87,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
     End do
 
     nabi = i0
-    Allocate (iabi(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, 1:ninact))
+    Allocate (iabi(nsec, nsec, ninact))
     iabi = 0
     Allocate (ia0(nabi))
     Allocate (ib0(nabi))
@@ -101,16 +101,16 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
             Do ii = 1, ninact
                 ji = ii
                 i0 = i0 + 1
-                iabi(ja, jb, ji) = i0
-                iabi(jb, ja, ji) = i0
-                ia0(i0) = ja
-                ib0(i0) = jb
-                ii0(i0) = ji
+                iabi(ia, ib, ii) = i0
+                iabi(ib, ia, ii) = i0
+                ia0(i0) = ia + ninact + nact ! secondary
+                ib0(i0) = ib + ninact + nact ! secondary
+                ii0(i0) = ii
             End do
         End do
     End do
 
-    Allocate (v(nabi, ninact + 1:ninact + nact))
+    Allocate (v(nabi, nact))
     v = 0.0d+00
 
     if (rank == 0) print *, 'come'
@@ -304,7 +304,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
                 Allocate (vc(dimn))
 
                 Do it = 1, dimn
-                    vc(it) = v(i0, indt(it) + ninact)
+                    vc(it) = v(i0, indt(it))
                 End do
 
                 Allocate (vc1(dimm))
@@ -492,9 +492,9 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     include 'mpif.h'
 #endif
 
-    integer, intent(in)     :: nabi, iabi(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, 1:ninact)
+    integer, intent(in)     :: nabi, iabi(nsec, nsec, ninact)
 
-    complex*16, intent(out) :: v(nabi, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nabi, nact)
 
     real*8                  :: dr, di
     complex*16              :: cint2, dens
@@ -529,21 +529,20 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
         if (i < k) then
             cint2 = -1.0d+00*cint2
         end if
-
-        il = l - ninact
+        ! il = l - ninact
 
         Do it = 1, nact
-            jt = ninact + it
-            Call dim1_density(it, il, dr, di)
+            Call dim1_density(it, l, dr, di)
             dens = DCMPLX(dr, di)
-            v(tabi, jt) = v(tabi, jt) + cint2*dens
+            v(tabi, it) = v(tabi, it) + cint2*dens
         End do                  ! it
+
     end do
 
     close (1)
     if (rank == 0) print *, 'vGmat_ord_ty is ended'
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
     if (rank == 0) print *, 'end allreduce vGmat'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

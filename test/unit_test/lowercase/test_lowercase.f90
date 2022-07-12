@@ -10,10 +10,7 @@ program main
     string = trim(input)
     close (5)
     call lowercase(string)
-    print *, "open"
-    open (2, file='result', form="formatted")
-    print *, 'before write'
+    open (2, file='result.out', form="formatted")
     write (2, *) string
-    print *, 'end write'
     close (2)
 end program main

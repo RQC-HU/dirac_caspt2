@@ -103,7 +103,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             ij0(i0) = ij
         End do
     End do
-    Allocate (v(nij, ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+    Allocate (v(nij, nact, nact))
     Call memplus(KIND(v), SIZE(v), 2)
     v = 0.0d+00
 #ifdef HAVE_MPI
@@ -317,7 +317,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
                 Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)
                 Do it = 1, dimn
-                    vc(it) = v(i0, indsym(1, it) + ninact, indsym(2, it) + ninact)
+                    vc(it) = v(i0, indsym(1, it), indsym(2, it))
                 End do
 
                 Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
@@ -578,7 +578,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 #endif
 
     integer, intent(in)     :: nij, iij(ninact, ninact)
-    complex*16, intent(out) :: v(nij, ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(out) :: v(nij, nact, nact)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
     integer :: i, j, k, l, tij
@@ -626,18 +626,17 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
         ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
         !                             ===========================      ================
         !                                loop for t                     loop for u(variable u is renamed to t)
-        !$OMP parallel do schedule(dynamic,1) private(jt,dr,di,dens,iu,ju)
+        !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu,ju)
         Do it = 1, nact
-            jt = it + ninact
 
-            Call dim1_density(k - ninact, it, dr, di)
+            Call dim1_density(k, it, dr, di)
             dens = DCMPLX(dr, di)
-            v(tij, jt, i) = v(tij, jt, i) + cint2*dens
-            v(tij, i, jt) = v(tij, i, jt) - cint2*dens
+            v(tij, it, i) = v(tij, it, i) + cint2*dens
+            v(tij, i, it) = v(tij, i, it) - cint2*dens
 
-            Call dim1_density(i - ninact, it, dr, di)
+            Call dim1_density(i, it, dr, di)
             dens = DCMPLX(dr, di)
-            v(tij, jt, k) = v(tij, jt, k) - cint2*dens
+            v(tij, it, k) = v(tij, it, k) - cint2*dens
 
             ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
             !                             ==================
@@ -645,9 +644,9 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 
             Do iu = 1, it - 1
                 ju = iu + ninact
-                Call dim2_density(i - ninact, it, k - ninact, iu, dr, di)
+                Call dim2_density(i, it, k, iu, dr, di)
                 dens = DCMPLX(dr, di)
-                v(tij, jt, ju) = v(tij, jt, ju) + cint2*dens
+                v(tij, it, iu) = v(tij, it, iu) + cint2*dens
             End do
 
         End do
@@ -658,6 +657,6 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     if (rank == 0) print *, 'vBmat_ord_ty is ended'
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, ninact + 1, ninact + 1), nij*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1), nij*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 end subroutine vBmat_ord_ty

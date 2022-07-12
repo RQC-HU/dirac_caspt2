@@ -1,48 +1,60 @@
-import glob
 import subprocess
 import os
 import shutil
-
+import sys
+import pytest
 
 def test_lowercase():
 
-    # Current path
-    test_path = os.path.dirname(os.path.abspath(__file__))
+    # Set file names
+    ref_filename = "expected"  # Reference
+    output_filename = "result.out"  # Output (This file is compared with Reference)
+    latest_passed_output = "latest_passed.result.out"  # latest passed output (After test, the output file is moved to this)
+    exe_filename = "test_lowercase_exe" # Executable file
 
-    # Change directory to the current path
-    os.chdir(test_path)
+    # Get this files path and change directory to this path
+    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
+    os.chdir(test_path)  # Change directory to the path of this file
+    print(test_path, "test start")  # Debug output
 
-    # input/output/executable file names
-    ref_filename = "expected"
-    result_filename = "result"
-    move_filename = "result.prev"
-    exe_filename = "test_lowercase_exe"
-
-    # Absolute path to input/output/executable files
+    # Set file paths
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
-    result_file_path = os.path.abspath(os.path.join(test_path, result_filename))
-    move_file_path = os.path.abspath(os.path.join(test_path, move_filename))
+    output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
+    latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
+
     # Run tests
-    subprocess.run(exe_file_path, shell=True)
+    p = subprocess.run(exe_file_path, shell=True)
+    status = test_path + "status " + str(p.returncode)
+    # If the return code is not 0, print error message, probably calculation failed
+    if p.returncode != 0:
+        print(status, file=sys.stderr)
+
 
     # Get values from reference
     with open(ref_file_path) as file_ref:
-        string_ref = file_ref.read()
-        string_ref = string_ref.strip()
+        try:
+            string_ref = file_ref.read()
+            string_ref = string_ref.strip()
+        except Exception as error:  # Failed to get the reference data
+            error_message = f"{error}\nERROR: Failed to get the data from the reference file {ref_file_path}."
+            # Exit with error message
+            sys.exit(error_message)
 
     # Get values from result
-    with open(result_file_path) as file_result:
-        string_result = file_result.read()
-        string_result = string_result.strip()
-
-    # Move result files to move_file_path
-    shutil.move(result_file_path, move_file_path)
+    with open(output_file_path) as file_result:
+        try: # Try to get the result data
+            string_result = file_result.read()
+            string_result = string_result.strip()
+        except Exception as error:  # Failed to get the result data
+            error_message = f"{error}\nERROR: Failed to get the data from the test file {output_file_path}."
+            # Exit with error message
+            sys.exit(error_message)
 
     # Evaluate the difference between references and results
     assert string_ref == string_result
 
-
-if __name__ == "__main__":
-    test_lowercase()
+    # If it reaches this point, the result of assert is true.
+    # The latest passed output file is overwritten by the current output file if assert is True.
+    shutil.copy(output_file_path, latest_passed_path)
