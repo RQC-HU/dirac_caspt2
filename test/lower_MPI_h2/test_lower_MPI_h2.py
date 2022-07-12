@@ -85,7 +85,6 @@ def test_lower_MPI_h2(the_number_of_process: int) -> None:
             shell=True,
             encoding="utf-8",
             stdout=file_output,  # Redirect output to file_output
-            stderr=file_output,  # Redirect stderr to file_output
         )
     status = "CASCI/CASPT2 status " + str(p.returncode)
     # If the return code is not 0, print error message, probably calculation failed
