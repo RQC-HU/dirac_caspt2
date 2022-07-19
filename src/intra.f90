@@ -219,12 +219,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
     goto 100
 10  write (*, *) 'error opening file'
-    inquire (1, opened=is_opened)
-    if (is_opened .eqv. .true.) then
-        close (1)
-    end if
-
 100 continue
+    close (1)
+
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -490,14 +487,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     goto 100
 10  write (*, *) 'error opening file'
-    inquire (1, opened=is_opened)
-    if (is_opened .eqv. .true.) then
-        close (1)
-    end if
-
 100 continue
+    close (1)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
-
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
@@ -758,17 +750,12 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     goto 100 ! No error in intra3
 
 10  write (*, *) 'error opening file'
-    inquire (1, opened=is_opened)
-    if (is_opened .eqv. .true.) then
-        close (1)
-    end if
-    goto 101
-
 100 continue
+    close (1)
+
     if (rank == 0) write (*, *) 'read and write file properly. filename : ', trim(fname)
 101 continue
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
-
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
