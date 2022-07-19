@@ -1,7 +1,11 @@
-import glob
 import shutil
-import subprocess
 import os
+from module_testing import (
+    check_test_returncode,
+    create_test_command,
+    run_test,
+    get_split_string_list_from_output_file,
+)
 
 
 def test_ras3_bitcheck():
@@ -23,18 +27,15 @@ def test_ras3_bitcheck():
     move_file_path = os.path.abspath(os.path.join(test_path, move_filename))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    # Run tests
-    subprocess.run(exe_file_path, shell=True)
+    test_command = create_test_command(
+        the_number_of_process=1, binaries=[exe_file_path]
+    )
 
-    # Get values from reference
-    with open(ref_file_path) as file_ref:
-        string_ref = file_ref.read()
-        string_ref = string_ref.split()
+    process = run_test(test_command, result_file_path)
+    check_test_returncode(process)
 
-    # Get values from result
-    with open(result_file_path) as file_result:
-        string_result = file_result.read()
-        string_result = string_result.split()
+    string_ref = get_split_string_list_from_output_file(ref_file_path)
+    string_result = get_split_string_list_from_output_file(result_file_path)
 
     # Move result files to move_file_path
     shutil.move(result_file_path, move_file_path)

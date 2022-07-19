@@ -2,7 +2,7 @@ import subprocess
 import os
 import shutil
 import sys
-import pytest
+
 
 def test_ras_input_reader():
 

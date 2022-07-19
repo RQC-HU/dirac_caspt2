@@ -1,8 +1,15 @@
-import subprocess
 import os
-import shutil
-import sys
 import pytest
+import shutil
+
+from module_testing import (
+    check_test_returncode,
+    convert_string_list_to_float_list,
+    convert_string_list_to_integer_list,
+    create_test_command,
+    run_test,
+    get_split_string_list_from_output_file,
+)
 
 
 def test_int_sort():
@@ -22,15 +29,15 @@ def test_int_sort():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    # Run tests
-    p = subprocess.run(exe_file_path, shell=True)
-    status = test_path + "status " + str(p.returncode)
-    # If the return code is not 0, print error message, probably calculation failed
-    if p.returncode != 0:
-        print(status, file=sys.stderr)
+    test_command = create_test_command(
+        the_number_of_process=1, binaries=[exe_file_path]
+    )
+
+    process = run_test(test_command, output_file_path)
+    check_test_returncode(process)
 
     # Reference data
-    reference_list:list[int] = [
+    reference_list = [
         8,
         9,
         10,
@@ -55,19 +62,11 @@ def test_int_sort():
     ]
     reference_list.sort()  # 1,3,5,8,9,10,11,12,13,14,15,16,156,169,170,171,172,173,174,175,189
 
-    # Get values from result
-    with open(output_file_path) as file_result:
-        try:  # Try to get the result data
-            string_result = file_result.read()
-            string_result = string_result.strip().split()
-            result_real_list = list(map(float, string_result))
-        except Exception as error:  # Failed to get the result data
-            error_message = f"{error}\nERROR: Failed to get the data from the test file {output_file_path}."
-            # Exit with error message
-            sys.exit(error_message)
+    string_result = get_split_string_list_from_output_file(output_file_path)
+    result_int_list = convert_string_list_to_integer_list(string_result)
 
     # Evaluate the difference between references and results
-    for out, ref in zip(result_real_list, reference_list):
+    for out, ref in zip(result_int_list, reference_list):
         assert ref == out
 
     # If it reaches this point, the result of assert is true.
@@ -92,15 +91,15 @@ def test_int_sort_reverse():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    # Run tests
-    p = subprocess.run(exe_file_path, shell=True)
-    status = test_path + "status " + str(p.returncode)
-    # If the return code is not 0, print error message, probably calculation failed
-    if p.returncode != 0:
-        print(status, file=sys.stderr)
+    test_command = create_test_command(
+        the_number_of_process=1, binaries=[exe_file_path]
+    )
+
+    process = run_test(test_command, output_file_path)
+    check_test_returncode(process)
 
     # Reference data
-    reference_list: list[int] = [
+    reference_list = [
         8,
         9,
         10,
@@ -127,19 +126,11 @@ def test_int_sort_reverse():
         reverse=True
     )  # 189,175,174,173,172,171,170,169,156,16,15,14,13,12,11,10,9,8,5,3,1
 
-    # Get values from result
-    with open(output_file_path) as file_result:
-        try:  # Try to get the result data
-            string_result = file_result.read()
-            string_result = string_result.strip().split()
-            result_real_list = list(map(float, string_result))
-        except Exception as error:  # Failed to get the result data
-            error_message = f"{error}\nERROR: Failed to get the data from the test file {output_file_path}."
-            # Exit with error message
-            sys.exit(error_message)
+    string_result = get_split_string_list_from_output_file(output_file_path)
+    result_int_list = convert_string_list_to_integer_list(string_result)
 
     # Evaluate the difference between references and results
-    for out, ref in zip(result_real_list, reference_list):
+    for out, ref in zip(result_int_list, reference_list):
         assert ref == out
 
     # If it reaches this point, the result of assert is true.
@@ -164,31 +155,23 @@ def test_real_sort():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    # Run tests
-    p = subprocess.run(exe_file_path, shell=True)
-    status = test_path + "status " + str(p.returncode)
-    # If the return code is not 0, print error message, probably calculation failed
-    if p.returncode != 0:
-        print(status, file=sys.stderr)
+    test_command = create_test_command(
+        the_number_of_process=1, binaries=[exe_file_path]
+    )
+
+    process = run_test(test_command, output_file_path)
+    check_test_returncode(process)
 
     # Reference data
     reference_list: list[float] = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
     reference_list.sort()  # -897, -9.2, 0.0000000010, 8.1, 10000.58, 123456789
 
-    # Get values from result
-    with open(output_file_path) as file_result:
-        try:  # Try to get the result data
-            string_result = file_result.read()
-            string_result = string_result.strip().split()
-            result_real_list = list(map(float, string_result))
-        except Exception as error:  # Failed to get the result data
-            error_message = f"{error}\nERROR: Failed to get the data from the test file {output_file_path}."
-            # Exit with error message
-            sys.exit(error_message)
+    string_result = get_split_string_list_from_output_file(output_file_path)
+    result_real_list = convert_string_list_to_float_list(string_result)
 
     # Evaluate the difference between references and results
     for out, ref in zip(result_real_list, reference_list):
-        assert ref == pytest.approx(out, 5e-7)
+        assert ref == pytest.approx(out)
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
@@ -214,12 +197,12 @@ def test_real_sort_reverse():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    # Run tests
-    p = subprocess.run(exe_file_path, shell=True)
-    status = test_path + "status " + str(p.returncode)
-    # If the return code is not 0, print error message, probably calculation failed
-    if p.returncode != 0:
-        print(status, file=sys.stderr)
+    test_command = create_test_command(
+        the_number_of_process=1, binaries=[exe_file_path]
+    )
+
+    process = run_test(test_command, output_file_path)
+    check_test_returncode(process)
 
     # Reference data
     reference_list: list[float] = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
@@ -227,20 +210,12 @@ def test_real_sort_reverse():
         reverse=True
     )  # 123456789, 10000.58, 8.1, 0.0000000010, -9.2, -897
 
-    # Get values from result
-    with open(output_file_path) as file_result:
-        try:  # Try to get the result data
-            string_result = file_result.read()
-            string_result = string_result.strip().split()
-            result_real_list: list[float] = list(map(float, string_result))
-        except Exception as error:  # Failed to get the result data
-            error_message = f"{error}\nERROR: Failed to get the data from the test file {output_file_path}."
-            # Exit with error message
-            sys.exit(error_message)
+    string_result = get_split_string_list_from_output_file(output_file_path)
+    result_real_list = convert_string_list_to_float_list(string_result)
 
     # Evaluate the difference between references and results
     for out, ref in zip(result_real_list, reference_list):
-        assert ref == pytest.approx(out, 5e-7)
+        assert ref == pytest.approx(out)
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
