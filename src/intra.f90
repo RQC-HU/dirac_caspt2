@@ -550,7 +550,6 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (1)
 
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
-
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
@@ -852,7 +851,6 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
-
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 

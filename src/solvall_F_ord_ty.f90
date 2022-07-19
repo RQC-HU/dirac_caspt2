@@ -337,7 +337,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         deallocate (wb)
         Deallocate (bc1)
 
-        if (rank == 0) print '("e2f(",I3,") = ",E20.10,"a.u.")', isym, e2(isym)
+        if (rank == 0) print '("e2f(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
         e2f = e2f + e2(isym)
         if (rank == 0) print *, 'End e2(isym) add'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -346,7 +346,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     End do                  ! isym
 
     if (rank == 0) then
-        print '("e2f      = ",E20.10,"a.u.")', e2f
+        print '("e2f      = ",E20.10," a.u.")', e2f
         print '("sumc2,f  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local

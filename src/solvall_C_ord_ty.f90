@@ -325,7 +325,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
 
         End do
 
-        if (rank == 0) print '("e2c(",I3,") = ",E20.10,"a.u.")', isym, e2(isym)
+        if (rank == 0) print '("e2c(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
         deallocate (bc1)
         deallocate (indsym)
         Deallocate (uc)
@@ -339,7 +339,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
     End do                  ! isym
 
     if (rank == 0) then
-        print '("e2c      = ",E20.10,"a.u.")', e2c
+        print '("e2c      = ",E20.10," a.u.")', e2c
         print '("sumc2,c  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local

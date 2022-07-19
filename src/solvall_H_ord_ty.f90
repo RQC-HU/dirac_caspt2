@@ -160,7 +160,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     End do
 
     if (rank == 0) then
-        print '("e2h      = ",E20.10,"a.u.")', e2h
+        print '("e2h      = ",E20.10," a.u.")', e2h
         print '("sumc2,h  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local

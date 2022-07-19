@@ -341,7 +341,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
             End if
 
         End do
-        if (rank == 0) print '("e2a(",I3,") = ",E20.10,"a.u.")', isym, e2(isym)
+        if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
 
         Deallocate (bc1); Call memminus(KIND(bc1), SIZE(bc1), 2)
         Deallocate (uc); Call memminus(KIND(uc), SIZE(uc), 2)

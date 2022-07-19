@@ -357,7 +357,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     End do               ! isym
 
     if (rank == 0) then
-        print '("e2b      = ",E20.10,"a.u.")', e2b
+        print '("e2b      = ",E20.10," a.u.")', e2b
         print '("sumc2,b  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local
