@@ -72,8 +72,7 @@ def get_stripped_string_from_output_file(file_path: str) -> str:
     with open(file_path, encoding="utf-8", mode="r") as output_file:
         try:
             string = output_file.read()
-            string = string.strip()
-            return string
+            return string.strip()
         except Exception as error:  # Failed to get the reference data
             error_message = f"{error}\nERROR: Failed to get the data from the reference file {file_path}."
             raise Exception(error_message)
@@ -83,8 +82,7 @@ def get_split_string_list_from_output_file(file_path: str) -> "list[str]":
     with open(file_path, encoding="utf-8", mode="r") as output_file:
         try:
             string = output_file.read()
-            string = string.strip().split()
-            return string
+            return string.strip().split()
         except Exception as error:  # Failed to get the reference data
             error_message = f"{error}\nERROR: Failed to get the data from the reference file {file_path}."
             raise Exception(error_message)
