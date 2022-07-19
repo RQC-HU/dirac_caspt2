@@ -1,14 +1,12 @@
-import subprocess
 import os
 import shutil
-import sys
 
 from module_testing import (
+    check_test_returncode,
     convert_string_list_to_integer_list,
     create_test_command,
     get_split_string_list_from_output_file,
     run_test,
-    check_test_returncode,
 )
 
 
