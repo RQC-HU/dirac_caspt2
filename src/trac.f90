@@ -230,18 +230,14 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     Do i0 = 1, ndet
         i = 0
         ok = 0
-        Do j0 = 0, 31
-            if (btest(idet(i0), j0)) then
+        Do j0 = 0, 63 ! 64 bits integer are possible with 64 spinors
+            if (btest(idet(i0), j0)) then ! This condition should be true nelec times
                 i = i + 1
-                Do ii = 1, nact
-                    if (ii == j0 + 1) then  ! j0+1 means occupied spinor labeled by casci
-                        occ(i, i0) = ii         ! This is energetic order inside active spinor!
-                        ok = ok + 1
-                        goto 200
-                    End if
-                End do
-
-200         end if
+                if (j0 + 1 <= nact) then ! j0+1 means occupied spinor labeled by casci
+                    occ(i, i0) = j0 + 1  ! This is energetic order inside active spinor!
+                    ok = ok + 1
+                End if
+            end if
         End do
     End do
     if (rank == 0) print *, 'Before allocate a matrix named ds'
