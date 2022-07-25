@@ -102,11 +102,11 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of Eint'
+            if (rank == 0) print *, 'End of Hint'
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Eint'
+            stop 'Error: Error in reading Hint'
         end if
         if (i <= k .or. j == l) cycle ! Read the next line if i <= k or j == l
 
@@ -133,7 +133,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) print *, 'reading int2 is over'
+    if (rank == 0) print *, 'reading Hint is over'
 
     Do i0 = 1, nab
         ia = ia0(i0)

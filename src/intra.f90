@@ -78,7 +78,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -131,7 +131,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -173,7 +173,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the third index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -216,7 +216,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the fourth index integral transformation  '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -336,7 +336,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -429,7 +429,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -472,7 +472,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
         read (1, iostat=iostat) i, j, k, l, cint2
 ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the third index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -517,7 +517,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the fourth index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -642,7 +642,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -721,14 +721,13 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    if (rank == 0) print *, 'Read intergals  and second index transformation'
     open (1, file=trim(fname), status='old', form='unformatted')
     do
         read (1, iostat=iostat) i, j, k, l, cint2
 
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -772,7 +771,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of third index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
@@ -817,7 +816,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(fname)
+            if (rank == 0) print *, 'End of the fourth index integral transformation '//trim(fname)
             exit
         elseif (iostat > 0) then
             ! If iostat is greater than 0, error detected in the input file, so exit the program
