@@ -240,10 +240,10 @@ contains
             end if
         end do
 
-        goto 100 ! Read the numbers properly
+        return ! END SUBROUTINE NORMALLY
+
 10      if (rank == 0) print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
         stop
-100     return ! END SUBROUTINE NORMALLY
     end subroutine ras_read
 
     subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
@@ -531,10 +531,9 @@ contains
             first_dot_index = index(string, '..')
         end do
 
-        goto 100 ! End this subroutine
+        return ! Read the numbers properly
 10      if (rank == 0) print *, "ERROR: Can't parse the input in parse_range_input_int, input:", string, " Stop the program."
         stop ! Stop program (error)
-100     continue ! Read the numbers properly
     end subroutine parse_range_input_int
 
     subroutine is_substring(substring, string, is_substring_bool)
