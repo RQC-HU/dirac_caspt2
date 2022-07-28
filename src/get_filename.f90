@@ -14,10 +14,10 @@ subroutine get_mdcint_filename(count)
         filename_idx = count*nprocs + rank
         mdcint_basename = "MDCIN"
         if (filename_idx >= 100000) then!! "ERROR": over six digit(can't assign)
-            write (*, *) "ERROR: Can't assign MDCINT file to ranks of over six digits. filename_idx:", filename_idx
+            print *, "ERROR: Can't assign MDCINT file to ranks of over six digits. filename_idx:", filename_idx
             stop
         else if (filename_idx < 0) then !! "ERROR": minus number filename_idx (can't assign)
-            write (*, *) "ERROR: Can't assign MDCINT file to negative number of ranks. filename_idx:", filename_idx
+            print *, "ERROR: Can't assign MDCINT file to negative number of ranks. filename_idx:", filename_idx
             stop
         else if (filename_idx < 10) then ! one digit (1~9)
             digit_x_padding = "XXXX"
@@ -38,8 +38,8 @@ subroutine get_mdcint_filename(count)
             mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(chr_rank))
         end if
     end if
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "get filename : ", trim(mdcint_filename), " ", &
+    if (rank == 0) then
+        print *, "get filename : ", trim(mdcint_filename), " ", &
             trim(mdcintnew), " ", trim(mdcint_debug), " ", trim(mdcint_int)
     end if
 end subroutine get_mdcint_filename

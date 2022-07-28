@@ -18,9 +18,7 @@ SUBROUTINE fockdiag_ty
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'fockdiag start'
-    end if
+    if (rank == 0) print *, 'fockdiag start'
     REALF = .TRUE.
 
     Do i = 1, ninact + nact + nsec
@@ -32,9 +30,7 @@ SUBROUTINE fockdiag_ty
     End do
 
     REALF = .FALSE.
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'REALF', REALF
-    end if
+    if (rank == 0) print *, 'REALF', REALF
 
     If (REALF) then          ! real*8
         Allocate (fa(nmo, nmo)); Call memplus(KIND(fa), SIZE(fa), 1)
@@ -64,10 +60,10 @@ SUBROUTINE fockdiag_ty
         n1 = nspace(2, i0)
         n = nspace(3, i0)
 
-        if (rank == 0) then ! Process limits for output
-            if (i0 == 1) write (*, *) 'FOR INACTIVE-INACTIVE ROTATION !'
-            if (i0 == 2) write (*, *) 'FOR ACTIVE-ACTIVE ROTATION !'
-            if (i0 == 3) write (*, *) 'FOR SECONDARY-SECONDARY ROTATION !'
+        if (rank == 0) then
+            if (i0 == 1) print *, 'FOR INACTIVE-INACTIVE ROTATION !'
+            if (i0 == 2) print *, 'FOR ACTIVE-ACTIVE ROTATION !'
+            if (i0 == 3) print *, 'FOR SECONDARY-SECONDARY ROTATION !'
         end if
         if (REALF) then
 
@@ -75,18 +71,18 @@ SUBROUTINE fockdiag_ty
 
             write (5) n0, n1, n
             write (5) fa(n0:n1, n0:n1)
-            if (rank == 0) then ! Process limits for output
-                write (*, *) n0, n1, n
+            if (rank == 0) then
+                print *, n0, n1, n
 
-                write (*, *) 'fa '
+                print *, 'fa '
 
                 do i = n0, n1
-                    write (*, '(30E13.5)') (fa(i, j), j=n0, n1)
+                    print '(30E13.5)', (fa(i, j), j=n0, n1)
                 end do
 
-                write (*, *) 'f '
+                print *, 'f '
                 do i = n0, n1
-                    write (*, '(30E13.5)') (DBLE(f(i, j)), j=n0, n1)
+                    print '(30E13.5)', (DBLE(f(i, j)), j=n0, n1)
                 end do
             end if
         else
@@ -125,12 +121,5 @@ SUBROUTINE fockdiag_ty
         close (5)
     end if
 
-    goto 1000
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'reading err in orbcoeff'
-    end if
-1000 continue
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'fockdiag end'
-    end if
+    if (rank == 0) print *, 'fockdiag end'
 end subroutine fockdiag_ty

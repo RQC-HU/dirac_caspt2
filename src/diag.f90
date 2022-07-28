@@ -54,16 +54,14 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
 
     deallocate (work)
 
-    if (info /= 0 .and. rank == 0) then
-        write (*, *) 'error in diagonalization, info = ', info
-        goto 1000
+    if (info /= 0) then
+        if (rank == 0) print *, 'error in diagonalization, info = ', info
+        return
     end if
 
     if (cutoff) then
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'cut off threshold is ', thresd
-        end if
+        if (rank == 0) print *, 'cut off threshold is ', thresd
         j0 = 0
         do i0 = 1, dimn
             if (w(i0) >= thresd) then
@@ -110,9 +108,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
     real*8, allocatable      ::  rwork(:)
     integer :: j0, i0
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Enter cdiagonal part'
-    end if
+    if (rank == 0) print *, 'Enter cdiagonal part'
     w(:) = 0.0d+00
 
     jobz = 'V' ! calculate eigenvectors
@@ -206,14 +202,10 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
     deallocate (work)
     deallocate (rwork)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Finish zheev info = ', info
-    end if
+    if (rank == 0) print *, 'Finish zheev info = ', info
     if (info /= 0) then
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'error in diagonalization, info = ', info
-        end if
-        goto 1000
+        if (rank == 0) print *, 'error in diagonalization, info = ', info
+        return
     end if
 
 !        Do i0 = 1, dimn
@@ -222,13 +214,11 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
 
     if (cutoff) then
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'cut off threshold is ', thresd
-        end if
+        if (rank == 0) print *, 'cut off threshold is ', thresd
 
         j0 = 0
         do i0 = 1, dimn
-            if (ABS(w(i0)) >= thresd) then
+            if (w(i0) >= thresd) then
                 j0 = j0 + 1
             end if
         end do
@@ -239,10 +229,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
         dimm = dimn
     end if
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "end cdiag"
-    end if
-1000 continue
+    if (rank == 0) print *, "end cdiag"
 end subroutine cdiag
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -273,9 +260,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'rdiag0 start'
-    end if
+    if (rank == 0) print *, 'rdiag0 start'
     w = 0.0d+00
     cutoff = .FALSE.
 
@@ -288,9 +273,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
     ncount = 0
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'nsymrp', nsymrp
-    end if
+    if (rank == 0) print *, 'nsymrp', nsymrp
     Do sym = 1, nsymrp
 
         Do i = n0, n1
@@ -304,9 +287,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
     End do
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
-    end if
+    if (rank == 0) print *, 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
     Do sym = 1, nsymrp
 
         Allocate (fasym(ncount(sym), ncount(sym)))
@@ -344,31 +325,24 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     mat = MATMUL(mat, f)
     mat = MATMUL(mat, fa)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'OFF DIAGONAL TERM OF U*FU'
-    end if
+    if (rank == 0) print *, 'OFF DIAGONAL TERM OF U*FU'
     do i = 1, n
         do j = 1, n
             if ((i /= j) .and. (ABS(mat(i, j)) > 1.0d-10)) then
-                if (rank == 0) then ! Process limits for output
-                    write (*, '(2E13.5,2I3)') mat(i, j), i, j
-                end if
+                if (rank == 0) print '(2E13.5,2I3)', mat(i, j), i, j
             end if
         end do
     end do
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+    if (rank == 0) then
+        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
         do i = 1, n
-            write (*, '(4E13.5)') mat(i, i), w(i), ABS(mat(i, i) - w(i))
+            print '(4E13.5)', mat(i, i), w(i), ABS(mat(i, i) - w(i))
         end do
-        write (*, '(/)')
     end if
     deallocate (mat)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'rdiag0 end'
-    end if
+    if (rank == 0) print *, 'rdiag0 end'
 end subroutine rdiag0
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -399,9 +373,9 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'cdiag0 start'
-        write (*, *) 'nsymrpa', nsymrpa
+    if (rank == 0) then
+        print *, 'cdiag0 start'
+        print *, 'nsymrpa', nsymrpa
     end if
 !         nsymrp = nsymrpa
 
@@ -415,9 +389,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
         End do
     End do
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'fi', fi
-    end if
+    if (rank == 0) print *, 'fi', fi
 
     fac(n0:n1, n0:n1) = 0.0d+00
 
@@ -440,11 +412,11 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
                 ind(ncount(sym), sym) = i
             End if
         End do
-!            write(*,*)(ind(j,sym),j=1,ncount(sym))
+!            print *,(ind(j,sym),j=1,ncount(sym))
 
     End do
 
-!         write(*,*)'sym,ncount(sym)',(ncount(sym),sym=1,nsymrpa)
+!         print *,'sym,ncount(sym)',(ncount(sym),sym=1,nsymrpa)
 
     Do sym = 1, nsymrpa
 
@@ -474,23 +446,21 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
         facsym = DCONJG(facsym)
         facsymo = MATMUL(facsymo, facsym)
 
-        Do i = 1, dimn
-            Do j = 1, dimn
-                If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
-                    if (rank == 0) then ! Process limits for output
-                        write (*, '("sym=",3I4,2E20.10)') sym, i, j, facsymo(i, j)
-                    end if
+        ! Check facsymo
+        if (rank == 0) then
+            Do i = 1, dimn
+                Do j = 1, dimn
+                    If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
+                        print '("sym=",3I4,2E20.10)', sym, i, j, facsymo(i, j)
+                    End if
+                End do
+            End do
+            Do i = 1, dimn
+                If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
+                    print '("sym=",2I4,3E20.10)', sym, i, facsymo(i, i), wcsym(i)
                 End if
             End do
-        End do
-
-        Do i = 1, dimn
-            If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
-                if (rank == 0) then ! Process limits for output
-                    write (*, '("sym=",2I4,3E20.10)') sym, i, facsymo(i, i), wcsym(i)
-                end if
-            End if
-        End do
+        end if
 
         Deallocate (facsymo)
 
@@ -520,35 +490,25 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     fac = DCONJG(fac)
     matc = MATMUL(matc, fac)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'OFF DIAGONAL TERM OF U*FU'
-    end if
-    do i = n0, n1
-        do j = n0, n1
-            if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
-                if (rank == 0) then ! Process limits for output
-                    write (*, '(2E13.5,2I3)') matc(i, j), i, j
+    ! Check U*FU
+    if (rank == 0) then
+        print *, 'OFF DIAGONAL TERM OF U*FU'
+        do i = n0, n1
+            do j = n0, n1
+                if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
+                    print '(2E13.5,2I3)', matc(i, j), i, j
                 end if
-            end if
+            end do
         end do
-    end do
+        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+        do i = n0, n1
+            if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
+                print '(4E13.5)', matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
+            End if
+        end do
+    end if
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
-    end if
-    do i = n0, n1
-        if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
-            if (rank == 0) then ! Process limits for output
-                write (*, '(4E13.5)') matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
-            end if
-        End if
-    end do
-    if (rank == 0) then ! Process limits for output
-        write (*, '(/)')
-    end if
     deallocate (matc)
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'cdiag0 end'
-    end if
+    if (rank == 0) print *, 'cdiag0 end'
 end subroutine cdiag0

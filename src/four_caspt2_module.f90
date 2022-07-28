@@ -93,7 +93,7 @@ MODULE four_caspt2_module
     integer, allocatable :: irpmo(:), irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo(:), indmor(:) ! index of MO
     real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
-    real*8, allocatable  :: orbmo(:), orb(:)
+    real*8, allocatable  :: orbmo(:), orb(:), sort_orb(:)
     real*8, allocatable  :: orbmocas(:), orbcas(:)
 
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart

@@ -4,7 +4,6 @@ add_executable(r4dcascicoexe
 	four_caspt2_module.f90
 	module_sort_swap.f90
 	read_input_module.f90
-	readvec.f90
 	read1mo_co.f90
 	readorb_enesym_co.f90
 	one_e_exct.f90
@@ -22,11 +21,9 @@ add_executable(r4dcascicoexe
 	calce0.f90
 	fockdiag_ty.f90
 	takekr.f90
-	intmo_ty.f90
 	timing.f90
 	mem.f90
 	uramda_s_half.f90
-	nrintread.f90
 	checkdgc.f90
 	e0test_v2.f90
 	casci_ty.f90
@@ -35,14 +32,13 @@ add_executable(r4dcascicoexe
 	r4dcasci_co.f90
 	create_binmdcint.f90
 	get_filename.f90
-	casmat_modified.f90
+	ras_det_check.f90
 )
 
 add_executable(r4dcaspt2ocoexe
 	four_caspt2_module.f90
 	module_sort_swap.f90
 	read_input_module.f90
-	readvec.f90
 	readorb_enesym_co.f90
 	read1mo_co.f90
 	readint2_ord_co.f90
@@ -68,5 +64,6 @@ add_executable(r4dcaspt2ocoexe
 	checkdgc.f90
 	e0test_v2.f90
 	r4dcaspt2_tra_co.f90
+	ras_det_check.f90
 	get_filename.f90
 )
