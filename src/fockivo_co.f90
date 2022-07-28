@@ -117,7 +117,6 @@
 
              Do I = 1, IMAX/6*6, 6
                 Read(15,'(6F22.16)',ERR=22) BUF(I:I+5)
-                write(*,*) 'debug BUF', BUF(I:I+5)
              End do
  
              if(mod(IMAX,6).ne.0) then
@@ -130,7 +129,6 @@
             if(mod(nbas,6).eq.0) then
                Do I = 1, nbas/6*6, 6
                  Read(15,'(6E22.12)',ERR=23) eval(I:I+5)
-                 write(*,*)'eval', eval(I:I+5)
                End do
             elseif(mod(nbas,6).ne.0) then
                I = nbas/6*6 +1
