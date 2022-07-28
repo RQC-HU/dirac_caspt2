@@ -70,5 +70,31 @@ add_executable(r4dcaspt2ocoexe
 )
 target_link_libraries(r4dcaspt2ocoexe dcaspt2_module)
 
+add_executable(r4divocoexe
+	four_caspt2_module.f90
+	module_sort_swap.f90
+	read_input_module.f90
+	get_filename.f90
+	nbitsa.f90 
+	read1mo_co.f90 
+	readorb_enesym_co.f90 
+	readint2_ivo_co.f90 
+	fockivo_co.f90 
+	intmo_ty.f90 
+	pgsym_co.f90 
+	takekr.f90
+	dim.f90
+	one_e_exct.f90
+	diag.f90
+	timing.f90
+	mem.f90 
+	uramda_s_half.f90 
+	e0test_v2.f90 
+	r4divo_co.f90 
+	create_binmdcint_co.f90
+)
+target_link_libraries(r4divocoexe dcaspt2_module)
+
+install(TARGETS r4divocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS r4dcaspt2ocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})

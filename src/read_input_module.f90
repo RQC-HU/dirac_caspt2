@@ -123,6 +123,12 @@ contains
             call read_an_integer(unit_num, 0, intmax, dirac_version)
             is_filled(10) = .true.
 
+        case ("lscom")
+            call read_an_integer(0, 10**9, lscom)
+
+        case ("nhomo")
+            call read_an_integer(0, 10**9, nhomo)
+            
         case ("ras1")
             call ras_read(unit_num, ras1_list, 1)
             ras1_size = size(ras1_list, 1)
