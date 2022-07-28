@@ -129,6 +129,12 @@ contains
             call read_an_integer(0, 10**9, dirac_version)
             is_filled(11) = .true.
 
+        case ("lscom")
+            call read_an_integer(0, 10**9, lscom)
+
+        case ("nhomo")
+            call read_an_integer(0, 10**9, nhomo)
+            
         case ("ras1")
             call ras_read(ras1_list, 1)
             ras1_size = size(ras1_list, 1)

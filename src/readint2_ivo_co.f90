@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-   SUBROUTINE readint2_ivo_ty (filename, nuniq) ! 2 electorn integrals created by typart in utchem
+   SUBROUTINE readint2_ivo_co (filename, nuniq) ! 2 electorn integrals created by typart in utchem
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -21,7 +21,7 @@
 
         complex*16 :: cint2
 
-        integer, allocatable :: indk(:), indl(:)
+        integer, allocatable :: indk(:), indl(:), kr(:)
         real*8, allocatable  :: rklr(:), rkli(:), int2rs(:), int2is(:)
 
         logical :: breit
@@ -44,6 +44,8 @@
         Allocate(rklr((nmo/2)**2)); Call memplus(KIND(rklr),SIZE(rklr),1)
         Allocate(rkli((nmo/2)**2)); Call memplus(KIND(rkli),SIZE(rkli),1)
 
+!Iwamuro modify
+        Allocate(kr(-nmo/2:nmo/2))           ; Call memplus(KIND(kr)    ,SIZE(kr)    ,1)
 
         write(*,'("Current Memory is ",F10.2,"MB")')tmem/1024/1024
 
@@ -60,6 +62,9 @@
         totalint = 0
         mdcint=11
         open( mdcint, file=trim(filename),form ='unformatted', status='old', err=10)
+
+        read (mdcint,err=20,end=30) datex,timex,nkr, &
+            (kr(i0),kr(-1*i0),i0=1,nkr)
 
  60      read (mdcint,ERR=40,END=50) i,j,nz, &
                   (indk(inz),indl(inz),inz=1,nz), &
@@ -330,6 +335,6 @@
          deallocate (indl); Call memminus(KIND(indl),SIZE(indl),1)
          deallocate (rklr); Call memminus(KIND(rklr),SIZE(rklr),1)
          deallocate (rkli); Call memminus(KIND(rkli),SIZE(rkli),1)
-
-         end subroutine readint2_ivo_ty
+         deallocate (kr); Call memminus(KIND(kr),SIZE(kr),1)
+         end subroutine readint2_ivo_co
 

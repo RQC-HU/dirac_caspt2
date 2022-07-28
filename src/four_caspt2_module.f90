@@ -34,6 +34,7 @@ MODULE four_caspt2_module
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
     logical         :: is_ras1_configured, is_ras2_configured, is_ras3_configured
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
+    integer         :: lscom, nhomo
     integer, parameter :: max_ras_spinor_num = 200
 
     character       :: date*8, time*10
@@ -62,6 +63,7 @@ MODULE four_caspt2_module
     real(8), allocatable :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
 
     logical :: realc, realcvec, debug, realf, evenelec
+
     !! =================================================
     !! Valiables of timer
     !! =================================================
