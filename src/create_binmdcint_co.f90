@@ -12,12 +12,12 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         Character  :: datex*10, timex*8
 
-        integer(4) :: nkr, nz
+        integer    :: nkr, nz
         integer    :: i0, mdcint, inz, nnz , n
-        integer(4) :: ikr, jkr
+        integer    :: ikr, jkr
         integer    :: ii, jj, kk, ll
         integer    :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
-        integer(4), allocatable :: indk(:), indl(:), kr(:)
+        integer, allocatable :: indk(:), indl(:), kr(:)
         double precision, allocatable  :: rklr(:), rkli(:)
 
 ! Iwamuro modify
@@ -136,8 +136,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
            jkr8 = -jkr
            indk8(:) = -indk(:)
            indl8(:) = -indl(:)
-           rklr8(:) = -rklr(:)* sign(1.0D+00,ikr*jkr*indk(:)*indl(:))
-           rkli8(:) =  rkli(:)* sign(1.0D+00,ikr*jkr*indk(:)*indl(:))
+           rklr8(:) = -rklr(:)* sign(1,ikr*jkr*indk(:)*indl(:))
+           rkli8(:) =  rkli(:)* sign(1,ikr*jkr*indk(:)*indl(:))
         end select
 ! Abe 2021.10.18
 
