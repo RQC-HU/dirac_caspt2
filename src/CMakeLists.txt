@@ -81,7 +81,6 @@ add_executable(r4divocoexe
 	readint2_ivo_co.f90 
 	fockivo_co.f90 
 	intmo_ty.f90 
-	pgsym_co.f90 
 	takekr.f90
 	dim.f90
 	one_e_exct.f90
