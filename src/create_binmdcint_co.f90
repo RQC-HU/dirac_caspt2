@@ -136,8 +136,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
            jkr8 = -jkr
            indk8(:) = -indk(:)
            indl8(:) = -indl(:)
-           rklr8(:) = -rklr(:)* sign(1,ikr*jkr*indk(:)*indl(:))
-           rkli8(:) =  rkli(:)* sign(1,ikr*jkr*indk(:)*indl(:))
+           rklr8(:) = -rklr(:)* sign(1.0D+00,ikr*jkr*indk(:)*indl(:))
+           rkli8(:) =  rkli(:)* sign(1.0D+00,ikr*jkr*indk(:)*indl(:))
         end select
 ! Abe 2021.10.18
 
