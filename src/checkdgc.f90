@@ -19,20 +19,16 @@ SUBROUTINE checkdgc(n, old, tra, w)
 
     mat = MATMUL(TRANSPOSE(DCONJG(tra)), old)
     mat = MATMUL(mat, tra)
-
-    Do i = 1, n
-        If (ABS(mat(i, i) - w(i)) > 1.0d-08) then
-            if (rank == 0) then
-                write (*, '(I4,4E15.7)') i, mat(i, i), mat(i, i) - w(i)
-            end if
-        End if
-        Do j = 1, n
-            If ((i /= j) .and. ABS(mat(i, j)) > 1.d-08) then
-                if (rank == 0) then
-                    write (*, '(2I4,2E15.7)') i, j, mat(i, j)
-                end if
+    if (rank == 0) then
+        Do i = 1, n
+            If (ABS(mat(i, i) - w(i)) > 1.0d-08) then
+                print '(I4,4E15.7)', i, mat(i, i), mat(i, i) - w(i)
             End if
+            Do j = 1, n
+                If ((i /= j) .and. ABS(mat(i, j)) > 1.d-08) then
+                    print '(2I4,2E15.7)', i, j, mat(i, j)
+                End if
+            End do
         End do
-    End do
-
+    end if
 end subroutine checkdgc

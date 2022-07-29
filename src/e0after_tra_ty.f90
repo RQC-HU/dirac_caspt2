@@ -20,7 +20,7 @@ SUBROUTINE e0aftertra_ty
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    write (*, *) 'EIGEN(1)', eigen(1)
+    print *, 'EIGEN(1)', eigen(1)
 
     Allocate (energy(nroot, 4))
     energy(1:nroot, 1:4) = 0.0d+00
@@ -30,10 +30,10 @@ SUBROUTINE e0aftertra_ty
 !        thres = 0.0d+00
     if (rank == 0) then
         open (5, file='e0after', status='unknown', form='unformatted')
-    end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
-    write (*, *) 'iroot = ', iroot
+        print *, 'iroot = ', iroot
+    end if
 
 !        Do iroot = 1, nroot
 
@@ -60,7 +60,7 @@ SUBROUTINE e0aftertra_ty
 
     end do
 
-!         write(*,*)'energyHF(1)',energyHF(1)
+!         print *,'energyHF(1)',energyHF(1)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF2          !
@@ -89,7 +89,7 @@ SUBROUTINE e0aftertra_ty
 
     energyHF(2) = energyHF(2) + CONJG(energyHF(2))
 
-!         write(*,*)'energyHF(2)',energyHF(2)
+!         print *,'energyHF(2)',energyHF(2)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
@@ -209,7 +209,7 @@ SUBROUTINE e0aftertra_ty
                 do l = i, ninact + nact
 
 !          if((i < ninact+3).and.(j < ninact+3).and.(k < ninact+3).and.(l < ninact+3)) then
-!             debug = .TRUE. ; write(*,*) i,j,k,l
+!             debug = .TRUE. ; print *, i,j,k,l
 !          else
 !             debug = .FALSE.
 !          endif
@@ -239,7 +239,8 @@ SUBROUTINE e0aftertra_ty
                         dens = CMPLX(dr, di, 16)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+                        ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
+                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens)
 
                         energy(iroot, 4) = energy(iroot, 4) &
                                            + (0.5d+00)*dens*cmplxint
@@ -283,26 +284,25 @@ SUBROUTINE e0aftertra_ty
 !         if(ABS(eigen(iroot)-ecore &
 !         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
 !          > 1.0d-5 ) then
+    if (rank == 0) then
+        print *, 'energy 1 =', energy(iroot, 1)
+        print *, 'energy 2 =', energy(iroot, 2)
+        print *, 'energy 3 =', energy(iroot, 3)
+        print *, 'energy 4 =', energy(iroot, 4)
 
-    write (*, *) 'energy 1 =', energy(iroot, 1)
-    write (*, *) 'energy 2 =', energy(iroot, 2)
-    write (*, *) 'energy 3 =', energy(iroot, 3)
-    write (*, *) 'energy 4 =', energy(iroot, 4)
+        print *, iroot, 't-energy(1-4)', &
+            energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-    write (*, *) iroot, 't-energy(1-4)', &
-        energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
+        print *, iroot, 't-energy', &
+            eigen(iroot) - ecore
+        print *, iroot, 'eigen e0', &
+            eigen(iroot)
 
-    write (*, *) iroot, 't-energy', &
-        eigen(iroot) - ecore
-    write (*, *) iroot, 'eigen e0', &
-        eigen(iroot)
-
-    write (*, *) 'C the error ', &
-        eigen(iroot) - ecore &
-        - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
-
+        print *, 'C the error ', &
+            eigen(iroot) - ecore &
+            - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 !         else
-!            write(*,*)'C the error ', &
+!            print *,'C the error ', &
 !            eigen(iroot)-ecore &
 !            -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
 !         end if
@@ -313,7 +313,8 @@ SUBROUTINE e0aftertra_ty
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+        print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+    end if
 
 !!###   end do ! about type
     if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
@@ -321,7 +322,7 @@ SUBROUTINE e0aftertra_ty
     end if
 1000 continue
     deallocate (energy)
-    write (*, *) 'e0aftertra end'
+    print *, 'e0aftertra end'
 End subroutine e0aftertra_ty
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -356,11 +357,8 @@ SUBROUTINE e0aftertrac_ty
 !        thres = 0.0d+00
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         open (5, file='e0after', status='unknown', form='unformatted')
-    end if
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
-
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'iroot = ', iroot
+        print *, 'iroot = ', iroot
     end if
 
 !        Do iroot = 1, nroot
@@ -389,9 +387,7 @@ SUBROUTINE e0aftertrac_ty
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'energyHF(1)', energyHF(1)
-    end if
+    if (rank == 0) print *, 'energyHF(1)', energyHF(1)
 !         do i = 1, ninact
 !
 !            cmplxint = 0.0d+00
@@ -401,7 +397,7 @@ SUBROUTINE e0aftertrac_ty
 !
 !         end do
 !
-!         write(*,*)'energyHF(1)',energyHF(1)
+!         print *,'energyHF(1)',energyHF(1)
 !
 !         do i = ninact+1, ninact+nelec
 !
@@ -412,7 +408,7 @@ SUBROUTINE e0aftertrac_ty
 !
 !         end do
 !
-!         write(*,*)'energyHF(1)',energyHF(1)
+!         print *,'energyHF(1)',energyHF(1)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF2          !
@@ -444,14 +440,10 @@ SUBROUTINE e0aftertrac_ty
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'energyHF(2)', energyHF(2)
-    end if
+    if (rank == 0) print *, 'energyHF(2)', energyHF(2)
 
 !Iwamuro modify
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Iwamuro modify'
-    end if
+    if (rank == 0) print *, 'Iwamuro modify'
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
@@ -575,7 +567,7 @@ SUBROUTINE e0aftertrac_ty
                 do l = i, ninact + nact
 
 !          if((i < ninact+3).and.(j < ninact+3).and.(k < ninact+3).and.(l < ninact+3)) then
-!             debug = .TRUE. ; write(*,*) i,j,k,l
+!             debug = .TRUE. ; print *, i,j,k,l
 !          else
 !             debug = .FALSE.
 !          endif
@@ -656,29 +648,29 @@ SUBROUTINE e0aftertrac_ty
     call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'energy 1 =', energy(iroot, 1)
-        write (*, *) 'energy 2 =', energy(iroot, 2)
-        write (*, *) 'energy 3 =', energy(iroot, 3)
-        write (*, *) 'energy 4 =', energy(iroot, 4)
+    if (rank == 0) then
+        print *, 'energy 1 =', energy(iroot, 1)
+        print *, 'energy 2 =', energy(iroot, 2)
+        print *, 'energy 3 =', energy(iroot, 3)
+        print *, 'energy 4 =', energy(iroot, 4)
 
-        write (*, *) iroot, 't-energy(1-4)', &
+        print *, iroot, 't-energy(1-4)', &
             energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-        write (*, *) iroot, 't-energy', &
+        print *, iroot, 't-energy', &
             eigen(iroot) - ecore
-        write (*, *) iroot, 'eigen e0', &
+        print *, iroot, 'eigen e0', &
             eigen(iroot)
 
-        write (*, *) 'C the error ', &
+        print *, 'C the error ', &
             eigen(iroot) - ecore &
             - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
 ! Iwamuro modify
-        write (*, *) 'Iwamuro modify'
+        print *, 'Iwamuro modify'
 
 !         else
-!            write(*,*)'C the error ', &
+!            print *,'C the error ', &
 !            eigen(iroot)-ecore &
 !            -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
 !         end if
@@ -689,8 +681,8 @@ SUBROUTINE e0aftertrac_ty
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        write (*, *) 'CAUTION! HF energy may not be obtained correctly '
-        write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
+        print *, 'CAUTION! HF energy may not be obtained correctly '
+        print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
     end if
 !!###   end do ! about type
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
@@ -698,9 +690,7 @@ SUBROUTINE e0aftertrac_ty
     end if
 1000 continue
     deallocate (energy)
-!      write(*,*)'e0aftertrac end'
+!      print *,'e0aftertrac end'
 ! Iwamuro modify
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'e0aftertrac_ty end'
-    end if
+    if (rank == 0) print *, 'e0aftertrac_ty end'
 End subroutine e0aftertrac_ty

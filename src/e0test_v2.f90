@@ -22,9 +22,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    if (rank == 0) then ! Process limits for output
-        write (*, *) "enter e0test"
-    end if
+    if (rank == 0) print *, "enter e0test"
     Allocate (energy(nroot, 4)); Call memplus(KIND(energy), SIZE(energy), 1)
     energy(:, :) = 0.0d+00
     debug = .TRUE.
@@ -52,9 +50,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
             end if
         end do
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'energy 1 =', energy(iroot, 1)
-        end if
+        if (rank == 0) print *, 'energy 1 =', energy(iroot, 1)
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 2            !
@@ -79,9 +75,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
             end do
         end do
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'energy 2 =', energy(iroot, 2)
-        end if
+        if (rank == 0) print *, 'energy 2 =', energy(iroot, 2)
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 3            !
@@ -127,9 +121,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
             end do
         end do
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'energy 3 =', energy(iroot, 3)
-        end if
+        if (rank == 0) print *, 'energy 3 =', energy(iroot, 3)
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 4            !
@@ -185,16 +177,16 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
             end do       ! jj
         end do          ! ii
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'energy 4 =', energy(iroot, 4)
+        if (rank == 0) then
+            print *, 'energy 4 =', energy(iroot, 4)
 
-            write (*, *) iroot, 't-energy(1-4)', &
+            print *, iroot, 't-energy(1-4)', &
                 energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-            write (*, *) iroot, 't-energy ', &
+            print *, iroot, 't-energy ', &
                 eigen(iroot) - ecore
 
-            write (*, *) 'R the error ', eigen(iroot) - ecore &
+            print *, 'R the error ', eigen(iroot) - ecore &
                 - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
         end if
     else
@@ -257,7 +249,6 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         end do
 
         energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
-
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
@@ -445,7 +436,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                         end if
 
-100                 end do        ! ll
+                    end do        ! ll
                 end do    ! kk
             end do       ! jj
         end do          ! ii
@@ -459,30 +450,25 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'energy 1 =', energy(iroot, 1)
-            write (*, *) 'energy 2 =', energy(iroot, 2)
-            write (*, *) 'energy 3 =', energy(iroot, 3)
-            write (*, *) 'energy 4 =', energy(iroot, 4)
+        if (rank == 0) then
+            print *, 'energy 1 =', energy(iroot, 1)
+            print *, 'energy 2 =', energy(iroot, 2)
+            print *, 'energy 3 =', energy(iroot, 3)
+            print *, 'energy 4 =', energy(iroot, 4)
 
-            write (*, *) iroot, 't-energy(1-4)', &
+            print *, iroot, 't-energy(1-4)', &
                 energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4)
 
-            write (*, *) iroot, 't-energy', &
+            print *, iroot, 't-energy', &
                 eigen(iroot) - ecore
 
-            write (*, *) 'C the error ', &
+            print *, 'C the error ', &
                 eigen(iroot) - ecore &
                 - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
         end if
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'energy HF  =', energyHF(1) + energyHF(2) + ecore
-        end if
+        if (rank == 0) print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
     end if
-1000 continue
     deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'e0test end'
-    end if
+    if (rank == 0) print *, 'e0test end'
 End subroutine e0test_v2

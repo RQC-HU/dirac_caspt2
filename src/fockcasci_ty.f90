@@ -22,9 +22,7 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'enter building fock matrix'
-    end if
+    if (rank == 0) print *, 'enter building fock matrix'
     datetmp0 = initdate
     tsectmp0 = inittime
     call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
@@ -33,9 +31,7 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
 
     f = 0.0d+00
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'enter building fock matrix'
-    end if
+    if (rank == 0) print *, 'enter building fock matrix'
     !$OMP parallel private(i,j,k,l,dr,di,dens)
     !$OMP do schedule(dynamic,2)
     do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
@@ -97,16 +93,12 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
     end do          ! i
     !$OMP end do
     !$OMP end parallel
-    if (rank == 0) then  ! Process limits for output
-        write (*, *) 'fockcasci before f allreduce'
-    end if
+    if (rank == 0) print *, 'fockcasci before f allreduce'
     call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
     datetmp0 = datetmp1
     tsectmp0 = tsectmp1
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'fockcasci end'
-    end if
+    if (rank == 0) print *, 'fockcasci end'
 end subroutine fockcasci_ty

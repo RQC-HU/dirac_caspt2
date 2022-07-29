@@ -194,7 +194,7 @@ contains
         character(:), allocatable :: ras_chr
         integer, parameter :: max_str_length = 100
         character(max_str_length) :: string
-        integer :: tmp_ras(max_ras_spinor_num), idx_filled, iostat
+        integer :: tmp_ras(max_ras_spinor_num), idx_filled, iostat, idx
 
         ! Get the ras_num and store this to ras_chr
         write (tmp_ras_chr, *) ras_num
@@ -225,6 +225,38 @@ contains
         allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
         call heapSort(ras_list, .false.) ! Sort the ras_list in ascending order (lower to higher)
+
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+        ! Check the specification of input is kramers pair?
+        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+
+        ! The size of ras_list must be even.
+        if (mod(size(ras_list), 2) /= 0) then
+            if (rank == 0) print *, "ERROR: The number of ras_list is not even."
+            goto 10 ! Input Error. Stop program
+        end if
+
+        ! ras_list(idx) (idx : odd) must be odd number and equal to ras_list(idx+1) (idx : even)
+        do idx = 1, size(ras_list, 1), 2
+            ! Check the ras_list(idx) (idx : odd)  is odd number?
+            if (mod(ras_list(idx), 2) /= 1) then
+                if (rank == 0) then
+                    print *, "ERROR: ras_list(idx) (idx : odd) must be odd number."
+                    print *, "idx,ras_list(idx) :", idx, ras_list(idx)
+                end if
+                goto 10 ! Input Error. Stop program
+            end if
+            ! Check the ras_list(idx+1) (idx : even) is equal to ras_list(idx) + 1 (idx : odd)?
+            if (ras_list(idx) + 1 /= ras_list(idx + 1)) then
+                if (rank == 0) print *, "ERROR: The ras_list is not kramers pair."
+                goto 10 ! Input Error. Stop program
+            end if
+        end do
+
+        return ! END SUBROUTINE NORMALLY
+
+10      if (rank == 0) print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
+        stop
     end subroutine ras_read
 
     subroutine parse_input_string_to_int_list(string, list, filled_num, allow_int_min, allow_int_max)
@@ -512,10 +544,9 @@ contains
             first_dot_index = index(string, '..')
         end do
 
-        goto 100 ! End this subroutine
+        return ! Read the numbers properly
 10      if (rank == 0) print *, "ERROR: Can't parse the input in parse_range_input_int, input:", string, " Stop the program."
         stop ! Stop program (error)
-100     continue ! Read the numbers properly
     end subroutine parse_range_input_int
 
     subroutine is_substring(substring, string, is_substring_bool)
@@ -629,8 +660,10 @@ contains
             exit ! EXIT LOOP
         end do
         return ! END SUBROUTINE
-10      if (rank == 0) print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
-        if (rank == 0) print *, "input: ", input
+10      if (rank == 0) then
+            print *, "ERROR: Error in input, can't read a integer value!!. Stop the program."
+            print *, "input: ", input
+        end if
         stop
     end subroutine read_an_integer
 
@@ -668,6 +701,8 @@ contains
         ! (e.g.) "   2,3,4" => "2,3,4"
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         string = trim(adjustl(string))
+
+        ! Find the index of comment character (comment_idx = 0 if the comment character is not found)
         comment_idx = scan(string, '!#')
         if (verify(string, " ") == 0) then
             ! Empty line

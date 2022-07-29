@@ -22,14 +22,10 @@ SUBROUTINE casmat(mat)
 
     mat = 0.0d+00
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'Cas mat enter'
-    end if
+    if (rank == 0) print *, 'Cas mat enter'
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'allocated oc and vi'
-    end if
+    if (rank == 0) print *, 'allocated oc and vi'
     Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
         occ = 0
@@ -46,11 +42,6 @@ SUBROUTINE casmat(mat)
                 vi(vir) = imo
             End if
         End do
-
-!           write(*,*) 'i, idet(i)',i, idet(i)
-!           write(*,*) occ, oc(1:occ)
-!           write(*,*) vir, vi(1:vir)
-!           write(*,*) ' '
 
 !! IDENTICAL DETERMINANT => DIAGONAL TERM
         !   diagonal term is same as Hartree-Fock's expression
@@ -94,26 +85,20 @@ SUBROUTINE casmat(mat)
                 i2r = inttwr(ir, ir, is, is)
                 i2i = inttwi(ir, ir, is, is)
                 cmplxint = CMPLX(i2r, i2i, 16)
-!                 write(*,*)ir,is,cmplxint
 
                 mat0 = mat0 + 0.5d+00*cmplxint
-!                 mat(i,i) = mat(i,i) + 0.5d+00*cmplxint
 
                 ! two electron integral : (ir, is | is, ir)
                 i2r = inttwr(ir, is, is, ir)
                 i2i = inttwi(ir, is, is, ir)
                 cmplxint = CMPLX(i2r, i2i, 16)
-!                 write(*,*)ir,is,cmplxint
 
                 mat0 = mat0 - 0.5d+00*cmplxint
-!                 mat(i,i) = mat(i,i) - 0.5d+00*cmplxint
 
             End do
         End do
 
         mat(i, i) = mat(i, i) + mat0 + DCONJG(mat0)
-
-!           write(*,*)'mat(',i,',',i,') = ',mat(i,i)
 
 !! ONE SPINOR DIFFERENCE
 
@@ -129,10 +114,7 @@ SUBROUTINE casmat(mat)
 
                 j = idetr(newidet1)
 
-!                 write(*,*)'j=',j
-
                 If (j > i) then
-                    !    if (rank == 0) write (*, '(A,I5,A,I5)') 'Noda ijorder i:', i, ' j:', j
                     cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
                     mat(i, j) = mat(i, j) + cmplxint
                     Do l0 = 1, ninact
@@ -190,7 +172,6 @@ SUBROUTINE casmat(mat)
                 inds = oc(j0)
                 ir = indr + ninact
                 is = inds + ninact
-!                 write(*,*)'ir,indr,is,inds',ir,indr,is,inds
 
                 Do k0 = 1, nact - nelec
                     Do l0 = k0 + 1, nact - nelec
@@ -205,7 +186,6 @@ SUBROUTINE casmat(mat)
                         j = idetr(newidet2)
 
                         If (j > i) then
-                            !    if (rank == 0) write (*, '(A,I5,A,I5)') 'Noda ijorder 2diff i:', i, ' j:', j
                             if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
                             if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
 
@@ -237,11 +217,12 @@ SUBROUTINE casmat(mat)
 
     Deallocate (oc)
     Deallocate (vi)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'end casmat'
-        write (*, *) 'Reduce mat(:,:)'
+    if (rank == 0) then
+        print *, 'end casmat'
+        print *, 'Reduce mat(:,:)'
     end if
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
-1000 end subroutine casmat
+end subroutine casmat

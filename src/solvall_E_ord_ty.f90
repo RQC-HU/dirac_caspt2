@@ -70,9 +70,9 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
-    if (rank == 0) then ! Process limits for output
-        write (*, *) ' ENTER solv E part'
-        write (*, *) ' nsymrpa', nsymrpa
+    if (rank == 0) then
+        print *, ' ENTER solv E part'
+        print *, ' nsymrpa', nsymrpa
     end if
     i0 = 0
     Do ia = 1, nsec
@@ -109,14 +109,12 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'end before v matrices'
+    if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
     Call vEmat_ord_ty(naij, iaij, v)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'come'
-    end if
+    if (rank == 0) print *, 'come'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -132,25 +130,19 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
             End if
         End do                  ! it
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'isym, dimn', isym, dimn
-        end if
-        If (dimn == 0) goto 1000
+        if (rank == 0) print *, 'isym, dimn', isym, dimn
+        If (dimn == 0) cycle ! Go to the next isym
 
         Allocate (sc(dimn, dimn))
         sc = 0.0d+00            ! sc N*N
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before sEmat'
-        end if
+        if (rank == 0) print *, 'before sEmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call sEmat(dimn, indt(1:dimn), sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'sc matrix is obtained normally'
-        end if
+        if (rank == 0) print *, 'sc matrix is obtained normally'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -161,17 +153,13 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
         Allocate (sc0(dimn, dimn))
         sc0 = sc
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before cdiag'
-        end if
+        if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'after s cdiag, new dimension is', dimm
-        end if
+        if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -179,65 +167,49 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
             deallocate (sc0)
             deallocate (sc)
             deallocate (ws)
-            goto 1000
+            cycle ! Go to the next isym
         End if
 
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether U*SU is diagonal'
-            end if
+            if (rank == 0) print *, 'Check whether U*SU is diagonal'
             Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether U*SU is diagonal END'
-            end if
+            if (rank == 0) print *, 'Check whether U*SU is diagonal END'
         End if
 
         Allocate (bc(dimn, dimn))                                 ! bc N*N
         bc = 0.0d+00
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before bEmat'
-        end if
+        if (rank == 0) print *, 'before bEmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call bEmat(e0, dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'bc matrix is obtained normally'
-        end if
+        if (rank == 0) print *, 'bc matrix is obtained normally'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         deallocate (sc0)
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'OK cdiag', dimn, dimm
-        end if
+        if (rank == 0) print *, 'OK cdiag', dimn, dimm
         Allocate (uc(dimn, dimm))                                 ! uc N*M
         Allocate (wsnew(dimm))                                  ! wnew M
         uc(:, :) = 0.0d+00
         wsnew(:) = 0.0d+00
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before ccutoff'
-        end if
+        if (rank == 0) print *, 'before ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'OK ccutoff'
-        end if
+        if (rank == 0) print *, 'OK ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         deallocate (ws)
         deallocate (sc)
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before ucramda_s_half'
-        end if
+        if (rank == 0) print *, 'before ucramda_s_half'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -245,9 +217,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         deallocate (wsnew)
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'ucrams half OK'
-        end if
+        if (rank == 0) print *, 'ucrams half OK'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -260,16 +230,16 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc1 is hermite or not'
+            if (rank == 0) then
+                print *, 'Check whether bc1 is hermite or not'
                 Do i = 1, dimm
                     Do j = i, dimm
                         if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
-                            write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
+                            print '(2I4,2E15.7)', i, j, bc1(i, j) - bc1(j, i)
                         End if
                     End do
                 End do
-                write (*, *) 'Check whether bc1 is hermite or not END'
+                print *, 'Check whether bc1 is hermite or not END'
             end if
 
         End if
@@ -281,41 +251,29 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
         Allocate (wb(dimm))
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'bC matrix is transrated to bc1(M*M matrix)!'
-        end if
+        if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
         Allocate (bc0(dimm, dimm))
         bc0 = bc1
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before cdiag'
-        end if
+        if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'end cdiag'
-        end if
+        if (rank == 0) print *, 'end cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         If (debug) then
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc is really diagonalized or not'
-            end if
+            if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
             Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc is really diagonalized or not END'
-            end if
+            if (rank == 0) print *, 'Check whether bc is really diagonalized or not END'
         End if
 
         deallocate (bc0)
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'bC1 matrix is diagonalized!'
-        end if
+        if (rank == 0) print *, 'bC1 matrix is diagonalized!'
         e2 = 0.0d+00
 
         Do i0 = 1, naij
@@ -363,20 +321,17 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         deallocate (wb)
         Deallocate (bc1)
 
-1000    if (rank == 0) write (*, '("e2e(",I3,") = ",E20.10," a.u.")') isym, e2(isym)
+        if (rank == 0) print '("e2e(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
         e2e = e2e + e2(isym)
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'End e2(isym) add'
-        end if
+        if (rank == 0) print *, 'End e2(isym) add'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
     End do                  ! isym
 
-    if (rank == 0) then ! Process limits for output
-        write (*, '("e2e      = ",E20.10," a.u.")') e2e
-
-        write (*, '("sumc2,e  = ",E20.10)') sumc2local
+    if (rank == 0) then
+        print '("e2e      = ",E20.10," a.u.")', e2e
+        print '("sumc2,e  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local
 
@@ -387,9 +342,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     deallocate (v)
 
     continue
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'end solveE_ord_ty'
-    end if
+    if (rank == 0) print *, 'end solveE_ord_ty'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -482,9 +435,7 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
 
     bc(:, :) = 0.0d+00
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'E space Bmat iroot=', iroot
-    end if
+    if (rank == 0) print *, 'E space Bmat iroot=', iroot
 
     !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
@@ -522,9 +473,7 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
         call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     end if
 #endif
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'bEmat is ended'
-    end if
+    if (rank == 0) print *, 'bEmat is ended'
 End subroutine bEmat
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -552,11 +501,11 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, taij
-    integer :: it, jt, ik
+    integer :: it, jt, ik, iostat
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
-    if (rank == 0) write (*, *) 'Enter vEmat. Please ignore timer under this line.'
+    if (rank == 0) print *, 'Enter vEmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
@@ -565,18 +514,27 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
     open (1, file=eint, status='old', form='unformatted')  !  (31|21) stored
-30  read (1, err=10, end=20) i, j, k, l, cint2
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2
+        ! Exit the loop if the end of the file is reached
+        if (iostat < 0) then
+            if (rank == 0) print *, 'End of Eint'
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading Eint'
+        end if
 
-    if (j == l) goto 30
+        if (j == l) cycle ! Read the next 2-integral if j equal to l
 
-    taij = iaij(i, j, l)
-    ik = k - ninact
+        taij = iaij(i, j, l)
+        ik = k - ninact
 
-    if (j < l) then
-        cint2 = -1.0d+00*cint2
-    end if
+        if (j < l) then
+            cint2 = -1.0d+00*cint2
+        end if
 
-    v(taij, k) = v(taij, k) - cint2
+        v(taij, k) = v(taij, k) - cint2
 
     !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
     Do it = 1, nact
@@ -586,9 +544,9 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     End do                  ! it
     !$OMP end parallel do
 
-    if (j < l) then
-        cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
-    end if
+        if (j < l) then
+            cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
+        end if
 
 !! Take Kramers conjugate !
 !
@@ -611,18 +569,15 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 !           dens = DCMPLX(dr, di)
 !           v(taij,jt) = v(taij, jt) + cint2*dens
 !        End do                  ! it
+    end do
 
-    goto 30
+    close (1)
+    if (rank == 0) print *, 'vEmat_ord_ty is ended'
 
-20  close (1); goto 100
-
-10  write (*, *) 'error while opening file Eint'; goto 100
-
-100 if (rank == 0) write (*, *) 'vEmat_ord_ty is ended'
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), naij*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    if (rank == 0) print *, 'end Allreduce vEmat'
 #endif
-    if (rank == 0) write (*, *) 'end Allreduce vEmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

@@ -27,7 +27,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
 
     integer, allocatable     :: ii0(:), ij0(:), iij(:, :)
-    integer                  :: nij
+    integer                  :: nij, count
 
     logical :: cutoff
     integer :: j, i, syma, isym, i0
@@ -77,9 +77,9 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
-    if (rank == 0) then ! Process limits for output
-        write (*, *) ' ENTER solv B part'
-        write (*, *) ' nsymrpa', nsymrpa
+    if (rank == 0) then
+        print *, ' ENTER solv B part'
+        print *, ' nsymrpa', nsymrpa
     end if
     i0 = 0
     Do ii = 1, ninact
@@ -109,7 +109,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 #ifdef HAVE_MPI
     call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-    if (rank == 0) write (*, *) 'end before v matrices'
+    if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -136,10 +136,8 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             End do               ! iu
         End do                  ! it
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'isym, dimn', isym, dimn
-        end if
-        If (dimn == 0) goto 1000
+        if (rank == 0) print *, 'isym, dimn', isym, dimn
+        If (dimn == 0) cycle ! Go to the next isym.
 
         Allocate (indsym(2, dimn)); Call memplus(KIND(indsym), SIZE(indsym), 1)
 
@@ -156,23 +154,19 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
                     indsym(1, dimn) = it
                     indsym(2, dimn) = iu
                 End if
-200         End do               ! iu
+            End do               ! iu
         End do                  ! it
 
         Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
         sc = 0.0d+00            ! sc N*N
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before sBmat'
-        end if
+        if (rank == 0) print *, 'before sBmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call sBmat(dimn, indsym, sc)
 
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'sc matrix is obtained normally'
-        end if
+        if (rank == 0) print *, 'sc matrix is obtained normally'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -183,16 +177,18 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
         Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
         sc0 = sc
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before cdiag'
-        end if
+        if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'after s cdiag, new dimension is', dimm
+        if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
+        if (rank == 0) then
+            print *, 'ws', ws
+            do count = 1, dimn
+                print *, count, sc(count, count)
+            end do
         end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -202,75 +198,57 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
             deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
             deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
-            goto 1000
+            cycle ! Go to the next isym.
         End if
 
         Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
         bc = 0.0d+00
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before bBmat'
-        end if
+        if (rank == 0) print *, 'before bBmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call bBmat(e0, dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'bc matrix is obtained normally'
-        end if
+        if (rank == 0) print *, 'bc matrix is obtained normally'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether U*SU is diagonal'
-            end if
+            if (rank == 0) print *, 'Check whether U*SU is diagonal'
             Call checkdgc(dimn, sc0, sc, ws)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then  ! Process limits for output
-                write (*, *) 'Check whether U*SU is diagonal END'
-            end if
+            if (rank == 0) print *, 'Check whether U*SU is diagonal END'
         End if
 
         deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'OK cdiag', dimn, dimm
-        end if
+        if (rank == 0) print *, 'OK cdiag', dimn, dimm
         Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
         Allocate (wsnew(dimm)); Call memplus(KIND(wsnew), SIZE(wsnew), 1)     ! wnew M
         uc(:, :) = 0.0d+00
         wsnew(:) = 0.0d+00
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before ccutoff'
-        end if
+        if (rank == 0) print *, 'before ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'OK ccutoff'
-        end if
+        if (rank == 0) print *, 'OK ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
         deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before ucramda_s_half'
-        end if
+        if (rank == 0) print *, 'before ucramda_s_half'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         deallocate (wsnew); Call memminus(KIND(wsnew), SIZE(wsnew), 1)
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'ucrams half OK'
-        end if
+        if (rank == 0) print *, 'ucrams half OK'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -284,21 +262,15 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc1 is hermite or not'
-            end if
+            if (rank == 0) print *, 'Check whether bc1 is hermite or not'
             Do i = 1, dimm
                 Do j = i, dimm
                     if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
-                        if (rank == 0) then ! Process limits for output
-                            write (*, '(2I4,2E15.7)') i, j, bc1(i, j) - bc1(j, i)
-                        end if
+                        if (rank == 0) print '(2I4,2E15.7)', i, j, bc1(i, j) - bc1(j, i)
                     End if
                 End do
             End do
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc1 is hermite or not END'
-            end if
+            if (rank == 0) print *, 'Check whether bc1 is hermite or not END'
         End if
 
         deallocate (bc); Call memminus(KIND(bc), SIZE(bc), 2)
@@ -308,42 +280,30 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 
         Allocate (wb(dimm)); Call memplus(KIND(wb), SIZE(wb), 1)
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'bC matrix is transrated to bc1(M*M matrix)!'
-        end if
+        if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
         Allocate (bc0(dimm, dimm)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*M
         bc0 = bc1
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'before cdiag'
-        end if
+        if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'end cdiag'
-        end if
+        if (rank == 0) print *, 'end cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
         If (debug) then
 
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc is really diagonalized or not'
-            end if
+            if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
             Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then ! Process limits for output
-                write (*, *) 'Check whether bc is really diagonalized or not END'
-            end if
+            if (rank == 0) print *, 'Check whether bc is really diagonalized or not END'
         End if
 
         deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
 
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'bC1 matrix is diagonalized!'
-        end if
+        if (rank == 0) print *, 'bC1 matrix is diagonalized!'
         e2 = 0.0d+00
 
         Do i0 = 1, nij
@@ -382,27 +342,23 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             End if
 
         End do            !i0
-        if (rank == 0) then ! Process limits for output
-            write (*, '("e2b(",I3,") = ",E20.10," a.u.")') isym, e2(isym)
-        end if
+        if (rank == 0) print '("e2b(",I3,") = ",E20.10,"a.u.")', isym, e2(isym)
         Deallocate (bc1); Call memminus(KIND(bc1), SIZE(bc1), 2)
         Deallocate (uc); Call memminus(KIND(uc), SIZE(uc), 2)
         Deallocate (wb); Call memminus(KIND(wb), SIZE(wb), 1)
         Deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 2)
 
-1000    e2b = e2b + e2(isym)
-        if (rank == 0) then ! Process limits for output
-            write (*, *) 'End e2(isym) add'
-        end if
+        e2b = e2b + e2(isym)
+        if (rank == 0) print *, 'End e2(isym) add'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
 
     End do               ! isym
 
-    if (rank == 0) then ! Process limits for output
-        write (*, '("e2b      = ",E20.10," a.u.")') e2b
-        write (*, '("sumc2,b  = ",E20.10)') sumc2local
+    if (rank == 0) then
+        print '("e2b      = ",E20.10," a.u.")', e2b
+        print '("sumc2,b  = ",E20.10)', sumc2local
     end if
     sumc2 = sumc2 + sumc2local
 
@@ -412,9 +368,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     deallocate (v); Call memminus(KIND(v), SIZE(v), 2)
 
     continue
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'end solvB_ord_ty'
-    end if
+    if (rank == 0) print *, 'end solvB_ord_ty'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -522,9 +476,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
 
     bc(:, :) = 0.0d+00
 
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'B space Bmat iroot=', iroot
-    end if
+    if (rank == 0) print *, 'B space Bmat iroot=', iroot
 
     !$OMP parallel do schedule(dynamic,1) private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
@@ -599,9 +551,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
     else
         call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
     end if
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'bBmat is ended'
-    end if
+    if (rank == 0) print *, 'bBmat is ended'
 #endif
 End subroutine bBmat
 
@@ -632,15 +582,26 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
     integer :: i, j, k, l, tij
-    integer :: it, jt, ju, iu
+    integer :: it, jt, ju, iu, iostat
 
     v = 0.0d+00
 
     open (1, file=bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+    do
+        read (1, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
 
-30  read (1, err=10, end=20) i, j, k, l, cint2                    !  (ij|kl)
+        ! Exit the loop if iostat is less than 0
+        if (iostat < 0) then
+            if (rank == 0) then
+                print *, 'End of B1int'
+            end if
+            exit
+        elseif (iostat > 0) then
+            ! If iostat is greater than 0, error detected in the input file, so exit the program
+            stop 'Error: Error in reading Bint'
+        end if
 
-    if (j <= l) goto 30
+        if (j <= l) cycle ! Read the next line if j <= l
 
 !------------------------------------------------------------------------------------------------
 !  i > j
@@ -653,55 +614,47 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 !
 !------------------------------------------------------------------------------------------------
 
-    tij = iij(j, l)
+        tij = iij(j, l)
 
 !        write(*,'(5I4,2E20.10)')i,j,k,l,tij,cint2
 
-    ! Term 3 !        + (ti|uj)  - (ui|tj)  (i > j)
+        ! Term 3 !        + (ti|uj)  - (ui|tj)  (i > j)
 
-    v(tij, i, k) = v(tij, i, k) + cint2 !  + (ti|uj)
-    v(tij, k, i) = v(tij, k, i) - cint2 !  - (ui|tj)
+        v(tij, i, k) = v(tij, i, k) + cint2 !  + (ti|uj)
+        v(tij, k, i) = v(tij, k, i) - cint2 !  - (ui|tj)
 
-    ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
-    !                             ===========================      ================
-    !                                loop for t                     loop for u(variable u is renamed to t)
-    !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu,ju)
-    Do it = 1, nact
+        ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
+        !                             ===========================      ================
+        !                                loop for t                     loop for u(variable u is renamed to t)
+        !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu,ju)
+        Do it = 1, nact
 
-        Call dim1_density(k, it, dr, di)
-        dens = DCMPLX(dr, di)
-        v(tij, it, i) = v(tij, it, i) + cint2*dens
-        v(tij, i, it) = v(tij, i, it) - cint2*dens
-
-        Call dim1_density(i, it, dr, di)
-        dens = DCMPLX(dr, di)
-        v(tij, it, k) = v(tij, it, k) - cint2*dens
-
-        ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
-        !                             ==================
-        !                              loop for t and u
-
-        Do iu = 1, it - 1
-            ju = iu + ninact
-            Call dim2_density(i, it, k, iu, dr, di)
+            Call dim1_density(k, it, dr, di)
             dens = DCMPLX(dr, di)
-            v(tij, it, iu) = v(tij, it, iu) + cint2*dens
+            v(tij, it, i) = v(tij, it, i) + cint2*dens
+            v(tij, i, it) = v(tij, i, it) - cint2*dens
+
+            Call dim1_density(i, it, dr, di)
+            dens = DCMPLX(dr, di)
+            v(tij, it, k) = v(tij, it, k) - cint2*dens
+
+            ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
+            !                             ==================
+            !                              loop for t and u
+
+            Do iu = 1, it - 1
+                ju = iu + ninact
+                Call dim2_density(i, it, k, iu, dr, di)
+                dens = DCMPLX(dr, di)
+                v(tij, it, iu) = v(tij, it, iu) + cint2*dens
+            End do
+
         End do
+        !$OMP end parallel do
+    end do
 
-    End do
-    !$OMP end parallel do
-
-    goto 30
-
-20  close (1)
-    if (rank == 0) then ! Process limits for output
-        write (*, *) 'reading int2 is over'
-    end if
-    goto 100
-
-10  write (*, *) 'error while opening file Bint'; goto 100
-
-100 if (rank == 0) write (*, *) 'vBmat_ord_ty is ended'
+    close (1)
+    if (rank == 0) print *, 'vBmat_ord_ty is ended'
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1), nij*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
