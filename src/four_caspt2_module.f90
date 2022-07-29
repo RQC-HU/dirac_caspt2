@@ -36,7 +36,7 @@ MODULE four_caspt2_module
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: lscom, nhomo
     integer, parameter :: max_ras_spinor_num = 200
-
+    integer         :: noccgerade, noccungerade
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)
 

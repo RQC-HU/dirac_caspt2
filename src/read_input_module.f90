@@ -163,6 +163,13 @@ contains
         case ("minholeras1")
             call read_an_integer(0, 10**9, min_hole_ras1)
 
+        !ivo 
+        case("noccgerade")
+            call read_an_integer(0, 10**9, noccgerade)
+    
+        case("noccungerade")
+            call read_an_integer(0, 10**9, noccungerade)
+
         case ("end")
             is_end = .true.
 
