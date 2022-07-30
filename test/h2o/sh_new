@@ -1,8 +1,0 @@
-#!/bin/sh
-
-casci=/home/noda/rel-caspt2/bin/r4dcascicoexe
-caspt2=/home/noda/rel-caspt2/bin/r4dcaspt2ocoexe
-
-$casci > H2O.caspt2.out
-$caspt2 >> H2O.caspt2.out
-
