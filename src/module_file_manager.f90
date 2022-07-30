@@ -36,6 +36,7 @@ contains
             stop
         end if
     end subroutine check_file_open
+
     subroutine open_file(unit, form, file, status, action)
         implicit none
         character(len=*), intent(in) :: form, file, status, action
