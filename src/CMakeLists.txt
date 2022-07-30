@@ -12,13 +12,13 @@ add_executable(r4dcascicoexe
 	dim.f90
 	e0after_tra_ty.f90
 	e0test_v2.f90
-	file_manage_module.f90
 	fockcasci_ty.f90
 	fockdiag_ty.f90
 	fockhf1_ty.f90
 	four_caspt2_module.f90
 	get_filename.f90
 	mem.f90
+	module_file_manager.f90
 	module_sort_swap.f90
 	one_e_exct.f90
 	prtoutfock.f90
@@ -43,11 +43,11 @@ add_executable(r4dcaspt2ocoexe
 	diag.f90
 	dim.f90
 	e0test_v2.f90
-	file_manage_module.f90
 	four_caspt2_module.f90
 	get_filename.f90
 	intra.f90
 	mem.f90
+	module_file_manager.f90
 	module_sort_swap.f90
 	one_e_exct.f90
 	r4dcaspt2_tra_co.f90
