@@ -24,12 +24,12 @@ contains
         end do
     end subroutine search_unused_file_unit
 
-    subroutine check_file_open(file, iostat)
+    subroutine check_file_open(file, iostat, unit)
         implicit none
         character(len=*), intent(in) :: file
-        integer, intent(in) :: iostat
+        integer, intent(in) :: iostat, unit
         if (iostat .ne. 0) then
-            print *, 'ERROR: Failed to open ', file, ': iostat = ', iostat
+            print *, 'ERROR: Failed to open ', file, ': iostat = ', iostat, ' unit = ', unit
             print *, 'Exiting...'
             stop
         end if
@@ -50,7 +50,7 @@ contains
             stop
         end if
         open (unit, form=form, file=file, status=status, iostat=iostat, action=action)
-        call check_file_open(file, iostat)
+        call check_file_open(file, iostat, unit)
     end subroutine open_file
 
     subroutine open_unformatted_file(unit, file, status, optional_action)
