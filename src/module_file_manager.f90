@@ -79,7 +79,7 @@ contains
         call open_file(unit=unit, form=form, file=file, status=status, action=actual_action)
     end subroutine open_unformatted_file
 
-    subroutine open_fomatted_file(unit, file, status, optional_action)
+    subroutine open_formatted_file(unit, file, status, optional_action)
         implicit none
         character(len=*), intent(in), optional :: optional_action
         character(len=*), intent(in) :: file, status
@@ -101,5 +101,5 @@ contains
         end if
         form = 'formatted'
         call open_file(unit=unit, form=form, file=file, status=status, action=actual_action)
-    end subroutine open_fomatted_file
+    end subroutine open_formatted_file
 end module module_file_manager
