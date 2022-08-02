@@ -15,7 +15,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     include 'mpif.h'
 #endif
     integer, parameter      :: default_unit = 20
-    integer                 :: i0, nuniq, inisym, endsym, eps_unit = default_unit, new_unit = default_unit
+    integer                 :: i0, nuniq, inisym, endsym, eps_unit = default_unit, input_unit = default_unit
     logical                 :: test
     character*50            :: filename
 
@@ -61,9 +61,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         print *, inittime
     end if
 
-    call open_formatted_file(unit=new_unit, file='active.inp', status="old", optional_action='read')
-    call read_input(new_unit)
-    close(new_unit)
+    call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
+    call read_input(input_unit)
+    close(input_unit)
 
     if (rank == 0) then
         print *, 'ninact        =', ninact

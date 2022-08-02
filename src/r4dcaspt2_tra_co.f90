@@ -14,7 +14,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     include 'mpif.h'
     real(16)                :: time0, time1
 #endif
-    integer                 :: ieshift, new_unit = 20
+    integer                 :: ieshift, input_unit = 20, new_unit = 20
     real*8                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)
@@ -66,9 +66,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     eshift = 0.0d+00
     ieshift = 0
 
-    call open_formatted_file(unit=new_unit, file='active.inp', status="old", optional_action='read')
-    call read_input(new_unit)
-    close(new_unit)
+    call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
+    call read_input(input_unit)
+    close(input_unit)
 
     if (rank == 0) then
         print *, 'ninact        =', ninact
