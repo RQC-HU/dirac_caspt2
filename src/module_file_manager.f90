@@ -15,9 +15,7 @@ contains
         integer, intent(inout) :: file_unit_number
         logical :: opened
         ! file_unit_number must be >= 21
-        if (file_unit_number < 21) then
-            file_unit_number = 21
-        end if
+        file_unit_number = 21
         ! Search for unused file unit
         do
             inquire (file_unit_number, opened=opened)
