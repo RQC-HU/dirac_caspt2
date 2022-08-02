@@ -11,7 +11,7 @@ from module_testing import (
 )
 
 
-def test_h2o(the_number_of_process: int) -> None:
+def test_multiple_mdcint_h2(the_number_of_process: int) -> None:
 
     # Set file names
     ref_filename = "reference.H2.out"  # Reference
