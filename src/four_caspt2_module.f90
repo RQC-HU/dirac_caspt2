@@ -149,6 +149,6 @@ MODULE four_caspt2_module
     integer         :: ierr, nprocs, rank
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
-    integer, parameter :: normal_output = 3000, read_line_max = 1000
+    integer, parameter :: normal_output = 3000, read_line_max = 1000, default_unit = 20
 
 end MODULE four_caspt2_module

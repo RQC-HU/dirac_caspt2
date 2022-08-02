@@ -14,7 +14,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer, parameter      :: default_unit = 20
     integer                 :: i0, nuniq, inisym, endsym, eps_unit = default_unit, input_unit = default_unit
     logical                 :: test
     character*50            :: filename
