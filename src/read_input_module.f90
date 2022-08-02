@@ -15,12 +15,13 @@ module read_input_module
         module procedure is_in_range_int, is_in_range_real
     end interface is_in_range_number
 contains
-    subroutine read_input
+    subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module, only: is_ras1_configured, is_ras2_configured, is_ras3_configured
         implicit none
+        integer, intent(in) :: unit_num
         integer :: idx, iostat
         character(100) :: string
         character(11), allocatable :: essential_variable_names(:)
@@ -31,9 +32,8 @@ contains
             (/"ninact    ", "nact      ", "nsec      ", "nroot     ", "nelec     ", &
             &  "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
         is_ras1_configured = .false.; is_ras2_configured = .false.; is_ras3_configured = .false.
-        open (5, file="active.inp", form="formatted")
         do while (.not. is_end)
-            read (5, "(a)", iostat=iostat) string
+            read (unit_num, "(a)", iostat=iostat) string
             if (iostat < 0) then
                 if (rank == 0) print *, "ERROR: YOU NEED TO ADD 'end' in active.inp"
                 stop
@@ -43,7 +43,7 @@ contains
             end if
             call is_comment_line(string, is_comment)
             if (is_comment) cycle ! Read the next line
-            call check_input_type(string, is_variable_filled)
+            call check_input_type(unit_num, string, is_variable_filled)
         end do
         is_config_sufficient = .true.
         do idx = 1, size(is_variable_filled, 1)
@@ -57,17 +57,17 @@ contains
             stop
         end if
         if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
-        close (5)
         return ! END SUBROUTINE
     end subroutine read_input
 
-    subroutine check_input_type(string, is_filled)
+    subroutine check_input_type(unit_num, string, is_filled)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine recognize the type of input that follows from the next line
         ! and calls the subroutine that we must call
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use four_caspt2_module
         implicit none
+        integer, intent(in) :: unit_num
         character(*), intent(inout) :: string
         character(100) :: input
         logical :: is_comment
@@ -76,44 +76,44 @@ contains
         select case (trim(string))
 
         case ("ninact")
-            call read_an_integer(0, 10**9, ninact)
+            call read_an_integer(unit_num, 0, 10**9, ninact)
             is_filled(1) = .true.
 
         case ("nact")
-            call read_an_integer(0, 10**9, nact)
+            call read_an_integer(unit_num, 0, 10**9, nact)
             is_filled(2) = .true.
 
         case ("nsec")
-            call read_an_integer(0, 10**9, nsec)
+            call read_an_integer(unit_num, 0, 10**9, nsec)
             is_filled(3) = .true.
 
         case ("nelec")
-            call read_an_integer(0, 10**9, nelec)
+            call read_an_integer(unit_num, 0, 10**9, nelec)
             is_filled(4) = .true.
 
         case ("nroot")
-            call read_an_integer(0, 10**9, nroot)
+            call read_an_integer(unit_num, 0, 10**9, nroot)
             is_filled(5) = .true.
 
         case ("selectroot")
-            call read_an_integer(0, 10**9, selectroot)
+            call read_an_integer(unit_num, 0, 10**9, selectroot)
             is_filled(6) = .true.
 
         case ("totsym")
-            call read_an_integer(0, 10**9, totsym)
+            call read_an_integer(unit_num, 0, 10**9, totsym)
             is_filled(7) = .true.
 
         case ("ncore")
-            call read_an_integer(0, 10**9, ncore)
+            call read_an_integer(unit_num, 0, 10**9, ncore)
             is_filled(8) = .true.
 
         case ("nbas")
-            call read_an_integer(0, 10**9, nbas)
+            call read_an_integer(unit_num, 0, 10**9, nbas)
             is_filled(9) = .true.
 
         case ("eshift")
             eshiftloop: do
-                read (5, '(A)') input
+                read (unit_num, '(A)') input
                 call is_comment_line(input, is_comment)
                 if (.not. is_comment) then
                     read (input, *) eshift
@@ -122,32 +122,32 @@ contains
             end do eshiftloop
 
         case ("ptgrp")
-            call read_a_string(ptgrp)
+            call read_a_string(unit_num, ptgrp)
             is_filled(10) = .true.
 
         case ("diracver")
-            call read_an_integer(0, 10**9, dirac_version)
+            call read_an_integer(unit_num, 0, 10**9, dirac_version)
             is_filled(11) = .true.
 
         case ("ras1")
-            call ras_read(ras1_list, 1)
+            call ras_read(unit_num, ras1_list, 1)
             ras1_size = size(ras1_list, 1)
-            call read_an_integer(0, ras1_size, ras1_max_hole)
+            call read_an_integer(unit_num, 0, ras1_size, ras1_max_hole)
             is_ras1_configured = .true.
 
         case ("ras2")
-            call ras_read(ras2_list, 2)
+            call ras_read(unit_num, ras2_list, 2)
             is_ras2_configured = .true.
             ras2_size = size(ras2_list, 1)
 
         case ("ras3")
-            call ras_read(ras3_list, 3)
+            call ras_read(unit_num, ras3_list, 3)
             ras3_size = size(ras3_list, 1)
-            call read_an_integer(0, ras3_size, ras3_max_elec)
+            call read_an_integer(unit_num, 0, ras3_size, ras3_max_elec)
             is_ras3_configured = .true.
 
         case ("calctype")
-            call read_a_string(calctype)
+            call read_a_string(unit_num, calctype)
             call uppercase(calctype)
             if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
                 if (rank == 0) print *, "ERROR: calctype must be CASCI or DMRG"
@@ -155,7 +155,7 @@ contains
             end if
 
         case ("minholeras1")
-            call read_an_integer(0, 10**9, min_hole_ras1)
+            call read_an_integer(unit_num, 0, 10**9, min_hole_ras1)
 
         case ("end")
             is_end = .true.
@@ -166,7 +166,7 @@ contains
         end select
 
     end subroutine check_input_type
-    subroutine ras_read(ras_list, ras_num)
+    subroutine ras_read(unit_num, ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns RAS[1,2,3] list from the user input
         ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
@@ -176,7 +176,7 @@ contains
         use module_sort_swap, only: heapSort
         implicit none
         integer, allocatable, intent(inout) :: ras_list(:)
-        integer, intent(in) :: ras_num
+        integer, intent(in) :: unit_num, ras_num
         character(100) :: tmp_ras_chr
         character(:), allocatable :: ras_chr
         integer, parameter :: max_str_length = 100
@@ -187,7 +187,7 @@ contains
         write (tmp_ras_chr, *) ras_num
         ras_chr = trim(adjustl(tmp_ras_chr))
 
-        read (5, '(a)', iostat=iostat) string ! Read a line of active.inp
+        read (unit_num, '(a)', iostat=iostat) string ! Read a line of active.inp
         if (iostat /= 0) then
             if (rank == 0) print *, "ERROR: ras_read: iostat = ", iostat, ", string =", string
             stop ! ERROR, STOP THE PROGRAM
@@ -624,16 +624,16 @@ contains
         end if
     end subroutine create_valid_pattern
 
-    subroutine read_an_integer(allowed_min_int, allowed_max_int, result_int)
+    subroutine read_an_integer(unit_num, allowed_min_int, allowed_max_int, result_int)
         implicit none
-        integer, intent(in) :: allowed_min_int, allowed_max_int
+        integer, intent(in) :: unit_num, allowed_min_int, allowed_max_int
         integer, intent(inout) :: result_int
         character(:), allocatable :: pattern, invalid_input_message
         logical :: is_comment, is_subst
         character(100) :: input
         call create_valid_pattern(allowed_min_int, allowed_max_int, pattern, invalid_input_message)
         do
-            read (5, '(a)') input
+            read (unit_num, '(a)') input
             call is_comment_line(input, is_comment)
             if (is_comment) cycle ! Go to the next line
             !  Is the input an integer and more than or equal to zero?
@@ -654,13 +654,14 @@ contains
         stop
     end subroutine read_an_integer
 
-    subroutine read_a_string(result_string)
+    subroutine read_a_string(unit_num, result_string)
         implicit none
+        integer, intent(in) :: unit_num
         character(*), intent(inout) :: result_string
         logical :: is_comment
         character(100) :: input
         do
-            read (5, '(a)') input
+            read (unit_num, '(a)') input
             call is_comment_line(input, is_comment)
             if (is_comment) cycle ! Go to the next line
             read (input, *) result_string ! read a string
