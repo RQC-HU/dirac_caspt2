@@ -29,15 +29,12 @@ def test_ras_input_reader():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    test_command = create_test_command(
-        the_number_of_process=1, binaries=[exe_file_path]
-    )
+    test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
     process = run_test(test_command, output_file_path)
     check_test_returncode(process)
 
     string_ref = get_split_string_list_from_output_file(ref_file_path)
     ref_int_list = convert_string_list_to_integer_list(string_ref)
-
 
     string_result = get_split_string_list_from_output_file(output_file_path)
     result_int_list = convert_string_list_to_integer_list(string_result)
