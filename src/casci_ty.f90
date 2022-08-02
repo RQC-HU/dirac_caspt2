@@ -64,7 +64,7 @@ SUBROUTINE casci_ty
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         print *, 'debug1'
-        cimat = 10
+        cimat = default_unit
         filename = 'CIMAT'
         call open_unformatted_file(unit=cimat, file=filename, status='replace')
         write (cimat) ndet
@@ -80,7 +80,7 @@ SUBROUTINE casci_ty
 
         print *, 'debug2'
 
-        cimat = 10
+        cimat = default_unit
         filename = 'CIMAT1'
         call open_unformatted_file(unit=cimat, file=filename, status='replace')
         write (cimat) ndet

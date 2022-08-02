@@ -516,6 +516,7 @@ SUBROUTINE vCmat_ord_ty(v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -529,8 +530,8 @@ SUBROUTINE vCmat_ord_ty(v)
     integer :: isym, syma, symb, symc
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer :: it, iu, iv, ia, ip
-    integer :: jt, ju, jv, ja, jp
-    integer :: i0, iostat
+    integer :: jt, ju, jv, ja
+    integer :: i0, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
@@ -566,6 +567,7 @@ SUBROUTINE vCmat_ord_ty(v)
     v = 0.0d+00
     effh = 0.0d+00
     dim = 0
+    twoint_unit = default_unit
 
     Allocate (indt(nact**3, nsymrpa))
     Allocate (indu(nact**3, nsymrpa))
@@ -619,10 +621,9 @@ SUBROUTINE vCmat_ord_ty(v)
         End do
     End do
     !$OMP end parallel do
-    open (1, file=c1int, status='old', form='unformatted')
-
+    call open_unformatted_file(unit=twoint_unit, file=c1int, status='old', optional_action='read')
     do ! Read TYPE 1 integrals C1int until EOF
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         ! Exit loop if the iostat is less than 0  (End of File)
         if (iostat < 0) then
             if (rank == 0) print *, 'End of C1int'
@@ -655,16 +656,16 @@ SUBROUTINE vCmat_ord_ty(v)
             effh(i, l) = effh(i, l) - cint2
         end if
     end do
-
-    close (1)
+    close (twoint_unit)
     if (rank == 0) print *, 'reading C1int2 is over'
+
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    open (1, file=c2int, status='old', form='unformatted') ! TYPE 2 integrals
 
+    call open_unformatted_file(unit=twoint_unit, file=c2int, status='old', optional_action='read')
     do ! Read TYPE 2 integrals C2int until EOF
-        read (1, iostat=iostat) i, j, k, l, cint2
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
         ! Exit loop if the iostat is less than 0  (End of File)
         if (iostat < 0) then
             if (rank == 0) then
@@ -687,17 +688,16 @@ SUBROUTINE vCmat_ord_ty(v)
 
         end if
     end do
+    close (twoint_unit)
 
-    close (1)
     if (rank == 0) print *, 'reading C2int2 is over'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    open (1, file=c3int, status='old', form='unformatted') ! TYPE 3 integrals
-
+    call open_unformatted_file(unit=twoint_unit, file=c3int, status='old', optional_action='read') ! TYPE 3 integrals
     do ! Read TYPE 3 integrals C3int until EOF
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
         ! Exit loop if the iostat is less than 0 (End of File)
         if (iostat < 0) then
             if (rank == 0) then
@@ -720,11 +720,13 @@ SUBROUTINE vCmat_ord_ty(v)
         end if
 
     end do
-    close (1)
+    close (twoint_unit)
+
     if (rank == 0) print *, 'reading C3int2 is over'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
+
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, effh(1, 1), nsec*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif

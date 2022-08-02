@@ -14,7 +14,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     include 'mpif.h'
     real(16)                :: time0, time1
 #endif
-    integer                 :: ieshift, input_unit = 20, new_unit = 20
+    integer                 :: ieshift, input_unit = default_unit, new_unit = default_unit
     real*8                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)

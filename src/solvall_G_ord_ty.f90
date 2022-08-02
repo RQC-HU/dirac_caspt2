@@ -486,6 +486,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -500,7 +501,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, tabi
-    integer :: it, jt, il, iostat
+    integer :: it, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -508,12 +509,13 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     v = 0.0d+00
+    twoint_unit = default_unit
 
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
 
-    open (1, file=gint, status='old', form='unformatted')  !  (31|32) stored
+    call open_unformatted_file(unit=twoint_unit, file=gint, status='old', optional_action='read') !  (31|32) stored
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
             if (rank == 0) print *, 'End of Gint'
@@ -529,7 +531,6 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
         if (i < k) then
             cint2 = -1.0d+00*cint2
         end if
-        ! il = l - ninact
 
         Do it = 1, nact
             Call dim1_density(it, l, dr, di)
@@ -538,8 +539,8 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
         End do                  ! it
 
     end do
+    close (twoint_unit)
 
-    close (1)
     if (rank == 0) print *, 'vGmat_ord_ty is ended'
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)

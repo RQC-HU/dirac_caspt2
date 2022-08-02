@@ -13,7 +13,7 @@
         character  :: datex*10, timex*8
 
 !        integer :: mdcint, nkr, idum, nmom, max1, max2, min1, min2
-        integer :: nkr, idum 
+        integer :: nkr, idum
         integer :: mdcint, nmom, max1, max2, min1, min2
 !        integer :: nz, type
         integer :: nz
@@ -25,8 +25,8 @@
         integer :: i, j, k, l
         integer :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint
 
-!        integer, allocatable :: indk(:), indl(:), kr(:) 
-        integer, allocatable :: indk(:), indl(:), kr(:) 
+!        integer, allocatable :: indk(:), indl(:), kr(:)
+        integer, allocatable :: indk(:), indl(:), kr(:)
 
 !        real*8, allocatable :: rklr(:), rkli(:)
         double precision, allocatable :: rklr(:), rkli(:)
@@ -34,7 +34,7 @@
         logical :: breit
 
 !Iwamuro modify
-        realonly = .false. 
+        realonly = .false.
 
         Allocate(kr(-nmo/2:nmo/2)); Call memplus(KIND(kr),SIZE(kr),1)
 
@@ -79,9 +79,9 @@
 ! Iwamuro modify
         open( mdcint, file=trim(filename),form ='unformatted', status='old', err=10)
 
-!old        Read (mdcint,err=20,end=30) datex,timex,nkr, & 
+!old        Read (mdcint,err=20,end=30) datex,timex,nkr, &
 !old        (idum,i0=1,4*nkr),(kr(i0),kr(-1*i0),i0=1,nkr)
-        Read (mdcint,err=20,end=30) datex,timex,nkr, & 
+        Read (mdcint,err=20,end=30) datex,timex,nkr, &
         (kr(i0),kr(-1*i0),i0=1,nkr)
 
         write(*,*) datex,timex
@@ -90,7 +90,7 @@
         read (mdcint,ERR=200,END=50) ikr,jkr,nz, &
                   (indk(inz),indl(inz),inz=1,nz), &
                   (rklr(inz),rkli(inz),inz=1,nz)
-    
+
         goto 201
 
  200     realonly = .true.
@@ -99,9 +99,9 @@
 
         open( mdcint, file=trim(filename),form ='unformatted', status='old', err=10)
 
-!old        Read (mdcint,err=20,end=30) datex,timex,nkr, & 
+!old        Read (mdcint,err=20,end=30) datex,timex,nkr, &
 !old        (idum,i0=1,4*nkr),(kr(i0),kr(-1*i0),i0=1,nkr)
-        Read (mdcint,err=20,end=30) datex,timex,nkr, & 
+        Read (mdcint,err=20,end=30) datex,timex,nkr, &
         (kr(i0),kr(-1*i0),i0=1,nkr)
 
         write(*,*) datex,timex
@@ -141,7 +141,7 @@
 !                  write(*,*) ikr,jkr,nz, &
 !                  (indk(inz),indl(inz),inz=1,nz), &
 !                  (rklr(inz),rkli(inz),inz=1,nz)
-                  
+
                   if (ikr==0) goto 50
 
                   totalint = totalint + nz
@@ -179,7 +179,7 @@
                      k = indmor(kr(kkr))
                      ktr =  indmor(kr(-kkr))
                      lkr = indl(inz)
-                     l =  indmor(kr(lkr)) 
+                     l =  indmor(kr(lkr))
                      ltr =  indmor(kr(-lkr))
 
 !                     write(*,'("all ints",4I4,E20.10)')i,j,k,l,rklr(inz)
@@ -405,12 +405,12 @@
 
 
                      elseif(max1==3 .and. min1==1 .and. max2==2 .and. min2==2) then ! (31|22)=>(31|22)
-!                        write(*,'(4I4,4E20.10)')ikr,jkr,kkr,lkr,         rklr(inz),         rkli(inz)   
+!                        write(*,'(4I4,4E20.10)')ikr,jkr,kkr,lkr,         rklr(inz),         rkli(inz)
 
                         if(i > j) then ! (31|22)=>(31|22)
 
                            write(4)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
-!                           write(*,'(4I4,4E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)   
+!                           write(*,'(4I4,4E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                         else    ! (13|22)=>(31|22)
 
@@ -421,7 +421,7 @@
 
                      elseif(max1==2 .and. min1==2 .and. max2==3 .and. min2==1) then ! (22|31)=>(31|22)
 
-!                        write(*,'(4I4,4E20.10)')ikr,jkr,kkr,lkr,         rklr(inz),         rkli(inz)   
+!                        write(*,'(4I4,4E20.10)')ikr,jkr,kkr,lkr,         rklr(inz),         rkli(inz)
 
                         if(k > l) then ! (22|31)=>(31|22)
 
@@ -571,7 +571,7 @@
                            write(7)ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
                            write(*,'("Gint5",4I4,2E20.10)')ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
 
-                        elseif(j > i .and. l > k ) then ! (23|13)=>(31|32) 
+                        elseif(j > i .and. l > k ) then ! (23|13)=>(31|32)
                            write(7)ltr,ktr,jtr,itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
                            write(*,'("Gint6",4I4,2E20.10)')ltr,ktr,jtr,itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
 
@@ -579,7 +579,7 @@
                            write(7)k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
                            write(*,'("Gint7",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
 
-                        elseif(i < j .and. k > l) then ! (23|31)=>(31|32) 
+                        elseif(i < j .and. k > l) then ! (23|31)=>(31|32)
                            write(7)k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
                            write(*,'("Gint8",4I4,2E20.10)')k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
 
@@ -595,7 +595,7 @@
                         if(i > j .and. k > l) then   ! (31|31) => (31|31)
 
                            write(8)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
-                           write(*,'("Hint1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)                         
+                           write(*,'("Hint1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 !                           write(*,*)i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
 
                         elseif(i < j .and. k > l) then ! (13|31) => (31|31)
@@ -623,7 +623,7 @@
 !                     if(abs(rkli(inz)) > thres) realc = .false.
 
  70               Enddo
-	
+
                   indk(:)=0
                   indl(:)=0
                   rklr = 0.0d+00
@@ -686,4 +686,3 @@
          deallocate (kr  ); Call memminus(KIND(kr  ),SIZE(kr  ),1)
 
          end subroutine readint2_ord
-

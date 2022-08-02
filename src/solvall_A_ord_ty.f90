@@ -543,6 +543,7 @@ SUBROUTINE vAmat_ord_ty(v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -557,7 +558,7 @@ SUBROUTINE vAmat_ord_ty(v)
     integer :: it, iu, iv, ii, ip
     integer :: jt, ju, jv, ji, jp
     integer :: i, j, k, l, dim(nsymrpa)
-    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat
+    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, twoint_unit
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer, allocatable :: ind2u(:, :), ind2v(:, :)
     integer :: datetmp0, datetmp1
@@ -590,6 +591,7 @@ SUBROUTINE vAmat_ord_ty(v)
     dens1 = 0.0d+00
     effh = 0.0d+00
     dim = 0
+    twoint_unit = default_unit
 
     Allocate (indt(nact**3, nsymrpa)); Call memplus(KIND(indt), SIZE(indt), 1)
     Allocate (indu(nact**3, nsymrpa)); Call memplus(KIND(indu), SIZE(indu), 1)
@@ -673,10 +675,10 @@ SUBROUTINE vAmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=a1int, status='old', form='unformatted')
+    call open_unformatted_file(unit=twoint_unit, file=a1int, status='old', optional_action='read')
     if (rank == 0) print *, 'open A1int'
     do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         ! Exit the loop if iostat is less than 0
         if (iostat < 0) then
             if (rank == 0) print *, 'End of A1int'
@@ -728,16 +730,15 @@ SUBROUTINE vAmat_ord_ty(v)
 
     end do
 
-    close (1)
+    close (twoint_unit)
 
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    open (1, file=a2int, status='old', form='unformatted') ! TYPE 2 integrals
-
+    call open_unformatted_file(unit=twoint_unit, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
     do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         ! Exit the loop if iostat is less than 0
         if (iostat < 0) then
             if (rank == 0) print *, 'End of A2int'
@@ -762,7 +763,7 @@ SUBROUTINE vAmat_ord_ty(v)
         end if
     end do
 
-    close (1)
+    close (twoint_unit)
     if (rank == 0) print *, 'reading A2int2 is over'
 
 #ifdef HAVE_MPI

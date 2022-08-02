@@ -29,7 +29,7 @@ SUBROUTINE e0aftertra_ty
 
     debug = .FALSE.
     thres = 1.0d-15
-    e0after_unit = 20
+    e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then
         call open_unformatted_file(unit=e0after_unit, file='e0after', status='new', optional_action='write')
@@ -359,6 +359,7 @@ SUBROUTINE e0aftertrac_ty
 
     debug = .FALSE.
     thres = 1.0d-15
+    e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         call open_unformatted_file(unit=e0after_unit,file='e0after',status='new',optional_action='write')

@@ -28,7 +28,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo
 
     thresd = 1.0d-15
-    unit = 20
+    unit = default_unit
     ini(1) = 1
     end(1) = ninact
     ini(2) = ninact + 1
@@ -280,6 +280,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
 
     thresd = 1.0d-15
+    unit = default_unit
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
@@ -577,6 +578,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
     thresd = 1.0d-15
+    unit = default_unit
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl

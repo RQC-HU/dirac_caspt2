@@ -5,13 +5,14 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
     character*50, intent(in) :: filename
 
     character  :: datex*10, timex*8
 
-    integer :: mdcint, nkr, nmom, max1, max2, min1, min2
+    integer :: mdcint_unit, nkr, nmom, max1, max2, min1, min2
     integer :: nz
     integer :: i0, i, j, k, l
     integer :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint
@@ -28,10 +29,10 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 !Iwamuro modify
 !        integer :: ikr, jkr, kkr, lkr
     !  Initialization of Unit numbers for subspace files
-    unit_a1 = 100; unit_a2 = 200; unit_b = 300
-    unit_c1 = 400; unit_c2 = 500; unit_c3 = 600
-    unit_d1 = 700; unit_d2 = 800; unit_d3 = 900
-    unit_e = 1000; unit_f = 1100; unit_g = 1200; unit_h = 1300
+    unit_a1 = default_unit; unit_a2 = default_unit; unit_b = default_unit
+    unit_c1 = default_unit; unit_c2 = default_unit; unit_c3 = default_unit
+    unit_d1 = default_unit; unit_d2 = default_unit; unit_d3 = default_unit
+    unit_e = default_unit; unit_f = default_unit; unit_g = default_unit; unit_h = default_unit
     a1_cnt = 0; a2_cnt = 0; b_cnt = 0; c1_cnt = 0; c2_cnt = 0; c3_cnt = 0
     d1_cnt = 0; d2_cnt = 0; d3_cnt = 0; e_cnt = 0; f_cnt = 0; g_cnt = 0; h_cnt = 0
     Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
@@ -52,33 +53,24 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     totalint = 0
 
-    open (unit_a1, file=a1int, form='unformatted', status='replace')
-    open (unit_a2, file=a2int, form='unformatted', status='replace')
-    open (unit_b, file=bint, form='unformatted', status='replace')
-    open (unit_c1, file=c1int, form='unformatted', status='replace')
-    open (unit_c2, file=c2int, form='unformatted', status='replace')
-    open (unit_c3, file=c3int, form='unformatted', status='replace')
-    open (unit_d1, file=d1int, form='unformatted', status='replace')
-    open (unit_d2, file=d2int, form='unformatted', status='replace')
-    open (unit_d3, file=d3int, form='unformatted', status='replace')
-    open (unit_e, file=eint, form='unformatted', status='replace')
-    open (unit_f, file=fint, form='unformatted', status='replace')
-    open (unit_g, file=gint, form='unformatted', status='replace')
-    open (unit_h, file=hint, form='unformatted', status='replace')
+    call open_unformatted_file(unit=unit_a1, file=a1int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_a2, file=a2int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_b, file=bint, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_c1, file=c1int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_c2, file=c2int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_c3, file=c3int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_d1, file=d1int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_d2, file=d2int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_d3, file=d3int, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_e, file=eint, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_f, file=fint, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_g, file=gint, status='replace', optional_action='write')
+    call open_unformatted_file(unit=unit_h, file=hint, status='replace', optional_action='write')
 
-    mdcint = 1500
+    mdcint_unit = default_unit
+    call open_unformatted_file(unit=mdcint_unit, file=trim(filename), status='old', optional_action='read')
 
-    open (mdcint, file=trim(filename), form='unformatted', status='old', iostat=iostat)
-
-    ! Check the status of the file
-    if (iostat /= 0) then
-        ! If iostat is not equal to 0, error detected in opening the file, so stop the program
-        print *, 'ERROR: Failed to open '//trim(filename)//" , rank:", rank
-        print *, 'Stop the program'
-        stop
-    end if
-
-    Read (mdcint, iostat=iostat) datex, timex, nkr, &
+    Read (mdcint_unit, iostat=iostat) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
     ! Check the status of the file
@@ -100,9 +92,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     ! Continue to read the file until the end of the file is reached
     do
-        read (mdcint, iostat=iostat) i, j, nz, &
-            (indk(inz), indl(inz), inz=1, nz), &
-            (rklr(inz), rkli(inz), inz=1, nz)
+        read (mdcint_unit, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
             if (rank == 0) print *, 'End of '//trim(filename)
@@ -891,12 +881,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
         end do ! Next inz
     end do ! Continue to read 2-integrals
 
-10  if (rank == 0) print *, 'error for opening mdcint 10'
-    go to 100
-
-100 continue
-
-    close (mdcint)
+    close (mdcint_unit)
     close (unit_a1)
     close (unit_a2)
     close (unit_b)

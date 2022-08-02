@@ -25,7 +25,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: mdcint_unit, mdcintnew_unit
     logical :: is_file_exist
 
-    mdcint_unit = 100; mdcintnew_unit = 200
+    mdcint_unit = default_unit; mdcintnew_unit = default_unit
     Call timing(date1, tsec1, date0, tsec0)
     date1 = date0
     tsec1 = tsec0
@@ -81,7 +81,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     ! First, All process write header information to MDCINTNEWrank
     call get_mdcint_filename(file_idx)
-    call open_unformatted_file(file=mdcintNew, unit=mdcintnew_unit, status="replace", optional_action="write")
+    call open_unformatted_file(unit=mdcintnew_unit, file=mdcintNew, status="replace", optional_action="write")
     write (mdcintnew_unit) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 
     is_file_exist = .true.
@@ -90,7 +90,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         inquire (file=mdcint_filename, exist=is_file_exist) ! mdcint_filename exists?
         if (.not. is_file_exist) exit ! Exit do while loop if mdcint_filename doesn't exist.
-        call open_unformatted_file(file=mdcint_filename, unit=mdcint_unit, status="old", optional_action="read")
+        call open_unformatted_file(unit=mdcint_unit, file=mdcint_filename, status="old", optional_action="read")
         read (mdcint_unit)
 
         read (mdcint_unit, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)

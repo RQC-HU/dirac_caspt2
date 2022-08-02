@@ -14,15 +14,15 @@ contains
         implicit none
         integer, intent(inout) :: file_unit_number
         logical :: opened
-        ! file_unit_number must be >= 20
-        if (file_unit_number < 20) then
-            file_unit_number = 20
+        ! file_unit_number must be >= 21
+        if (file_unit_number < 21) then
+            file_unit_number = 21
         end if
         ! Search for unused file unit
         do
-            file_unit_number = file_unit_number + 1
             inquire (file_unit_number, opened=opened)
             if (.not. opened) exit ! file_unit_number is unused, so we can use it
+            file_unit_number = file_unit_number + 1 ! Increment file_unit_number if the previous one is used
         end do
     end subroutine search_unused_file_unit
 

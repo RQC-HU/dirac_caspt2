@@ -22,7 +22,7 @@ SUBROUTINE fockdiag_ty
 
     if (rank == 0) print *, 'fockdiag start'
     REALF = .TRUE.
-    transfock_unit = 20
+    transfock_unit = default_unit
     Do i = 1, ninact + nact + nsec
         Do j = 1, ninact + nact + nsec
             If (ABS(DIMAG(f(i, j))) > 1.0d-12) then
