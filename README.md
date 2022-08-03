@@ -11,25 +11,29 @@
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
 - [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
-  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
-  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
   - [テストについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#テストについて)
+  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
+  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
+
+
 
 ## Requirements
 
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
 
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
-- [CMake](https://cmake.org/)(version>=3.7 が必要です)
+- [CMake](https://cmake.org/)(version ≧ 3.7 が必要です)
     - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
-  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
+  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります  
     \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
 
     ```sh
     echo $MKLROOT
     ```
-  - 現時点ではMKLのBlas,LapackではなくBlas及びLapack単体でビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります
+  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります  
+  - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
+  
     ビルド例
     ```sh
     mkdir build
@@ -39,12 +43,12 @@
     ```
 
 
-- [Python(version >= 3.6)](https://www.python.org/)
+- [Python(version ≧ 3.6)](https://www.python.org/)
   - テストを実行するために使用します
-  - Python (version >=3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
+  - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
 - [pytest](https://docs.pytest.org/)
   - テストを実行するために使用します
-  - python (version >= 3.6)をインストールしていれば以下のコマンドで入手できます
+  - python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
   ```sh
   python -m pip install pytest
   ```
@@ -60,7 +64,7 @@ FC=ifort cmake .. --clean-first
 make
 ```
 
-- CMake version >= 3.13 を使っているなら以下のようなコマンドでもビルドができます
+- CMake version ≧ 3.13 を使っているなら以下のようなコマンドでもビルドができます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -81,7 +85,7 @@ cmake --build build -j4 --clean-first
 ### ソフトウェアのテスト
 
 ビルド後はテストを行うことを推奨します  
-テストを行うには[Python(version >= 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です  
+テストを行うには[Python(version ≧ 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です  
 testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
 
 ```sh
@@ -277,7 +281,7 @@ ras3
 end
 ```
 
-各パラメータの意味と必須パラメータかどうかについては以下を参照してください
+各パラメータの意味と必須パラメータかどうかについては以下を参照してください(requiredとあるものは必須パラメータです
 
 ```in
 Input for CASCI and CASPT2
@@ -333,6 +337,56 @@ end         : The identifier at the end of active.inp (required)
 
 ## 開発者のかたへ
 
+### テストについて
+
+- 新機能作成時は[単体テスト](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)を書いて小さい機能単位で細かくテストするような開発スタイルをお勧めします。単体テストのやり方については[このプロジェクトの単体テストのディレクトリ](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main/test/unit_test)や[単体テストのチュートリアル的記事](https://qiita.com/5t111111/items/babb143562bae449150a)を参照したり、[単体テストについて検索](https://www.google.com/search?q=%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)して学ぶことをお勧めします
+
+- このプロジェクトでは、以下の手順でCASPT2エネルギーに一定以上の誤差があるかどうかをテストできます。誤差は10<sup>-8</sup> a.u.まで許しています
+  - 実行するにはpytestをpython -m pip install pytestにより導入する必要があります
+  - pytestを導入したら
+
+  ```sh
+  pytest
+  ```
+
+を実行すれば自動的にテストが開始されます  
+
+- mpiifortやmpif90,mpifortなどの並列コンパイラでかつビルド時に-DMPI=onオプションを有効にした場合、MPI並列用テストを行うことを推奨します。コマンドは以下の通りです
+
+  ```sh
+  pytest --parallel=4
+  ```
+  
+- また[Github Actions](https://github.co.jp/features/actions)を使うことで月50時間まではアップロード(push)された\*.f90,\*.F90,\*.cmake,CMakeLists.txt,\*.py,Github Actions用ファイルのいずれかが変更されたコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態をつくりました。([.github/workflows/ci.ymlにGithub Actions用設定があります](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/.github/workflows/ci.yml))
+- CASPT2エネルギーのテストは複数の分子系で、できるだけ違うタイプのインプットを用いて、最初に基準と定めたアウトプットから**自動的に**(ここがテスト自動化の良い点です)判定する形式にしています
+  - このテストはいわゆる[統合試験](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E7%B5%B1%E5%90%88%E8%A9%A6%E9%A8%93_(Integration_Testing))です
+- ツールはFortranのテストツールは機能が貧弱なので、pythonのpytestを用いました
+  - DIRACもpythonを用いてテストを書いています
+  - python側からビルドしたプログラムを実行し、アウトプットをリファレンス値と比較することで自動テストを実現します([testディレクトリ以下のpythonファイルを参照](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main/test)してください)
+
+### ビルドについて
+
+- ビルドには[CMake](https://cmake.org/)を用います
+  - デフォルトのビルドの設定や、ビルドオプションの書き分け処理などは[このプロジェクトのルートディレクトリのCMakeLists.txt](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/CMakeLists.txt)に書きます
+  - 設定を追加したい場合は[公式ドキュメント](https://cmake.org/cmake/help/v3.7/)が正確でかなりわかりやすいので、"cmake やりたいこと"で検索してオプション名を見つけてから公式ドキュメントをみて追加することをお勧めします
+  
+- ビルドオプションを変えるときは前のビルドを行ったディレクトリをディレクトリごと消してからビルドしてください
+  
+  例えば以下のようにするとビルドオプションを再指定してからビルドされます
+
+  ```sh
+  # Remove dir
+  rm -r build
+  # Reconfigure and rebuild and run test
+  FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build && pytest --parallel=4 
+  ```
+  
+- ビルドオプションは変えないもののビルド自体は最初からやり直したい場合は --clean-first オプションをつけると最初からビルドをやり直せます
+
+  ```sh
+  cmake --build build --clean-first
+  ```
+
 ### 環境構築について
 
 #### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmake、gitおよびDIRAC(19.0,21.1,22.0)の環境を用意しています
@@ -359,6 +413,7 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
 
 - \$HOME/.bashrcにmodule use --append "/home/noda/modulefiles"を記述します
 - module load DIRAC/19.0 などと入力するとpam-diracコマンドが使えるようになります
+  - loadできるソフト一覧はmodule availで確認できます
   - DIRACのmoduleはDIRACを使うときだけ一時的にmodule loadすることをお勧めします
   - 従ってDIRACを実行する際は実行用のシェルスクリプト内でmodule loadすることを推奨します
 
@@ -375,43 +430,4 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\
   $PAM --mpi=$NPROCS --get="MRCONEE MDCIN*" '--keep_scratch' --mol=${MOLFILE} --inp=${INPFILE} --noarch &> $LOGFILE
   ```
 
-- 一旦モジュールの読み込みを解除したいときは module unload 解除したいモジュールの名前 を実行します
-
-### ビルドについて
-
-- デバッグ、リファクタリング時のビルドについて、何かおかしいと思ったら--clean-first オプションを用いて前のビルド結果を消してから再ビルドすることができます
-
-  ```sh
-  cmake --build build --clean-first
-  ```
-
-- ビルドには[CMake](https://cmake.org/)を用います
-  - ビルドの設定はCMakeLists.txtに書きます
-  - 設定を追加したい場合は[公式ドキュメント](https://cmake.org/cmake/help/v3.7/)が正確でかなりわかりやすいので、"cmake やりたいこと"で検索してオプション名を見つけてから公式ドキュメントをみて追加することをお勧めします
-
-### テストについて
-
-- テストを追加しました!まずはH2分子,STO-3G基底のみ追加しています。CASPT2エネルギーの誤差は10^-8まで許しています
-  - 実行するにはpytestをpython -m pip install pytestにより導入する必要があります
-  - pytestを導したら
-
-  ```sh
-  pytest
-  ```
-
-を実行すれば自動的にテストが開始されます  
-またmpiifortやmpif90,mpifortなどの並列コンパイラでかつビルド時に-DMPI=onオプションを有効にした場合、MPI並列用テストを以下のコマンドで行うことを推奨します
-
-  ```sh
-  pytest --parallel=4
-  ```
-
-  - また[github actions](https://github.co.jp/features/actions )を使うことで月50時間まではアップロード(push)されたすべてのコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態をつくりました。
-
-- 本来は[単体テスト](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)を用いてプログラムの部品レベルでテストを書くべきですが、本プログラムはテストを前提として書かれておらず[密結合](https://e-words.jp/w/%E5%AF%86%E7%B5%90%E5%90%88.html)のため[単体テストが書きづらい](https://qiita.com/yutachaos/items/857472c7d3c65d3cf316#%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88-1)です
-- 当面は複数の分子系で、できるだけ違うタイプのインプットを用いて、最初に基準と定めたアウトプットから**自動的に**(ここがテストの良い点です)判定する形式にする予定です
-  - 例えばCASPT2 energyが一定以上ずれていないかを判定するようにします
-  - いわゆる[統合試験](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E7%B5%B1%E5%90%88%E8%A9%A6%E9%A8%93_(Integration_Testing))のみを行います
-- ツールはFortranのテストツールは機能が貧弱なので、pythonのpytestを用いました
-  - DIRACもpythonを用いてテストを書いています
-  - python側からビルドしたプログラムを実行し、アウトプットをリファレンス値と比較することで自動テストを実現します
+- モジュールの読み込みを解除したいときは module unload 解除したいモジュールの名前 を実行します
