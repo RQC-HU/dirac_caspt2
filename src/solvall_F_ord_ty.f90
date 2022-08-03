@@ -511,6 +511,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -524,8 +525,8 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
 
-    integer :: i, j, k, l, tab, ip, iq
-    integer :: it, jt, ju, iu, iostat
+    integer :: i, j, k, l, tab
+    integer :: it, iu, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -534,12 +535,13 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
     v = 0.0d+00
+    twoint_unit = default_unit
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
-    open (1, file=fint, status='old', form='unformatted')  !  (32|32) stored  a > b
+    call open_unformatted_file(unit=twoint_unit, file=fint, status='old', optional_action='read')  !  (32|32) stored  a > b
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
             if (rank == 0) print *, 'End of Eint'
@@ -551,8 +553,6 @@ SUBROUTINE vFmat_ord(nab, iab, v)
         if (i <= k) cycle ! Read the next line if i is less than or equal to k
 
         tab = iab(i, k)
-        ! ip = j - ninact
-        ! iq = l - ninact
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
@@ -571,11 +571,10 @@ SUBROUTINE vFmat_ord(nab, iab, v)
             dens = DCMPLX(dr, di)
             v(tab, it, j) = v(tab, it, j) - cint2*dens
 
-        End do                  ! ip
+        End do                  ! it
         !$OMP end parallel do
     end do
-
-    close (1)
+    close (twoint_unit)
 
     if (rank == 0) print *, 'vFmat_ord is ended'
 

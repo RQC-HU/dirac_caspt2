@@ -571,6 +571,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -582,13 +583,14 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
     integer :: i, j, k, l, tij
-    integer :: it, jt, ju, iu, iostat
+    integer :: it, iu, iostat, twoint_unit
 
     v = 0.0d+00
+    twoint_unit = default_unit
 
-    open (1, file=bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+    call open_unformatted_file(unit=twoint_unit, file=bint, status='old', optional_action='read') !  (21|21) stored (ti|uj) i > j
     do
-        read (1, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
 
         ! Exit the loop if iostat is less than 0
         if (iostat < 0) then
@@ -626,7 +628,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
         ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
         !                             ===========================      ================
         !                                loop for t                     loop for u(variable u is renamed to t)
-        !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu,ju)
+        !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu)
         Do it = 1, nact
 
             Call dim1_density(k, it, dr, di)
@@ -643,7 +645,6 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
             !                              loop for t and u
 
             Do iu = 1, it - 1
-                ju = iu + ninact
                 Call dim2_density(i, it, k, iu, dr, di)
                 dens = DCMPLX(dr, di)
                 v(tij, it, iu) = v(tij, it, iu) + cint2*dens
@@ -653,7 +654,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
         !$OMP end parallel do
     end do
 
-    close (1)
+    close (twoint_unit)
     if (rank == 0) print *, 'vBmat_ord_ty is ended'
 
 #ifdef HAVE_MPI

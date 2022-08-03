@@ -1,14 +1,16 @@
 program main
+    use module_file_manager
     use read_input_module
     implicit none
     character(100) :: input
     character(:), allocatable :: string
-    open (5, file='input', form='formatted')
-    read (5, '(a)') input
+    integer :: new_unit = 20
+    call open_formatted_file(unit=new_unit, file="input", status='old', optional_action='read')
+    read (new_unit, '(a)') input
     string = trim(input)
-    close (5)
+    close (new_unit)
     call uppercase(string)
-    open (2, file='result.out', form="formatted")
-    write (2, *) string
-    close (2)
+    call open_formatted_file(unit=new_unit, file="result.out", status='old', optional_action='write')
+    write (new_unit, *) string
+    close (new_unit)
 end program main

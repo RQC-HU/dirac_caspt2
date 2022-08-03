@@ -18,6 +18,7 @@ add_executable(r4dcascicoexe
 	four_caspt2_module.f90
 	get_filename.f90
 	mem.f90
+	module_file_manager.f90
 	module_sort_swap.f90
 	one_e_exct.f90
 	prtoutfock.f90
@@ -46,6 +47,7 @@ add_executable(r4dcaspt2ocoexe
 	get_filename.f90
 	intra.f90
 	mem.f90
+	module_file_manager.f90
 	module_sort_swap.f90
 	one_e_exct.f90
 	r4dcaspt2_tra_co.f90

@@ -7,6 +7,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -15,7 +16,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     real*8, intent(in) :: e0
     real*8, intent(out):: e2h
     Integer                :: ia, ib, ii, ij, syma, symb, i, j, k, l
-    Integer                :: i0, j0, tab, nab, tij, nij, iostat
+    Integer                :: i0, j0, tab, nab, tij, nij, iostat, twoint_unit
     Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
     Complex*16             :: cint2
     Complex*16, allocatable :: v(:, :)
@@ -44,6 +45,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 
     e2h = 0.0d+00
     e = 0.0d+00
+    twoint_unit = default_unit
 
     i0 = 0
     Do ia = ninact + nact + 1, ninact + nact + nsec
@@ -97,9 +99,9 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     Allocate (v(nab, nij))
     v = 0.0d+00
 
-    open (1, file=hint, status='old', form='unformatted')
+    call open_unformatted_file(unit=twoint_unit, file=hint, status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
             if (rank == 0) print *, 'End of Hint'
@@ -128,8 +130,8 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
         end if
 
     end do
+    close (twoint_unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif

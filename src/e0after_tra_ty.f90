@@ -6,12 +6,14 @@ SUBROUTINE e0aftertra_ty
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
 
     integer :: ii, jj, kk, ll
     integer :: j, i, k, l
+    integer :: e0after_unit
 
     real*8 :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
@@ -27,9 +29,10 @@ SUBROUTINE e0aftertra_ty
 
     debug = .FALSE.
     thres = 1.0d-15
+    e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then
-        open (5, file='e0after', status='unknown', form='unformatted')
+        call open_unformatted_file(unit=e0after_unit, file='e0after', status='new', optional_action='write')
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
         print *, 'iroot = ', iroot
@@ -240,7 +243,7 @@ SUBROUTINE e0aftertra_ty
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
                         ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
-                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens)
+                        if (iroot == 1 .and. rank == 0) write (e0after_unit) i, j, k, l, DBLE(cmplxint), DBLE(dens)
 
                         energy(iroot, 4) = energy(iroot, 4) &
                                            + (0.5d+00)*dens*cmplxint
@@ -318,7 +321,7 @@ SUBROUTINE e0aftertra_ty
 
 !!###   end do ! about type
     if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        close (5)
+        close (e0after_unit)
     end if
 1000 continue
     deallocate (energy)
@@ -333,6 +336,7 @@ SUBROUTINE e0aftertrac_ty
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
@@ -341,6 +345,7 @@ SUBROUTINE e0aftertrac_ty
 #endif
     integer :: ii, jj, kk, ll
     integer :: j, i, k, l
+    integer :: e0after_unit
 
     real*8 :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
@@ -354,9 +359,10 @@ SUBROUTINE e0aftertrac_ty
 
     debug = .FALSE.
     thres = 1.0d-15
+    e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        open (5, file='e0after', status='unknown', form='unformatted')
+        call open_unformatted_file(unit=e0after_unit,file='e0after',status='new',optional_action='write')
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
         print *, 'iroot = ', iroot
     end if
@@ -597,7 +603,7 @@ SUBROUTINE e0aftertrac_ty
                         dens = CMPLX(dr, di, 16)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+                        if (iroot == 1 .and. rank == 0) write (e0after_unit) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
 
                         energy(iroot, 4) = energy(iroot, 4) &
                                            + (0.5d+00)*dens*cmplxint
@@ -686,7 +692,7 @@ SUBROUTINE e0aftertrac_ty
     end if
 !!###   end do ! about type
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        close (5)
+        close (e0after_unit)
     end if
 1000 continue
     deallocate (energy)

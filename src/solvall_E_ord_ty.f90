@@ -487,6 +487,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -501,7 +502,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, taij
-    integer :: it, jt, ik, iostat
+    integer :: it, ik, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -510,12 +511,13 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
     v = 0.0d+00
+    twoint_unit = default_unit
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
-    open (1, file=eint, status='old', form='unformatted')  !  (31|21) stored
+    call open_unformatted_file(unit=twoint_unit, file=eint, status='old', optional_action='read') !  (31|21) stored
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
         ! Exit the loop if the end of the file is reached
         if (iostat < 0) then
             if (rank == 0) print *, 'End of Eint'
@@ -570,8 +572,8 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 !           v(taij,jt) = v(taij, jt) + cint2*dens
 !        End do                  ! it
     end do
+    close (twoint_unit)
 
-    close (1)
     if (rank == 0) print *, 'vEmat_ord_ty is ended'
 
 #ifdef HAVE_MPI
