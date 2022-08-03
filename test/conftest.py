@@ -15,6 +15,7 @@ def pytest_addoption(parser):
         help="run tests in parallel processes",
     )
 
+
 @pytest.fixture
 def the_number_of_process(request):
     return request.config.getoption("--parallel")
