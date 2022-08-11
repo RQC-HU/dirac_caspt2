@@ -505,6 +505,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     integer :: it, ik, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 
     if (rank == 0) print *, 'Enter vEmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
@@ -518,13 +519,9 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     call open_unformatted_file(unit=twoint_unit, file=eint, status='old', optional_action='read') !  (31|21) stored
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of Eint'
+        call check_iostat(iostat=iostat, file=eint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Eint'
         end if
 
         if (j == l) cycle ! Read the next 2-integral if j equal to l
@@ -538,13 +535,13 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
         v(taij, k) = v(taij, k) - cint2
 
-    !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
-    Do it = 1, nact
-        Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
-        dens = DCMPLX(dr, di)
-        v(taij, it) = v(taij, it) + cint2*dens
-    End do                  ! it
-    !$OMP end parallel do
+        !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
+        Do it = 1, nact
+            Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
+            dens = DCMPLX(dr, di)
+            v(taij, it) = v(taij, it) + cint2*dens
+        End do                  ! it
+        !$OMP end parallel do
 
         if (j < l) then
             cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!

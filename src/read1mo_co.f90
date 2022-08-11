@@ -5,11 +5,13 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 
     integer :: mrconee, isp, nmom, iostat
     character*50, intent(in) :: filename
+    logical :: is_end_of_file
     integer :: j0, i0
     double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
@@ -23,14 +25,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     Allocate (roner(nmo, nmo, scfru)); Call memplus(KIND(roner), SIZE(roner), 1)
     Allocate (ronei(nmo, nmo, scfru)); Call memplus(KIND(ronei), SIZE(ronei), 1)
 
-    open (mrconee, file=trim(filename), status='old', form='unformatted', iostat=iostat)
-
-    ! File status check
-    if (iostat /= 0) then
-        print *, 'ERROR: Error opening ', trim(filename), ', rank = ', rank
-        print *, "Stop the program"
-        stop
-    end if
+    call open_unformatted_file(unit=mrconee, file=trim(filename), status="old", optional_action="read")
 
     rewind (mrconee)
     read (mrconee, iostat=iostat)
@@ -40,16 +35,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     read (mrconee, iostat=iostat)
     read (mrconee, iostat=iostat) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
 
-    ! File status check
-    if (iostat < 0) then
-        print *, 'WARNING: End of file detected in ', trim(filename), ', rank = ', rank
-        print *, "Continue the program, but we don't set oner,onei"
-        return
-    else if (iostat > 0) then
-        print *, 'ERROR: Error reading ', trim(filename), ', rank = ', rank
-        print *, "Stop the program"
-        stop
-    end if
+    call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
 
 ! Reverse the sign of ronei if DIRAC version is larger or equal to 21.
     if (dirac_version >= 21) then

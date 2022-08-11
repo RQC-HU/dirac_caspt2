@@ -15,12 +15,13 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 #endif
     real*8, intent(in) :: e0
     real*8, intent(out):: e2h
-    Integer                :: ia, ib, ii, ij, syma, symb, i, j, k, l
-    Integer                :: i0, j0, tab, nab, tij, nij, iostat, twoint_unit
+    Integer                 :: ia, ib, ii, ij, syma, symb, i, j, k, l
+    Integer                 :: i0, j0, tab, nab, tij, nij, iostat, twoint_unit
     Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
-    Complex*16             :: cint2
+    Complex*16              :: cint2
     Complex*16, allocatable :: v(:, :)
-    Real*8                 :: e
+    Real*8                  :: e
+    logical                 :: is_end_of_file
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -102,13 +103,9 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     call open_unformatted_file(unit=twoint_unit, file=hint, status='old', optional_action='read')
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of Hint'
+        call check_iostat(iostat=iostat, file=hint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Hint'
         end if
         if (i <= k .or. j == l) cycle ! Read the next line if i <= k or j == l
 

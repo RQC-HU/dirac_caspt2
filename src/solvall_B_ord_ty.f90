@@ -584,6 +584,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     complex*16              :: cint2, dens
     integer :: i, j, k, l, tij
     integer :: it, iu, iostat, twoint_unit
+    logical :: is_end_of_file
 
     v = 0.0d+00
     twoint_unit = default_unit
@@ -591,16 +592,9 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     call open_unformatted_file(unit=twoint_unit, file=bint, status='old', optional_action='read') !  (21|21) stored (ti|uj) i > j
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
-
-        ! Exit the loop if iostat is less than 0
-        if (iostat < 0) then
-            if (rank == 0) then
-                print *, 'End of B1int'
-            end if
+        call check_iostat(iostat=iostat, file=bint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Bint'
         end if
 
         if (j <= l) cycle ! Read the next line if j <= l

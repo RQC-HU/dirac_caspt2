@@ -504,6 +504,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     integer :: it, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 
     if (rank == 0) print *, 'Enter vGmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
@@ -516,13 +517,9 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     call open_unformatted_file(unit=twoint_unit, file=gint, status='old', optional_action='read') !  (31|32) stored
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of Gint'
+        call check_iostat(iostat=iostat, file=gint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Gint'
         end if
         if (i == k) cycle ! Go to the next line if i == k
 

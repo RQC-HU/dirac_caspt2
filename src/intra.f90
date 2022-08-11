@@ -15,6 +15,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 #endif
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
+    logical :: is_end_of_file
 
     integer                 :: unit
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
@@ -78,14 +79,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(l)
@@ -129,14 +125,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(k)
 
@@ -170,14 +161,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the third index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(j)
 
@@ -211,14 +197,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the fourth index integral transformation  '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(i)
 
@@ -266,6 +247,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 #endif
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
+    logical :: is_end_of_file
 
     integer                 :: unit = 20
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
@@ -333,14 +315,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(l)
 
@@ -423,14 +400,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     do
 
         read (unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(k)
@@ -465,14 +437,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the third index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(j)
@@ -507,15 +474,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the fourth index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(i)
@@ -563,6 +524,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 #endif
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
+    logical :: is_end_of_file
 
     integer                 :: unit = 20
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
@@ -633,15 +595,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         ! save initial indices i,j,k,l to initial_i,initial_j,initial_k,initial_l, respectively.
@@ -716,15 +672,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpamo(k)
@@ -759,15 +709,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of third index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpamo(j)
@@ -802,15 +746,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
         read (unit, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the fourth index integral transformation '//trim(fname)
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpamo(i)

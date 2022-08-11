@@ -10,6 +10,24 @@ module module_file_manager
     implicit none
 
 contains
+
+    subroutine check_iostat(iostat, file, end_of_file_reached)
+        implicit none
+        integer, intent(in) :: iostat
+        character(len=*), intent(in) :: file
+        logical, intent(out) :: end_of_file_reached
+        if (iostat == 0) then
+            end_of_file_reached = .false.
+        else if (iostat < 0) then
+            print *, "END OF FILE: ", file
+            end_of_file_reached = .true.
+        else
+            print *, "ERROR: Error occured while reading a file. file: ", file, " iostat: ", iostat
+            print *, "EXIT PROGRAM"
+            stop
+        end if
+    end subroutine check_iostat
+
     subroutine search_unused_file_unit(file_unit_number)
         implicit none
         integer, intent(inout) :: file_unit_number

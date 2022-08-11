@@ -554,6 +554,7 @@ SUBROUTINE vAmat_ord_ty(v)
     real*8                  :: dr, di
     complex*16              :: cint2, d, dens1(nact, nact), effh(nact, ninact)
     complex*16              :: cint1
+    logical                 :: is_end_of_file
 
     integer :: it, iu, iv, ii, ip
     integer :: jt, ju, jv, ji, jp
@@ -679,13 +680,9 @@ SUBROUTINE vAmat_ord_ty(v)
     if (rank == 0) print *, 'open A1int'
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if iostat is less than 0
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of A1int'
+        call check_iostat(iostat=iostat, file=a1int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading A1int'
         end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -739,13 +736,9 @@ SUBROUTINE vAmat_ord_ty(v)
     call open_unformatted_file(unit=twoint_unit, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if iostat is less than 0
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of A2int'
+        call check_iostat(iostat=iostat, file=a2int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading A2int'
         end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  effh(p,i) = h(pi)+ SIGUMA_k:inact{(pi|kk)-(pk|ki)}
