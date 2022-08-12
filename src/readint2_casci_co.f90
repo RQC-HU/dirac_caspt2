@@ -94,6 +94,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
             call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
             if (is_end_of_file) then
                 continue_read = .false.
+                exit
             end if
         end do
 
