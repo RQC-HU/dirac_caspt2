@@ -205,11 +205,8 @@ contains
 
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
-            if (rank == 0) then
-                print *, "string:", string
-                print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program."
-            end if
-            stop ! ERROR, STOP THE PROGRAM
+            print *, "ERROR: string:", string, " rank:", rank
+            call write_error_and_stop_ras_read
         end if
         allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
