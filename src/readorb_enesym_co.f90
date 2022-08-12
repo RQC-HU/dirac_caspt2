@@ -14,7 +14,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     integer :: i0, j0, k0, i, j, m, isym, jsym, ksym, iostat
     integer, allocatable :: dammo(:), UTCHEMIMO1(:, :), UTCHEMIMO2(:, :)
     integer, allocatable :: SD(:, :), DS(:, :)
-    logical :: breit
+    logical :: breit, is_end_of_file
 
 !  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
 !                     BREIT,ETOTAL,scfru
@@ -29,12 +29,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     call open_unformatted_file(unit=mrconee_unit, file=trim(filename), status='old', optional_action='read')
 
     Read (mrconee_unit, iostat=iostat) NMO, BREIT, ECORE  ! NMO is nbas - ncore
-
-    if (iostat /= 0) then
-        print *, 'Error in reading NMO, BREIT, ECORE'
+    call check_iostat(iostat=iostat,file=trim(filename),end_of_file_reached=is_end_of_file)
+    if (is_end_of_file) then
+        print *, 'Error: error in reading NMO, BREIT, ECORE (end of file reached)'
         print *, 'iostat = ', iostat
         stop
-    endif
+    end if
+
 
     if (rank == 0) then
         print *, 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
@@ -53,11 +54,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     Call memplus(size(UTCHEMIMO2), kind(UTCHEMIMO2), 1)
 
     Read (mrconee_unit, iostat=iostat) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
-    if (iostat /= 0) then
-        print *, 'Error in reading NSYMRP, REPN'
+    call check_iostat(iostat=iostat,file=trim(filename),end_of_file_reached=is_end_of_file)
+    if (is_end_of_file) then
+        print *, 'Error: error in reading NSYMRP, REPN (end of file reached)'
         print *, 'iostat = ', iostat
         stop
-    endif
+    end if
+
 
     if (rank == 0) then
         print *, ' NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars'
@@ -65,11 +68,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 !Iwamuro modify
     Read (mrconee_unit, iostat=iostat) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
-    if (iostat /= 0) then
-        print *, 'Error in reading nsymrpa, repna'
+    call check_iostat(iostat=iostat,file=trim(filename),end_of_file_reached=is_end_of_file)
+    if (is_end_of_file) then
+        print *, 'Error: error in reading nsymrpa, repna (end of file reached)'
         print *, 'iostat = ', iostat
         stop
-    endif
+    end if
+
     if (rank == 0) then
         print *, nsymrpa, (repna(i0), i0=1, nsymrpa*2)
     end if
@@ -99,11 +104,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 !                         IMO=1,NMO),isp=1,scfru)                                ! orbital energies <= used here
 
     Read (mrconee_unit, iostat=iostat) ((multb(i0, j0), i0=1, 2*nsymrpa), j0=1, 2*nsymrpa)
-    if (iostat /= 0) then
-        print *, 'Error in reading multb'
+    call check_iostat(iostat=iostat,file=trim(filename),end_of_file_reached=is_end_of_file)
+    if (is_end_of_file) then
+        print *, 'Error: error in reading multb (end of file reached)'
         print *, 'iostat = ', iostat
         stop
-    endif
+    end if
+
 
 !    Read(mrconee_unit) (IRPMO(IMO),ORBMO(IMO),IMO=1,NMO)                             ! orbital energies <= used here
 !Iwamuro modify
