@@ -75,7 +75,6 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
         dimm = dimn
     end if
 
-1000 continue
 end subroutine rdiag
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

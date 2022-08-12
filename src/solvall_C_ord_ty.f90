@@ -587,7 +587,6 @@ SUBROUTINE vCmat_ord_ty(v)
                     ju = iu + ninact
 
                     !     EatEuv|0>
-                    !                    if((it == iv).and.(iu/=iv)) goto 100
 
                     syma = MULTB_D(irpmo(ju), irpmo(jv))
                     symb = MULTB_D(isym, irpmo(jt))

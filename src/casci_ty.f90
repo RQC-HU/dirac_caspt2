@@ -160,4 +160,4 @@ FUNCTION comb(n, m) RESULT(res)
     End do
 
     res = j
-1000 end function comb
+end function comb

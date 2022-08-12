@@ -162,7 +162,7 @@ SUBROUTINE e0aftertra_ty
 
                 oneeff = oneeff - cmplxint
 
-300         end do           ! k
+            end do           ! k
 
             Call tramo1_ty(i, j, cmplxint)
 
@@ -277,7 +277,7 @@ SUBROUTINE e0aftertra_ty
 
                     end if
 
-100             end do        ! l
+                end do        ! l
             end do    ! k
         end do       ! j
     end do          ! i
@@ -323,7 +323,6 @@ SUBROUTINE e0aftertra_ty
     if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         close (e0after_unit)
     end if
-1000 continue
     deallocate (energy)
     print *, 'e0aftertra end'
 End subroutine e0aftertra_ty
@@ -522,7 +521,7 @@ SUBROUTINE e0aftertrac_ty
 
                 oneeff = oneeff - cmplxint
 
-300         end do           ! k
+            end do           ! k
 
             Call tramo1_ty(i, j, cmplxint)
 
@@ -637,7 +636,7 @@ SUBROUTINE e0aftertrac_ty
 
                     end if
 
-100             end do        ! l
+                end do        ! l
             end do    ! k
         end do       ! j
     end do          ! i
@@ -694,9 +693,6 @@ SUBROUTINE e0aftertrac_ty
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         close (e0after_unit)
     end if
-1000 continue
     deallocate (energy)
-!      print *,'e0aftertrac end'
-! Iwamuro modify
     if (rank == 0) print *, 'e0aftertrac_ty end'
 End subroutine e0aftertrac_ty
