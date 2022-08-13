@@ -10,6 +10,24 @@ module module_file_manager
     implicit none
 
 contains
+
+    subroutine check_iostat(iostat, file, end_of_file_reached)
+        implicit none
+        integer, intent(in) :: iostat
+        character(len=*), intent(in) :: file
+        logical, intent(out) :: end_of_file_reached
+        if (iostat == 0) then
+            end_of_file_reached = .false.
+        else if (iostat < 0) then
+            print *, "END OF FILE: ", file
+            end_of_file_reached = .true.
+        else
+            print *, "ERROR: Error occured while reading a file. file: ", file, " iostat: ", iostat
+            print *, "EXIT PROGRAM"
+            stop
+        end if
+    end subroutine check_iostat
+
     subroutine search_unused_file_unit(file_unit_number)
         implicit none
         integer, intent(inout) :: file_unit_number
@@ -42,7 +60,7 @@ contains
         character(:), allocatable :: file_status
         integer :: iostat
         call search_unused_file_unit(unit)
-        file_status = trim(status)
+        allocate(file_status,source = trim(status))
         call lowercase(file_status)
         if (file_status /= 'old' .and. file_status /= 'new' .and. file_status /= 'replace') then
             print *, 'ERROR: file_status must be old, new or replace. file_status = ', file_status
@@ -52,6 +70,16 @@ contains
         open (unit, form=form, file=file, status=status, iostat=iostat, action=action)
         call check_file_open(file, iostat, unit)
     end subroutine open_file
+    subroutine check_action_type(action, file)
+        implicit none
+        character(len=*), intent(in) :: action, file
+        if (action /= 'read' .and. action /= 'write' .and. action /= 'readwrite') then
+            print *, 'ERROR: action must be read, write or readwrite. action = ', action
+            print *, 'FILE NAME: ', file
+            print *, 'Exiting...'
+            stop
+        end if
+    end subroutine check_action_type
 
     subroutine open_unformatted_file(unit, file, status, optional_action)
         implicit none
@@ -61,19 +89,14 @@ contains
         character(:), allocatable :: actual_action, trimmed_action, form
 
         if (present(optional_action)) then
-            trimmed_action = trim(optional_action)
+            allocate (trimmed_action, source=trim(optional_action))
             call lowercase(trimmed_action)
-            if (trimmed_action /= 'read' .and. trimmed_action /= 'write' .and. trimmed_action /= 'readwrite') then
-                print *, 'ERROR: trimmed_action must be read, write or readwrite. trimmed_action = ', trimmed_action
-                print *, 'FILE NAME: ', file
-                print *, 'Exiting...'
-                stop
-            end if
-            actual_action = trimmed_action
+            call check_action_type(action=trimmed_action, file=file)
+            allocate (actual_action, source=trimmed_action)
         else
-            actual_action = 'readwrite'
+            allocate (actual_action, source='readwrite')
         end if
-        form = 'unformatted'
+        allocate (form, source='unformatted')
         call open_file(unit=unit, form=form, file=file, status=status, action=actual_action)
     end subroutine open_unformatted_file
 
@@ -85,19 +108,14 @@ contains
         character(:), allocatable :: form, actual_action, trimmed_action
 
         if (present(optional_action)) then
-            trimmed_action = trim(optional_action)
+            allocate (trimmed_action, source=trim(optional_action))
             call lowercase(trimmed_action)
-            if (trimmed_action /= 'read' .and. trimmed_action /= 'write' .and. trimmed_action /= 'readwrite') then
-                print *, 'ERROR: trimmed_action must be read, write or readwrite. trimmed_action = ', trimmed_action
-                print *, 'FILE NAME: ', file
-                print *, 'Exiting...'
-                stop
-            end if
-            actual_action = trimmed_action
+            call check_action_type(action=trimmed_action, file=file)
+            allocate (actual_action, source=trimmed_action)
         else
-            actual_action = 'readwrite'
+            allocate (actual_action, source='readwrite')
         end if
-        form = 'formatted'
+        allocate (form, source='formatted')
         call open_file(unit=unit, form=form, file=file, status=status, action=actual_action)
     end subroutine open_formatted_file
 end module module_file_manager

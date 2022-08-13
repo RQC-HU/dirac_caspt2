@@ -534,6 +534,7 @@ SUBROUTINE vCmat_ord_ty(v)
     integer :: i0, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 !  V(a,t,u,v)   = Siguma_p [h'ap - Siguma_w(aw|wp)]<0|EvuEtp|0> + Siguma_pqr<0|EvuEtrEpq|0>(ar|pq)
 !
@@ -586,7 +587,6 @@ SUBROUTINE vCmat_ord_ty(v)
                     ju = iu + ninact
 
                     !     EatEuv|0>
-                    !                    if((it == iv).and.(iu/=iv)) goto 100
 
                     syma = MULTB_D(irpmo(ju), irpmo(jv))
                     symb = MULTB_D(isym, irpmo(jt))
@@ -624,13 +624,9 @@ SUBROUTINE vCmat_ord_ty(v)
     call open_unformatted_file(unit=twoint_unit, file=c1int, status='old', optional_action='read')
     do ! Read TYPE 1 integrals C1int until EOF
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit loop if the iostat is less than 0  (End of File)
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of C1int'
+        call check_iostat(iostat=iostat, file=c1int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! Stop the program if the iostat is greater than 0
-            stop 'Error: Error in reading C1int'
         end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! + Siguma_pqr<0|EvuEtrEpq|0>(ar|pq)
@@ -666,15 +662,9 @@ SUBROUTINE vCmat_ord_ty(v)
     call open_unformatted_file(unit=twoint_unit, file=c2int, status='old', optional_action='read')
     do ! Read TYPE 2 integrals C2int until EOF
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2
-        ! Exit loop if the iostat is less than 0  (End of File)
-        if (iostat < 0) then
-            if (rank == 0) then
-                print *, 'End of C2int'
-            end if
+        call check_iostat(iostat=iostat, file=c2int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! Stop the program if the iostat is greater than 0
-            stop 'Error: Error in reading C2int'
         end if
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -698,15 +688,9 @@ SUBROUTINE vCmat_ord_ty(v)
     call open_unformatted_file(unit=twoint_unit, file=c3int, status='old', optional_action='read') ! TYPE 3 integrals
     do ! Read TYPE 3 integrals C3int until EOF
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl):=> (ak|kp)
-        ! Exit loop if the iostat is less than 0 (End of File)
-        if (iostat < 0) then
-            if (rank == 0) then
-                print *, 'End of C3int'
-            end if
+        call check_iostat(iostat=iostat, file=c3int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! Stop the program if the iostat is greater than 0
-            stop 'Error: Error in reading C3int'
         end if
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

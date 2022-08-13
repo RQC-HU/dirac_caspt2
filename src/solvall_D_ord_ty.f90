@@ -521,6 +521,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     integer :: it, jt, ju, iu, ia, ii, ja, ji
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 
     if (rank == 0) print *, 'Enter vDmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
@@ -571,13 +572,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     call open_unformatted_file(unit=twoint_unit, file=d1int, status='old', optional_action='read')
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of D1int'
+        call check_iostat(iostat=iostat, file=d1int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading D1int'
         end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -622,13 +619,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     call open_unformatted_file(unit=twoint_unit, file=d2int, status='old', optional_action='read')
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of D2int'
+        call check_iostat(iostat=iostat, file=d2int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading D2int'
         end if
 
         ja = i
@@ -660,14 +653,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     call open_unformatted_file(unit=twoint_unit, file=d3int, status='old', optional_action='read') ! (ai|jk) is stored
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of D3int'
+        call check_iostat(iostat=iostat, file=d3int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading D3int'
         end if
 
         if (j /= k .and. k == l) then !(ai|kk)

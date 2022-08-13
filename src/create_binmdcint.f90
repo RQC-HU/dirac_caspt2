@@ -23,7 +23,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: nnkr, iiit, jjjt, kkkt, lllt
     integer :: nkr, nz, file_idx, iostat
     integer :: mdcint_unit, mdcintnew_unit
-    logical :: is_file_exist
+    logical :: is_file_exist, is_end_of_file
 
     mdcint_unit = default_unit; mdcintnew_unit = default_unit
     Call timing(date1, tsec1, date0, tsec0)
@@ -121,16 +121,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                     (rklr(inz), rkli(inz), inz=1, nz)
             end if
 
-            ! iostat is less than 0 if end-of-file is reached.
-            if (iostat < 0) then
-                if (rank == 0) print *, "end-of-file reached."
+            call check_iostat(iostat=iostat, file=mdcint_filename, end_of_file_reached=is_end_of_file)
+            if (is_end_of_file) then
                 exit mdcint_file_read
-            else if (iostat > 0) then
-                if (rank == 0) then
-                    ! Error in reading 2-electron integrals.
-                    print *, "error in reading 2-electron integrals. Filename", mdcint_filename
-                end if
-                stop
             end if
 
 !------------------------------!

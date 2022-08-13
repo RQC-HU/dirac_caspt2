@@ -17,7 +17,7 @@ program ras3_bitcheck
         is_allow = ras3_det_check(i, ras3_max_elec)
         if (is_allow) then
             print '(i4,b20)', i, i
-            write (new_unit, '(i4,b20)'), i, i
+            write (new_unit, '(i4,b20)') i, i
         end if
     end do
     close (new_unit)

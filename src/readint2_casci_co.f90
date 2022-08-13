@@ -5,6 +5,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -23,7 +24,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     complex*16 :: cint2
     integer, allocatable :: indk(:, :), indl(:, :), kr(:)
     real*8, allocatable  :: rklr(:, :), rkli(:, :)
-    logical :: continue_read
+    logical :: continue_read, is_end_of_file
     integer :: idx, read_line_len, iostat
     read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"
     ! Iwamuro modify
@@ -72,20 +73,14 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     totalint = 0
     mdcint = 11
-    open (mdcint, file=trim(filename), form='unformatted', status='old')
+    call open_unformatted_file(unit=mdcint, file=trim(filename), status='old', optional_action='read')
 
     read (mdcint, iostat=iostat) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
-    ! File status check
-    if (iostat < 0) then
-        ! End of file
+    call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
+    if (is_end_of_file) then
         continue_read = .false.
-    else if (iostat > 0) then
-        ! Error in reading file
-        print *, "ERROR: Error in reading ", trim(filename), " , rank = ", rank
-        print *, "Stop the program"
-        stop
     end if
 
     if (rank == 0) then
@@ -96,16 +91,10 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
         do idx = 1, read_line_max
             read (mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
                 (indk(idx, inz), indl(idx, inz), rklr(idx, inz), rkli(idx, inz), inz=1, nz(idx))
-            ! File status check
-            if (iostat < 0) then
-                ! End of file
+            call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
+            if (is_end_of_file) then
                 continue_read = .false.
-                exit ! Exit the read loop
-            else if (iostat > 0) then
-                ! Error in reading file
-                print *, "ERROR: Error in readinga ", trim(filename), " , rank = ", rank
-                print *, "Stop the program"
-                stop
+                exit
             end if
         end do
 

@@ -9,6 +9,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     Implicit NONE
     character*50, intent(in) :: filename
+    logical :: is_end_of_file
 
     character  :: datex*10, timex*8
 
@@ -73,16 +74,9 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     Read (mdcint_unit, iostat=iostat) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
-    ! Check the status of the file
-    if (iostat < 0) then
-        ! End of the file is reached. Return to the main program.
-        print *, 'End of the file is reached  '//trim(filename)//" , rank:", rank
-        print *, 'Return to the main program.'
-        return
-    elseif (iostat > 0) then
-        ! If iostat is greater than 0, error detected in the input file, so exit the program
-        print *, "Error : Error in reading file ", trim(filename)
-        stop
+    call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
+    if (is_end_of_file) then
+        return ! Return to main program
     end if
 
     if (rank == 0) then
@@ -93,14 +87,9 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     ! Continue to read the file until the end of the file is reached
     do
         read (mdcint_unit, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of '//trim(filename)
+        call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(filename)
-            stop
         end if
         if (i == 0 .and. j == 0 .and. nz == 0) exit ! End of the file is reached, exit read loop
 
