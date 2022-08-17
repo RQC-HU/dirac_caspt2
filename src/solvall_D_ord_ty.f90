@@ -123,7 +123,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     Do isym = 1, nsymrpa
 
         dimn = 0
-        Do it = 1, nact
+        Do it = ras1_size + 1, nact
             jt = it + ninact
             Do iu = 1, nact
                 ju = iu + ninact
@@ -144,7 +144,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         indsym = 0
         dimn = 0
 
-        Do it = 1, nact
+        Do it = ras1_size + 1, nact
             jt = it + ninact
             Do iu = 1, nact
                 ju = iu + ninact

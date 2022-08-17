@@ -123,9 +123,9 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     Do isym = 1, nsymrpa
 
         dimn = 0
-        Do it = 1, nact
+        Do it = ras1_size + 1, nact
             jt = it + ninact
-            Do iu = 1, it - 1
+            Do iu = ras1_size + 1, it - 1
                 ju = iu + ninact
 
                 syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
@@ -142,9 +142,9 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Allocate (indsym(2, dimn)); Call memplus(KIND(indsym), SIZE(indsym), 1)
 
         dimn = 0
-        Do it = 1, nact
+        Do it = ras1_size + 1, nact
             jt = it + ninact
-            Do iu = 1, it - 1
+            Do iu = ras1_size + 1, it - 1
                 ju = iu + ninact
 
                 syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))

@@ -97,7 +97,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
 !     EaxEyz|0>
 
         Do ix = 1, nact
-            Do iy = 1, nact
+            Do iy = ras1_size + 1, nact
                 Do iz = 1, nact
 
                     jx = ix + ninact
@@ -124,7 +124,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         ixyz = 0
 
         Do ix = 1, nact
-            Do iy = 1, nact
+            Do iy = ras1_size + 1, nact
                 Do iz = 1, nact
 
                     jx = ix + ninact
@@ -583,7 +583,7 @@ SUBROUTINE vCmat_ord_ty(v)
             jt = it + ninact
             Do iv = 1, nact
                 jv = iv + ninact
-                Do iu = 1, nact
+                Do iu = ras1_size + 1, nact
                     ju = iu + ninact
 
                     !     EatEuv|0>

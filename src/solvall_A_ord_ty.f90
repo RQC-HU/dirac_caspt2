@@ -101,8 +101,8 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
 
         ixyz = 0
 
-        Do ix = 1, nact
-            Do iy = 1, nact
+        Do ix = ras1_size + 1, nact
+            Do iy = ras1_size + 1, nact
                 Do iz = 1, nact
 
                     jx = ix + ninact
@@ -129,8 +129,8 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
 
         ixyz = 0
 
-        Do ix = 1, nact
-            Do iy = 1, nact
+        Do ix = ras1_size + 1, nact
+            Do iy = ras1_size + 1, nact
                 Do iz = 1, nact
 
                     jx = ix + ninact
@@ -603,9 +603,9 @@ SUBROUTINE vAmat_ord_ty(v)
     dim = 0
     !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
     Do isym = 1, nsymrpa
-        Do it = 1, nact
+        Do it = ras1_size + 1, nact
             jt = it + ninact
-            Do iv = 1, nact
+            Do iv = ras1_size + 1, nact
                 jv = iv + ninact
                 Do iu = 1, nact
                     ju = iu + ninact
@@ -636,9 +636,9 @@ SUBROUTINE vAmat_ord_ty(v)
     dim2 = 0
     !$OMP parallel do schedule(static) private(iu,ju,iv,jv,syma)
     Do isym = 1, nsymrpa
-        Do iu = 1, nact
+        Do iu = ras1_size + 1, nact
             ju = iu + ninact
-            Do iv = 1, nact
+            Do iv = ras1_size + 1, nact
                 jv = iv + ninact
 
                 syma = MULTB_D(irpmo(jv), irpmo(ju))

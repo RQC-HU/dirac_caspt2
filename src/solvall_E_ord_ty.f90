@@ -122,7 +122,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     Do isym = 1, nsymrpa
 
         dimn = 0
-        Do it = 1, nact
+        Do it = ras1_size + 1, nact
             jt = it + ninact
             if (irpmo(jt) == isym) then
                 dimn = dimn + 1
