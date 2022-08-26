@@ -27,6 +27,11 @@
         character*150 :: line1, line2, line3, line4, line5, line6, line7
         character*150  :: line8, line9, line10, line11, line12, line13, line14, line15
 
+      ! for new code of IVO
+        integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, noccg, nvirg, negerade, noccu, A, nv0
+        integer, allocatable :: syminfo(:), dmosym(:), itrfmog(:,:,:), itrfmou(:,:,:)
+
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -80,6 +85,7 @@
            do i = 1, nsec
               do j = i, nsec
                 f(j,i) = DCONJG(f(i,j))
+                
 !                write(*,*)"f(j,i)", f(j,i)
               enddo
            enddo
@@ -93,37 +99,58 @@
 !           allocate(mocr   (nbas, nbas))
 !           allocate(moci   (nbas, nbas))
 
+           nsum = npg + neg + npu + neu
+
            allocate(readmo   (lscom*2, nbas, 2))
            allocate(itrfmo   (lscom*2, nbas, 2))
            allocate(mocr   (lscom*2, nbas))
            allocate(moci   (lscom*2, nbas))
            allocate(readmo1   ( nbas,lscom*2,2))
            allocate(eval(nbas))
-
+           allocate(itrfmog(nbasg, neg-noccg, 2))
+           allocate(itrfmou(nbasu, neu-noccu, 2))
+           allocate(syminfo(nsum))
+         
            itrfmo = 0.0d+00
+           itrfmog = 0.0d+00
+           itrfmou = 0.0d+00
 
 !           open(15,file='r4dorbcoeff',status='old',form='unformatted')
 !           read(15,err=10) readmo
 
-           Allocate (BUF(nbas*lscom))
-           Allocate (BUF1(nbas,lscom*2))
+!           Allocate (BUF(nbas*lscom))
+!           Allocate (BUF1(nbas,lscom*2))
+! New allocate
+           Allocate(BUF(nsum))
 
            IMAX = nbas*lscom
 
            open(15,file='DFPCMO',status='old',form='formatted')
 
            read(15,'(A150)') line1
+           read(15,'(7I2)') A, npg, neg, nbasg, npu, neu, nbasu
            read(15,'(A150)') line2
-           read(15,'(A150)') line3
 
-             Do I = 1, IMAX/6*6, 6
-                Read(15,'(6F22.16)',ERR=22) BUF(I:I+5)
-             End do
  
-             if(mod(IMAX,6).ne.0) then
-                I = IMAX/6*6 +1
-                Read(15,'(6F22.16)',ERR=22) BUF(I:IMAX)
-             endif
+          ! Read MO coefficient of DFPCMO  
+             Do I = 1, nsum
+              Read(15,'(6F22.16)',ERR=22) BUF(I)
+             Enddo 
+
+           ! unoccupid, gerade, electron 
+             Do j = 1, neg-noccg
+               DO i = 1, nbasg
+                 itrfmog(i,j,:) = BUF((npg+noccg+(nbasg*(j-1)+i))*nbasg)
+               Enddo
+             Enddo
+
+           ! unoccupid, ungerade, electron
+
+             Do j = 1, neu-noccu
+               DO i = 1, nbasu
+                 itrfmou(i,j,:) = BUF((npg+neg)*nbasg + (npu+noccu+(nbasu*(j-1)+i))*nbasu)
+               Enddo
+             Enddo
 
  22         continue
 
@@ -138,29 +165,34 @@
 
  23        continue
 
-           read(15,'(A150)',iostat=iostat) line4
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line5
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line6
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line7
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line8
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line9
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line10
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line11
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line12
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line13
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line14
-           if (iostat < 0) goto  120
-           read(15,'(A150)',iostat=iostat,ERR=24) line15
+            ! Read syminfo from DFPCMO
+            Do i = 1, nbas
+              Read(15, *) syminfo(i)
+            Enddo
+
+!           read(15,'(A150)',iostat=iostat) line4
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line5
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line6
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line7
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line8
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line9
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line10
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line11
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line12
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line13
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line14
+!           if (iostat < 0) goto  120
+!           read(15,'(A150)',iostat=iostat,ERR=24) line15
 
 120        continue
 24         continue
@@ -169,8 +201,8 @@
 
            open(105,file='BUF_write',status='unknown',form='formatted')
 
-           Do I = 1,IMAX/6*6, 6
-              Write(105,'(12F10.5)') BUF(I:I+11)
+           Do I = 1,nsum
+              Write(105,'(12F10.5)') BUF(I)
            Enddo
 
            close(105)
@@ -179,76 +211,76 @@
 
 ! DFPCMO complement in the symmetry of C32h
 
-            I = 0
+!            I = 0
 
 ! Electron solution / gerade    
 
-           Do I = 1,nbas/4
-             Do J = 1,lscom
-               BUF1(I,J) = BUF(J+lscom*(I-1+nbas/4))
-               BUF1(I,J+lscom) = BUF1(I,J)
-             Enddo
-             Do J = 1,lscom*2
-               BUF1(I+nbas/4,J) = BUF1(I,J)
-             Enddo
-           Enddo
+!           Do I = 1,nbas/4
+!             Do J = 1,lscom
+!               BUF1(I,J) = BUF(J+lscom*(I-1+nbas/4))
+!               BUF1(I,J+lscom) = BUF1(I,J)
+!             Enddo
+!             Do J = 1,lscom*2
+!               BUF1(I+nbas/4,J) = BUF1(I,J)
+!             Enddo
+!           Enddo
 
 ! Electron solution / ungerade
 
-           Do I = 1+nbas/2, nbas/2+nbas/4
-             Do J = 1,lscom
-               BUF1(I,J) = BUF(J+lscom*(I-1+nbas/4))
-               BUF1(I,J+lscom) = -BUF1(I,J)
-             Enddo
-             Do J = 1,lscom*2
-               BUF1(I+nbas/4,J) = BUF1(I,J)
-             Enddo
-           Enddo
+!           Do I = 1+nbas/2, nbas/2+nbas/4
+!             Do J = 1,lscom
+!               BUF1(I,J) = BUF(J+lscom*(I-1+nbas/4))
+!               BUF1(I,J+lscom) = -BUF1(I,J)
+!             Enddo
+!             Do J = 1,lscom*2
+!               BUF1(I+nbas/4,J) = BUF1(I,J)
+!             Enddo
+!           Enddo
 
 ! Extract only electron solution 
-             Do I = 1,nbas
-               Write (16,'(24F10.5)') (BUF1(I,J),J=1,lscom*2)
-             Enddo
+!             Do I = 1,nbas
+!               Write (16,'(24F10.5)') (BUF1(I,J),J=1,lscom*2)
+!             Enddo
 
-           close(16)
+!           close(16)
 
-          Do iao = 1,lscom*2
-             Do imo = 1,nbas
-                mocr(iao,imo) = BUF1(imo,iao)
-             Enddo
-          Enddo
+!          Do iao = 1,lscom*2
+!             Do imo = 1,nbas
+!                mocr(iao,imo) = BUF1(imo,iao)
+!             Enddo
+!          Enddo
 
-          moci=0.0d0+00
+!          moci=0.0d0+00
 
-          open(87,file='mocr',status='unknown',form='formatted')
-          Do iao = 1,lscom*2
-             Do imo = 1,nbas
-                write(87,*) mocr(iao,imo)
-             Enddo
-          Enddo
-          close(87)
+!          open(87,file='mocr',status='unknown',form='formatted')
+!          Do iao = 1,lscom*2
+!             Do imo = 1,nbas
+!                write(87,*) mocr(iao,imo)
+!             Enddo
+!          Enddo
+!          close(87)
 
 ! Transform MO order into orbital energy order
 
-          do imo = 1, nbas
-             readmo(:,indmor(imo),2) = mocr(:,imo)
-          enddo
+!          do imo = 1, nbas
+!             readmo(:,indmor(imo),2) = mocr(:,imo)
+!          enddo
 
-          open(67,file='readmo',status='unknown',form='formatted')
+!          open(67,file='readmo',status='unknown',form='formatted')
 
 !          Do iao = 1,lscom*2
-             Do imo = 1,nbas
-                write(67,'(24F10.5)') (real(readmo(iao,imo,2)),iao = 1,lscom*2)
-             Enddo
+!             Do imo = 1,nbas
+!                write(67,'(24F10.5)') (real(readmo(iao,imo,2)),iao = 1,lscom*2)
+!             Enddo
 !          Enddo
 
-           close(67)
+!           close(67)
 
-! IVO calculation 
-
-          itrfmo(1:lscom*2,1:nbas,1:2) = readmo(1:lscom*2,1:nbas,1:2)
+!          itrfmog(1:lscom*2,1:nbas) = readmo(1:lscom*2,1:nbas)
 
 !           itrfmo(1:lscom*2,1:nbas,1:2) = readmo(1:lscom*2, nbas+1:nbas*2,1:2)
+
+! IVO calculation 
 
            Do isym = 1, nsymrpa, 2
               nv = 0
@@ -262,6 +294,8 @@
 
               Allocate(mosym(nv))
               Allocate(fsym(nv,nv))
+              Allocate(dmosym(nv))
+
               fsym = 0.0d+00
               nv = 0
               Do i = 1, nsec
@@ -272,6 +306,25 @@
                     mosym(nv) = i
                  endif
               enddo
+
+!C32h gerade
+            nv0 = 0
+             Do i0 = npg+noccg+1,npg+neg
+                if(ABS(syminfo(i0))==isym) then
+!                 if(irpamo(i0)==isym) then
+                   nv0 = nv0 + 1
+                   dmosym(nv0) = i0
+                endif
+             enddo
+
+!C32h ungerade
+             Do i0 = npg+neg+npu+noccu+1,npg+neg+npu+neu
+                if(ABS(syminfo(i0))+16==isym) then
+!                 if(irpamo(i0)==isym) then
+                   nv0 = nv0 + 1
+                   dmosym(nv0) = i0
+                endif
+             enddo
 
               Do i = 1, nv
                  i0 = mosym(i)
@@ -289,20 +342,39 @@
 
               call cdiag (fsym, nv, nv,wsym , thresd, cutoff)
 
-              Allocate(coeff(nbas*2,nv,2))
-              
-              Do i = 1, nv
-                 i0 = mosym(i)+ncore+ninact+nact
-                 coeff(:,i,:)=itrfmo(:,i0,:)
-              Enddo
+              Allocate(coeff(nbas*2,nv,2))  
 
+            ! Gerade  
+              if (isym <= 16) then
+                Do i = 1, nv
+                 i0 = dmosym(i)-noccg-npg
+                 coeff(:,i,:)=itrfmog(:,i0,:)
+                Enddo
+
+            ! Ungerade    
+              else
+                Do i = 1, nv
+                i0 = dmosym(i)-noccu-npu
+                coeff(:,i,:)=itrfmou(:,i0,:)
+                Enddo
+              endif
+              
               coeff(:,:,1) = MATMUL(coeff(:,:,1),fsym(:,:))
               coeff(:,:,2) = MATMUL(coeff(:,:,2),fsym(:,:))
-              
-              Do i = 1, nv
-                 i0 = mosym(i)+ncore+ninact+nact
-                 itrfmo(:,i0,:) = coeff(:,i,:)
-              Enddo
+            
+            ! Gerade  
+              if (isym <= 16) then              
+                Do i = 1, nv
+                i0 = dmosym(i)-noccg-npg
+                itrfmog(:,i0,:) = coeff(:,i,:)
+                Enddo
+            ! Ungerade 
+            else
+                Do i = 1, nv
+                i0 = dmosym(i)-noccg-npg
+                itrfmou(:,i0,:) = coeff(:,i,:)
+                Enddo
+              endif  
 
 ! Kramers - pairs
               
@@ -342,69 +414,70 @@
              deallocate(fsym)
              deallocate(wsym)
              deallocate(mosym)
+             deallocate(dmosym)
           enddo
 
-           open(37,file='itrfmo',status='unknown',form='formatted')
+!           open(37,file='itrfmo',status='unknown',form='formatted')
 
-           Do iao = 1,lscom*2
-             Do imo = 1,nbas
-                write(37,*) itrfmo(iao,imo,2)
-             Enddo
-           Enddo
+!           Do iao = 1,lscom*2
+!             Do imo = 1,nbas
+!                write(37,*) itrfmo(iao,imo,2)
+!             Enddo
+!           Enddo
 
-           close(37)
+!           close(37)
 
-          readmo(1:lscom*2, 1:nbas,2) = itrfmo(1:lscom*2,1:nbas,2)
+!          readmo(1:lscom*2, 1:nbas,2) = itrfmo(1:lscom*2,1:nbas,2)
 
 !          open(15,file='r4dorbcoeff_ivo',status='unknown',form='unformatted')
 !          write(15) readmo
 !          close(15)
 
-          open(57,file='readmo_ivo',status='unknown',form='formatted')
+!          open(57,file='readmo_ivo',status='unknown',form='formatted')
 
 !          Do iao = 1,lscom*2
-             Do imo = 1,nbas
-                write(57,'(24F10.5)') (real(readmo(iao,imo,2)), iao=1,lscom*2)
-             Enddo
+!             Do imo = 1,nbas
+!                write(57,'(24F10.5)') (real(readmo(iao,imo,2)), iao=1,lscom*2)
+!             Enddo
 !          Enddo
 
-           close(57)
+!           close(57)
 
 ! Transform MO order into irreducible representation order
 
-          Do imo = 1, nbas
-            Do iao = 1,lscom*2
-                 readmo1(indmo(imo),iao,2)=readmo(iao,imo,2)
-            Enddo
-          Enddo
+!          Do imo = 1, nbas
+!            Do iao = 1,lscom*2
+!                 readmo1(indmo(imo),iao,2)=readmo(iao,imo,2)
+!            Enddo
+!          Enddo
 
 ! Extract only the necessary part of the electronic solution and return it to BUF.
 
-          open(77,file='readmo1',status='unknown',form='formatted')
+!          open(77,file='readmo1',status='unknown',form='formatted')
 
 !          Do iao = 1,lscom*2
-             Do imo = 1,nbas
-                write(77,'(24F10.5)') (real(readmo1(imo,iao,2)), iao=1,lscom*2)
-             Enddo
+!             Do imo = 1,nbas
+!                write(77,'(24F10.5)') (real(readmo1(imo,iao,2)), iao=1,lscom*2)
+!             Enddo
 !          Enddo
 
-           close(77)
+!           close(77)
 
 ! Electron solution / gerade
 
-           Do I = 1,nbas/4
-             Do J = 1,lscom               
-                BUF(J+lscom*(I-1+nbas/4))=real(readmo1(I,J,2))
+           Do j = 1, neg-noccg               
+            Do i = 1,nbasg
+                BUF((npg+noccg+(nbasg*(j-1)+i))*nbasg) = real(itrfmog(i,j,2))
              Enddo
            Enddo
 
 ! Electron solution / ungerade
 
-           Do I = 1+nbas/2, nbas/2+nbas/4
-             Do J = 1,lscom
-                BUF(J+lscom*(I-1+nbas/4))=real(readmo1(I,J,2))
-             Enddo
-           Enddo
+           Do j = 1, neu-noccu
+            DO i = 1, nbasu
+                BUF((npg+neg)*nbasg+(npu+noccu+(nbasu*(j-1)+i))*nbasu) = real(itrfmou(i,j,2))
+            Enddo
+          Enddo
 
 !         I = 0
 
@@ -429,32 +502,32 @@
           open(19,file='DFPCMONEW',status='unknown',form='formatted')
           open(29,file='BUF_write_ivo',status='unknown',form='formatted')
           write(19,'(A150)') line1
+          write(19,'(7I2)') A, npg, neg, nbasg, npu, neu, nbasu
           write(19,'(A150)') line2
-          write(19,'(A150)') line3
 
-             Do I = 1, IMAX/6*6, 6
-               Write(19,'(6F22.16)') BUF(I:I+5)
-               Write(29,'(12F10.5)') BUF(I:I+11)
+             Do I = 1, nsum
+               Write(19,'(6F22.16)') BUF(I)
+               Write(29,'(12F10.5)') BUF(I)
              End do
 
-             if(mod(IMAX,6).ne.0) then
-                I = IMAX/6*6 +1
-                Write(19,'(6F22.16)') BUF(I:IMAX)
-             endif
-
           write(19,'(6E22.12)') eval
-          write(19,'(A150)') line4
-          write(19,'(A150)', ERR=25) line5
-          write(19,'(A150)', ERR=25) line6
-          write(19,'(A150)', ERR=25) line7
-          write(19,'(A150)', ERR=25) line8
-          write(19,'(A150)', ERR=25) line9
-          write(19,'(A150)', ERR=25) line10
-          write(19,'(A150)', ERR=25) line11
-          write(19,'(A150)', ERR=25) line12
-          write(19,'(A150)', ERR=25) line13
-          write(19,'(A150)', ERR=25) line14
-          write(19,'(A150)', ERR=25) line15
+
+          Do i = 1, nbas
+            write(19, *) syminfo(i)
+          Enddo
+
+!          write(19,'(A150)') line4
+!          write(19,'(A150)', ERR=25) line5
+!          write(19,'(A150)', ERR=25) line6
+!          write(19,'(A150)', ERR=25) line7
+!          write(19,'(A150)', ERR=25) line8
+!          write(19,'(A150)', ERR=25) line9
+!          write(19,'(A150)', ERR=25) line10
+!          write(19,'(A150)', ERR=25) line11
+!          write(19,'(A150)', ERR=25) line12
+!          write(19,'(A150)', ERR=25) line13
+!          write(19,'(A150)', ERR=25) line14
+!          write(19,'(A150)', ERR=25) line15
 
  25       continue
 
