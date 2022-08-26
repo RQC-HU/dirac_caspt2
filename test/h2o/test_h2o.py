@@ -11,6 +11,7 @@ from module_testing import (
 )
 
 
+@pytest.mark.slow
 def test_h2o(the_number_of_process: int) -> None:
 
     # Set file names
@@ -26,18 +27,10 @@ def test_h2o(the_number_of_process: int) -> None:
     # Set file paths
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
-    latest_passed_file_path = os.path.abspath(
-        os.path.join(test_path, latest_passed_output)
-    )
-    binary_dir = os.path.abspath(
-        os.path.join(test_path, "../../bin")
-    )  # Set the Built binary directory
-    r4dcasci = os.path.abspath(
-        os.path.join(binary_dir, "r4dcascicoexe")
-    )  # CASCI binary
-    r4dcaspt2 = os.path.abspath(
-        os.path.join(binary_dir, "r4dcaspt2ocoexe")
-    )  # CASPT2 binary
+    latest_passed_file_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
+    binary_dir = os.path.abspath(os.path.join(test_path, "../../bin"))  # Set the Built binary directory
+    r4dcasci = os.path.abspath(os.path.join(binary_dir, "r4dcascicoexe"))  # CASCI binary
+    r4dcaspt2 = os.path.abspath(os.path.join(binary_dir, "r4dcaspt2ocoexe"))  # CASPT2 binary
 
     # Set delete file list
     delete_files: list[str] = [
