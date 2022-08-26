@@ -12,6 +12,8 @@ on:
       - "**.py"
       - ".github/workflows/**"
 
+env:
+  PYTEST_ADDOPTS: "--color=yes"
 
 defaults:
   run:
@@ -23,7 +25,6 @@ jobs:
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
       FC: mpiifort # MPI-Intel-Fortran
-      PYTEST_ADDOPTS: "--color=yes"
     steps:
       - uses: actions/checkout@v3
       - name: cache install
