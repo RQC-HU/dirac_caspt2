@@ -5,6 +5,7 @@ from module_testing import (
     create_test_command,
     run_test,
     get_split_string_list_from_output_file,
+    is_binary_file_exist,
 )
 
 
@@ -27,11 +28,10 @@ def test_ras3_bitcheck():
     move_file_path = os.path.abspath(os.path.join(test_path, move_filename))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
-    test_command = create_test_command(
-        the_number_of_process=1, binaries=[exe_file_path]
-    )
+    is_binary_file_exist(exe_file_path)
+    test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command, result_file_path)
+    process = run_test(test_command)
     check_test_returncode(process)
 
     string_ref = get_split_string_list_from_output_file(ref_file_path)
