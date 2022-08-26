@@ -31,5 +31,5 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if item.get_closest_marker("runall") and not config.getoption(runall_option):
             item.add_marker(skip_slowest)
-        elif item.get_closest_marker("slow") and not config.getoption(slow_opion):
+        elif item.get_closest_marker("slow") and not config.getoption(slow_opion) and not config.getoption(runall_option):
             item.add_marker(skip_slow)
