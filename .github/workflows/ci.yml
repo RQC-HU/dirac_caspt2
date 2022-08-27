@@ -30,7 +30,7 @@ defaults:
     shell: bash
 jobs:
   test-linux-mpiifort:
-    timeout-minutes: 15 # Max execution time (min)
+    timeout-minutes: 60 # Max execution time (min)
     runs-on: ubuntu-latest
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
@@ -54,7 +54,7 @@ jobs:
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
           sudo apt-get update
       - name: Install Intel Fortran compiler
-        timeout-minutes: 8
+        timeout-minutes: 5
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
           sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
@@ -94,7 +94,7 @@ jobs:
           pytest --all --parallel=4
 
   test-linux-gfortran:
-    timeout-minutes: 15 # Max execution time (min)
+    timeout-minutes: 60 # Max execution time (min)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -121,7 +121,7 @@ jobs:
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
           sudo apt-get update
       - name: Install MKL
-        timeout-minutes: 8
+        timeout-minutes: 5
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
           sudo apt-get install intel-oneapi-mkl
