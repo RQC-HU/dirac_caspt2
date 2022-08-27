@@ -25,7 +25,6 @@ def the_number_of_process(request):
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
     config.addinivalue_line("markers", "veryslowonly: run only very slow tests")
-    config.addinivalue_line("markers", "all: run all tests")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -45,6 +44,8 @@ def pytest_collection_modifyitems(config, items):
                 pass
             elif config.getoption(very_slow_only_opion):
                 item.add_marker(skip_slow_because_very_slow_only)
+            else: # no args related to markers
+                item.add_marker(skip_slow)
         else: # Neutral tests
             if config.getoption(very_slow_only_opion):
                 item.add_marker(skip_fast_because_very_slow_only)
