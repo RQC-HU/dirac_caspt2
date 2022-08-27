@@ -1,11 +1,13 @@
 import pytest
 
-slow_opion = "--runslow"
-runall_option = "--runall"
+slow_opion = "--slow"
+very_slow_only_opion = "--veryslowonly"
+runall_option = "--all"
 
 
 def pytest_addoption(parser):
-    parser.addoption(slow_opion, action="store_true", default=False, help="run slow tests")
+    parser.addoption(slow_opion, action="store_true", default=False, help="run normal tests and slow tests")
+    parser.addoption(very_slow_only_opion, action="store_true", default=False, help="run only very slow tests")
     parser.addoption(runall_option, action="store_true", default=False, help="run all tests")
     parser.addoption(
         "--parallel",
@@ -22,14 +24,30 @@ def the_number_of_process(request):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
-    config.addinivalue_line("markers", "runall: mark test as runall to run")
+    config.addinivalue_line("markers", "veryslowonly: run only very slow tests")
+    config.addinivalue_line("markers", "all: run all tests")
 
 
 def pytest_collection_modifyitems(config, items):
-    skip_slow = pytest.mark.skip(reason=f"need {slow_opion} or {runall_option} option to run. REASON: Slow test")
-    skip_slowest = pytest.mark.skip(reason=f"need {runall_option} option to run. REASON: Slow test")
+    skip_slow = pytest.mark.skip(reason=f"need {runall_option} or {slow_opion} option to run. REASON: slow test")
+    skip_fast_because_very_slow_only = pytest.mark.skip(reason=f"need no option or {runall_option} or {slow_opion} option to run. REASON: only very slow tests")
+    skip_slow_because_very_slow_only = pytest.mark.skip(reason=f"need {runall_option} or {slow_opion} option to run. REASON: only very slow tests")
+    skip_very_slow = pytest.mark.skip(reason=f"need {runall_option} or {very_slow_only_opion} option to run. REASON: very slow test")
+    if config.getoption(runall_option):
+        print("run all tests")
+        return
     for item in items:
-        if item.get_closest_marker("runall") and not config.getoption(runall_option):
-            item.add_marker(skip_slowest)
-        elif item.get_closest_marker("slow") and not config.getoption(slow_opion) and not config.getoption(runall_option):
+        # Very slow tests handling
+        if config.getoption(very_slow_only_opion):
+            if item.get_closest_marker("veryslowonly"):
+                pass
+            elif item.get_closest_marker("slow"):
+                item.add_marker(skip_slow_because_very_slow_only)
+            else: # Neutral option
+                item.add_marker(skip_fast_because_very_slow_only)
+        else:
+            if item.get_closest_marker("veryslowonly"):
+                item.add_marker(skip_very_slow)
+        # Slow tests handling
+        if item.get_closest_marker("slow") and not config.getoption(slow_opion):
             item.add_marker(skip_slow)
