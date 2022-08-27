@@ -37,17 +37,14 @@ def pytest_collection_modifyitems(config, items):
         print("run all tests")
         return
     for item in items:
-        # Very slow tests handling
-        if config.getoption(very_slow_only_opion):
-            if item.get_closest_marker("veryslowonly"):
-                pass
-            elif item.get_closest_marker("slow"):
-                item.add_marker(skip_slow_because_very_slow_only)
-            else: # Neutral option
-                item.add_marker(skip_fast_because_very_slow_only)
-        else:
-            if item.get_closest_marker("veryslowonly"):
+        if item.get_closest_marker("veryslowonly"):
+            if not config.getoption(very_slow_only_opion):
                 item.add_marker(skip_very_slow)
-        # Slow tests handling
-        if item.get_closest_marker("slow") and not config.getoption(slow_opion):
-            item.add_marker(skip_slow)
+        elif item.get_closest_marker("slow"):
+            if config.getoption(slow_opion):
+                pass
+            elif config.getoption(very_slow_only_opion):
+                item.add_marker(skip_slow_because_very_slow_only)
+        else: # Neutral tests
+            if config.getoption(very_slow_only_opion):
+                item.add_marker(skip_fast_because_very_slow_only)
