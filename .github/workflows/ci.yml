@@ -149,17 +149,17 @@ jobs:
         run: |
           cmake -DOPENMP=on -B build
           cmake --build build --clean-first
-      - name: Run unittest(parallel, run veryslowonly tests, pull_request)
+      - name: Run unittest(serial, run veryslowonly tests, pull_request)
         timeout-minutes: 30
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           pytest --veryslowonly
-      - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
+      - name: Run unittest(serial, run normal and slow tests, push to other than main branch)
         timeout-minutes: 15
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
           pytest --slow
-      - name: Run unittest(parallel, run all tests, push to main branch)
+      - name: Run unittest(serial, run all tests, push to main branch)
         timeout-minutes: 40
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
