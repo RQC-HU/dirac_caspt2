@@ -11,6 +11,16 @@ on:
       - "**/CMakeLists.txt"
       - "**.py"
       - ".github/workflows/**"
+  pull_request:
+    paths:
+    # Ref : https://mzqvis6akmakplpmcjx3.hatenablog.com/entry/2021/02/07/134133
+    # Run CI when only source code, build configuration, test files or files related to CI are modified.
+      - "**.f90"
+      - "**.F90"
+      - "**.cmake"
+      - "**/CMakeLists.txt"
+      - "**.py"
+      - ".github/workflows/**"
 
 env:
   PYTEST_ADDOPTS: "--color=yes"
@@ -67,10 +77,21 @@ jobs:
         run: |
           cmake -DMPI=on -DOPENMP=on -B build
           cmake --build build -j4 --clean-first
-      - name: Run unittest (parallel)
-        timeout-minutes: 15
+      - name: Run unittest(parallel, run veryslowonly tests, pull_request)
+        timeout-minutes: 30
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --parallel=4
+          pytest --veryslowonly --parallel=4
+      - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
+        timeout-minutes: 15
+        if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --slow --parallel=4
+      - name: Run unittest(parallel, run all tests, push to main branch)
+        timeout-minutes: 40
+        if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --all --parallel=4
 
   test-linux-gfortran:
     timeout-minutes: 15 # Max execution time (min)
@@ -128,7 +149,18 @@ jobs:
         run: |
           cmake -DOPENMP=on -B build
           cmake --build build --clean-first
-      - name: Run unittest
-        timeout-minutes: 15
+      - name: Run unittest(parallel, run veryslowonly tests, pull_request)
+        timeout-minutes: 30
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest
+          pytest --veryslowonly
+      - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
+        timeout-minutes: 15
+        if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --slow
+      - name: Run unittest(parallel, run all tests, push to main branch)
+        timeout-minutes: 40
+        if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --all
