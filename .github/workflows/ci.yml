@@ -12,6 +12,8 @@ on:
       - "**.py"
       - ".github/workflows/**"
   pull_request:
+    branches:
+      - "main"
     paths:
     # Ref : https://mzqvis6akmakplpmcjx3.hatenablog.com/entry/2021/02/07/134133
     # Run CI when only source code, build configuration, test files or files related to CI are modified.
