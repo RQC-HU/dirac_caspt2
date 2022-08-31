@@ -11,7 +11,6 @@ from module_testing import (
 )
 
 
-@pytest.mark.slow
 def test_h2o(the_number_of_process: int) -> None:
 
     # Set file names
