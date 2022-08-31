@@ -44,8 +44,8 @@ def pytest_collection_modifyitems(config, items):
                 pass
             elif config.getoption(very_slow_only_opion):
                 item.add_marker(skip_slow_because_very_slow_only)
-            else: # no args related to markers
+            else:  # no args related to markers
                 item.add_marker(skip_slow)
-        else: # Neutral tests
+        else:  # Neutral tests
             if config.getoption(very_slow_only_opion):
                 item.add_marker(skip_fast_because_very_slow_only)
