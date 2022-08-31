@@ -11,12 +11,13 @@ from module_testing import (
 )
 
 
-def test_h2(the_number_of_process: int) -> None:
+@pytest.mark.slow
+def test_h2o_slow(the_number_of_process: int) -> None:
 
     # Set file names
-    ref_filename = "reference.H2.out"  # Reference
-    output_filename = "H2.caspt2.out"  # Output (This file is compared with Reference)
-    latest_passed_output = "latest_passed.H2.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    ref_filename = "reference.H2O.out"  # Reference
+    output_filename = "H2O.caspt2.out"  # Output (This file is compared with Reference)
+    latest_passed_output = "latest_passed.H2O.caspt2.out"  # latest passed output (After test, the output file is moved to this)
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -26,18 +27,10 @@ def test_h2(the_number_of_process: int) -> None:
     # Set file paths
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
-    latest_passed_file_path = os.path.abspath(
-        os.path.join(test_path, latest_passed_output)
-    )
-    binary_dir = os.path.abspath(
-        os.path.join(test_path, "../../bin")
-    )  # Set the Built binary directory
-    r4dcasci = os.path.abspath(
-        os.path.join(binary_dir, "r4dcascicoexe")
-    )  # CASCI binary
-    r4dcaspt2 = os.path.abspath(
-        os.path.join(binary_dir, "r4dcaspt2ocoexe")
-    )  # CASPT2 binary
+    latest_passed_file_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
+    binary_dir = os.path.abspath(os.path.join(test_path, "../../../../bin"))  # Set the Built binary directory
+    r4dcasci = os.path.abspath(os.path.join(binary_dir, "r4dcascicoexe"))  # CASCI binary
+    r4dcaspt2 = os.path.abspath(os.path.join(binary_dir, "r4dcaspt2ocoexe"))  # CASPT2 binary
 
     # Set delete file list
     delete_files: list[str] = [
