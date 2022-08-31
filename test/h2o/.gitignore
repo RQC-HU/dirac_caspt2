@@ -1,4 +1,6 @@
 *
+!dirac_data
+!dirac_data/**
 !.gitignore
 !active.inp
 !MDCIN*
