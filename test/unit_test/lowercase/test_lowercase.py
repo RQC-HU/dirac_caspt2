@@ -8,8 +8,10 @@ from module_testing import (
     get_stripped_string_from_output_file,
     is_binary_file_exist,
 )
+import pytest
 
 
+@pytest.mark.dev
 def test_lowercase():
 
     # Set file names

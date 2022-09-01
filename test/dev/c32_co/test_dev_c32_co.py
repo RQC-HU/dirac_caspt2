@@ -11,6 +11,7 @@ from module_testing import (
 )
 
 
+@pytest.mark.dev
 def test_dev_c32_co(the_number_of_process: int) -> None:
 
     # Set file names

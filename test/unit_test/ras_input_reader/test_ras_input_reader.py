@@ -1,6 +1,5 @@
 import os
 import shutil
-
 from module_testing import (
     check_test_returncode,
     convert_string_list_to_integer_list,
@@ -10,8 +9,10 @@ from module_testing import (
     is_binary_file_exist,
     run_test,
 )
+import pytest
 
 
+@pytest.mark.dev
 def test_ras_input_reader():
 
     # Set file names

@@ -29,20 +29,27 @@ def pytest_configure(config):
 
 def pytest_collection_modifyitems(config, items):
     skip_slow = pytest.mark.skip(reason=f"need {runall_option} or {slow_opion} option to run. REASON: slow test")
-    skip_tests_because_dev = pytest.mark.skip(reason=f"need no option or {runall_option} option to run. REASON: dev mode is activated")
+    skip_tests_because_dev = pytest.mark.skip(reason=f"need no option or {runall_option} option to run. REASON: --dev was activated")
+    skip_fast_dev = pytest.mark.skip(reason=f"need no option or {dev_option} or {runall_option} option or  to run. REASON: --onlyslow was activated")
+    skip_fast_neutral = pytest.mark.skip(reason=f"need no option or {runall_option} option or  to run. REASON: --onlyslow was activated")
     if config.getoption(runall_option):
         print("run all tests")
         return
     for item in items:
         if item.get_closest_marker("dev"):
-            # dev tests always run
-            pass
+            # dev tests always run except when --onlyslow was activated
+            if config.getoption(slow_opion):
+                item.add_marker(skip_fast_dev)
+            else:
+                pass
         elif item.get_closest_marker("slow"):
             if config.getoption(slow_opion):
                 pass
             else:  # no args related to markers
                 item.add_marker(skip_slow)
         else:  # Neutral tests
-            # Skip neutral tests if dev mode is activated
+            # Skip neutral tests if --dev or --onlyslow were activated
             if config.getoption(dev_option):
                 item.add_marker(skip_tests_because_dev)
+            elif config.getoption(slow_opion):
+                item.add_marker(skip_fast_neutral)

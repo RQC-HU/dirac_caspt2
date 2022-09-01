@@ -11,7 +11,8 @@ from module_testing import (
 )
 
 
-def test_h2(the_number_of_process: int) -> None:
+@pytest.mark.dev
+def test_dev_ninact_0_h2(the_number_of_process: int) -> None:
 
     # Set file names
     ref_filename = "reference.H2.out"  # Reference
@@ -30,7 +31,7 @@ def test_h2(the_number_of_process: int) -> None:
         os.path.join(test_path, latest_passed_output)
     )
     binary_dir = os.path.abspath(
-        os.path.join(test_path, "../../../../bin")
+        os.path.join(test_path, "../../../bin")
     )  # Set the Built binary directory
     r4dcasci = os.path.abspath(
         os.path.join(binary_dir, "r4dcascicoexe")

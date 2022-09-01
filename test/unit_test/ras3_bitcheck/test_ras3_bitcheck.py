@@ -7,8 +7,10 @@ from module_testing import (
     get_split_string_list_from_output_file,
     is_binary_file_exist,
 )
+import pytest
 
 
+@pytest.mark.dev
 def test_ras3_bitcheck():
     # Current path
     test_path = os.path.dirname(os.path.abspath(__file__))

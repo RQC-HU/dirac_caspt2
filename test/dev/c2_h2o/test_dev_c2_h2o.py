@@ -11,7 +11,8 @@ from module_testing import (
 )
 
 
-def test_h2o(the_number_of_process: int) -> None:
+@pytest.mark.dev
+def test_dev_c2_h2o(the_number_of_process: int) -> None:
 
     # Set file names
     ref_filename = "reference.H2O.out"  # Reference
@@ -27,7 +28,7 @@ def test_h2o(the_number_of_process: int) -> None:
     ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_file_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    binary_dir = os.path.abspath(os.path.join(test_path, "../../../../bin"))  # Set the Built binary directory
+    binary_dir = os.path.abspath(os.path.join(test_path, "../../../bin"))  # Set the Built binary directory
     r4dcasci = os.path.abspath(os.path.join(binary_dir, "r4dcascicoexe"))  # CASCI binary
     r4dcaspt2 = os.path.abspath(os.path.join(binary_dir, "r4dcaspt2ocoexe"))  # CASPT2 binary
 

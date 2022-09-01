@@ -1,7 +1,6 @@
 import os
 import pytest
 import shutil
-
 from module_testing import (
     check_test_returncode,
     convert_string_list_to_float_list,
@@ -14,6 +13,7 @@ from module_testing import (
 )
 
 
+@pytest.mark.dev
 def test_int_sort():
 
     # Set file names
@@ -76,6 +76,7 @@ def test_int_sort():
     shutil.copy(output_file_path, latest_passed_path)
 
 
+@pytest.mark.dev
 def test_int_sort_reverse():
 
     # Set file names
@@ -138,6 +139,7 @@ def test_int_sort_reverse():
     shutil.copy(output_file_path, latest_passed_path)
 
 
+@pytest.mark.dev
 def test_real_sort():
 
     # Set file names
@@ -178,6 +180,7 @@ def test_real_sort():
     shutil.copy(output_file_path, latest_passed_path)
 
 
+@pytest.mark.dev
 def test_real_sort_reverse():
 
     # Set file names

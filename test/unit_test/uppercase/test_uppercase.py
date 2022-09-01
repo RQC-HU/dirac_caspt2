@@ -8,8 +8,10 @@ from module_testing import (
     is_binary_file_exist,
     run_test,
 )
+import pytest
 
 
+@pytest.mark.dev
 def test_uppercase():
 
     # Set file names
