@@ -23,14 +23,14 @@
 - [CMake](https://cmake.org/)(version ≧ 3.7 が必要です)
   - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
-  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります  
+  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
 
     ```sh
     echo $MKLROOT
     ```
 
-  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります  
+  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります
   - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
 
     ビルド例
@@ -85,17 +85,17 @@ cmake --build build -j4 --clean-first
 
 ### ソフトウェアのテスト
 
-ビルド後はテストを行うことを推奨します  
-テストを行うには[Python(version ≧ 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です  
-testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます  
---allオプションか--slowオプションをつけてテストを実行することを推奨します  
-(--allオプションは全てのテスト、--slowオプションは時間がとてもかかるテスト以外を実行します)
+ビルド後はテストを行うことを推奨します
+テストを行うには[Python(version ≧ 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です
+testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
+--allオプションかオプションなしでテストを実行することを推奨します
+(--allオプションは全てのテスト、オプションなしは時間がとてもかかるテスト以外を実行します)
 
 ```sh
 pytest --all
 ```
 
-並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合  
+並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合
 pytestコマンドに--paralles=並列数を付け加え、並列用テストを行うことを推奨します
 
 ```sh
@@ -349,39 +349,40 @@ end         : The identifier at the end of active.inp (required)
   - pytestを導入したら
 
   ```sh
-  pytest
+  pytest --dev
   ```
 
-を実行すれば自動的にテストが開始されます
+を実行すれば自動的にテストが開始されます(上記の例では開発用テストマーカー--devをつけています)
 
-- テストは軽い順にマーカーなし、@pytest.mark.slow、@pytest.mark.veryslowonlyというマーカーで指定されています  
+- 実行したくないテストがある場合は[--ignore=path/to/ignoreで指定してください、/path/to/ignore以下のテストが無視されます](https://docs.pytest.org/en/7.1.x/example/pythoncollection.html#:~:text=The%20--ignore-glob%20option%20allows%20to%20ignore%20test%20file,deselected%20during%20collection%20by%20passing%20the%20--deselect%3Ditem%20option.)
+- テストは軽い順に@pytest.mark.dev、マーカーなし、@pytest.mark.slowというマーカーで指定されています
 - pytestに引数をつけると、走らせるテストの制御ができます。引数は以下の通りです
 
-> (引数について)  
-> 実装中はマーカーなしのテストを使って効率的にテストと開発のループを行い  
-> pull request前などのときに --slowのテストをローカルでする  
-> 等といった開発のやり方をお勧めしますが、実装のやり方は個々人に任せます  
-> ( GitHub上では[Github Actions](https://github.co.jp/features/actions)を用いて  
-> mainブランチ以外へのpush時に--slow、  
-> pull request時に--veryslowonly、  
-> mainブランチへのpush時に(pull requestのマージ含)--all  
+> (引数について)
+> 実装中は--devでテストを使って効率的にテストと開発のループを行い
+> pull request前などのときに、引数なしのテストや--allのテストをローカルでする
+> 等といった開発のやり方をお勧めしますが、実装のやり方は個々人に任せます
+> ( GitHub上では[Github Actions](https://github.co.jp/features/actions)を用いて
+> mainブランチ以外へのpush時に引数なし、
+> pull request時に--onlyslow、
+> mainブランチへのpush時に(pull requestのマージ含)--all
 > を使ってテストを行うようにしています )
 
 ```sh
-# マーカーなしのテストのみ実行
+# @pytest.mark.devがついているテストのみ実行
+pytest --dev
+# マーカーなしのテストと@pytest.mark.devがついているテストのみ実行
 pytest
-# マーカーなしのテストと@pytest.mark.slowがついているテストを実行
-pytest --slow
-# @pytest.mark.veryslowonlyがついているテストのみ実行
-pytest --veryslowonly
 # すべてのテストを実行
 pytest --all
+# @pytest.mark.slowがついているテストのみ実行
+pytest --onlyslow
 ```
 
 - mpiifortやmpif90,mpifortなどの並列コンパイラでかつビルド時に-DMPI=onオプションを有効にした場合、MPI並列用テストを行うことを推奨します。コマンドは以下の通りです
 
   ```sh
-  pytest --parallel=4
+  pytest --dev --parallel=4
   ```
 
 - [Github Actions](https://github.co.jp/features/actions)について、このサービスを使うことで月50時間まではアップロード(push)された\*.f90,\*.F90,\*.cmake,CMakeLists.txt,\*.py,Github Actions用ファイルのいずれかが変更されたコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態を作っています([.github/workflows/ci.ymlにGithub Actions用設定があります](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/.github/workflows/ci.yml))
@@ -397,10 +398,10 @@ pytest --all
   例えば以下のようにするとビルドオプションを再指定してからビルドされます
 
   ```sh
-  # Remove dir
+  # Remove build dir
   rm -r build
   # Reconfigure and rebuild and run test
-  FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build && pytest --parallel=4 
+  FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build && pytest --parallel=4
   ```
 
 - ビルドオプションは変えないもののビルド自体は最初からやり直したい場合は --clean-first オプションをつけると最初からビルドをやり直せます
