@@ -647,7 +647,7 @@ contains
         integer, intent(in) :: unit_num
         character(*), intent(inout) :: result_string
         logical :: is_comment
-        character(100) :: input
+        character(max_str_length) :: input
         do
             read (unit_num, '(a)') input
             call is_comment_line(input, is_comment)
