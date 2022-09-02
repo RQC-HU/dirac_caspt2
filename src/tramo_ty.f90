@@ -89,7 +89,6 @@ SUBROUTINE tramo2_ty(i, j, k, l, int2)
     sym5 = MULTB_D(sym1, sym2)
     sym6 = MULTB_D(sym3, sym4)
 
-
     If (MULTB_S(sym5, sym6) == 1) then
 
         mo(1) = i

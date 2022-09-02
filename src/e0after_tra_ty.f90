@@ -361,7 +361,7 @@ SUBROUTINE e0aftertrac_ty
     e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=e0after_unit,file='e0after',status='new',optional_action='write')
+        call open_unformatted_file(unit=e0after_unit, file='e0after', status='new', optional_action='write')
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
         print *, 'iroot = ', iroot
     end if
