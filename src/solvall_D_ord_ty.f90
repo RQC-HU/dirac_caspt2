@@ -128,7 +128,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             Do iu = 1, nact
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -149,7 +149,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             Do iu = 1, nact
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -309,10 +309,10 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         Do i0 = 1, nai
             ja = ia0(i0)
             ji = ii0(i0)
-
-            syma = MULTB_D(irpmo(ja), irpmo(ji))
-            syma = MULTB_S(syma, isym)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ja), irpmo(ji))
+                syma = MULTB_S(syma, isym)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn))
