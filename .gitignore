@@ -41,6 +41,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Ignore user created log files
+/*.log
+
 ## CMake
 CMakeCache.txt
 cmake_install.cmake
