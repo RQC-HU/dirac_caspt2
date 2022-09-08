@@ -2,6 +2,10 @@
 
 #### [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
 
+## お知らせ
+
+- [開発者の方はGithub Wikiを参考に開発を行ってください](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki)
+
 ## 目次
 
 - [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2#requirements)
@@ -10,7 +14,6 @@
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
-- [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
 
 ## Requirements
 
@@ -329,6 +332,3 @@ end         : The identifier at the end of active.inp (required)
   ↓
   1,2,3,4,5,7,10,11,12,13
 ```
-
-## 開発者のかたへ
-- [開発者Wikiを参考にして開発を行ってください](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki)
