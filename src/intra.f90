@@ -374,7 +374,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -388,7 +388,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close(unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -412,7 +412,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -449,7 +449,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -486,7 +486,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -531,7 +531,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     complex*16, allocatable :: traint2(:, :, :, :)
 
     real*8                  :: thresd
-    complex*16              :: cint2
+    complex*16              :: cint2, initial_cint2
 
     integer :: i, j, k, l
     integer :: initial_i, initial_j, initial_k, initial_l
@@ -600,11 +600,12 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             exit
         end if
 
-        ! save initial indices i,j,k,l to initial_i,initial_j,initial_k,initial_l, respectively.
+        ! save initial indices i,j,k,l,cint2 to initial_i,initial_j,initial_k,initial_l,initial_cint2 respectively.
         initial_i = i
         initial_j = j
         initial_k = k
         initial_l = l
+        initial_cint2 = cint2
 
         isym = irpamo(l)
 
@@ -631,7 +632,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
         if (mod(initial_k, 2) == 1) l = initial_k + 1
         if (mod(initial_l, 2) == 0) k = initial_l - 1
         if (mod(initial_l, 2) == 1) k = initial_l + 1
-        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*cint2
+        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*initial_cint2
         isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
@@ -647,7 +648,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -661,7 +662,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close(unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -684,7 +685,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -698,7 +699,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close(unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -721,7 +722,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -735,7 +736,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
     call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close(unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -758,7 +759,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
     end do
-    close(unit)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -772,7 +773,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
     call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close(unit)
+    close (unit)
 
     if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)

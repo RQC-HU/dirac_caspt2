@@ -283,10 +283,11 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
 !     EtiEaj|0>
 
-            syma = MULTB_D(irpmo(ja), irpmo(jj))
-            symb = MULTB_D(isym, irpmo(ji))
-            syma = MULTB_S(symb, syma)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ja), irpmo(jj))
+                symb = MULTB_D(isym, irpmo(ji))
+                syma = MULTB_S(symb, syma)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn))

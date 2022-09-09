@@ -1,6 +1,10 @@
 # DIRAC-CASPT2
 
-#### [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+- [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+
+## お知らせ
+
+- [開発者の方はGithub Wikiを参考に開発を行ってください](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki)
 
 ## 目次
 
@@ -10,12 +14,7 @@
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
-- [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
-  - [テストについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#テストについて)
-  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
-  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
-
-
+  - [active.inpの仕様](https://github.com/kohei-noda-qcrg/dirac_caspt2#activeinpの仕様)
 
 ## Requirements
 
@@ -23,18 +22,20 @@
 
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
 - [CMake](https://cmake.org/)(version ≧ 3.7 が必要です)
-    - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
+  - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
-  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります  
+  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
 
     ```sh
     echo $MKLROOT
     ```
-  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります  
+
+  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります
   - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
-  
+
     ビルド例
+
     ```sh
     mkdir build
     cd build
@@ -42,19 +43,20 @@
     make
     ```
 
-
 - [Python(version ≧ 3.6)](https://www.python.org/)
   - テストを実行するために使用します
   - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
 - [pytest](https://docs.pytest.org/)
   - テストを実行するために使用します
   - python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
+
   ```sh
   python -m pip install pytest
   ```
+
 ## How to Install
 
-以下のコマンドでmainブランチのソースコードをビルドできます
+- CMake version ≦ 3.13 の場合以下のコマンドコマンドでソースコードをビルドできます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -64,7 +66,7 @@ FC=ifort cmake .. --clean-first
 make
 ```
 
-- CMake version ≧ 3.13 を使っているなら以下のようなコマンドでもビルドができます
+- CMake version ≧ 3.14 を使っているなら以下のようなコマンドでもビルドができます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -73,72 +75,67 @@ FC=ifort cmake -B build
 cmake --build build --clean-first
 ```
 
-- 現在Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
+- CMake version ≧ 3.14かつIntel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
 
 ```sh
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
-cd dirac_caspt2
-FC=ifort cmake -B build
-cmake --build build -j4 --clean-first
+FC=ifort cmake -B build && cmake --build build -j4 --clean-first
+or
+FC=mpiifort cmake -DMPI=on -B build && cmake --build build -j4 --clean-first
 ```
 
 ### ソフトウェアのテスト
 
-ビルド後はテストを行うことを推奨します  
-テストを行うには[Python(version ≧ 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です  
+ビルド後はテストを行うことを推奨します
+テストを行うには[Python(version ≧ 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です
 testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
 
 ```sh
 pytest
 ```
 
-並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合  
+並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合
 pytestコマンドに--paralles=並列数を付け加え、並列用テストを行うことを推奨します
 
 ```sh
 pytest --parallel=4
 ```
 
-
 ### ビルドオプション
 
 現時点でサポートしているビルドオプションは以下のとおりです
 
+(これ以降のコマンドはすべてCMake version ≧ 3.14での説明になっているのでCMake version ≦ 3.13 の場合読み替えを行ってください)
+
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
 - MPI
-    - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
+  - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
 
-        (例)
+      (例)
 
-        ```sh
-        mkdir -p build && cd build
-        FC=mpiifort cmake -DMPI=on ..
-        make
-        ```
+      ```sh
+      FC=mpiifort cmake -DMPI=on -B build && cmake --build build
+      ```
 
 - OPENMP
 
-    - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します(default:OFF)
+  - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します(default:OFF)
 
-        (例)
+      (例)
 
-        ```sh
-        mkdir -p build && cd build
-        FC=ifort cmake -DOPENMP=on ..
-        make
-        ```
+      ```sh
+      FC=ifort cmake -DOPENMP=on -B build && cmake --build build
+      ```
+
 - MKL
 
-    - MKLを使わないときはこのビルドオプションをOFFにする必要があります.デフォルトがONなので指定しなければMKLを使う前提でビルドを行います(default:ON)
+  - MKLを使わないときはこのビルドオプションをOFFにする必要があります.デフォルトがONなので指定しなければMKLを使う前提でビルドを行います(default:ON)
 
-        (例)
+      (例)
 
-        ```sh
-        mkdir -p build && cd build
-        LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off ..
-        make
-        ```
+      ```sh
+      LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off -B build && cmake --build build
+      ```
 
 ### ビルド例
 
@@ -147,65 +144,49 @@ pytest --parallel=4
 - Intel Fortran
 
     ```sh
-    mkdir -p build && cd build
-    FC=ifort cmake ..
-    make
+    FC=ifort cmake -B build && cmake --build build
     ```
 
 - Intel Fortran (with OpenMP)
 
     ```sh
-    mkdir -p build && cd build
-    FC=ifort cmake -DOPENMP=on ..
-    make
+    FC=ifort cmake -DOPENMP=on -B build && cmake --build build
     ```
 
 - Intel Fortran(MPI only, Intel MPI)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpiifort cmake -DMPI=on ..
-    make
+    FC=mpiifort cmake -DMPI=on -B build && cmake --build build
     ```
 
 - Intel Fortran(MPI/OpenMP hybrid, Intel MPI)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpiifort cmake -DMPI=on -DOPENMP=on ..
-    make
+    FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
     ```
 
 - GNU Fortran
 
     ```sh
-    mkdir -p build && cd build
-    FC=gfortran cmake ..
-    make
+    FC=gfortran cmake -B build && cmake --build build
     ```
 
 - GNU Fortran (with OpenMP)
 
     ```sh
-    mkdir -p build && cd build
-    FC=gfortran cmake -DOPENMP=on ..
-    make
+    FC=gfortran cmake -DOPENMP=on -B build && cmake --build build
     ```
 
 - OpenMPI Fortran(MPI only)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpifort cmake -DMPI=on ..
-    make
+    FC=mpifort cmake -DMPI=on -B build && cmake --build build
     ```
 
 - OpenMPI Fortran(MPI/OpenMP hybrid)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpifort cmake -DMPI=on -DOPENMP=on ..
-    make
+    FC=mpifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
     ```
 
 ## How to use
@@ -330,104 +311,7 @@ end         : The identifier at the end of active.inp (required)
 - RASについて,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
 
 ```in
-  1..4, 5   7 10..13
+  1..4, 7   8 11..14
   ↓
-  1,2,3,4,5,7,10,11,12,13
+  1,2,3,4,7,8,11,12,14
 ```
-
-## 開発者のかたへ
-
-### テストについて
-
-- 新機能作成時は[単体テスト](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)を書いて小さい機能単位で細かくテストするような開発スタイルをお勧めします。単体テストのやり方については[このプロジェクトの単体テストのディレクトリ](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main/test/unit_test)や[単体テストのチュートリアル的記事](https://qiita.com/5t111111/items/babb143562bae449150a)を参照したり、[単体テストについて検索](https://www.google.com/search?q=%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)して学ぶことをお勧めします
-
-- このプロジェクトでは、以下の手順でCASPT2エネルギーに一定以上の誤差があるかどうかをテストできます。誤差は10<sup>-8</sup> a.u.まで許しています
-  - 実行するにはpytestをpython -m pip install pytestにより導入する必要があります
-  - pytestを導入したら
-
-  ```sh
-  pytest
-  ```
-
-を実行すれば自動的にテストが開始されます  
-
-- mpiifortやmpif90,mpifortなどの並列コンパイラでかつビルド時に-DMPI=onオプションを有効にした場合、MPI並列用テストを行うことを推奨します。コマンドは以下の通りです
-
-  ```sh
-  pytest --parallel=4
-  ```
-  
-- また[Github Actions](https://github.co.jp/features/actions)を使うことで月50時間まではアップロード(push)された\*.f90,\*.F90,\*.cmake,CMakeLists.txt,\*.py,Github Actions用ファイルのいずれかが変更されたコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態をつくりました。([.github/workflows/ci.ymlにGithub Actions用設定があります](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/.github/workflows/ci.yml))
-- CASPT2エネルギーのテストは複数の分子系で、できるだけ違うタイプのインプットを用いて、最初に基準と定めたアウトプットから**自動的に**(ここがテスト自動化の良い点です)判定する形式にしています
-  - このテストはいわゆる[統合試験](https://ja.wikipedia.org/wiki/%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%83%86%E3%82%B9%E3%83%88#%E7%B5%B1%E5%90%88%E8%A9%A6%E9%A8%93_(Integration_Testing))です
-- ツールはFortranのテストツールは機能が貧弱なので、pythonのpytestを用いました
-  - DIRACもpythonを用いてテストを書いています
-  - python側からビルドしたプログラムを実行し、アウトプットをリファレンス値と比較することで自動テストを実現します([testディレクトリ以下のpythonファイルを参照](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main/test)してください)
-
-### ビルドについて
-
-- ビルドには[CMake](https://cmake.org/)を用います
-  - デフォルトのビルドの設定や、ビルドオプションの書き分け処理などは[このプロジェクトのルートディレクトリのCMakeLists.txt](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/CMakeLists.txt)に書きます
-  - 設定を追加したい場合は[公式ドキュメント](https://cmake.org/cmake/help/v3.7/)が正確でかなりわかりやすいので、"cmake やりたいこと"で検索してオプション名を見つけてから公式ドキュメントをみて追加することをお勧めします
-  
-- ビルドオプションを変えるときは前のビルドを行ったディレクトリをディレクトリごと消してからビルドしてください
-  
-  例えば以下のようにするとビルドオプションを再指定してからビルドされます
-
-  ```sh
-  # Remove dir
-  rm -r build
-  # Reconfigure and rebuild and run test
-  FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build && pytest --parallel=4 
-  ```
-  
-- ビルドオプションは変えないもののビルド自体は最初からやり直したい場合は --clean-first オプションをつけると最初からビルドをやり直せます
-
-  ```sh
-  cmake --build build --clean-first
-  ```
-
-### 環境構築について
-
-#### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmake、gitおよびDIRAC(19.0,21.1,22.0)の環境を用意しています
-
-#### 以下の記述を\$HOME/.bashrc に追記するとマシンログイン時に新しいバージョンのcmake,gitが使えます
-
-\$HOME/.bashrc
-
-```bash
-module use --append "/home/noda/modulefiles" # Add Noda's modules
-module purge            # deactivate all modules
-module load cmake       # Load default cmake
-module load git         # Load git
-source "/home/noda/.config/git/.git-completion.bash" # Activate completions of the git command
-##############################
-# Git prompt
-##############################
-source "/home/noda/.config/git/git-prompt.sh" # This script allows you to see repository status in your prompt
-export GIT_PS1_SHOWDIRTYSTATE=1 # cf. https://github.com/git/git/blob/e8005e4871f130c4e402ddca2032c111252f070a/contrib/completion/git-prompt.sh#L38-L42
-export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\] ' # Change the prompt of your shell
-```
-
-#### 用意したDIRACの使い方
-
-- \$HOME/.bashrcにmodule use --append "/home/noda/modulefiles"を記述します
-- module load DIRAC/19.0 などと入力するとpam-diracコマンドが使えるようになります
-  - loadできるソフト一覧はmodule availで確認できます
-  - DIRACのmoduleはDIRACを使うときだけ一時的にmodule loadすることをお勧めします
-  - 従ってDIRACを実行する際は実行用のシェルスクリプト内でmodule loadすることを推奨します
-
-  ```sh
-  #!/bin/sh
-
-  module load dirac/21.1 # Load DIRAC 21.1
-
-  MOLECULE=H2O
-  INPFILE=${MOLECULE}.inp
-  MOLFILE=${MOLECULE}.xyz
-  LOGFILE=${MOLECULE}.log
-  NPROCS=8
-  $PAM --mpi=$NPROCS --get="MRCONEE MDCIN*" '--keep_scratch' --mol=${MOLFILE} --inp=${INPFILE} --noarch &> $LOGFILE
-  ```
-
-- モジュールの読み込みを解除したいときは module unload 解除したいモジュールの名前 を実行します
