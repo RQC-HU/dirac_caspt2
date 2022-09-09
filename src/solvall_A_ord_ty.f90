@@ -108,10 +108,11 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
-                    syma = MULTB_D(irpmo(jx), isym)
-                    symb = MULTB_D(irpmo(jy), irpmo(jz))
-                    syma = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(jx), isym)
+                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_S(syma, symb)
+                    end if
                     ! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
@@ -136,11 +137,12 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
-                    syma = MULTB_D(irpmo(jx), isym)
-                    symb = MULTB_D(irpmo(jy), irpmo(jz))
-                    syma = MULTB_S(syma, symb)
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(jx), isym)
+                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_S(syma, symb)
+                    end if
 
-                    ! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
                         indsym(1, ixyz) = ix
@@ -611,10 +613,11 @@ SUBROUTINE vAmat_ord_ty(v)
                     ju = iu + ninact
 
 ! EtiEuv
-                    syma = MULTB_D(irpmo(jt), isym)
-                    symb = MULTB_D(irpmo(ju), irpmo(jv))
-                    symc = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(jt), isym)
+                        symb = MULTB_D(irpmo(ju), irpmo(jv))
+                        symc = MULTB_S(syma, symb)
+                    end if
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. symc == 1)) then
                         dim(isym) = dim(isym) + 1
                         indt(dim(isym), isym) = it
@@ -641,8 +644,7 @@ SUBROUTINE vAmat_ord_ty(v)
             Do iv = 1, nact
                 jv = iv + ninact
 
-                syma = MULTB_D(irpmo(jv), irpmo(ju))
-
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jv), irpmo(ju))
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dim2(isym) = dim2(isym) + 1
                     ind2u(dim2(isym), isym) = iu

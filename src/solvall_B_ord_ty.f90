@@ -128,7 +128,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -147,7 +147,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -309,10 +309,10 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Do i0 = 1, nij
             ji = ii0(i0)
             jj = ij0(i0)
-
-            syma = MULTB_D(irpmo(ji) - (-1)**(mod(irpmo(ji), 2)), irpmo(jj))
-            syma = MULTB_S(syma, isym)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ji) - (-1)**(mod(irpmo(ji), 2)), irpmo(jj))
+                syma = MULTB_S(syma, isym)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)

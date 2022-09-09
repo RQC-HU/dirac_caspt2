@@ -103,10 +103,11 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
-                    syma = MULTB_D(isym, irpmo(jx))
-                    symb = MULTB_D(irpmo(jy), irpmo(jz))
-                    syma = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(isym, irpmo(jx))
+                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_S(syma, symb)
+                    end if
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
                     End if
@@ -130,10 +131,11 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
-                    syma = MULTB_D(isym, irpmo(jx))
-                    symb = MULTB_D(irpmo(jy), irpmo(jz))
-                    syma = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(isym, irpmo(jx))
+                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_S(syma, symb)
+                    end if
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                         ixyz = ixyz + 1
@@ -587,11 +589,11 @@ SUBROUTINE vCmat_ord_ty(v)
                     ju = iu + ninact
 
                     !     EatEuv|0>
-
-                    syma = MULTB_D(irpmo(ju), irpmo(jv))
-                    symb = MULTB_D(isym, irpmo(jt))
-                    symc = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(ju), irpmo(jv))
+                        symb = MULTB_D(isym, irpmo(jt))
+                        symc = MULTB_S(syma, symb)
+                    end if
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. symc == 1)) then
                         dim(isym) = dim(isym) + 1
                         indt(dim(isym), isym) = it

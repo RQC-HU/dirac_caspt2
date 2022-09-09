@@ -119,7 +119,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
 
-                syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -140,7 +140,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
 
-                syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -300,10 +300,10 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
             jb = ib0(i0)
 
 !     EatEbu|0>
-
-            syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
-            syma = MULTB_S(syma, isym)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                syma = MULTB_S(syma, isym)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn))

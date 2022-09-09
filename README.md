@@ -1,6 +1,10 @@
 # DIRAC-CASPT2
 
-#### [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+- [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+
+## お知らせ
+
+- [開発者の方はGithub Wikiを参考に開発を行ってください](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki)
 
 ## 目次
 
@@ -10,10 +14,7 @@
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
-- [開発者のかたへ](https://github.com/kohei-noda-qcrg/dirac_caspt2#開発者のかたへ)
-  - [テストについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#テストについて)
-  - [ビルドについて](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドについて)
-  - [環境構築について](https://github.com/kohei-noda-qcrg/dirac_caspt2#環境構築について)
+  - [active.inpの仕様](https://github.com/kohei-noda-qcrg/dirac_caspt2#activeinpの仕様)
 
 ## Requirements
 
@@ -55,7 +56,7 @@
 
 ## How to Install
 
-以下のコマンドでmainブランチのソースコードをビルドできます
+- CMake version ≦ 3.13 の場合以下のコマンドコマンドでソースコードをビルドできます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -65,7 +66,7 @@ FC=ifort cmake .. --clean-first
 make
 ```
 
-- CMake version ≧ 3.13 を使っているなら以下のようなコマンドでもビルドができます
+- CMake version ≧ 3.14 を使っているなら以下のようなコマンドでもビルドができます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -74,13 +75,12 @@ FC=ifort cmake -B build
 cmake --build build --clean-first
 ```
 
-- 現在Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
+- CMake version ≧ 3.14かつIntel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
 
 ```sh
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
-cd dirac_caspt2
-FC=ifort cmake -B build
-cmake --build build -j4 --clean-first
+FC=ifort cmake -B build && cmake --build build -j4 --clean-first
+or
+FC=mpiifort cmake -DMPI=on -B build && cmake --build build -j4 --clean-first
 ```
 
 ### ソフトウェアのテスト
@@ -106,6 +106,8 @@ pytest --all --parallel=4
 
 現時点でサポートしているビルドオプションは以下のとおりです
 
+(これ以降のコマンドはすべてCMake version ≧ 3.14での説明になっているのでCMake version ≦ 3.13 の場合読み替えを行ってください)
+
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
 - MPI
@@ -114,9 +116,7 @@ pytest --all --parallel=4
       (例)
 
       ```sh
-      mkdir -p build && cd build
-      FC=mpiifort cmake -DMPI=on ..
-      make
+      FC=mpiifort cmake -DMPI=on -B build && cmake --build build
       ```
 
 - OPENMP
@@ -126,9 +126,7 @@ pytest --all --parallel=4
       (例)
 
       ```sh
-      mkdir -p build && cd build
-      FC=ifort cmake -DOPENMP=on ..
-      make
+      FC=ifort cmake -DOPENMP=on -B build && cmake --build build
       ```
 
 - MKL
@@ -138,9 +136,7 @@ pytest --all --parallel=4
       (例)
 
       ```sh
-      mkdir -p build && cd build
-      LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off ..
-      make
+      LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off -B build && cmake --build build
       ```
 
 ### ビルド例
@@ -150,65 +146,49 @@ pytest --all --parallel=4
 - Intel Fortran
 
     ```sh
-    mkdir -p build && cd build
-    FC=ifort cmake ..
-    make
+    FC=ifort cmake -B build && cmake --build build
     ```
 
 - Intel Fortran (with OpenMP)
 
     ```sh
-    mkdir -p build && cd build
-    FC=ifort cmake -DOPENMP=on ..
-    make
+    FC=ifort cmake -DOPENMP=on -B build && cmake --build build
     ```
 
 - Intel Fortran(MPI only, Intel MPI)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpiifort cmake -DMPI=on ..
-    make
+    FC=mpiifort cmake -DMPI=on -B build && cmake --build build
     ```
 
 - Intel Fortran(MPI/OpenMP hybrid, Intel MPI)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpiifort cmake -DMPI=on -DOPENMP=on ..
-    make
+    FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
     ```
 
 - GNU Fortran
 
     ```sh
-    mkdir -p build && cd build
-    FC=gfortran cmake ..
-    make
+    FC=gfortran cmake -B build && cmake --build build
     ```
 
 - GNU Fortran (with OpenMP)
 
     ```sh
-    mkdir -p build && cd build
-    FC=gfortran cmake -DOPENMP=on ..
-    make
+    FC=gfortran cmake -DOPENMP=on -B build && cmake --build build
     ```
 
 - OpenMPI Fortran(MPI only)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpifort cmake -DMPI=on ..
-    make
+    FC=mpifort cmake -DMPI=on -B build && cmake --build build
     ```
 
 - OpenMPI Fortran(MPI/OpenMP hybrid)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpifort cmake -DMPI=on -DOPENMP=on ..
-    make
+    FC=mpifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
     ```
 
 ## How to use
@@ -333,124 +313,7 @@ end         : The identifier at the end of active.inp (required)
 - RASについて,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
 
 ```in
-  1..4, 5   7 10..13
+  1..4, 7   8 11..14
   ↓
-  1,2,3,4,5,7,10,11,12,13
+  1,2,3,4,7,8,11,12,14
 ```
-
-## 開発者のかたへ
-
-### テストについて
-
-- 新機能作成時は[単体テスト](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)を書いて小さい機能単位で細かくテストするような開発スタイルをお勧めします。単体テストのやり方については[このプロジェクトの単体テストのディレクトリ](https://github.com/kohei-noda-qcrg/dirac_caspt2/tree/main/test/unit_test)や[単体テストのチュートリアル的記事](https://qiita.com/5t111111/items/babb143562bae449150a)を参照したり、[単体テストについて検索](https://www.google.com/search?q=%E5%8D%98%E4%BD%93%E3%83%86%E3%82%B9%E3%83%88)して学ぶことをお勧めします
-
-- このプロジェクトでは、以下の手順でCASPT2エネルギーに一定以上の誤差があるかどうかのテストおよび単体テストの実行ができます。誤差は10<sup>-8</sup> a.u.まで許しています
-  - 実行するにはpytestをpython -m pip install pytestにより導入する必要があります
-  - pytestを導入したら
-
-  ```sh
-  pytest --dev
-  ```
-
-を実行すれば自動的にテストが開始されます(上記の例では開発用テストマーカー--devをつけています)
-
-- 実行したくないテストがある場合は[--ignore=path/to/ignoreで指定してください、/path/to/ignore以下のテストが無視されます](https://docs.pytest.org/en/7.1.x/example/pythoncollection.html#:~:text=The%20--ignore-glob%20option%20allows%20to%20ignore%20test%20file,deselected%20during%20collection%20by%20passing%20the%20--deselect%3Ditem%20option.)
-- テストは軽い順に@pytest.mark.dev、マーカーなし、@pytest.mark.slowというマーカーで指定されています
-- pytestに引数をつけると、走らせるテストの制御ができます。引数は以下の通りです
-
-> (引数について)
-> 実装中は--devでテストを使って効率的にテストと開発のループを行い
-> pull request前などのときに、引数なしのテストや--allのテストをローカルでする
-> 等といった開発のやり方をお勧めしますが、実装のやり方は個々人に任せます
-> ( GitHub上では[Github Actions](https://github.co.jp/features/actions)を用いて
-> mainブランチ以外へのpush時に引数なし、
-> pull request時に--onlyslow、
-> mainブランチへのpush時に(pull requestのマージ含)--all
-> を使ってテストを行うようにしています )
-
-```sh
-# @pytest.mark.devがついているテストのみ実行
-pytest --dev
-# マーカーなしのテストと@pytest.mark.devがついているテストのみ実行
-pytest
-# すべてのテストを実行
-pytest --all
-# @pytest.mark.slowがついているテストのみ実行
-pytest --onlyslow
-```
-
-- mpiifortやmpif90,mpifortなどの並列コンパイラでかつビルド時に-DMPI=onオプションを有効にした場合、MPI並列用テストを行うことを推奨します。コマンドは以下の通りです
-
-  ```sh
-  pytest --dev --parallel=4
-  ```
-
-- [Github Actions](https://github.co.jp/features/actions)について、このサービスを使うことで月50時間まではアップロード(push)された\*.f90,\*.F90,\*.cmake,CMakeLists.txt,\*.py,Github Actions用ファイルのいずれかが変更されたコミットに対して自動テストが走るようにし、意識しなくてもテストされている状態を作っています([.github/workflows/ci.ymlにGithub Actions用設定があります](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/.github/workflows/ci.yml))
-
-### ビルドについて
-
-- ビルドには[CMake](https://cmake.org/)を用います
-  - デフォルトのビルドの設定や、ビルドオプションの書き分け処理などは[このプロジェクトのルートディレクトリのCMakeLists.txt](https://github.com/kohei-noda-qcrg/dirac_caspt2/blob/main/CMakeLists.txt)に書きます
-  - 設定を追加したい場合は[公式ドキュメント](https://cmake.org/cmake/help/v3.7/)が正確でかなりわかりやすいので、"cmake やりたいこと"で検索してオプション名を見つけてから公式ドキュメントをみて追加することをお勧めします
-
-- ビルドオプションを変えるときは前のビルドを行ったディレクトリをディレクトリごと消してからビルドしてください
-
-  例えば以下のようにするとビルドオプションを再指定してからビルドされます
-
-  ```sh
-  # Remove build dir
-  rm -r build
-  # Reconfigure and rebuild and run test
-  FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build && pytest --parallel=4
-  ```
-
-- ビルドオプションは変えないもののビルド自体は最初からやり直したい場合は --clean-first オプションをつけると最初からビルドをやり直せます
-
-  ```sh
-  cmake --build build --clean-first
-  ```
-
-### 環境構築について
-
-#### relqc01のマシンにおいては[野田](https://github.com/kohei-noda-qcrg)がcmake、gitおよびDIRAC(19.0,21.1,22.0)の環境を用意しています
-
-#### 以下の記述を\$HOME/.bashrc に追記するとマシンログイン時に新しいバージョンのcmake,gitが使えます
-
-\$HOME/.bashrc
-
-```bash
-module use --append "/home/noda/modulefiles" # Add Noda's modules
-module purge            # deactivate all modules
-module load cmake       # Load default cmake
-module load git         # Load git
-source "/home/noda/.config/git/.git-completion.bash" # Activate completions of the git command
-##############################
-# Git prompt
-##############################
-source "/home/noda/.config/git/git-prompt.sh" # This script allows you to see repository status in your prompt
-export GIT_PS1_SHOWDIRTYSTATE=1 # cf. https://github.com/git/git/blob/e8005e4871f130c4e402ddca2032c111252f070a/contrib/completion/git-prompt.sh#L38-L42
-export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]$(__git_ps1)\[\033[01;34m\] \$\[\033[00m\] ' # Change the prompt of your shell
-```
-
-#### 用意したDIRACの使い方
-
-- \$HOME/.bashrcにmodule use --append "/home/noda/modulefiles"を記述します
-- module load DIRAC/19.0 などと入力するとpam-diracコマンドが使えるようになります
-  - loadできるソフト一覧はmodule availで確認できます
-  - DIRACのmoduleはDIRACを使うときだけ一時的にmodule loadすることをお勧めします
-  - 従ってDIRACを実行する際は実行用のシェルスクリプト内でmodule loadすることを推奨します
-
-  ```sh
-  #!/bin/sh
-
-  module load dirac/21.1 # Load DIRAC 21.1
-
-  MOLECULE=H2O
-  INPFILE=${MOLECULE}.inp
-  MOLFILE=${MOLECULE}.xyz
-  LOGFILE=${MOLECULE}.log
-  NPROCS=8
-  $PAM --mpi=$NPROCS --get="MRCONEE MDCIN*" '--keep_scratch' --mol=${MOLFILE} --inp=${INPFILE} --noarch &> $LOGFILE
-  ```
-
-- モジュールの読み込みを解除したいときは module unload 解除したいモジュールの名前 を実行します

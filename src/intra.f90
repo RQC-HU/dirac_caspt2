@@ -531,7 +531,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     complex*16, allocatable :: traint2(:, :, :, :)
 
     real*8                  :: thresd
-    complex*16              :: cint2
+    complex*16              :: cint2, initial_cint2
 
     integer :: i, j, k, l
     integer :: initial_i, initial_j, initial_k, initial_l
@@ -600,11 +600,12 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             exit
         end if
 
-        ! save initial indices i,j,k,l to initial_i,initial_j,initial_k,initial_l, respectively.
+        ! save initial indices i,j,k,l,cint2 to initial_i,initial_j,initial_k,initial_l,initial_cint2 respectively.
         initial_i = i
         initial_j = j
         initial_k = k
         initial_l = l
+        initial_cint2 = cint2
 
         isym = irpamo(l)
 
@@ -631,7 +632,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
         if (mod(initial_k, 2) == 1) l = initial_k + 1
         if (mod(initial_l, 2) == 0) k = initial_l - 1
         if (mod(initial_l, 2) == 1) k = initial_l + 1
-        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*cint2
+        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*initial_cint2
         isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
