@@ -3,7 +3,8 @@
 !dirac_data/**
 !.gitignore
 !active.inp
-!MDCIN*
+!MDCINT
+!MDCINX*
 !MRCONEE
 !reference*out
 !test*py
