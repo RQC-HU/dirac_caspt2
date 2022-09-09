@@ -1,6 +1,6 @@
 # DIRAC-CASPT2
 
-#### [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+- [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
 
 ## お知らせ
 
@@ -14,6 +14,7 @@
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
+  - [active.inpの仕様](https://github.com/kohei-noda-qcrg/dirac_caspt2#activeinpの仕様)
 
 ## Requirements
 
@@ -21,7 +22,7 @@
 
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
 - [CMake](https://cmake.org/)(version ≧ 3.7 が必要です)
-    - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
+  - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
@@ -29,10 +30,12 @@
     ```sh
     echo $MKLROOT
     ```
+
   - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります
   - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
 
     ビルド例
+
     ```sh
     mkdir build
     cd build
@@ -40,19 +43,20 @@
     make
     ```
 
-
 - [Python(version ≧ 3.6)](https://www.python.org/)
   - テストを実行するために使用します
   - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
 - [pytest](https://docs.pytest.org/)
   - テストを実行するために使用します
   - python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
+
   ```sh
   python -m pip install pytest
   ```
+
 ## How to Install
 
-以下のコマンドでmainブランチのソースコードをビルドできます
+- CMake version ≦ 3.13 の場合以下のコマンドコマンドでソースコードをビルドできます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -62,7 +66,7 @@ FC=ifort cmake .. --clean-first
 make
 ```
 
-- CMake version ≧ 3.13 を使っているなら以下のようなコマンドでもビルドができます
+- CMake version ≧ 3.14 を使っているなら以下のようなコマンドでもビルドができます
 
 ```sh
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
@@ -71,13 +75,12 @@ FC=ifort cmake -B build
 cmake --build build --clean-first
 ```
 
-- 現在Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
+- CMake version ≧ 3.14かつIntel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
 
 ```sh
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
-cd dirac_caspt2
-FC=ifort cmake -B build
-cmake --build build -j4 --clean-first
+FC=ifort cmake -B build && cmake --build build -j4 --clean-first
+or
+FC=mpiifort cmake -DMPI=on -B build && cmake --build build -j4 --clean-first
 ```
 
 ### ソフトウェアのテスト
@@ -97,46 +100,42 @@ pytestコマンドに--paralles=並列数を付け加え、並列用テストを
 pytest --parallel=4
 ```
 
-
 ### ビルドオプション
 
 現時点でサポートしているビルドオプションは以下のとおりです
 
+(これ以降のコマンドはすべてCMake version ≧ 3.14での説明になっているのでCMake version ≦ 3.13 の場合読み替えを行ってください)
+
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
 - MPI
-    - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
+  - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
 
-        (例)
+      (例)
 
-        ```sh
-        mkdir -p build && cd build
-        FC=mpiifort cmake -DMPI=on ..
-        make
-        ```
+      ```sh
+      FC=mpiifort cmake -DMPI=on -B build && cmake --build build
+      ```
 
 - OPENMP
 
-    - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します(default:OFF)
+  - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します(default:OFF)
 
-        (例)
+      (例)
 
-        ```sh
-        mkdir -p build && cd build
-        FC=ifort cmake -DOPENMP=on ..
-        make
-        ```
+      ```sh
+      FC=ifort cmake -DOPENMP=on -B build && cmake --build build
+      ```
+
 - MKL
 
-    - MKLを使わないときはこのビルドオプションをOFFにする必要があります.デフォルトがONなので指定しなければMKLを使う前提でビルドを行います(default:ON)
+  - MKLを使わないときはこのビルドオプションをOFFにする必要があります.デフォルトがONなので指定しなければMKLを使う前提でビルドを行います(default:ON)
 
-        (例)
+      (例)
 
-        ```sh
-        mkdir -p build && cd build
-        LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off ..
-        make
-        ```
+      ```sh
+      LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off -B build && cmake --build build
+      ```
 
 ### ビルド例
 
@@ -145,65 +144,49 @@ pytest --parallel=4
 - Intel Fortran
 
     ```sh
-    mkdir -p build && cd build
-    FC=ifort cmake ..
-    make
+    FC=ifort cmake -B build && cmake --build build
     ```
 
 - Intel Fortran (with OpenMP)
 
     ```sh
-    mkdir -p build && cd build
-    FC=ifort cmake -DOPENMP=on ..
-    make
+    FC=ifort cmake -DOPENMP=on -B build && cmake --build build
     ```
 
 - Intel Fortran(MPI only, Intel MPI)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpiifort cmake -DMPI=on ..
-    make
+    FC=mpiifort cmake -DMPI=on -B build && cmake --build build
     ```
 
 - Intel Fortran(MPI/OpenMP hybrid, Intel MPI)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpiifort cmake -DMPI=on -DOPENMP=on ..
-    make
+    FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
     ```
 
 - GNU Fortran
 
     ```sh
-    mkdir -p build && cd build
-    FC=gfortran cmake ..
-    make
+    FC=gfortran cmake -B build && cmake --build build
     ```
 
 - GNU Fortran (with OpenMP)
 
     ```sh
-    mkdir -p build && cd build
-    FC=gfortran cmake -DOPENMP=on ..
-    make
+    FC=gfortran cmake -DOPENMP=on -B build && cmake --build build
     ```
 
 - OpenMPI Fortran(MPI only)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpifort cmake -DMPI=on ..
-    make
+    FC=mpifort cmake -DMPI=on -B build && cmake --build build
     ```
 
 - OpenMPI Fortran(MPI/OpenMP hybrid)
 
     ```sh
-    mkdir -p build && cd build
-    FC=mpifort cmake -DMPI=on -DOPENMP=on ..
-    make
+    FC=mpifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
     ```
 
 ## How to use
@@ -328,7 +311,7 @@ end         : The identifier at the end of active.inp (required)
 - RASについて,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
 
 ```in
-  1..4, 5   7 10..13
+  1..4, 7   8 11..14
   ↓
-  1,2,3,4,5,7,10,11,12,13
+  1,2,3,4,7,8,11,12,14
 ```
