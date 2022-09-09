@@ -11,6 +11,7 @@ from module_testing import (
 )
 
 
+@pytest.mark.slow
 def test_methane_slow(the_number_of_process: int) -> None:
 
     # Set file names
