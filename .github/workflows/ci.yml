@@ -72,19 +72,19 @@ jobs:
       - name: Build source code (parallel)
         run: |
           cmake -DMPI=on -DOPENMP=on -B build
-          cmake --build build -j4 --clean-first
+          cmake --build build -j2 --clean-first
       - name: Run unittest(parallel, run onlyslow tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --onlyslow --parallel=4
+          pytest --onlyslow --parallel=2
       - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
-          pytest --parallel=4
+          pytest --parallel=2
       - name: Run unittest(parallel, run all tests, push to main branch)
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
-          pytest --all --parallel=4
+          pytest --all --parallel=2
 
   test-linux-gfortran:
     timeout-minutes: 60 # Max execution time (min)
