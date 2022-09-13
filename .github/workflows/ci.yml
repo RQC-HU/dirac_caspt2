@@ -73,10 +73,10 @@ jobs:
         run: |
           cmake -DMPI=on -DOPENMP=on -B build
           cmake --build build -j2 --clean-first
-      - name: Run unittest(parallel, run onlyslow tests, pull_request)
+      - name: Run unittest(parallel, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --onlyslow --parallel=2
+          pytest --slowonly --parallel=2
       - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
@@ -134,10 +134,10 @@ jobs:
         run: |
           cmake -DOPENMP=on -B build
           cmake --build build --clean-first
-      - name: Run unittest(serial, run onlyslow tests, pull_request)
+      - name: Run unittest(serial, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --onlyslow
+          pytest --slowonly
       - name: Run unittest(serial, run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
