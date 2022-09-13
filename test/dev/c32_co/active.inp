@@ -24,17 +24,3 @@ diracver
 21
 end
 0
-
-Input for CASCI and CASPT2
-
-        read(5,'(I4)')ninact     # of inactive spinors
-        read(5,'(I4)')nact       # of active spinors
-        read(5,'(I4)')nsec       # of secondary spinors = nbas-ncore-nact-ninact
-        read(5,'(I4)')nelec      # of active electrons in active space
-        read(5,'(I4)')nroot      # of roots
-        read(5,'(I4)')selectroot # which root do you want to obtain
-        read(5,'(I4)')totsym     # total symmetry ex. 5 for Ag in C2h closed shell
-        read(5,'(I4)')ncore      # of core orbital
-        read(5,'(I4)')nbas       # of basis set
-        read(5,'(E8.2)')eshift   # for real shift (if you don't write, it will be 0)
-        read(5,'(A6)')ptgrp      # point group symmtery
