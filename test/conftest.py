@@ -36,18 +36,25 @@ def pytest_collection_modifyitems(config, items):
         print("run all tests")
         return
     for item in items:
+        # Check whether the test should be skipped or not.
+        # The tests with item.add_marker("something") added will be skipped.
+
+        # Tests marked by @pytest.mark.dev
         if item.get_closest_marker("dev"):
             # dev tests always run except when --onlyslow was activated
             if config.getoption(slow_only_option):
                 item.add_marker(skip_fast_dev)
             else:
                 pass
+        # Tests marked by @pytest.mark.slowonly
         elif item.get_closest_marker("slowonly"):
+            # slow tests only run when --onlyslow was activated
             if config.getoption(slow_only_option):
                 pass
-            else:  # no args related to markers
+            else:
                 item.add_marker(skip_slow)
-        else:  # Neutral tests
+        # Unmarked tests
+        else:
             # Skip neutral tests if --dev or --onlyslow were activated
             if config.getoption(dev_option):
                 item.add_marker(skip_tests_because_dev)
