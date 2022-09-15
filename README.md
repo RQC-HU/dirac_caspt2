@@ -25,7 +25,7 @@
   - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
-    \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
+    \$MKLROOTが設定されているか確認するには、以下のコマンドを実行して環境変数\$MKLROOTが設定されているか確認してください
 
     ```sh
     echo $MKLROOT
