@@ -1,17 +1,19 @@
 import os
 import pytest
 import shutil
-
 from module_testing import (
     check_test_returncode,
     convert_string_list_to_float_list,
     convert_string_list_to_integer_list,
     create_test_command,
+    delete_scratch_files,
+    is_binary_file_exist,
     run_test,
     get_split_string_list_from_output_file,
 )
 
 
+@pytest.mark.dev
 def test_int_sort():
 
     # Set file names
@@ -29,9 +31,11 @@ def test_int_sort():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
+    is_binary_file_exist(exe_file_path)
+    delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command, output_file_path)
+    process = run_test(test_command)
     check_test_returncode(process)
 
     # Reference data
@@ -72,6 +76,7 @@ def test_int_sort():
     shutil.copy(output_file_path, latest_passed_path)
 
 
+@pytest.mark.dev
 def test_int_sort_reverse():
 
     # Set file names
@@ -89,6 +94,8 @@ def test_int_sort_reverse():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
+    is_binary_file_exist(exe_file_path)
+    delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
 
     process = run_test(test_command, output_file_path)
@@ -132,6 +139,7 @@ def test_int_sort_reverse():
     shutil.copy(output_file_path, latest_passed_path)
 
 
+@pytest.mark.dev
 def test_real_sort():
 
     # Set file names
@@ -149,6 +157,8 @@ def test_real_sort():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
+    is_binary_file_exist(exe_file_path)
+    delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
 
     process = run_test(test_command, output_file_path)
@@ -170,6 +180,7 @@ def test_real_sort():
     shutil.copy(output_file_path, latest_passed_path)
 
 
+@pytest.mark.dev
 def test_real_sort_reverse():
 
     # Set file names
@@ -187,6 +198,8 @@ def test_real_sort_reverse():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
+    is_binary_file_exist(exe_file_path)
+    delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
 
     process = run_test(test_command, output_file_path)

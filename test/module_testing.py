@@ -30,16 +30,25 @@ def create_test_command(the_number_of_process: int, binaries: "list[str]") -> st
                 test_command = f"{binary}"
             else:
                 test_command = f"{test_command} && {binary}"
+    with open("test_command.txt", "w") as file_output:
+        file_output.write(test_command)
     return test_command
 
 
-def run_test(test_command: str, output_file_path: str) -> "subprocess.CompletedProcess[str]":
-    with open(output_file_path, "w") as file_output:
+def run_test(test_command: str, output_file_path: "str|None" = None) -> "subprocess.CompletedProcess[str]":
+    if output_file_path:
+        with open(output_file_path, "w") as file_output:
+            process = subprocess.run(
+                test_command,
+                shell=True,
+                encoding="utf-8",
+                stdout=file_output,  # Redirect output to file_output
+            )
+    else:
         process = subprocess.run(
             test_command,
             shell=True,
             encoding="utf-8",
-            stdout=file_output,  # Redirect output to file_output
         )
     return process
 

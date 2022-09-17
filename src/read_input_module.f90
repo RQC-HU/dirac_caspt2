@@ -9,12 +9,9 @@ module read_input_module
     use four_caspt2_module, only: rank
     implicit none
     private
-    public read_input, is_substring, ras_read, lowercase, uppercase
+    public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end
     integer, parameter :: intmax = 10**9, max_str_length = 100
-    interface is_in_range_number
-        module procedure is_in_range_int, is_in_range_real
-    end interface is_in_range_number
 contains
     subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -25,13 +22,12 @@ contains
         integer, intent(in) :: unit_num
         integer :: idx, iostat
         character(max_str_length) :: string
-        character(10), allocatable :: essential_variable_names(:)
+        character(10) :: essential_variable_names(11) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
+                                  "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
         logical :: is_comment, is_config_sufficient, is_variable_filled(11) = &
                    (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
-        allocate (essential_variable_names(11))
-        essential_variable_names = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", "nelec     ", &
-                                     "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
+
         is_ras1_configured = .false.; is_ras2_configured = .false.; is_ras3_configured = .false.
         do while (.not. is_end)
             read (unit_num, "(a)", iostat=iostat) string
@@ -49,7 +45,7 @@ contains
         is_config_sufficient = .true.
         do idx = 1, size(is_variable_filled, 1)
             if (.not. is_variable_filled(idx)) then
-                if (rank == 0) print *, "ERROR: You must specify a variable "//trim(essential_variable_names(idx))//" before end."
+                if (rank == 0) print *, "ERROR: You must specify a variable ", trim(essential_variable_names(idx)), " before end."
                 is_config_sufficient = .false.
             end if
         end do
@@ -58,7 +54,7 @@ contains
             stop
         end if
         if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
-        return ! END SUBROUTINE
+
     end subroutine read_input
 
     subroutine check_input_type(unit_num, string, is_filled)
@@ -113,14 +109,14 @@ contains
             is_filled(9) = .true.
 
         case ("eshift")
-            eshiftloop: do
+            do
                 read (unit_num, '(A)') input
                 call is_comment_line(input, is_comment)
                 if (.not. is_comment) then
                     read (input, *) eshift
-                    exit eshiftloop
+                    exit
                 end if
-            end do eshiftloop
+            end do
 
         case ("ptgrp")
             call read_a_string(unit_num, ptgrp)
@@ -152,7 +148,7 @@ contains
             call uppercase(calctype)
             if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
                 if (rank == 0) print *, "ERROR: calctype must be CASCI or DMRG"
-                stop ! ERROR, STOP THE PROGRAM
+                stop
             end if
 
         case ("minholeras1")
@@ -163,10 +159,11 @@ contains
 
         case default
             if (rank == 0) print *, "ERROR: Unknown input: ", trim(string)
-            stop ! ERROR, STOP THE PROGRAM
+            stop
         end select
 
     end subroutine check_input_type
+
     subroutine ras_read(unit_num, ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns RAS[1,2,3] list from the user input
@@ -183,15 +180,14 @@ contains
         character(max_str_length) :: string
         integer :: tmp_ras(max_ras_spinor_num), idx_filled, iostat, idx
 
-        ! Get the ras_num and store this to ras_chr
+        ! store ras_num character to ras_chr
         write (tmp_ras_chr, *) ras_num
         allocate (ras_chr, source=trim(adjustl(tmp_ras_chr)))
-        ! ras_chr = trim(adjustl(tmp_ras_chr))
 
         read (unit_num, '(a)', iostat=iostat) string ! Read a line of active.inp
         if (iostat /= 0) then
             if (rank == 0) print *, "ERROR: ras_read: iostat = ", iostat, ", string =", string
-            stop ! ERROR, STOP THE PROGRAM
+            stop
         end if
         idx_filled = 0
 
@@ -202,7 +198,6 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         call parse_input_string_to_int_list(string=string, list=tmp_ras, filled_num=idx_filled, &
                                             allow_int_min=0, allow_int_max=intmax)
-
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
             print *, "ERROR: string:", string, " rank:", rank
@@ -227,24 +222,23 @@ contains
             ! Check the ras_list(idx) (idx : odd)  is odd number?
             if (mod(ras_list(idx), 2) /= 1) then
                 if (rank == 0) then
-                    print *, "ERROR: ras_list(idx) (idx : odd) must be odd number."
-                    print *, "idx,ras_list(idx) :", idx, ras_list(idx)
+                    print *, "ERROR: sorted ras", ras_chr, "(idx) (idx : odd) must be odd number."
+                    print *, "idx,ras", ras_chr, "(idx) :", idx, ras_list(idx)
+                    print *, "ras", ras_chr, "list :", ras_list
                 end if
                 call write_error_and_stop_ras_read
             end if
             ! Check the ras_list(idx+1) (idx : even) is equal to ras_list(idx) + 1 (idx : odd)?
             if (ras_list(idx) + 1 /= ras_list(idx + 1)) then
-                if (rank == 0) print *, "ERROR: The ras_list is not kramers pair."
+                if (rank == 0) print *, "ERROR: The ras", ras_chr, " is not kramers pair. idx,ras", ras_chr, "(idx),", &
+                    "ras", ras_chr, "(idx+1) :", idx, ras_list(idx), ras_list(idx + 1)
                 call write_error_and_stop_ras_read
             end if
         end do
-
-        return ! END SUBROUTINE NORMALLY
-
     contains
         subroutine write_error_and_stop_ras_read
             implicit none
-            print *, "ERROR: Error in input, can't read ras"//ras_chr//" value!!. Stop the program. rank:", rank
+            print *, "ERROR: Error in input, can't read ras", ras_chr, " value!!. Stop the program. rank:", rank
             stop
         end subroutine write_error_and_stop_ras_read
     end subroutine ras_read
@@ -253,14 +247,14 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns a list of integers
         ! It finds expressions of integer or the form a..b in the input string and expands it to a list.
-        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [-3,-4,0,0,...,0],                             filled_num = 2
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [0,0,...,0],                                   filled_num = 0
         !        OUTPUT : string = " , ,     ,  ,      ", list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20,0,0,...,0], filled_num = 14
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
-        integer, intent(in) :: allow_int_min, allow_int_max ! Allow allow_int_min <= x <= allow_int_max
-        character(*), intent(inout) :: string ! Input string
+        integer, intent(in) :: allow_int_min, allow_int_max
+        character(*), intent(inout) :: string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
-        integer, intent(inout) :: list(:) ! A integer list
+        integer, intent(inout) :: list(:)
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! First, we call this subroutine to detect the expression of the form a..b and expand it to a list.
@@ -281,271 +275,269 @@ contains
         ! It finds expressions of integer in the input string and expands it to a list.
         ! This subroutine can't detect expressions of the form a..b,
         ! so You "must" call this subroutine after call "parse_range_input_int" subroutine.
-        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [1,2,0,0,...,0],                             filled_num = 2
-        !        OUTPUT : string = "1,2,     ,13,      ", list = [1,2,4,5,6,7,8,9,10,17,18,19,20,0,0,...,0], filled_num = 13
+        ! (e.g.) INPUT  : string = "1,2,     ,13,      ", list = [4,5,6,7,8,9,10,17,18,19,20,0,...,0],        filled_num = 11
+        !        OUTPUT : string = " , ,     ,  ,      ", list = [4,5,6,7,8,9,10,17,18,19,20,1,2,13,0,...,0], filled_num = 14
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
-        integer, intent(in) :: allow_int_min, allow_int_max ! Allow allow_int_min <= x <= allow_int_max
-        character(*), intent(inout) :: string ! Input string
+        integer, intent(in) :: allow_int_min, allow_int_max
+        character(*), intent(inout) :: string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
-        integer, intent(inout) :: list(:) ! A integer list
+        integer, intent(inout) :: list(:)
         character(30) :: min_str, max_str, read_int_str
-        character(:), allocatable  :: pattern, invalid_input_message
+        character(:), allocatable  :: pattern, invalid_input_message, subroutine_name
         integer :: read_int, read_int_digit, idx, iostat
         logical :: is_valid
 
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! Checks for positive and negative integers and sets the first character patten
-        ! and the error message that allowed within that range.
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call create_valid_pattern(allow_int_min, allow_int_max, pattern, invalid_input_message)
+        allocate (subroutine_name, source="parse_input_int")
+        call check_args
 
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! Read the number in the input string and store it to the list
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-
-        ! The variable idx is the first index that does not contain space or , or ;
-        idx = verify(string, ' ,') ! idx is 0 if all characters in string are space or , or ;
+        ! The variable idx is the first index that does not contain space or ,
+        idx = verify(string, ' ,') ! idx is 0 if all characters in string are space or ,
         do while (idx /= 0)
-            ! Check whether the strint(idx:idx) is valid
-            call is_substring(string(idx:idx), pattern, is_valid)
-            if (.not. is_valid) then
-                ! Right number is NOT a integer or invalid input.
-                if (rank == 0) print *, invalid_input_message, string(idx:)
-                call write_error_and_stop_parse_input_int
-            end if
+            call check_valid_input
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             ! Now we can get the num (e.g. "12,15" -> 12)
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            read (string(idx:), *, iostat=iostat) read_int ! Read one of the ras3 value
+            call read_integer(read_int)
+            call check_read_int_is_valid(read_int)
+            call fill_number_to_list(read_int)
+
+            ! Rewrite the section we read as blank. (e.g.) "10,3,5" -> "  ,3,5"
+            write (read_int_str, *) read_int
+            read_int_digit = len(trim(adjustl(read_int_str)))
+            string(idx:idx + read_int_digit - 1) = ""
+
+            idx = verify(string, ' ,')  ! next idx
+        end do
+    contains
+        subroutine check_args
+            implicit none
+            call check_range_allow_int(allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) call write_parse_error_and_stop(subroutine_name, string)
+            call create_valid_pattern(allow_int_min, allow_int_max, pattern, invalid_input_message)
+        end subroutine check_args
+
+        subroutine check_valid_input
+            implicit none
+            call check_substring(string(idx:idx), pattern, is_valid)
+            if (.not. is_valid) then ! The number is NOT a integer or invalid input.
+                if (rank == 0) print *, invalid_input_message, string(idx:)
+                call write_parse_error_and_stop(subroutine_name, string)
+            end if
+        end subroutine check_valid_input
+
+        subroutine read_integer(read_value)
+            implicit none
+            integer, intent(out) :: read_value
+            read (string(idx:), *, iostat=iostat) read_value
             if (iostat /= 0) then
                 if (rank == 0) then
                     print *, "Error in the section in reading the number, iostat = ", iostat, &
                         ", string = ", string(idx:)
                 end if
-                call write_error_and_stop_parse_input_int
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
-            ! Check whether the read_int is in range [allow_int_min, allow_int_max]
-            call is_in_range_number(read_int, allow_int_min, allow_int_max, is_valid)
-            if (.not. is_valid) then
-                ! The read_int is out of range [allow_int_min, allow_int_max]
+        end subroutine read_integer
+
+        subroutine check_read_int_is_valid(read_value)
+            implicit none
+            integer, intent(in) :: read_value
+            call is_in_range_int(read_value, allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) then ! read_value is out of range
                 write (min_str, *) allow_int_min
                 write (max_str, *) allow_int_max
                 if (rank == 0) print *, "ERROR: read_int is out of range,", &
                     "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
-                call write_error_and_stop_parse_input_int
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
+        end subroutine check_read_int_is_valid
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Try to get the digit of read_int to rewrite the section of read_int as blank
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            write (read_int_str, *) read_int ! read_int_str is a string expression of read_int
-            read_int_digit = len(trim(adjustl(read_int_str))) ! The variable read_int_digit is the read_int_digit of read_int (e.g. -123->4, 10->2)
-
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Check whether we can fill the numbers
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            filled_num = filled_num + 1 ! Count up the index of the list
-            if (size(list, 1) < filled_num) then
-                ! Can't fill numbers because the size of the list
-                if (rank == 0) print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
-                call write_error_and_stop_parse_input_int
-            end if
-
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Now we can store the number
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            list(filled_num) = read_int
-
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Rewrite the section we read as blank. (e.g.) "10,3,5" -> "  ,3,5"
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            string(idx:idx + read_int_digit - 1) = ""
-
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Find the next index that does not contain space or , or ;
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            idx = verify(string, ' ,')
-
-        end do
-
-    contains
-        subroutine write_error_and_stop_parse_input_int
+        subroutine fill_number_to_list(read_value)
             implicit none
-            print *, "ERROR: Can't parse the input in parse_input_int, input:", string, " Stop the program. rank:", rank
-            stop
-        end subroutine write_error_and_stop_parse_input_int
+            integer, intent(in) :: read_value
+            if (size(list, 1) < filled_num + 1) then
+                ! Can't fill numbers because the size of the list
+                if (rank == 0) print *, "Can't fill the number because of the size of the list. size:", size(list, 1)
+                call write_parse_error_and_stop(subroutine_name, string)
+            end if
+            ! Now we can store the number
+            filled_num = filled_num + 1
+            list(filled_num) = read_value
+        end subroutine fill_number_to_list
     end subroutine parse_input_int
 
     subroutine parse_range_input_int(string, list, filled_num, allow_int_min, allow_int_max)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns a list of integers
         ! It finds expressions of the form a..b in the input string and expands it to a list.
-        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [1,2,0,0,...,0],                             filled_num = 2
-        !        OUTPUT : string = "1,2,     ,13,      ", list = [1,2,4,5,6,7,8,9,10,17,18,19,20,0,0,...,0], filled_num = 13
+        ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20", list = [0,0,...,0],                            filled_num = 0
+        !        OUTPUT : string = "1,2,     ,13,      ", list = [4,5,6,7,8,9,10,17,18,19,20,0,0,...,0], filled_num = 11
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
-        integer, intent(in) :: allow_int_min, allow_int_max ! Allow allow_int_min <= x <= allow_int_max
-        character(*), intent(inout) :: string ! Input string
+        integer, intent(in) :: allow_int_min, allow_int_max
+        character(*), intent(inout) :: string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
-        integer, intent(inout) :: list(:) ! A integer list
+        integer, intent(inout) :: list(:)
         character(30) :: right_str, min_str, max_str
-        character(:), allocatable  :: pattern, invalid_input_message
-        integer :: first_dot_index, stat, rightnum_idx, leftnum_idx, leftnum, rightnum, rightnum_digit, idx, iostat
+        character(:), allocatable  :: pattern, invalid_input_message, subroutine_name
+        integer :: first_dot_index, stat, rightnum_first_idx, leftnum_idx, leftnum, rightnum, rightnum_digit, idx, iostat
         logical :: is_valid
 
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=
-        ! Checks whether the range of allow_int is valid
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=
-        if (allow_int_max < allow_int_min) then
-            if (rank == 0) print *, "ERROR: Allowed range of integer is invalid in parse_range_input_int.", &
-                "MIN:", allow_int_min, "MAX:", allow_int_max
-            call write_error_and_stop_parse_range_input_int
-        end if
+        allocate (subroutine_name, source="parse_range_input_int")
+        call check_args
 
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! Checks for positive and negative integers and sets the first character patten
-        ! and the error message that allowed within that range.
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        call create_valid_pattern(allow_int_min, allow_int_max, pattern, invalid_input_message)
-
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! Find the first index of double dots ".."
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         first_dot_index = index(string, '..')
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! Read the numbers of the left and right and fill in the list to the range of the readings
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        do while (first_dot_index /= 0) ! Find a ".." expression in the string
+        do while (first_dot_index /= 0)
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Find the first index of the right num
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            rightnum_idx = verify(string(first_dot_index:), " ,.") ! Find the first index of the right num in string(first_dot_index:)
-            if (rightnum_idx == 0) call write_error_and_stop_parse_range_input_int
-            rightnum_idx = rightnum_idx + first_dot_index - 1 ! Set the first index of the right num in string
-            ! Check whether the first character of the right num is valid
-            call is_substring(string(rightnum_idx:rightnum_idx), pattern, is_valid)
-            if (.not. is_valid) then
-                ! Right number is NOT a integer or invalid input.
-                if (rank == 0) print *, invalid_input_message, string(rightnum_idx:)
-                call write_error_and_stop_parse_range_input_int
-            end if
+            call search_rightnum_idx(rightnum_first_idx)
+            call read_rightnum(rightnum) ! read the right num (e.g. "12..15" -> 15)
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Now we can get the right num (e.g. "12..15" -> 15)
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            read (string(rightnum_idx:), *, iostat=iostat) rightnum
-            if (iostat /= 0) then
-                if (rank == 0) then
-                    print *, "Can't get rightnum. string:", string, "rightnum", rightnum
-                end if
-                call write_error_and_stop_parse_range_input_int
-            end if
-            ! Check whether the rightnum is in range [allow_int_min, allow_int_max]
-            call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_valid)
-            if (.not. is_valid) then
-                ! The rightnum is out of range [allow_int_min, allow_int_max]
-                write (min_str, *) allow_int_min
-                write (max_str, *) allow_int_max
-                if (rank == 0) print *, "ERROR: rightnum is out of range,", &
-                    "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
-                call write_error_and_stop_parse_range_input_int
-            end if
+            call search_leftnum_idx(leftnum_idx)
+            call read_leftnum(leftnum) ! read the left num (e.g. "12..15" -> 12)
+
+            call fill_numbers_to_list(leftnum, rightnum)
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Rewrite the section we read as blank. (e.g. "1, 2, 4..10, 13" -> "1, 2,      , 13" )
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             write (right_str, *) rightnum
             rightnum_digit = len(trim(adjustl(right_str))) ! Get the digit of rightnum (e.g. -10 -> 3, 23 -> 2)
+            string(leftnum_idx:rightnum_first_idx + rightnum_digit - 1) = ""
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Search the first index of the left num
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            leftnum_idx = first_dot_index ! first dot '..' index in string
-            do while (leftnum_idx > 1)
-                leftnum_idx = leftnum_idx - 1 ! (e.g. "2..5" -> "12..5")
-                stat = verify(string(leftnum_idx:first_dot_index), " ,;") ! stat must be 1 or 2
-                if (stat > 2 .or. stat <= 0) then
-                    if (rank == 0) print *, "Can't get left num. substring:", string(leftnum_idx:first_dot_index)
-                    call write_error_and_stop_parse_range_input_int
-                end if
-                ! If stat is 2, we found the index of left num, so exit loop (e.g. string(leftnum_idx:first_dot_index) = ",10.")
-                if (stat == 2) then
-                    leftnum_idx = leftnum_idx + 1  ! (e.g. string(leftnum_idx:first_dot_index) = ",10." -> "10.")
-                    exit
-                end if
-            end do
-            ! Check whether the first character of the left num is valid
-            call is_substring(string(leftnum_idx:leftnum_idx), pattern, is_valid)
+            first_dot_index = index(string, '..') ! Next double dots index in string
+        end do
+
+    contains
+        subroutine check_args
+            implicit none
+            call check_range_allow_int(allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) call write_parse_error_and_stop(subroutine_name, string)
+            call create_valid_pattern(allow_int_min, allow_int_max, pattern, invalid_input_message)
+        end subroutine check_args
+
+        subroutine check_valid_input(char_idx)
+            implicit none
+            integer, intent(in) :: char_idx
+            call check_substring(string(char_idx:char_idx), pattern, is_valid)
             if (.not. is_valid) then
-                ! Right number is NOT a integer or invalid input.
-                if (rank == 0) print *, invalid_input_message, string(leftnum_idx:)
-                call write_error_and_stop_parse_range_input_int
+                ! A number is NOT a integer or invalid input.
+                if (rank == 0) print *, invalid_input_message, string(char_idx:)
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
+        end subroutine check_valid_input
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Now we can get the left num (e.g. "12..15" -> 12)
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            read (string(leftnum_idx:first_dot_index - 1), *, iostat=iostat) leftnum
+        subroutine read_rightnum(readnum)
+            implicit none
+            integer, intent(out) :: readnum
+            read (string(rightnum_first_idx:), *, iostat=iostat) readnum
             if (iostat /= 0) then
-                if (rank == 0) then
-                    print *, "Can't get leftnum. string:", string, "leftnum", leftnum
-                end if
-                call write_error_and_stop_parse_range_input_int
+                if (rank == 0) print *, "Can't get rightnum. string:", string, "rightnum", readnum
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
-            ! Check whether the rightnum is in range [allow_int_min, allow_int_max]
-            call is_in_range_number(rightnum, allow_int_min, allow_int_max, is_valid)
-            if (.not. is_valid) then
-                ! The rightnum is out of range [allow_int_min, allow_int_max]
-                write (min_str, *) allow_int_min
-                write (max_str, *) allow_int_max
+            call is_in_range_int(readnum, allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) then ! Rightnum is out of range
+                write (min_str, *) allow_int_min; write (max_str, *) allow_int_max
                 if (rank == 0) print *, "ERROR: rightnum is out of range,", &
                     "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
-                call write_error_and_stop_parse_range_input_int
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
+        end subroutine read_rightnum
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Rewrite the section we read as blank. (e.g. "1, 2, 4..10, 13" -> "1, 2,      13" )
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            string(leftnum_idx:rightnum_idx + rightnum_digit - 1) = ""
+        subroutine search_rightnum_idx(right_idx)
+            implicit none
+            integer, intent(out) :: right_idx
+            idx = verify(string(first_dot_index:), " ,.")
+            if (idx == 0) call write_parse_error_and_stop(subroutine_name, string)
 
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Check whether we can fill the numbers
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            if (rightnum < leftnum) then
-                ! rightnum must be larger than or equal to leftnum
-                if (rank == 0) print *, "The specification of the range is invalid. left", leftnum, "right", rightnum
-                call write_error_and_stop_parse_range_input_int
+            right_idx = idx + first_dot_index - 1 ! Set the first index of the right num in string
+            call check_valid_input(right_idx)
+        end subroutine search_rightnum_idx
+
+        subroutine read_leftnum(readnum)
+            implicit none
+            integer, intent(out) :: readnum
+            read (string(leftnum_idx:first_dot_index - 1), *, iostat=iostat) readnum
+            if (iostat /= 0) then
+                if (rank == 0) print *, "Can't get leftnum. string:", string, "leftnum", readnum
+                call write_parse_error_and_stop(subroutine_name, string)
+            end if
+            call is_in_range_int(readnum, allow_int_min, allow_int_max, is_valid)
+            if (.not. is_valid) then ! The leftnum is out of range
+                write (min_str, *) allow_int_min; write (max_str, *) allow_int_max
+                if (rank == 0) print *, "ERROR: rightnum is out of range,", &
+                    "[", trim(adjustl(min_str)), ",", trim(adjustl(max_str)), "]"
+                call write_parse_error_and_stop(subroutine_name, string)
+            end if
+        end subroutine read_leftnum
+
+        subroutine search_leftnum_idx(left_idx)
+            integer, intent(out) :: left_idx
+            left_idx = first_dot_index ! first dot '..' index in string
+            do while (left_idx > 1)
+                left_idx = left_idx - 1 ! (e.g. "2..5" -> "12..5")
+                stat = verify(string(left_idx:first_dot_index), " ,") ! stat must be 1 or 2
+                ! If stat is 2, we found the index of left num, so exit loop (e.g. string(left_idx:first_dot_index) = ",10.")
+                if (stat == 2) then
+                    left_idx = left_idx + 1  ! (e.g. string(left_idx:first_dot_index) = ",10." -> "10.")
+                    exit
+                else if (stat > 2 .or. stat <= 0) then
+                    if (rank == 0) print *, "Can't get left num.string:", string, ",substring:", string(left_idx:first_dot_index)
+                    call write_parse_error_and_stop(subroutine_name, string)
+                end if
+            end do
+            call check_valid_input(left_idx)
+        end subroutine search_leftnum_idx
+
+        subroutine fill_numbers_to_list(left, right)
+            implicit none
+            integer, intent(in) :: left, right
+            if (right < left) then
+                ! right must be larger than or equal to left
+                if (rank == 0) print *, "The specification of the range is invalid. left", left, "right", right
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
             ! Can fill numbers?
-            if (size(list, 1) - filled_num < rightnum - leftnum + 1) then
+            if (size(list, 1) - filled_num < right - left + 1) then
                 ! Can't fill numbers because the size of the list
                 if (rank == 0) print *, "Can't fill range numbers because of the size of the list. size:", size(list, 1)
-                call write_error_and_stop_parse_range_input_int
+                call write_parse_error_and_stop(subroutine_name, string)
             end if
 
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
             ! Now we can fill the numbers
             !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            do idx = leftnum, rightnum
+            do idx = left, right
                 filled_num = filled_num + 1
                 list(filled_num) = idx
             end do
-
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            ! Find the next index of double dots ".."
-            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-            first_dot_index = index(string, '..')
-        end do
-
-    contains
-        subroutine write_error_and_stop_parse_range_input_int
-            implicit none
-            print *, "ERROR: Can't parse the input in parse_range_input_int, input:", string, " Stop the program. rank:", rank
-            stop
-        end subroutine write_error_and_stop_parse_range_input_int
+        end subroutine fill_numbers_to_list
     end subroutine parse_range_input_int
 
-    subroutine is_substring(substring, string, is_substring_bool)
+    subroutine write_parse_error_and_stop(subroutine_name, input)
+        implicit none
+        character(len=*), intent(in) :: subroutine_name, input
+        print *, "ERROR: Can't parse the input in ", subroutine_name, ", input:", input
+        print *, "Stop the program. rank:", rank
+        stop
+    end subroutine write_parse_error_and_stop
+
+    subroutine check_range_allow_int(allow_int_min, allow_int_max, is_ok)
+        implicit none
+        integer, intent(in) :: allow_int_min, allow_int_max
+        logical, intent(out) :: is_ok
+        if (allow_int_max < allow_int_min) then
+            if (rank == 0) print *, "ERROR: Allowed range of integer is invalid in parse_range_input_int.", &
+                "MIN:", allow_int_min, "MAX:", allow_int_max
+            is_ok = .false.
+        else
+            is_ok = .true.
+        end if
+    end subroutine check_range_allow_int
+
+    subroutine check_substring(substring, string, is_substring_bool)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns whether varible "substring" is a substring of "string" or not
         ! (e.g.)  INPUT  : substring="ab" string="cdefgh"
@@ -559,7 +551,7 @@ contains
         else
             is_substring_bool = .true.
         end if
-    end subroutine is_substring
+    end subroutine check_substring
 
     subroutine is_in_range_int(num, num_min, num_max, is_in_range)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -576,22 +568,6 @@ contains
             is_in_range = .false.
         end if
     end subroutine is_in_range_int
-
-    subroutine is_in_range_real(num, num_min, num_max, is_in_range)
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! This subroutine returns whether varible "num" is in range of [num_min, num_max]
-        ! (e.g.)  INPUT  : num = 10, num_min = -1, num_max = 11
-        !         OUTPUT : is_in_range = .true.
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        implicit none
-        real(8), intent(in)     :: num, num_min, num_max
-        logical, intent(out)    :: is_in_range
-        if (num_min <= num .and. num <= num_max) then
-            is_in_range = .true.
-        else
-            is_in_range = .false.
-        end if
-    end subroutine is_in_range_real
 
     subroutine create_valid_pattern(int_min, int_max, valid_pattern_string, invalid_message)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -614,22 +590,22 @@ contains
         if (int_min < 0 .and. 0 <= int_max) then
             ! (e.g.) [-9, 10]
             valid_pattern_string = "-0123456789"
-            invalid_message = "ERROR: Detected Non-integer string."
+            invalid_message = "ERROR: Detected non integer string."
         elseif (int_min < 0) then
             ! int_min < 0 and int_max < 0
             ! (e.g.) [-10, -1]
             valid_pattern_string = "-123456789"
-            invalid_message = "ERROR: Detected not minus numbers or Non-integer string."
+            invalid_message = "ERROR: Detected not minus numbers or non integer string."
         elseif (int_min == 0) then
             ! int_min = 0 and int_max >= 0
             ! (e.g.) [0, 100]
             valid_pattern_string = "0123456789"
-            invalid_message = "ERROR: Detected minus numbers or Non-Integer string."
+            invalid_message = "ERROR: Detected minus numbers or non integer string."
         else
             ! int_min >= 0 and int_max >= 0
             ! (e.g.) [2, 7]
             valid_pattern_string = "123456789"
-            invalid_message = "ERROR: Detected minus numbers or 0 or Non-Integer string."
+            invalid_message = "ERROR: Detected minus numbers or 0 or non integer string."
         end if
     end subroutine create_valid_pattern
 
@@ -644,9 +620,9 @@ contains
         do
             read (unit_num, '(a)') input
             call is_comment_line(input, is_comment)
-            if (is_comment) cycle ! Go to the next line
+            if (is_comment) cycle
             !  Is the input an integer and more than or equal to zero?
-            call is_substring(input(1:1), pattern, is_subst)
+            call check_substring(input(1:1), pattern, is_subst)
             if (.not. is_subst) then
                 if (rank == 0) then
                     print *, invalid_input_message, input
@@ -671,13 +647,13 @@ contains
         integer, intent(in) :: unit_num
         character(*), intent(inout) :: result_string
         logical :: is_comment
-        character(100) :: input
+        character(max_str_length) :: input
         do
             read (unit_num, '(a)') input
             call is_comment_line(input, is_comment)
-            if (is_comment) cycle ! Go to the next line
+            if (is_comment) cycle
             read (input, *) result_string ! read a string
-            exit ! EXIT LOOP
+            exit
         end do
     end subroutine read_a_string
 
@@ -695,11 +671,7 @@ contains
         logical, intent(out) :: is_comment
         integer  :: comment_idx
 
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        ! Trim string
-        ! (e.g.) "   2,3,4" => "2,3,4"
-        !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        string = trim(adjustl(string))
+        string = trim(adjustl(string)) ! (e.g.) "   2,3,4" => "2,3,4"
 
         ! Find the index of comment character (comment_idx = 0 if the comment character is not found)
         comment_idx = scan(string, '!#')
@@ -736,7 +708,7 @@ contains
                 print *, "The number of minholeras1:", min_hole_ras1
                 print *, "The number of minholeras1 you specified is impossible."
                 print *, "Exit the program."
-                stop ! Error in input. Stop the Program
+                stop
             end if
         end if
 
@@ -749,13 +721,14 @@ contains
                 print *, "The max number of allowed electron in ras3:", ras3_max_elec
                 print *, "The max number of allowed electron in ras3 you specified is impossible."
                 print *, "Exit the program."
-                stop ! Error in input. Stop the Program
+                stop
             end if
         end if
 
         ! Initialization
         electron_filled(:) = .false.
 
+        ! Check duplication of electrons (ras1, ras2, ras3)
         if (is_ras1_configured) then
             do idx = 1, ras1_size ! ras1_size is the size of the list.
                 if (electron_filled(ras1_list(idx))) then
@@ -801,8 +774,8 @@ contains
     contains
         subroutine write_error_and_stop_check_ras_is_valid
             implicit none
-            print *, "ERROR: Your input is invalid because the same number of the electron have been selected " &
-                //"in the RAS more than once!"
+            print *, "ERROR: Your input is invalid because the same number of the electron have been selected ", &
+                "in the RAS more than once!"
             print *, "YOUR INPUT"
             print *, "RAS1 : ", ras1_list
             print *, "RAS2 : ", ras2_list
@@ -838,7 +811,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns the uppercase string
         ! (e.g.) INPUT  : string = "tHiS"
-        !        OUTPUT : string = "this"
+        !        OUTPUT : string = "THIS"
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         implicit none
         character(*), intent(inout) :: string

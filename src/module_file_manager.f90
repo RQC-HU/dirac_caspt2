@@ -60,7 +60,7 @@ contains
         character(:), allocatable :: file_status
         integer :: iostat
         call search_unused_file_unit(unit)
-        allocate(file_status,source = trim(status))
+        allocate (file_status, source=trim(status))
         call lowercase(file_status)
         if (file_status /= 'old' .and. file_status /= 'new' .and. file_status /= 'replace') then
             print *, 'ERROR: file_status must be old, new or replace. file_status = ', file_status

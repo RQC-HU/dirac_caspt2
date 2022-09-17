@@ -29,7 +29,6 @@ SUBROUTINE dets(fa, occold, occnew, ds)
     det = 0.0d+00
     ds = 0.0d+00
 
-
     Do i0 = 1, nelec
         Do j0 = 1, nelec
             sini(i0, j0) = fa(occold(i0) + ninact, occnew(j0) + ninact)

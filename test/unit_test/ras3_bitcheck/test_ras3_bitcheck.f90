@@ -12,7 +12,7 @@ program ras3_bitcheck
     call read_input(new_unit)
     close (new_unit)
 
-    call open_formatted_file(unit=new_unit, file='result', status="old", optional_action='write')
+    call open_formatted_file(unit=new_unit, file='result', status="replace", optional_action='write')
     do i = 1, 2**nact - 1
         is_allow = ras3_det_check(i, ras3_max_elec)
         if (is_allow) then

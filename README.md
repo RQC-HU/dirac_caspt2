@@ -25,7 +25,7 @@
   - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
-    \$MKLROOTが設定されているか確認するには、使用する計算機にログインして以下のコマンドを実行してMKLにパスが通っているかを確認してください
+    \$MKLROOTが設定されているか確認するには、以下のコマンドを実行して環境変数\$MKLROOTが設定されているか確認してください
 
     ```sh
     echo $MKLROOT
@@ -88,16 +88,18 @@ FC=mpiifort cmake -DMPI=on -B build && cmake --build build -j4 --clean-first
 ビルド後はテストを行うことを推奨します
 テストを行うには[Python(version ≧ 3.6)](https://www.python.org/)と[pytest](https://docs.pytest.org/)が必要です
 testディレクトリより上位のディレクトリでpytestコマンドを実行することでテストが実行されます
+--allオプションかオプションなしでテストを実行することを推奨します
+(--allオプションは全てのテスト、オプションなしは時間がとてもかかるテスト以外を実行します)
 
 ```sh
-pytest
+pytest --all
 ```
 
 並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合
 pytestコマンドに--paralles=並列数を付け加え、並列用テストを行うことを推奨します
 
 ```sh
-pytest --parallel=4
+pytest --all --parallel=4
 ```
 
 ### ビルドオプション

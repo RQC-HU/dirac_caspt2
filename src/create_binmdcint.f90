@@ -86,7 +86,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     is_file_exist = .true.
     do while (is_file_exist) ! Continue reading 2-electron integrals until mdcint_filename doesn't exist.
-        call get_mdcint_filename(file_idx)
 
         inquire (file=mdcint_filename, exist=is_file_exist) ! mdcint_filename exists?
         if (.not. is_file_exist) exit ! Exit do while loop if mdcint_filename doesn't exist.
@@ -239,6 +238,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         close (mdcint_unit)
         file_idx = file_idx + 1
+        call get_mdcint_filename(file_idx) ! Get the next MDCINT filename
 
     end do
     write (mdcintnew_unit) 0, 0, 0

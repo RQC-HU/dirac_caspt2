@@ -62,7 +62,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
     call read_input(input_unit)
-    close(input_unit)
+    close (input_unit)
 
     if (rank == 0) then
         print *, 'ninact        =', ninact

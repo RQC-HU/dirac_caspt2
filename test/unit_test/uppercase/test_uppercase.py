@@ -3,11 +3,15 @@ import shutil
 from module_testing import (
     check_test_returncode,
     create_test_command,
+    delete_scratch_files,
     get_stripped_string_from_output_file,
+    is_binary_file_exist,
     run_test,
 )
+import pytest
 
 
+@pytest.mark.dev
 def test_uppercase():
 
     # Set file names
@@ -27,9 +31,11 @@ def test_uppercase():
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
+    is_binary_file_exist(exe_file_path)
+    delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command, output_file_path)
+    process = run_test(test_command)
     check_test_returncode(process)
 
     string_ref = get_stripped_string_from_output_file(ref_file_path)
