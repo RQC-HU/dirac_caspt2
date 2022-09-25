@@ -30,8 +30,8 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(config, items):
     skip_slow = pytest.mark.skip(reason=f"need {runall_option} or {slow_only_option} option to run. REASON: slow test")
     skip_tests_because_dev = pytest.mark.skip(reason=f"need no option or {runall_option} option to run. REASON: --dev was activated")
-    skip_fast_dev = pytest.mark.skip(reason=f"need no option or {dev_option} or {runall_option} option or  to run. REASON: --onlyslow was activated")
-    skip_fast_neutral = pytest.mark.skip(reason=f"need no option or {runall_option} option or  to run. REASON: --onlyslow was activated")
+    skip_fast_dev = pytest.mark.skip(reason=f"need no option or {dev_option} or {runall_option} option or  to run. REASON: --slowonly was activated")
+    skip_fast_neutral = pytest.mark.skip(reason=f"need no option or {runall_option} option or  to run. REASON: --slowonly was activated")
     if config.getoption(runall_option):
         print("run all tests")
         return
@@ -41,21 +41,21 @@ def pytest_collection_modifyitems(config, items):
 
         # Tests marked by @pytest.mark.dev
         if item.get_closest_marker("dev"):
-            # dev tests always run except when --onlyslow was activated
+            # dev tests always run except when --slowonly was activated
             if config.getoption(slow_only_option):
                 item.add_marker(skip_fast_dev)
             else:
                 pass
         # Tests marked by @pytest.mark.slowonly
         elif item.get_closest_marker("slowonly"):
-            # slow tests only run when --onlyslow was activated
+            # slow tests only run when --slowonly was activated
             if config.getoption(slow_only_option):
                 pass
             else:
                 item.add_marker(skip_slow)
         # Unmarked tests
         else:
-            # Skip neutral tests if --dev or --onlyslow were activated
+            # Skip neutral tests if --dev or --slowonly were activated
             if config.getoption(dev_option):
                 item.add_marker(skip_tests_because_dev)
             elif config.getoption(slow_only_option):
