@@ -69,3 +69,7 @@ add_executable(r4dcaspt2ocoexe
 	tramo_ty.f90
 	uramda_s_half.f90
 )
+
+install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS r4dcaspt2ocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
