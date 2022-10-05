@@ -509,6 +509,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     if (rank == 0) print *, 'Enter vGmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
+    tsectmp1 = tsectmp0
     v = 0.0d+00
     twoint_unit = default_unit
 
