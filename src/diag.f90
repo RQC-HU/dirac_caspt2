@@ -292,7 +292,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
         Allocate (fasym(ncount(sym), ncount(sym)))
         Do j = 1, ncount(sym)
             Do i = 1, ncount(sym)
-                fasym(i, j) = f(ind(i, sym), ind(j, sym))
+                fasym(i, j) = real(f(ind(i, sym), ind(j, sym)), kind=8)
             End do
         End do
 
@@ -321,7 +321,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     mat = 0.0d+00
 
     mat = TRANSPOSE(fa)
-    mat = MATMUL(mat, f)
+    mat = MATMUL(mat, real(f))
     mat = MATMUL(mat, fa)
 
     if (rank == 0) print *, 'OFF DIAGONAL TERM OF U*FU'

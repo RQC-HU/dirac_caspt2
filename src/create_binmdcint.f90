@@ -19,7 +19,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer, allocatable :: indk(:), indl(:), kr(:)
     double precision, allocatable  :: rklr(:), rkli(:)
     ! Iwamuro modify
-    real    :: cutoff
+    real(8) :: cutoff
     integer :: nnkr, iiit, jjjt, kkkt, lllt
     integer :: nkr, nz, file_idx, iostat
     integer :: mdcint_unit, mdcintnew_unit
