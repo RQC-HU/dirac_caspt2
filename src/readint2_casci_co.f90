@@ -200,8 +200,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                             ltr = l + 1
                         end if
 
-                        SignIJ = (-1.0d+00)**mod(i(idx) + j(idx), 2)
-                        SignKL = (-1.0d+00)**mod(k + l, 2)
+                        SignIJ = (-1)**mod(i(idx) + j(idx), 2)
+                        SignKL = (-1)**mod(k + l, 2)
 
                         int2r_f1(i(idx), j(idx), k, l) = rklr(idx, inz)
                         int2i_f1(i(idx), j(idx), k, l) = rkli(idx, inz)
