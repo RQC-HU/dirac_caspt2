@@ -28,13 +28,13 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
         & val(5), val(6), val(7), val(8)
     end if
 
-    day = AINT(difsec)/(3600*24)
+    day = int(AINT(difsec)/(3600*24))
     resd = difsec - day*3600*24
 
-    hour = AINT(resd)/3600
+    hour = int(AINT(resd)/3600)
     resd = resd - hour*3600
 
-    min = AINT(resd)/60
+    min = int(AINT(resd)/60)
     resd = resd - min*60
 
     sec = resd
