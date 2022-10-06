@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7)
-
 add_executable(r4dcascicoexe
 	calce0.f90
 	casci_ty.f90
@@ -72,4 +70,3 @@ add_executable(r4dcaspt2ocoexe
 
 install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS r4dcaspt2ocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-
