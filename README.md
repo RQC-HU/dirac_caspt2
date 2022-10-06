@@ -9,7 +9,9 @@
 ## 目次
 
 - [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2#requirements)
-- [How to Install](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-install)
+- [How to install](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-install)
+  - [Basic install](https://github.com/kohei-noda-qcrg/dirac_caspt2#basic-install)
+  - [MPI support](https://github.com/kohei-noda-qcrg/dirac_caspt2#mpi-support)
   - [ソフトウェアのテスト](https://github.com/kohei-noda-qcrg/dirac_caspt2#ソフトウェアのテスト)
   - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
   - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
@@ -21,7 +23,7 @@
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
 
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
-- [CMake](https://cmake.org/)(version ≧ 3.7 が必要です)
+- [CMake](https://cmake.org/)(version ≧ 3.14 が必要です)
   - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
@@ -31,16 +33,13 @@
     echo $MKLROOT
     ```
 
-  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、-DMKL=offオプションを指定し、かつLDFLAGSを手動設定する必要があります
+  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、--nomklオプションを指定し、かつBLAS/LAPACKのリンクを--flagsに指定する必要があります
   - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
 
     ビルド例
 
     ```sh
-    mkdir build
-    cd build
-    LDFLAGS="Replace this by Your BLAS and LAPACK Library link path" FC=gfortran cmake -DMKL=off ..
-    make
+    ./setup --nomkl --flags "Replace this by Your BLAS and LAPACK Library link path" --fc gfortran --build
     ```
 
 - [Python(version ≧ 3.6)](https://www.python.org/)
@@ -54,33 +53,89 @@
   python -m pip install pytest
   ```
 
-## How to Install
+## How to install
 
-- CMake version ≦ 3.13 の場合以下のコマンドコマンドでソースコードをビルドできます
+- このリポジトリではCMakeを使用してビルドを行います
+  - cmakeコマンドを直接使用することもできますが、setupスクリプトを使用することをおすすめします
+
+### Basic install
+
+- GitHubからソースコードをダウンロードします(初回のみ)
 
 ```sh
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
-cd dirac_caspt2
-mkdir -p build && cd build
-FC=ifort cmake .. --clean-first
-make
+git clone https://github.com/kohei-noda-qcrg/dirac_caspt2.git
 ```
 
-- CMake version ≧ 3.14 を使っているなら以下のようなコマンドでもビルドができます
+- ソースコードのディレクトリに移動します
 
 ```sh
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2
+# Change directory to the source code directory
+# ( cd /path/to/dirac_caspt2 )
 cd dirac_caspt2
-FC=ifort cmake -B build
-cmake --build build --clean-first
 ```
 
-- CMake version ≧ 3.14かつIntel Fortranであれば並列ビルドが可能です。並列ビルドは-j並列数のオプションを付ければ実行可能です
+- セットアップスクリプトを実行します。--buildオプションをつけるとビルドまで行います
+
+  ```sh
+  ./setup --build
+  ```
+
+  - セットアップスクリプトのオプションについては以下のコマンドで確認できます
+
+    ```sh
+    ./setup --help
+    ```
+
+  - Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j 並列数のオプションを付ければ実行可能です
+
+    ```sh
+    ./setup --fc ifort --build -j 4
+    ```
+
+  - OpenMPを使用する場合は--ompオプションを付けてください
+
+    ```sh
+    ./setup --omp --build
+    ```
+
+  - 差分ビルドを行う場合は--nocleanオプションを付けてください
+    (前のビルドオプションでビルドしてしまうことがあるため、ビルドオプションを変更する場合は--nocleanオプションをつけないでください)
+
+    ```sh
+    ./setup --clean --build --fc ifort
+    ```
+
+- ビルドが完了したらテストを実行します
 
 ```sh
-FC=ifort cmake -B build && cmake --build build -j4 --clean-first
-or
-FC=mpiifort cmake -DMPI=on -B build && cmake --build build -j4 --clean-first
+pytest --all
+```
+
+### MPI Support
+
+- プログラムを並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトでは使用するコンパイラはmpif90です)
+
+  ```sh
+  ./setup --mpi --build
+  ```
+
+  - コンパイラを指定する場合は--fcオプションを使用します
+
+    ```sh
+    ./setup --mpi --fc mpiifort --build
+    ```
+
+  - OpenMPとのハイブリッドビルドも可能です
+
+    ```sh
+    ./setup --mpi --omp --fc mpiifort --build
+    ```
+
+- ビルドが完了したらテストを実行します
+
+```sh
+# e.g. pytest --all --parallel=4
+pytest --all --parallel=<number of MPI processes>
 ```
 
 ### ソフトウェアのテスト
