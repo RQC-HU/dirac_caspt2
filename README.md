@@ -13,8 +13,7 @@
   - [Basic install](https://github.com/kohei-noda-qcrg/dirac_caspt2#basic-install)
   - [MPI support](https://github.com/kohei-noda-qcrg/dirac_caspt2#mpi-support)
   - [ソフトウェアのテスト](https://github.com/kohei-noda-qcrg/dirac_caspt2#ソフトウェアのテスト)
-  - [ビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルドオプション)
-  - [ビルド例](https://github.com/kohei-noda-qcrg/dirac_caspt2#ビルド例)
+  - [CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
   - [active.inpの仕様](https://github.com/kohei-noda-qcrg/dirac_caspt2#activeinpの仕様)
 
@@ -43,8 +42,28 @@
     ```
 
 - [Python(version ≧ 3.6)](https://www.python.org/)
+  - ./setup スクリプトの実行に必要です
   - テストを実行するために使用します
-  - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
+  - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします  
+    (e.g.) pyenv setup instruction for Bash users
+    ```bash
+    # Download pyenv
+    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+
+    # Write the enviromental valiable and setup script for pyenv to the ~/.bashrc file
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+    # Reload ~/.bashrc (only the first time)
+    source ~/.bashrc
+
+    # Install Python (version ≧ 3.6)
+    pyenv install 3.9.9
+
+    # Set default Python version to the one installed with pyenv
+    pyenv global 3.9.9
+    ```
 - [pytest](https://docs.pytest.org/)
   - テストを実行するために使用します
   - python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
@@ -56,7 +75,8 @@
 ## How to install
 
 - このリポジトリではCMakeを使用してビルドを行います
-  - cmakeコマンドを直接使用することもできますが、setupスクリプトを使用することをおすすめします
+  - CMakeコマンドを直接使用することもできますが、setupスクリプトを使用することをおすすめします
+  - CMakeを直接使ってビルドしたい場合は、[CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)を参照してください
 
 ### Basic install
 
@@ -98,11 +118,11 @@ cd dirac_caspt2
     ./setup --omp --build
     ```
 
-  - 差分ビルドを行う場合は--nocleanオプションを付けてください
-    (前のビルドオプションでビルドしてしまうことがあるため、ビルドオプションを変更する場合は--nocleanオプションをつけないでください)
+  - 差分ビルドを行う場合は--no-cleanオプションを付けてください
+    (前のビルドオプションでビルドしてしまうことがあるため、ビルドオプションを変更する場合は--no-cleanオプションをつけないでください)
 
     ```sh
-    ./setup --clean --build --fc ifort
+    ./setup --build --fc ifort --no-clean
     ```
 
 - ビルドが完了したらテストを実行します
@@ -113,7 +133,7 @@ pytest --all
 
 ### MPI Support
 
-- プログラムを並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトでは使用するコンパイラはmpif90です)
+- プログラムを並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトでは使用するコンパイラはmpiifortです)
 
   ```sh
   ./setup --mpi --build
@@ -122,13 +142,19 @@ pytest --all
   - コンパイラを指定する場合は--fcオプションを使用します
 
     ```sh
-    ./setup --mpi --fc mpiifort --build
+    ./setup --mpi --fc mpif90 --build
     ```
 
   - OpenMPとのハイブリッドビルドも可能です
 
     ```sh
     ./setup --mpi --omp --fc mpiifort --build
+    ```
+  - 差分ビルドを行う場合は--no-cleanオプションを付けてください
+    (前のビルドオプションでビルドしてしまうことがあるため、ビルドオプションを変更する場合は--no-cleanオプションをつけないでください)
+
+    ```sh
+    ./setup --build --fc mpiifort --mpi --no-clean
     ```
 
 - ビルドが完了したらテストを実行します
@@ -150,18 +176,23 @@ testディレクトリより上位のディレクトリでpytestコマンドを�
 pytest --all
 ```
 
-並列コンパイラでビルドオプション-DMPI=onをつけてMPI並列用のビルドを行った場合
-pytestコマンドに--paralles=並列数を付け加え、並列用テストを行うことを推奨します
+MPI並列用のビルドを行った場合pytestコマンドに--parallel=並列数を付け加え、並列用テストを行うことを推奨します
 
 ```sh
 pytest --all --parallel=4
 ```
 
-### ビルドオプション
+### CMakeビルドオプション
 
-現時点でサポートしているビルドオプションは以下のとおりです
+CMakeを直接つかってビルドする場合以下のようなコマンドを実行するとビルドできます
 
-(これ以降のコマンドはすべてCMake version ≧ 3.14での説明になっているのでCMake version ≦ 3.13 の場合読み替えを行ってください)
+```sh
+# FC: Fortran compiler, e.g. ifort, gfortran, mpiifort
+FC=ifort cmake -B build -DCMAKE_BUILD_TYPE=Release -DOMP=ON && cmake --build build
+pytest --all
+```
+
+現時点でサポートしているCMakeビルドオプションは以下のとおりです
 
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
@@ -193,58 +224,6 @@ pytest --all --parallel=4
       ```sh
       LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off -B build && cmake --build build
       ```
-
-### ビルド例
-
-各種コンパイラは\$PATHに追加されているか、もしくはフルパスを指定する必要があります
-
-- Intel Fortran
-
-    ```sh
-    FC=ifort cmake -B build && cmake --build build
-    ```
-
-- Intel Fortran (with OpenMP)
-
-    ```sh
-    FC=ifort cmake -DOPENMP=on -B build && cmake --build build
-    ```
-
-- Intel Fortran(MPI only, Intel MPI)
-
-    ```sh
-    FC=mpiifort cmake -DMPI=on -B build && cmake --build build
-    ```
-
-- Intel Fortran(MPI/OpenMP hybrid, Intel MPI)
-
-    ```sh
-    FC=mpiifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
-    ```
-
-- GNU Fortran
-
-    ```sh
-    FC=gfortran cmake -B build && cmake --build build
-    ```
-
-- GNU Fortran (with OpenMP)
-
-    ```sh
-    FC=gfortran cmake -DOPENMP=on -B build && cmake --build build
-    ```
-
-- OpenMPI Fortran(MPI only)
-
-    ```sh
-    FC=mpifort cmake -DMPI=on -B build && cmake --build build
-    ```
-
-- OpenMPI Fortran(MPI/OpenMP hybrid)
-
-    ```sh
-    FC=mpifort cmake -DMPI=on -DOPENMP=on -B build && cmake --build build
-    ```
 
 ## How to use
 
