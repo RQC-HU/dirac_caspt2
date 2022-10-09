@@ -131,6 +131,15 @@ cd dirac_caspt2
 pytest --all
 ```
 
+- テストが正常に終了したら以下のいずれかのコマンドで--prefixで指定したインストール先にプログラムをインストールできます
+
+```sh
+# Use CMake to install the program
+cmake --install ./build
+# or use make to install the program
+make -C build install
+```
+
 ### MPI Support
 
 - プログラムを並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトでは使用するコンパイラはmpiifortです)
@@ -162,6 +171,14 @@ pytest --all
 ```sh
 # e.g. pytest --all --parallel=4
 pytest --all --parallel=<number of MPI processes>
+```
+- テストが正常に終了したら以下のいずれかのコマンドで--prefixで指定したインストール先にプログラムをインストールできます
+
+```sh
+# Use CMake to install the program
+cmake --install ./build
+# or use make to install the program
+make -C build install
 ```
 
 ### ソフトウェアのテスト
