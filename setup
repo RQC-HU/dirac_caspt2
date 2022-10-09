@@ -82,7 +82,10 @@ def preprocess(args, exec_path, root_path):
     if args.omp:
         cmake_flags += " -DOPENMP=ON"
     if args.prefix is not None:
-        prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
+        if args.prefix.startswith("/"): # Absolute path
+            prefix = os.path.abspath(args.prefix)
+        else: # Relative path
+            prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
     else:
         prefix = os.path.abspath(os.path.join(root_path, "bin"))
     print("Installation directory: ", prefix)
