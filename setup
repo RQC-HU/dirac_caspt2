@@ -13,14 +13,14 @@ def define_args():
     parser = argparse.ArgumentParser(description="This script is used as a setup script for this project.")
     parser.add_argument("--build", action="store_true", help="Build the project after the setup. [default: False]")
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
-    parser.add_argument("--noclean", action="store_true", help="Don't clean the build directory before building. [default: False]")
+    parser.add_argument("--no-clean", action="store_true", help="Don't clean the build directory before building. [default: False]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
     parser.add_argument("--flags", type=str, help="The compiler flags.(If not specified, the default flags will be used.)")
-    parser.add_argument("-j", "--parallel", type=int, default=1, metavar="NUM_OF_BUILD_PROCESS", help="Specify the number of build processes. This option is used only when the --build option is specified. [default: 1]")
+    parser.add_argument("-j", "--parallel", type=int, default=1, help="Specify the number of build processes. This option is used only when the --build option is specified. [default: 1]")
     parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.")
-    parser.add_argument("--nomkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
+    parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
-    parser.add_argument("--prefix", type=str, help="Specify the installation directory. [default: ./bin]", metavar="INSTALL_DIR")
+    parser.add_argument("--prefix", type=str, metavar="INSTALL_DIR", help="Specify the installation directory. [default: ./bin]")
     return parser.parse_args()
 
 
@@ -35,14 +35,8 @@ def preprocess(args, exec_path, root_path):
             exit(1)
         print("CMake is installed!", stdout.decode("utf-8"))
 
-    def configure_environmental_variables():
-        if args.fc is not None:
-            os.environ["FC"] = args.fc
-        if args.flags is not None:
-            os.environ["FFLAGS"] = args.flags
-
     def clean_dir():
-        print("--clean option is enabled. Cleaning the build directory...")
+        print("Cleaning the build directory...")
         remove_dirs = ["build", "bin"]
         for rmdir in remove_dirs:
             if os.path.exists(rmdir):
@@ -50,15 +44,26 @@ def preprocess(args, exec_path, root_path):
                 print("Removed the directory: ", os.path.abspath(rmdir))
 
     check_cmake_is_installed()
-    configure_environmental_variables()
 
-    cmake_flags = ""
-    if args.noclean:
+    if args.no_clean:
+        print("--no-clean option is enabled. Skip cleaning the build directory...")
         pass
     else:
         clean_dir()
 
+    cmake_flags = ""
     print("\nConfiguring cmake build flags...")
+
+    if args.fc is not None:
+        # CMAKE_<LANG>_COMPILER: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER.html#variable:CMAKE_%3CLANG%3E_COMPILER
+        cmake_flags += f" -DCMAKE_Fortran_COMPILER={args.fc}"
+    if args.flags is not None:
+        # CMAKE_<LANG>_FLAGS: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html#variable:CMAKE_%3CLANG%3E_FLAGS
+        cmake_flags += f" -DCMAKE_Fortran_FLAGS={args.flags}"
+
+    if args.no_mkl:
+        cmake_flags += f" -DMKL=off"
+
     if args.build_type is None:  # If --build-type option is not specified, set it to release.
         print("Build type: release")
         cmake_flags += " -DCMAKE_BUILD_TYPE=release"
@@ -71,6 +76,8 @@ def preprocess(args, exec_path, root_path):
             print('[ERROR]: Invalid build type. The build type should be "release" or "debug".')
             exit(1)
     if args.mpi:
+        if args.fc is None:
+            cmake_flags += " -DCMAKE_Fortran_COMPILER=mpiifort"
         cmake_flags += " -DMPI=ON"
     if args.omp:
         cmake_flags += " -DOPENMP=ON"
@@ -87,9 +94,10 @@ def configure_source(cmake_flags):
     print("CMake flags: ", cmake_flags)
     if not os.path.exists("build"):
         os.mkdir("build")
-    print(os.getcwd())
     command = "cmake -B build" + cmake_flags
-    print(command)
+    with open("cmake_build_command.log", "w") as f:
+        f.write(command)
+    print("BUILD COMMAND: ", command, "\nBuild command is saved in cmake_build_command.log")
     process = Popen(command, shell=True, stderr=PIPE)
     _, stderr = process.communicate()
     if process.returncode != 0:
@@ -106,27 +114,25 @@ def build(args):
         sys.stderr.write("Error message: " + stderr.decode("utf-8"))
         exit(1)
     print("Successfully built the project.")
-    print("Finished the setup script.\n")
 
 
 def main():
 
     print("Start dirac_caspt2 setup script.")
-
     exec_path = os.getcwd()
-
     root_path = os.path.dirname(__file__)
     os.chdir(root_path)
 
     args = define_args()
-
     cmake_flags = preprocess(args, exec_path, root_path)
-
     configure_source(cmake_flags)
+
     if not args.build:
-        print("Finished the setup script.\n\n If you want to build the project, please run the following command: \n\tcmake --build build\n or\n\tmake -C build\n After building the project successfully, you should run tests!\n")
+        finish_message = "Finished the setup script.\n\n If you want to build the project, please run the following command: \n\tcmake --build build\n or\n\tmake -C build\n After building the project successfully, you should run tests!\n"
     else:
         build(args)
+        finish_message = "Finished the setup script.\n"
+    print(finish_message)
 
     parallel_option = "--parallel=<number of processes> " if args.mpi else ""
     enable_or_disable_mpi = "enabled" if args.mpi else "disabled"
@@ -137,7 +143,7 @@ def main():
         We recommend you to run tests to check if the build is successful.\n\
         You {enable_or_disable_mpi} --mpi option. Therefore, you should run one of the following tests:\n\
         - Run all tests:\n\
-        \tpytest {parallel_option}--all\n\
+        \tpytest --all {parallel_option}\n\
         - Run tests excluding the tests long time to run:\n\
         \tpytest {parallel_option}\n\
         For more information, please read the README.md file."
