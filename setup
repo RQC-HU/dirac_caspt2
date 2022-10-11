@@ -62,7 +62,7 @@ def preprocess(args, exec_path, root_path):
         cmake_flags += f" -DCMAKE_Fortran_FLAGS={args.flags}"
 
     if args.no_mkl:
-        cmake_flags += f" -DMKL=off"
+        cmake_flags += " -DMKL=off"
 
     if args.build_type is None:  # If --build-type option is not specified, set it to release.
         print("Build type: release")
@@ -82,9 +82,9 @@ def preprocess(args, exec_path, root_path):
     if args.omp:
         cmake_flags += " -DOPENMP=ON"
     if args.prefix is not None:
-        if args.prefix.startswith("/"): # Absolute path
+        if args.prefix.startswith("/"):  # Absolute path
             prefix = os.path.abspath(args.prefix)
-        else: # Relative path
+        else:  # Relative path
             prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
     else:
         prefix = os.path.abspath(os.path.join(root_path, "bin"))
