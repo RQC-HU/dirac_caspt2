@@ -30,7 +30,7 @@ def create_test_command(the_number_of_process: int, binaries: "list[str]") -> st
                 test_command = f"{binary}"
             else:
                 test_command = f"{test_command} && {binary}"
-    with open("test_command.txt", "w") as file_output:
+    with open("execution_command.log", "w") as file_output:
         file_output.write(test_command)
     return test_command
 
