@@ -50,7 +50,7 @@
     # Download pyenv
     git clone https://github.com/pyenv/pyenv.git ~/.pyenv
 
-    # Write the enviromental valiable and setup script for pyenv to the ~/.bashrc file
+    # Write the environmental variable and setup script for pyenv to the ~/.bashrc file
     echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
     echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
     echo 'eval "$(pyenv init -)"' >> ~/.bashrc
@@ -135,7 +135,7 @@ pytest --all
 
 ```sh
 # Use CMake to install the program
-cmake --install ./build
+cmake --install build
 # or use make to install the program
 make -C build install
 ```
@@ -176,7 +176,7 @@ pytest --all --parallel=<number of MPI processes>
 
 ```sh
 # Use CMake to install the program
-cmake --install ./build
+cmake --install build
 # or use make to install the program
 make -C build install
 ```
@@ -209,9 +209,9 @@ FC=ifort cmake -B build -DCMAKE_BUILD_TYPE=Release -DOMP=ON && cmake --build bui
 pytest --all
 ```
 
-現時点でサポートしているCMakeビルドオプションは以下のとおりです
-
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
+
+現時点でサポートしているCMakeビルドオプションは以下のとおりです
 
 - MPI
   - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
