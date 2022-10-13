@@ -12,12 +12,12 @@ from module_testing import (
 
 
 @pytest.mark.dev
-def test_dev_c1_methane(the_number_of_process: int) -> None:
+def test_c32_co_dev(the_number_of_process: int) -> None:
 
     # Set file names
-    ref_filename = "reference.methane.out"  # Reference
-    output_filename = "methane.caspt2.out"  # Output (This file is compared with Reference)
-    latest_passed_output = "latest_passed.methane.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    ref_filename = "reference.c32_co_dev.out"  # Reference
+    output_filename = "c32_co_dev.caspt2.out"  # Output (This file is compared with Reference)
+    latest_passed_output = "latest_passed.c32_co_dev.caspt2.out"  # latest passed output (After test, the output file is moved to this)
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file

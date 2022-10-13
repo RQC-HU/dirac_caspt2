@@ -11,13 +11,13 @@ from module_testing import (
 )
 
 
-@pytest.mark.dev
-def test_dev_c2_h2o(the_number_of_process: int) -> None:
+@pytest.mark.slowonly
+def test_cs_methanol_slow(the_number_of_process: int) -> None:
 
     # Set file names
-    ref_filename = "reference.H2O.out"  # Reference
-    output_filename = "H2O.caspt2.out"  # Output (This file is compared with Reference)
-    latest_passed_output = "latest_passed.H2O.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    ref_filename = "reference.cs_methanol_slow.out"  # Reference
+    output_filename = "cs_methanol_slow.caspt2.out"  # Output (This file is compared with Reference)
+    latest_passed_output = "latest_passed.cs_methanol_slow.caspt2.out"  # latest passed output (After test, the output file is moved to this)
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -64,7 +64,7 @@ def test_dev_c2_h2o(the_number_of_process: int) -> None:
 
     # Check whether the output of test run
     # matches the reference to 7th decimal places.
-    assert test_energy == pytest.approx(ref_energy, abs=1e-8)
+    assert test_energy == pytest.approx(ref_energy, abs=1e-7)
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
