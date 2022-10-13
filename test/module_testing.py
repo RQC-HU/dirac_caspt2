@@ -1,38 +1,4 @@
-import glob
-import os
 import subprocess
-
-
-def delete_scratch_files(delete_files: "list[str]", test_path: str) -> None:
-    for d in delete_files:
-        files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
-        for f in files:
-            os.remove(f)
-
-
-def is_binary_file_exist(binary_file: str) -> None:
-    if not os.path.exists(binary_file):
-        error_message = f"ERROR: {binary_file} is not exist.\nPlease build {binary_file} first."
-        raise Exception(error_message)
-
-
-def create_test_command(the_number_of_process: int, binaries: "list[str]") -> str:
-    test_command = ""
-    if the_number_of_process > 1:  # If the number of process is greater than 1, use MPI
-        for idx, binary in enumerate(binaries):
-            if idx == 0:
-                test_command = f"mpirun -np {the_number_of_process} {binary}"
-            else:
-                test_command = f"{test_command} && mpirun -np {the_number_of_process} {binary}"
-    else:  # If the number of process is 1, use serial
-        for idx, binary in enumerate(binaries):
-            if idx == 0:
-                test_command = f"{binary}"
-            else:
-                test_command = f"{test_command} && {binary}"
-    with open("execution_command.log", "w") as file_output:
-        file_output.write(test_command)
-    return test_command
 
 
 def run_test(test_command: str, output_file_path: "str|None" = None) -> "subprocess.CompletedProcess[str]":
