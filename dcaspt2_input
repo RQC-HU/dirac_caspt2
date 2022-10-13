@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
 import glob
 import shutil
 import os
@@ -27,9 +28,9 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
 Example: \n./dcaspt2 -i input.inp -o output.out"
 
     parser = argparse.ArgumentParser(description=desc, epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("-i", "-inp", type=str, help="Input file [default: active.inp]")
+    parser.add_argument("-i", "--input", "--inp", type=str, help="Input file [default: active.inp]")
     parser.add_argument("-ivo", action="store_true", help="Run ivo calculation only [default: False]")
-    parser.add_argument("-o", "-out", type=str, help="Output file [required]", metavar="OUTPUT")
+    parser.add_argument("-o", "--output", "--out", type=str, help="Output file [required]", metavar="OUTPUT")
     parser.add_argument("-j", "--mpi", "--parallel", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
     parser.add_argument("-int", "--integrals", help="Specify the 1-2 integrals file path [default: Same directory as the directory where dcaspt2 was executed]")
     parser.add_argument("-omp", "--threads", type=int, help="Specify the number of threads. This overrides the OMP_NUM_THREADS environment variable. [default: $OMP_NUM_THREADS]")
@@ -58,10 +59,12 @@ def create_tmpdir(args, input_file_path) -> str:
 
     # Preprocess to create tmpdir prefix name
     input_file_prefix: str = os.path.splitext(os.path.basename(input_file_path))[0]
-    pid: int = os.getpid()
+    if input_file_prefix == "":
+        input_file_prefix = "input"
+    time_string: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    # Set the temporary directory's prefix using the input file name and the process ID
-    prefix: str = f"{input_file_prefix}_{pid}_"
+    # Set the temporary directory's prefix using the input file name and the current time (e.g. input_2020-01-01_12-34-56_)
+    prefix: str = f"{input_file_prefix}_{time_string}_"
 
     # Create a temporary directory
     tmp_dir: str = tempfile.mkdtemp(dir=root_tmpdir, prefix=prefix)
@@ -86,7 +89,7 @@ def copy_files_to_tmpdir(input_file_path, tmp_dir, integral_path):
     shutil.copy(os.path.join(integral_path, "MRCONEE"), tmp_dir)
     for file in glob.glob(os.path.join(integral_path, "MDCINX*")):
         shutil.copy(file, tmp_dir)
-    print("LOG: Copied 1-2 integral files to the temporary directory")
+    print("[log]: Copied 1-2 integral files to the temporary directory")
     return None
 
 
@@ -112,9 +115,9 @@ def create_command_to_run(args, script_path) -> str:
         mpi = f"mpirun -np {args.mpi}"
 
     # Create a command to run dcaspt2
-    ivo_path = os.path.join(script_path, "bin/r4divocoexe")
-    casci_path = os.path.join(script_path, "bin/r4dcascicoexe")
-    caspt2_path = os.path.join(script_path, "bin/r4dcaspt2ocoexe")
+    ivo_path = os.path.join(script_path, "r4divocoexe")
+    casci_path = os.path.join(script_path, "r4dcascicoexe")
+    caspt2_path = os.path.join(script_path, "r4dcaspt2ocoexe")
     if args.ivo:
         command = f"{mpi} {ivo_path}"
     else:
@@ -140,7 +143,7 @@ def run_command(args, command, tmp_dir, output_file_path):
         p.wait()
         _, stderr = p.communicate()
         end_calc = time.time()
-        end_message = "================= Calculation finished ================ "
+        end_message = "================= Calculation finished ================\n"
         end_message += f"Elapsed time: {end_calc - start_calc:.4f} sec\n"
         if p.returncode == 0:
             end_message += "NORMAL END OF dcaspt2 CALCULATION\n"
@@ -152,7 +155,6 @@ def run_command(args, command, tmp_dir, output_file_path):
             end_message += "================== END Error message ==================\n"
         print(end_message)
         f.write(end_message)
-        print("RETURN CODE:", p.returncode)
         if not args.save and os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
         if p.returncode != 0:
