@@ -12,7 +12,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     integer :: mrconee_unit, IMO, IRP
     character*50, intent(in) :: filename
     integer :: i0, j0, k0, i, j, m, isym, jsym, ksym, iostat
-    integer, allocatable :: dammo(:), UTCHEMIMO1(:, :), UTCHEMIMO2(:, :)
+    integer, allocatable :: dammo(:)
     integer, allocatable :: SD(:, :)
     logical :: breit, is_end_of_file
 
@@ -45,12 +45,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     allocate (IRPMO(1:NMO))
     allocate (ORBMO(1:NMO))
-    allocate (UTCHEMIMO1(1:NMO, 1:scfru))
-    allocate (UTCHEMIMO2(1:NMO, 1:scfru))
     Call memplus(size(IRPMO), kind(IRPMO), 1)
     Call memplus(size(ORBMO), kind(ORBMO), 1)
-    Call memplus(size(UTCHEMIMO1), kind(UTCHEMIMO1), 1)
-    Call memplus(size(UTCHEMIMO2), kind(UTCHEMIMO2), 1)
 
     Read (mrconee_unit, iostat=iostat) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
@@ -148,16 +144,10 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 ! create MULTB_S, MULTB_D
 
-    Do i0 = 1, nsymrpa
-        Do j0 = 1, nsymrpa
-            MULTB_S(i0, j0) = MULTB(i0 + nsymrpa, j0 + nsymrpa)
-            !    MULTB_D(i0, j0) = MULTB2(j0, i0)
-            MULTB_D(i0, j0) = MULTB2(i0, j0)
-        End do
-    End do
-
-    MULTB_S = MULTB_S - nsymrpa
-    MULTB_D = MULTB_D - nsymrpa
+    ! MULTB_S(i,j) = MULTB(i + nsymrpa, j + nsymrpa) - nsymrpa (the bottom right block of MULTB)
+    MULTB_S(:, :) = MULTB(1 + nsymrpa:2*nsymrpa, 1 + nsymrpa:2*nsymrpa) - nsymrpa
+    ! MULTB_S is the upper left block of MULTB2 - nsymrpa
+    MULTB_D(:, :) = MULTB2(1:nsymrpa, 1:nsymrpa) - nsymrpa
 
     if (rank == 0) then
         print *, 'MULTB_S'
@@ -175,9 +165,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
 !----------------------------------------------------------------------------------------
 
-    deallocate (UTCHEMIMO1); Call memminus(KIND(UTCHEMIMO1), SIZE(UTCHEMIMO1), 1)
-    deallocate (UTCHEMIMO2); Call memminus(KIND(UTCHEMIMO2), SIZE(UTCHEMIMO2), 1)
-
     Allocate (sp(1:nmo)); Call memplus(KIND(sp), SIZE(sp), 1)
     sp(1:ninact) = 1
     sp(ninact + 1:ninact + nact) = 2
@@ -189,7 +176,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 !     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1
 
-! Create MULTB_DF, MULTB_SB and MULTB_DB is no longer needed
+! MULTB_DF, MULTB_SB and MULTB_DB are no longer needed
 
     SD(:, :) = MULTB(nsymrpa + 1:2*nsymrpa, 1:nsymrpa)
 
@@ -199,22 +186,16 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
             print '(50I3)', (SD(i, j), j=1, nsymrpa)
         End do
     end if
-    Do i = 1, nsymrpa
-        Do j = 1, nsymrpa
-            DS(i, j) = SD(j, i)
-        End do
-    End do
+    MULTB_DS = transpose(SD)
 
     if (rank == 0) then
         print *, 'MULTB_DS'
         Do i = 1, nsymrpa
-            print '(50I3)', (DS(i, j), j=1, nsymrpa)
+            print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
         End do
     end if
-    MULTB_DS(:, :) = DS(:, :)
 
-    deallocate (DS, SD)
-
+    if (allocated(SD)) Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
     Allocate (irpamo(nmo)); Call memplus(KIND(irpamo), SIZE(irpamo), 1)
     Allocate (orb(nmo)); Call memplus(KIND(orb), SIZE(orb), 1)
     Allocate (indmo(nmo)); Call memplus(KIND(indmo), SIZE(indmo), 1)
@@ -247,7 +228,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     orb = orbmo
 
 ! orb is lower order of orbmo
-    call heapSort(orb, .false.)
+    call heapSort(list=orb, is_reverse=.false.)
     allocate (sort_orb(nmo)); Call memplus(KIND(sort_orb), SIZE(sort_orb), 1)
     sort_orb = orb
 ! RAS sort
