@@ -13,7 +13,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     character*50, intent(in) :: filename
     integer :: i0, j0, k0, i, j, m, isym, jsym, ksym, iostat
     integer, allocatable :: dammo(:), UTCHEMIMO1(:, :), UTCHEMIMO2(:, :)
-    integer, allocatable :: SD(:, :), DS(:, :)
+    integer, allocatable :: SD(:, :)
     logical :: breit, is_end_of_file
 
 !  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
@@ -74,6 +74,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 
     if (rank == 0) then
+        print *, ' NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)                         ! IRs chars'
         print *, nsymrpa, (repna(i0), i0=1, nsymrpa*2)
     end if
     allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
@@ -88,8 +89,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     Call memplus(size(MULTB_DF), kind(MULTB_DF), 1)
     Call memplus(size(MULTB_DB), kind(MULTB_DB), 1)
     Call memplus(size(MULTB_SB), kind(MULTB_SB), 1)
-    allocate (DS(1:NSYMRPA, 1:NSYMRPA))
     allocate (SD(1:NSYMRPA, 1:NSYMRPA))
+    Call memplus(size(SD), kind(SD), 1)
 
 !     Read(UT_sys_ftmp) ((MULTB_S(J,I),MULTB_D(J,I),J=0,NSYMRP-1),I=0,NSYMRP-1)
 !     Read(UT_sys_ftmp) ((IRPMO(IMO,isp),ORBMO(IMO,isp), &
@@ -119,7 +120,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
 !----------------------------------------------------------------------------------------
 
-!Iwamuro modify
+! Override nsymrp with nsymrpa
+    nsymrp = nsymrpa
 
 ! create MULTB2
 
@@ -187,151 +189,9 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 !     irpmo(1:imo) = irpmo(1:imo) + 1       ! irrep starts from 1
 
-! Create MULTB_DF, MULTB_SB and MULTB_DB
+! Create MULTB_DF, MULTB_SB and MULTB_DB is no longer needed
 
-    If (trim(ptgrp) == 'C1') then  ! C1 symmetry
-        if (rank == 0) then
-            print *, 'If pgsym=c1, this route goes through.'
-        end if
-        NSYMRP = 1
-        NSYMRPA = 1
-        REPNA(1) = 'a'; REPNA(2) = 'a'
-
-        SD(1, 1) = 1
-        DS(1, 1) = 1
-        MULTB_DS = 1
-        irpmo = 1
-    else ! trim(prgrp) /= 'C1'
-        !Iwamuro modify
-        ! Not C1 symmetry
-        if (rank == 0) then
-            print *, 'if pgsym=c1, this route does not go through. '
-        end if
-
-        Do jsym = 1, nsymrpa
-            Do isym = 1, nsymrpa - 1, 2
-                MULTB_DF(isym + 1, jsym) = MULTB_D(isym, jsym)
-                MULTB_DF(isym, jsym) = MULTB_D(isym + 1, jsym)
-            End do
-        End do
-
-        Do jsym = 1, nsymrpa
-            Do isym = 1, nsymrpa
-                ksym = MULTB_DF(isym, jsym)
-                MULTB_DB(isym, ksym) = jsym
-            End do
-        End do
-
-        Do jsym = 1, nsymrpa
-            Do isym = 1, nsymrpa
-                ksym = MULTB_S(isym, jsym)
-                MULTB_SB(isym, ksym) = jsym
-            End do
-        End do
-
-        if (rank == 0) then
-            print *, 'MULTB_SB'
-            Do I = 1, nsymrpa
-                print '(50I3)', (MULTB_SB(I, J), J=1, NSYMRPA)
-            End do
-
-            print *, 'MULTB_DF'
-            Do I = 1, nsymrpa
-                print '(50I3)', (MULTB_DF(I, J), J=1, NSYMRPA)
-            End do
-
-            print *, 'MULTB_DB'
-            Do I = 1, nsymrpa
-                print '(50I3)', (MULTB_DB(I, J), J=1, NSYMRPA)
-            End do
-        end if
-!     Write(*,'("UTCHEMIMO1",50I3)') (UTCHEMIMO1(IMO,1),IMO=1,nmo)
-!     Write(*,'("UTCHEMIMO2",50I3)') (UTCHEMIMO2(IMO,1),IMO=1,nmo)
-!     Write(*,'("IRPMO",50I3)') (IRPMO(IMO),IMO=1,nmo)
-!     Write(*,'("ORBMO",20F10.4)') (ORBMO(IMO),IMO=1,nmo)
-
-! Create MULTB_DS, MULTB_SD
-
-        If (trim(ptgrp) == 'C32h') then
-            REPNA(1) = '1e1/2g'; REPNA(2) = '2e1/2g'; REPNA(3) = '1e3/2g'; REPNA(4) = '2e3/2g'
-            REPNA(5) = '1e5/2g'; REPNA(6) = '2e5/2g'; REPNA(7) = '1e7/2g'; REPNA(8) = '2e7/2g'
-            REPNA(9) = '1e9/2g'; REPNA(10) = '2e9/2g'; REPNA(11) = '1e11/2g'; REPNA(12) = '2e11/2g'
-            REPNA(13) = '1e13/2g'; REPNA(14) = '2e13/2g'; REPNA(15) = '1e15/2g'; REPNA(16) = '2e15/2g'
-            REPNA(17) = '1e1/2u'; REPNA(18) = '2e1/2u'; REPNA(19) = '1e3/2u'; REPNA(20) = '2e3/2u'
-            REPNA(21) = '1e5/2u'; REPNA(22) = '2e5/2u'; REPNA(23) = '1e7/2u'; REPNA(24) = '2e7/2u'
-            REPNA(25) = '1e9/2u'; REPNA(26) = '2e9/2u'; REPNA(27) = '1e11/2u'; REPNA(28) = '2e11/2u'
-            REPNA(29) = '1e13/2u'; REPNA(30) = '2e13/2u'; REPNA(31) = '1e15/2u'; REPNA(32) = '2e15/2u'
-
-            REPNA(33) = 'ag    '; REPNA(34) = 'bg    '; REPNA(35) = '1e1g  '; REPNA(36) = '2e1g  '
-            REPNA(37) = '1e2g  '; REPNA(38) = '2e2g  '; REPNA(39) = '1e3g  '; REPNA(40) = '2e3g  '
-            REPNA(41) = '1e4g  '; REPNA(42) = '2e4g  '; REPNA(43) = '1e5g  '; REPNA(44) = '2e5g  '
-            REPNA(45) = '1e6g  '; REPNA(46) = '2e6g  '; REPNA(47) = '1e7g  '; REPNA(48) = '2e7g  '
-            REPNA(49) = 'au    '; REPNA(50) = 'bu    '; REPNA(51) = '1e1u  '; REPNA(52) = '2e1u  '
-            REPNA(53) = '1e2u  '; REPNA(54) = '2e2u  '; REPNA(55) = '1e3u  '; REPNA(56) = '2e3u  '
-            REPNA(57) = '1e4u  '; REPNA(58) = '2e4u  '; REPNA(59) = '1e5u  '; REPNA(60) = '2e5u  '
-            REPNA(61) = '1e7u  '; REPNA(62) = '2e7u  '; REPNA(63) = '1e9u  '; REPNA(64) = '2e9u  '
-
-            Do i = 1, nsymrpa/2
-                Do j = 1, nsymrpa/2
-                    SD(i, j) = MULTB(i + nsymrpa, j)
-                End do
-            End do
-
-            Do i = 1, nsymrpa/2
-                Do j = 1, nsymrpa/2
-                    SD(i, j + nsymrpa/2) = SD(i, j) + nsymrpa/2
-                End do
-            End do
-
-            Do i = 1, nsymrpa/2
-                Do j = 1, nsymrpa/2
-                    SD(i + nsymrpa/2, j) = SD(i, j + nsymrpa/2)
-                End do
-            End do
-
-            Do i = 1, nsymrpa/2
-                Do j = 1, nsymrpa/2
-                    SD(i + nsymrpa/2, j + nsymrpa/2) = SD(i, j)
-                End do
-            End do
-
-        Elseif (trim(ptgrp) == 'C32') then
-            REPNA(1) = '1e1/2'; REPNA(2) = '2e1/2'; REPNA(3) = '1e3/2'; REPNA(4) = '2e3/2'
-            REPNA(5) = '1e5/2'; REPNA(6) = '2e5/2'; REPNA(7) = '1e7/2'; REPNA(8) = '2e7/2'
-            REPNA(9) = '1e9/2'; REPNA(10) = '2e9/2'; REPNA(11) = '1e11/2'; REPNA(12) = '2e11/2'
-            REPNA(13) = '1e13/2'; REPNA(14) = '2e13/2'; REPNA(15) = '1e15/2'; REPNA(16) = '2e15/2'
-            REPNA(17) = '1e1/2'; REPNA(18) = '2e1/2'; REPNA(19) = '1e3/2'; REPNA(20) = '2e3/2'
-            REPNA(21) = '1e5/2'; REPNA(22) = '2e5/2'; REPNA(23) = '1e7/2'; REPNA(24) = '2e7/2'
-            REPNA(25) = '1e9/2'; REPNA(26) = '2e9/2'; REPNA(27) = '1e11/2'; REPNA(28) = '2e11/2'
-            REPNA(29) = '1e13/2'; REPNA(30) = '2e13/2'; REPNA(31) = '1e15/2'; REPNA(32) = '2e15/2'
-
-            REPNA(33) = 'a    '; REPNA(34) = 'b    '; REPNA(35) = '1e1  '; REPNA(36) = '2e1  '
-            REPNA(37) = '1e2  '; REPNA(38) = '2e2  '; REPNA(39) = '1e3  '; REPNA(40) = '2e3  '
-            REPNA(41) = '1e4  '; REPNA(42) = '2e4  '; REPNA(43) = '1e5  '; REPNA(44) = '2e5  '
-            REPNA(45) = '1e6  '; REPNA(46) = '2e6  '; REPNA(47) = '1e7  '; REPNA(48) = '2e7  '
-            REPNA(49) = 'a    '; REPNA(50) = 'b    '; REPNA(51) = '1e1  '; REPNA(52) = '2e1  '
-            REPNA(53) = '1e2  '; REPNA(54) = '2e2  '; REPNA(55) = '1e3  '; REPNA(56) = '2e3  '
-            REPNA(57) = '1e4  '; REPNA(58) = '2e4  '; REPNA(59) = '1e5  '; REPNA(60) = '2e5  '
-            REPNA(61) = '1e7  '; REPNA(62) = '2e7  '; REPNA(63) = '1e9  '; REPNA(64) = '2e9  '
-
-            Do i = 1, nsymrpa
-                Do j = 1, nsymrpa
-                    SD(i, j) = MULTB(i + nsymrpa, j)
-                End do
-            End do
-
-        Else
-
-            Do i = 1, nsymrpa
-                Do j = 1, nsymrpa
-                    SD(i, j) = MULTB(i + nsymrpa, j)
-                End do
-            End do
-
-        End if
-    end if
-
-    If (trim(ptgrp) /= 'C1') nsymrp = nsymrpa
+    SD(:, :) = MULTB(nsymrpa + 1:2*nsymrpa, 1:nsymrpa)
 
     if (rank == 0) then
         print *, 'MULTB_SD'

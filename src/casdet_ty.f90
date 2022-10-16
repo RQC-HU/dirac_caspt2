@@ -50,7 +50,7 @@ SUBROUTINE casdet_ty
             end if
 
             allow_det_num = allow_det_num + 1
-            if (trim(ptgrp) == 'C1') then
+            if (nsymrpa == 1) then
                 ndet = ndet + 1
                 idet0(ndet) = i
                 idetr(i) = ndet
