@@ -300,8 +300,6 @@ nbas
 156
 eshift
 0.0
-ptgrp
-C2
 diracver
 21
 ras1
@@ -315,7 +313,7 @@ ras3
 end
 ```
 
-各パラメータの意味と必須パラメータかどうかについては以下を参照してください(requiredとあるものは必須パラメータです
+各パラメータの意味と必須パラメータかどうかについては以下を参照してください(requiredとあるものは必須パラメータです)
 
 ```in
 Input for CASCI and CASPT2
@@ -330,7 +328,6 @@ totsym      : total symmetry ex. 5 for Ag in C2h closed shell (required)
 ncore       : the number of core orbital (required)
 nbas        : the number of basis set (required)
 eshift      : for real shift (if you don't write, it will be 0)
-ptgrp       : point group symmtery (required)
 diracver    : DIRAC version (required)
 ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
 ras2        : RAS2 spinor list
