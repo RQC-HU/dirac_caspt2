@@ -13,7 +13,6 @@ def define_args():
     parser = argparse.ArgumentParser(description="This script is used as a setup script for this project.")
     parser.add_argument("--build", action="store_true", help="Build the project after the setup. [default: False]")
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
-    parser.add_argument("--no-clean", action="store_true", help="Don't clean the build directory before building. [default: False]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
     parser.add_argument("--flags", type=str, help="The compiler flags.(If not specified, the default flags will be used.)")
     parser.add_argument("-j", "--parallel", type=int, default=1, help="Specify the number of build processes. This option is used only when the --build option is specified. [default: 1]")
@@ -44,12 +43,7 @@ def preprocess(args, exec_path, root_path):
                 print("Removed the directory: ", os.path.abspath(rmdir))
 
     check_cmake_is_installed()
-
-    if args.no_clean:
-        print("--no-clean option is enabled. Skip cleaning the build directory...")
-        pass
-    else:
-        clean_dir()
+    clean_dir()
 
     cmake_flags = ""
     print("\nConfiguring cmake build flags...")
