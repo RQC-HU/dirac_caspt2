@@ -81,7 +81,7 @@ SUBROUTINE casdet_ty
         if (rank == 0) then
             print *, "[ERROR]: The number of CASCI determinant is 0. Therefore, subsequent calculations cannot be performed successfully and the program is terminated."
         end if
-        exit
+        stop
     end if
 
 end subroutine casdet_ty
