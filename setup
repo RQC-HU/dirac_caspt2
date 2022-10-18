@@ -62,7 +62,7 @@ def preprocess(args, exec_path, root_path):
         cmake_flags += f" -DCMAKE_Fortran_FLAGS={args.flags}"
 
     if args.no_mkl:
-        cmake_flags += f" -DMKL=off"
+        cmake_flags += " -DMKL=off"
 
     if args.build_type is None:  # If --build-type option is not specified, set it to release.
         print("Build type: release")
@@ -82,9 +82,9 @@ def preprocess(args, exec_path, root_path):
     if args.omp:
         cmake_flags += " -DOPENMP=ON"
     if args.prefix is not None:
-        if args.prefix.startswith("/"): # Absolute path
+        if args.prefix.startswith("/"):  # Absolute path
             prefix = os.path.abspath(args.prefix)
-        else: # Relative path
+        else:  # Relative path
             prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
     else:
         prefix = os.path.abspath(os.path.join(root_path, "bin"))
@@ -101,20 +101,20 @@ def configure_source(cmake_flags):
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
     print("BUILD COMMAND: ", command, "\nBuild command is saved in cmake_build_command.log")
-    process = Popen(command, shell=True, stderr=PIPE)
-    _, stderr = process.communicate()
+    process = Popen(command, shell=True)
+    process.wait()
     if process.returncode != 0:
-        sys.stderr.write("Error message: " + stderr.decode("utf-8"))
+        sys.stderr.write("[Error] : CMake configuration failed!\nPlese check the error message above.")
         exit(1)
     print("Successfully configured the source code.\n")
 
 
 def build(args):
     num_of_process = args.parallel
-    process = Popen(f"cmake --build build -j {num_of_process}", shell=True, stderr=PIPE)
-    _, stderr = process.communicate()
+    process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
+    process.wait()
     if process.returncode != 0:
-        sys.stderr.write("Error message: " + stderr.decode("utf-8"))
+        sys.stderr.write("[Error] : build failed!\nPlese check the error message above.\n")
         exit(1)
     print("Successfully built the project.")
 
