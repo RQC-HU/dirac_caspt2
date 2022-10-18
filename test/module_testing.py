@@ -16,14 +16,31 @@ def is_binary_file_exist(binary_file: str) -> None:
         raise Exception(error_message)
 
 
-def create_test_command(the_number_of_process: int, binaries: "list[str]") -> str:
+def create_test_command_for_caspt2(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool) -> str:
+    options = ""
+    if save:
+        tmp_path = os.path.join(test_path, "tmp")
+        options += f" --save --tmp {tmp_path}"
+    if mpi_num_process > 1:
+        options += f" --mpi {mpi_num_process}"
+    if omp_num_threads is None:
+        omp = str(os.environ.get("OMP_NUM_THREADS", 1))
+    else:
+        omp = str(omp_num_threads) if omp_num_threads > 1 else "1"
+    options += f" --omp {omp}"
+
+    test_command = f"{dcaspt2} -i {input_file} -o {output_file} {options}"
+    return test_command
+
+
+def create_test_command(mpi_num_process: int, binaries: "list[str]") -> str:
     test_command = ""
-    if the_number_of_process > 1:  # If the number of process is greater than 1, use MPI
+    if mpi_num_process > 1:  # If the number of process is greater than 1, use MPI
         for idx, binary in enumerate(binaries):
             if idx == 0:
-                test_command = f"mpirun -np {the_number_of_process} {binary}"
+                test_command = f"mpirun -np {mpi_num_process} {binary}"
             else:
-                test_command = f"{test_command} && mpirun -np {the_number_of_process} {binary}"
+                test_command = f"{test_command} && mpirun -np {mpi_num_process} {binary}"
     else:  # If the number of process is 1, use serial
         for idx, binary in enumerate(binaries):
             if idx == 0:
@@ -35,20 +52,13 @@ def create_test_command(the_number_of_process: int, binaries: "list[str]") -> st
     return test_command
 
 
-def run_test(test_command: str, output_file_path: "str|None" = None) -> "subprocess.CompletedProcess[str]":
-    if output_file_path:
-        with open(output_file_path, "w") as file_output:
-            process = subprocess.run(
-                test_command,
-                shell=True,
-                encoding="utf-8",
-                stdout=file_output,  # Redirect output to file_output
-            )
-    else:
+def run_test(test_command: str, output_file_path: str = "stdout.out") -> "subprocess.CompletedProcess[str]":
+    with open(output_file_path, "w") as file_output:
         process = subprocess.run(
             test_command,
             shell=True,
             encoding="utf-8",
+            stdout=file_output,
         )
     return process
 

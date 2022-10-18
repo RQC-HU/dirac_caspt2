@@ -1,4 +1,5 @@
 *_exe
+*.out
 *.log
 result.prev
 result

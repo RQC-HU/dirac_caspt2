@@ -4,14 +4,16 @@ import pytest
 from module_testing import (
     run_test,
     check_test_returncode,
+    create_test_command_for_caspt2,
     get_caspt2_energy_from_output_file,
 )
 
 
 @pytest.mark.dev
-def test_c1_methane_dev(the_number_of_process: int) -> None:
+def test_c1_methane_dev(mpi_num_process: int, omp_num_threads: int, save: bool) -> None:
 
     # Set file names
+    input_file = "active.inp"  # Input
     ref_filename = "reference.c1_methane_dev.out"  # Reference
     output_filename = "c1_methane_dev.caspt2.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.c1_methane_dev.caspt2.out"  # latest passed output (After test, the output file is moved to this)
@@ -28,8 +30,9 @@ def test_c1_methane_dev(the_number_of_process: int) -> None:
     binary_dir = os.path.abspath(os.path.join(test_path, "../../../bin"))  # Set the Built binary directory
     dcaspt2 = os.path.abspath(os.path.join(binary_dir, "dcaspt2"))  # Set the dcaspt2 script path
 
-    test_command = f"{dcaspt2} -j {the_number_of_process} -o {output_filename}"  # Set test command
-
+    test_command = create_test_command_for_caspt2(dcaspt2, mpi_num_process, omp_num_threads, input_file, output_file_path, test_path, save)
+    with open("execution_command.txt", "w") as f:
+        print(f"TEST COMMAND: {test_command}", file=f)
     process = run_test(test_command, output_file_path)
     check_test_returncode(process)
 

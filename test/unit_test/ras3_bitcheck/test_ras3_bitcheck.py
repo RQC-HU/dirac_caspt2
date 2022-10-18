@@ -31,7 +31,7 @@ def test_ras3_bitcheck():
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
-    test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
+    test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
     process = run_test(test_command)
     check_test_returncode(process)
