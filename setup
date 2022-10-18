@@ -131,7 +131,7 @@ def main():
         finish_message = "Finished the setup script.\n"
     print(finish_message)
 
-    parallel_option = "--parallel=<number of processes> " if args.mpi else ""
+    parallel_option = "--mpi=<number of MPI processes> --omp=<number of OpenMP threads per one process>" if args.mpi else ""
     enable_or_disable_mpi = "enabled" if args.mpi else "disabled"
 
     print(
