@@ -1,3 +1,10 @@
+add_library(dcaspt2_module STATIC
+  four_caspt2_module.f90
+  module_sort_swap.f90
+  module_file_manager.f90
+  read_input_module.f90
+  ras_det_check.f90
+)
 add_executable(r4dcascicoexe
   calce0.f90
   casci_ty.f90
@@ -13,16 +20,11 @@ add_executable(r4dcascicoexe
   fockcasci_ty.f90
   fockdiag_ty.f90
   fockhf1_ty.f90
-  four_caspt2_module.f90
   get_filename.f90
   mem.f90
-  module_file_manager.f90
-  module_sort_swap.f90
   one_e_exct.f90
   prtoutfock.f90
   r4dcasci_co.f90
-  ras_det_check.f90
-  read_input_module.f90
   read1mo_co.f90
   readorb_enesym_co.f90
   readint2_casci_co.f90
@@ -33,6 +35,7 @@ add_executable(r4dcascicoexe
   tramo_ty.f90
   uramda_s_half.f90
 )
+target_link_libraries(r4dcascicoexe dcaspt2_module)
 
 add_executable(r4dcaspt2ocoexe
   calce0.f90
@@ -41,16 +44,12 @@ add_executable(r4dcaspt2ocoexe
   diag.f90
   dim.f90
   e0test_v2.f90
-  four_caspt2_module.f90
   get_filename.f90
   intra.f90
   mem.f90
-  module_file_manager.f90
-  module_sort_swap.f90
   one_e_exct.f90
   r4dcaspt2_tra_co.f90
   ras_det_check.f90
-  read_input_module.f90
   readorb_enesym_co.f90
   read1mo_co.f90
   readint2_ord_co.f90
@@ -67,6 +66,7 @@ add_executable(r4dcaspt2ocoexe
   tramo_ty.f90
   uramda_s_half.f90
 )
+target_link_libraries(r4dcaspt2ocoexe dcaspt2_module)
 
 install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS r4dcaspt2ocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
