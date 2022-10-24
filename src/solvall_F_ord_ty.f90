@@ -525,8 +525,9 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
 
-    integer :: i, j, k, l, tab
-    integer :: it, iu, iostat, twoint_unit
+    integer :: i, j, k, l, tab, i0
+    integer :: it, jt, iu, ju, iostat, twoint_unit, isym, syma
+    integer :: multb_s_reverse(nsec, nsec), pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
     logical :: is_end_of_file
@@ -535,11 +536,40 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
+
+    ! Initialization
     v = 0.0d+00
     twoint_unit = default_unit
+    multb_s_reverse(:, :) = 0
+    pattern_t(:, :) = 0
+    pattern_u(:, :) = 0
+    pattern_tu_count(:) = 0
 
-! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+    call create_multb_s_reverse
+    ! Save t,u patterns for each isym
+    do isym = 1, nsymrpa
+        Do it = 1, nact
+            jt = it + ninact
+            Do iu = 1, it - 1
+                ju = iu + ninact
 
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+
+                if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                    pattern_tu_count(isym) = pattern_tu_count(isym) + 1
+                    pattern_t(pattern_tu_count(isym), isym) = it
+                    pattern_u(pattern_tu_count(isym), isym) = iu
+                End if
+            End do
+        End do
+    end do
+
+
+    ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+    !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
+    !
+    !                             p=j, q=l loop for t and u             u=j, p=l loop for t
+    !
     call open_unformatted_file(unit=twoint_unit, file=fint, status='old', optional_action='read')  !  (32|32) stored  a > b
     do
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2
@@ -550,26 +580,39 @@ SUBROUTINE vFmat_ord(nab, iab, v)
         if (i <= k) cycle ! Read the next line if i is less than or equal to k
 
         tab = iab(i, k)
-
-! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
-!                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
-!
-!                             p=j, q=l loop for t and u             u=j, p=l loop for t
-!
-        !$OMP parallel do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        
+        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ! 1 dim density matrices term
+        ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+        !                                                    ===================================
+        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        !$OMP parallel
+        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
         Do it = 1, nact
-            Do iu = 1, it - 1
-                Call dim2_density(it, j, iu, l, dr, di)
-                dens = DCMPLX(dr, di)
-                v(tab, it, iu) = v(tab, it, iu) + cint2*dens
-            End do  ! iu
-
             Call dim1_density(it, l, dr, di)
             dens = DCMPLX(dr, di)
             v(tab, it, j) = v(tab, it, j) - cint2*dens
+        End do
+        !$OMP end do
 
-        End do                  ! it
-        !$OMP end parallel do
+        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ! 2 dim density matrices term
+        ! Calculate only those patterns of t and u that belong to isym.
+        ! 
+        ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
+        !                                                    ===================================
+        !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        isym = multb_s_reverse(i, k)
+        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        do i0 = 1, pattern_tu_count(isym)
+            it = pattern_t(i0, isym)
+            iu = pattern_u(i0, isym)
+            Call dim2_density(it, j, iu, l, dr, di)
+            dens = DCMPLX(dr, di)
+            v(tab, it, iu) = v(tab, it, iu) + cint2*dens
+        end do
+        !$OMP end do
+        !$OMP end parallel
     end do
     close (twoint_unit)
 
@@ -582,4 +625,32 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
+contains
+    subroutine create_multb_s_reverse
+        !========================================================================================================
+        ! This subroutine creates multb_s_reverse
+        !
+        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+        !========================================================================================================
+        implicit none
+        integer :: ia, ib, ja, jb
+
+        if (nsymrpa == 1) then
+            multb_s_reverse(:, :) = 1
+        else
+            do ia = 1, nsec
+                ja = ia + ninact + nact
+                do ib = 1, ia - 1
+                    jb = ib + ninact + nact
+                    syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                    do isym = 1, nsymrpa
+                        if (MULTB_S(syma, isym) == 1) then
+                            multb_s_reverse(ia, ib) = isym
+                            exit
+                        end if
+                    end do
+                end do
+            end do
+        end if
+    end subroutine create_multb_s_reverse
 end subroutine vFmat_ord
