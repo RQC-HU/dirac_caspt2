@@ -193,7 +193,9 @@ def run_command(args, command, tmp_dir, output_file_path):
             end_message += f"ERROR: dirac-caspt2 calculation failed with return code {p.returncode}\n"
         print(end_message)
         f.write(end_message)
-        if not args.save and os.path.exists(tmp_dir):
+
+        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
+        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
         if p.returncode != 0:
             sys.exit(p.returncode)
