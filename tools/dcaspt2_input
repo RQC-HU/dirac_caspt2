@@ -3,12 +3,12 @@
 import argparse
 import datetime
 import glob
-import shutil
 import os
-from subprocess import Popen
+import shutil
 import sys
 import tempfile
 import time
+from subprocess import Popen
 
 
 def parse_args() -> "argparse.Namespace":
@@ -37,7 +37,7 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     return parser.parse_args()
 
 
-def create_tmpdir(args, input_file_path) -> str:
+def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
     """Create a temporary directory and return the path to the directory
 
     Args:
@@ -70,7 +70,7 @@ def create_tmpdir(args, input_file_path) -> str:
     return tmp_dir
 
 
-def copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path):
+def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, integrals_path: str) -> None:
     """Copy input file and integral files to tmpdir
     Args:
         input_file_path (str): Path to the input file
@@ -87,12 +87,15 @@ def copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_
     shutil.copy(os.path.join(integrals_path, "MRCONEE"), tmp_dir)
     for file in glob.glob(os.path.join(integrals_path, "MDCINX*")):
         shutil.copy(file, tmp_dir)
-    print("[log]: Copied 1-2 integral files to the temporary directory")
+    print("log : Copied 1-2 integral files to the temporary directory")
     return None
 
 
-def set_integrals_path(args, user_submitted_dir) -> str:
+def set_integrals_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
     """Set the path to the 1-2 integrals file
+
+    default: user_submitted_dir
+    otherwise: args.integrals
 
     Args:
         args ("argparse.Namespace"):User input arguments (argv)
@@ -113,7 +116,7 @@ def set_integrals_path(args, user_submitted_dir) -> str:
     return integral_path
 
 
-def check_integral_files(integral_path) -> None:
+def check_integral_files(integral_path: str) -> None:
     """Check if the 1-2 integral files exist"""
     files = ["MDCINT", "MRCONEE"]
     for file in files:
@@ -122,7 +125,7 @@ def check_integral_files(integral_path) -> None:
     return
 
 
-def create_command(args, binary_dir) -> str:
+def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
     """Create a command to run dcaspt2
 
     Args:
@@ -157,7 +160,7 @@ def create_command(args, binary_dir) -> str:
     return command
 
 
-def run_command(args, command, tmp_dir, output_file_path):
+def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, output_file_path: str) -> None:
     """Run the dcaspt2 command
 
     Args:
@@ -182,7 +185,7 @@ def run_command(args, command, tmp_dir, output_file_path):
         end_message = "\n================= Calculation finished ================\n"
         end_message += f"User Command : {user_command}\n"
         end_message += f"Auto-created Command : {command}\n"
-        end_message += f"Temporary directory (deleted without -s or --save option) : {tmp_dir}\n"
+        end_message += f"Temporary directory : {tmp_dir}\n"
         end_message += f"Output file : {output_file_path}\n"
         end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
         end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n\n"
@@ -191,17 +194,23 @@ def run_command(args, command, tmp_dir, output_file_path):
             end_message += "NORMAL END OF dirac-caspt2 CALCULATION\n"
         else:
             end_message += f"ERROR: dirac-caspt2 calculation failed with return code {p.returncode}\n"
+
+        # Write the end message to the output file and stdout
         print(end_message)
         f.write(end_message)
 
         # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
         if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
+
+        # When the calculation failed, exit with the return code of the calculation
         if p.returncode != 0:
             sys.exit(p.returncode)
 
+        return None
 
-def main():
+
+def main() -> None:
 
     user_submitted_dir: str = os.getcwd()
     script_path: str = os.path.abspath(__file__)
@@ -210,40 +219,45 @@ def main():
     print("Command submitted directory: ", user_submitted_dir)
     args: "argparse.Namespace" = parse_args()
 
-    # Check if input file is specified
+    # Set the input file path
     if args.input is None:
         input_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "active.inp"))
     else:
         # absolute path
         if os.path.isabs(args.input):
-            input_file_path: str = os.path.abspath(args.input)
+            input_file_path = os.path.abspath(args.input)
         # relative path
         else:
-            input_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.input)))
+            input_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.input)))
 
-    # Check if output file is specified
+    # Set the output file path
     if args.output is None:
         output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
     else:
         # absolute path
         if os.path.isabs(args.output):
-            output_file_path: str = os.path.abspath(args.output)
+            output_file_path = os.path.abspath(args.output)
         # relative path
         else:
-            output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.output)))
+            output_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.output)))
 
-    # --integrals option
+    # 1-2 integrals directory
     integrals_path: str = set_integrals_path(args, user_submitted_dir)
     check_integral_files(integrals_path)
 
+    # Set and create temporary directory
     if args.no_tmp:
         tmp_dir: str = user_submitted_dir
+        print(f"no_tmp option : --no_tmp option is specified. The temporary directory is the submitted directory.\nno_tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
     else:
         tmp_dir = create_tmpdir(args, input_file_path)
         copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
 
+    # Create command to execute and run it
     command = create_command(args, binary_path)
     run_command(args, command, tmp_dir, output_file_path)
+
+    return None
 
 
 if __name__ == "__main__":
