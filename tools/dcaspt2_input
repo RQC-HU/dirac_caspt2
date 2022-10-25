@@ -5,7 +5,7 @@ import datetime
 import glob
 import shutil
 import os
-from subprocess import PIPE, Popen
+from subprocess import Popen
 import sys
 import tempfile
 import time
@@ -167,25 +167,28 @@ def run_command(args, command, tmp_dir, output_file_path):
         output_file_path (str): Path to the output file
     """
     os.chdir(tmp_dir)
-    print(output_file_path)
+
     with open(output_file_path, "w") as f:
-        start_calc = time.time()
-        p = Popen(command, shell=True, stdout=f, stderr=PIPE)
+        start_time = time.time()
+        start_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        p = Popen(command, shell=True, stdout=f, stderr=f)
         p.wait()
-        _, stderr = p.communicate()
-        end_calc = time.time()
+
+        end_time = time.time()
+        end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         end_message = "\n================= Calculation finished ================\n"
-        if args.save:
-            end_message += f"The calculation results are saved in the temporary directory.\nTemporary directory: {tmp_dir}\n"
-        end_message += f"Elapsed time: {end_calc - start_calc:.4f} sec\n"
+        end_message += f"Command: {command}\n"
+        end_message += f"Temporary directory: {tmp_dir}\n"
+        end_message += f"Output file: {output_file_path}\n"
+        end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
+        end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n"
+
         if p.returncode == 0:
             end_message += "NORMAL END OF dcaspt2 CALCULATION\n"
         else:
             end_message += f"ERROR: dcaspt2 calculation failed with return code {p.returncode}\n"
-        if stderr:
-            end_message += "==================== Error message ====================\n"
-            end_message += stderr.decode("utf-8")
-            end_message += "================== END Error message ==================\n"
         print(end_message)
         f.write(end_message)
         if not args.save and os.path.exists(tmp_dir):
@@ -236,7 +239,6 @@ def main():
         copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
 
     command = create_command(args, binary_path)
-    print(f"Output file: {output_file_path}")
     run_command(args, command, tmp_dir, output_file_path)
 
 
