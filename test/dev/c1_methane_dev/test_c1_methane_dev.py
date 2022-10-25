@@ -2,9 +2,9 @@ import os
 import shutil
 import pytest
 from module_testing import (
-    run_test_caspt2,
     create_test_command_for_caspt2,
     get_caspt2_energy_from_output_file,
+    run_test_caspt2,
 )
 
 
