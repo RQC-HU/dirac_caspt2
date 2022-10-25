@@ -52,6 +52,14 @@ def create_test_command(mpi_num_process: int, binaries: "list[str]") -> str:
     return test_command
 
 
+def run_test_caspt2(test_command: str) -> "subprocess.CompletedProcess[str]":
+    process = subprocess.run(
+            test_command,
+            shell=True,
+            encoding="utf-8"
+    )
+    return process
+
 def run_test(test_command: str, output_file_path: str = "stdout.out") -> "subprocess.CompletedProcess[str]":
     with open(output_file_path, "w") as file_output:
         process = subprocess.run(

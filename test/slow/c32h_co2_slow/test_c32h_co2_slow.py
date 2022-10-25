@@ -2,7 +2,7 @@ import os
 import shutil
 import pytest
 from module_testing import (
-    run_test,
+    run_test_caspt2,
     check_test_returncode,
     create_test_command_for_caspt2,
     get_caspt2_energy_from_output_file,
@@ -31,7 +31,7 @@ def test_c32h_co2_slow(mpi_num_process: int, omp_num_threads: int, save: bool) -
     dcaspt2 = os.path.join(binary_dir, "dcaspt2")  # Set the dcaspt2 binary path
 
     test_command = create_test_command_for_caspt2(dcaspt2, mpi_num_process, omp_num_threads, input_file, output_file_path, test_path, save)
-    process = run_test(test_command, output_file_path)
+    process = run_test_caspt2(test_command)
     check_test_returncode(process)
 
     ref_energy = get_caspt2_energy_from_output_file(ref_file_path)
