@@ -1,7 +1,6 @@
 import os
 import shutil
 from module_testing import (
-    check_test_returncode,
     create_test_command,
     delete_scratch_files,
     get_stripped_string_from_output_file,
@@ -35,8 +34,7 @@ def test_uppercase():
     delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command)
-    check_test_returncode(process)
+    run_test(test_command)
 
     string_ref = get_stripped_string_from_output_file(ref_file_path)
     string_result = get_stripped_string_from_output_file(output_file_path)

@@ -1,7 +1,6 @@
 import shutil
 import os
 from module_testing import (
-    check_test_returncode,
     create_test_command,
     run_test,
     get_split_string_list_from_output_file,
@@ -33,8 +32,7 @@ def test_ras3_bitcheck():
     is_binary_file_exist(exe_file_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command)
-    check_test_returncode(process)
+    run_test(test_command)
 
     string_ref = get_split_string_list_from_output_file(ref_file_path)
     string_result = get_split_string_list_from_output_file(result_file_path)

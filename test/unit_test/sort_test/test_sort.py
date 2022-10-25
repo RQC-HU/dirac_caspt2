@@ -2,7 +2,6 @@ import os
 import pytest
 import shutil
 from module_testing import (
-    check_test_returncode,
     convert_string_list_to_float_list,
     convert_string_list_to_integer_list,
     create_test_command,
@@ -35,8 +34,7 @@ def test_int_sort():
     delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command)
-    check_test_returncode(process)
+    run_test(test_command)
 
     # Reference data
     reference_list = [
@@ -98,8 +96,7 @@ def test_int_sort_reverse():
     delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command, output_file_path)
-    check_test_returncode(process)
+    run_test(test_command, output_file_path)
 
     # Reference data
     reference_list = [
@@ -161,8 +158,7 @@ def test_real_sort():
     delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command, output_file_path)
-    check_test_returncode(process)
+    run_test(test_command, output_file_path)
 
     # Reference data
     reference_list: list[float] = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
@@ -202,8 +198,7 @@ def test_real_sort_reverse():
     delete_scratch_files([output_filename], test_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
 
-    process = run_test(test_command, output_file_path)
-    check_test_returncode(process)
+    run_test(test_command, output_file_path)
 
     # Reference data
     reference_list: list[float] = [8.1, -9.2, 10000.58, -897, 123456789, 0.0000000010]
