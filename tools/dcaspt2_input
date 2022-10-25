@@ -66,7 +66,7 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
 
     # Create a temporary directory
     tmp_dir: str = tempfile.mkdtemp(dir=root_tmpdir, prefix=prefix)
-    print(f"Temporary directory: {tmp_dir}")
+    print(f"Temporary directory : {tmp_dir}")
     return tmp_dir
 
 
@@ -156,7 +156,7 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
         command = f"{mpi} {ivo_path}"
     else:
         command = f"{mpi} {casci_path} && {mpi} {caspt2_path}"
-    print(f"Created command: {command}")
+    print(f"Created command : {command}")
     return command
 
 
@@ -215,8 +215,8 @@ def main() -> None:
     user_submitted_dir: str = os.getcwd()
     script_path: str = os.path.abspath(__file__)
     binary_path: str = os.path.dirname(script_path)
-    print("Script path: ", script_path)
-    print("Command submitted directory: ", user_submitted_dir)
+    print("Script path : ", script_path)
+    print("Command submitted directory : ", user_submitted_dir)
     args: "argparse.Namespace" = parse_args()
 
     # Set the input file path
