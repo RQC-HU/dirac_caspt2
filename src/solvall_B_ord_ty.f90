@@ -663,7 +663,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
         ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)
         !                             ==================
         isym = multb_s_reverse(j, l)
-        !$OMP parallel
+        !$OMP do schedule(dynamic,1) private(i0,it,iu,dr,di,dens)
         do i0 = 1, pattern_tu_count(isym)
             it = pattern_t(i0, isym)
             iu = pattern_u(i0, isym)
