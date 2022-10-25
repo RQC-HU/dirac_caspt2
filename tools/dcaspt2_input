@@ -177,18 +177,20 @@ def run_command(args, command, tmp_dir, output_file_path):
 
         end_time = time.time()
         end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        user_command = " ".join(sys.argv)
 
         end_message = "\n================= Calculation finished ================\n"
-        end_message += f"Command: {command}\n"
-        end_message += f"Temporary directory: {tmp_dir}\n"
-        end_message += f"Output file: {output_file_path}\n"
+        end_message += f"User Command : {user_command}\n"
+        end_message += f"Auto-created Command : {command}\n"
+        end_message += f"Temporary directory (deleted without -s or --save option) : {tmp_dir}\n"
+        end_message += f"Output file : {output_file_path}\n"
         end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
-        end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n"
+        end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n\n"
 
         if p.returncode == 0:
-            end_message += "NORMAL END OF dcaspt2 CALCULATION\n"
+            end_message += "NORMAL END OF dirac-caspt2 CALCULATION\n"
         else:
-            end_message += f"ERROR: dcaspt2 calculation failed with return code {p.returncode}\n"
+            end_message += f"ERROR: dirac-caspt2 calculation failed with return code {p.returncode}\n"
         print(end_message)
         f.write(end_message)
         if not args.save and os.path.exists(tmp_dir):
