@@ -12,9 +12,9 @@ def test_h2o(mpi_num_process: int, omp_num_threads: int, save: bool) -> None:
 
     # Set file names
     input_file = "active.inp"  # Input
-    ref_filename = "reference.H2O.out"  # Reference
-    output_filename = "H2O.caspt2.out"  # Output (This file is compared with Reference)
-    latest_passed_output = "latest_passed.H2O.caspt2.out"  # latest passed output (After test, the output file is moved to this)
+    ref_filename = "reference.h2o.out"  # Reference
+    output_filename = "h2o.caspt2.out"  # Output (This file is compared with Reference)
+    latest_passed_output = "latest_passed.h2o.caspt2.out"  # latest passed output (After test, the output file is moved to this)
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
