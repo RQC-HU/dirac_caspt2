@@ -52,7 +52,13 @@ def create_test_command(mpi_num_process: int, binaries: "list[str]") -> str:
     return test_command
 
 
-def run_test(test_command: str, output_file_path: str = "stdout.out") -> "subprocess.CompletedProcess[str]":
+def run_test_caspt2(test_command: str) -> None:
+    process = subprocess.run(test_command, shell=True)
+    process.check_returncode()
+    return
+
+
+def run_test(test_command: str, output_file_path: str = "stdout.out") -> None:
     with open(output_file_path, "w") as file_output:
         process = subprocess.run(
             test_command,
@@ -60,7 +66,8 @@ def run_test(test_command: str, output_file_path: str = "stdout.out") -> "subpro
             encoding="utf-8",
             stdout=file_output,
         )
-    return process
+    process.check_returncode()
+    return
 
 
 def check_test_returncode(process: "subprocess.CompletedProcess[str]") -> None:
