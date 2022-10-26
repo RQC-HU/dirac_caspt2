@@ -95,20 +95,20 @@ def configure_source(cmake_flags):
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
     print("BUILD COMMAND: ", command, "\nBuild command is saved in cmake_build_command.log")
-    process = Popen(command, shell=True, stderr=PIPE)
-    _, stderr = process.communicate()
+    process = Popen(command, shell=True)
+    process.wait()
     if process.returncode != 0:
-        sys.stderr.write("Error message: " + stderr.decode("utf-8"))
+        sys.stderr.write("Failed to configure the source code!")
         exit(1)
     print("Successfully configured the source code.\n")
 
 
 def build(args):
     num_of_process = args.parallel
-    process = Popen(f"cmake --build build -j {num_of_process}", shell=True, stderr=PIPE)
-    _, stderr = process.communicate()
+    process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
+    process.wait()
     if process.returncode != 0:
-        sys.stderr.write("Error message: " + stderr.decode("utf-8"))
+        sys.stderr.write("Failed to build the project!")
         exit(1)
     print("Successfully built the project.")
 
