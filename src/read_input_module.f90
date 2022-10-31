@@ -22,10 +22,10 @@ contains
         integer, intent(in) :: unit_num
         integer :: idx, iostat
         character(max_str_length) :: string
-        character(10) :: essential_variable_names(11) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
-                                  "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "ptgrp     ", "diracver  "/)
-        logical :: is_comment, is_config_sufficient, is_variable_filled(11) = &
-                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        character(10) :: essential_variable_names(10) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
+                                                "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "diracver  "/)
+        logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
+                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
 
         is_ras1_configured = .false.; is_ras2_configured = .false.; is_ras3_configured = .false.
@@ -118,13 +118,9 @@ contains
                 end if
             end do
 
-        case ("ptgrp")
-            call read_a_string(unit_num, ptgrp)
-            is_filled(10) = .true.
-
         case ("diracver")
             call read_an_integer(unit_num, 0, intmax, dirac_version)
-            is_filled(11) = .true.
+            is_filled(10) = .true.
 
         case ("ras1")
             call ras_read(unit_num, ras1_list, 1)

@@ -50,7 +50,7 @@ SUBROUTINE casdet_ty
             end if
 
             allow_det_num = allow_det_num + 1
-            if (trim(ptgrp) == 'C1') then
+            if (nsymrpa == 1) then
                 ndet = ndet + 1
                 idet0(ndet) = i
                 idetr(i) = ndet
@@ -75,6 +75,15 @@ SUBROUTINE casdet_ty
     end if
 !        print *,idet(1:ndet)
     Deallocate (idet0)
+
+    ! Stop the program if ndet == 0 because ndet == 0 means the number of CASCI determinant.
+    if (ndet == 0) then
+        if (rank == 0) then
+            print *, "[ERROR]: The number of CASCI determinant is 0. Therefore, subsequent calculations  &
+            cannot be performed successfully and the program is terminated."
+        end if
+        stop
+    end if
 
 end subroutine casdet_ty
 

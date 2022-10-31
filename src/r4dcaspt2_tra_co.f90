@@ -81,7 +81,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, 'ncore         =', ncore
         print *, 'nbas          =', nbas
         print *, 'eshift        =', eshift
-        print *, 'ptgrp         =', ptgrp
         print *, 'dirac_version =', dirac_version
         if (is_ras1_configured) print *, "RAS1 =", ras1_list
         if (is_ras2_configured) print *, "RAS2 =", ras2_list
