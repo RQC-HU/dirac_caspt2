@@ -36,8 +36,9 @@
     ],
     "cmake.configureOnOpen": false,
     "fortran.linter.includePaths": [
-        "${workspaceFolder}/src"
+        "${workspaceFolder}/modules"
     ],
+    "fortran.linter.modOutput": "${workspaceFolder}/modules",
     "python.testing.pytestArgs": [
         "."
     ],

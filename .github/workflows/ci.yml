@@ -133,7 +133,7 @@ jobs:
         run: python -m pip install pytest
       - name: Build source code
         run: |
-          ./setup --fc gfortran --omp --build
+          ./setup --fc gfortran --omp -j 2 --build
       - name: Run unittest(serial, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
