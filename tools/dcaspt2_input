@@ -1,0 +1,264 @@
+#!/usr/bin/env python
+
+import argparse
+import datetime
+import glob
+import os
+import shutil
+import sys
+import tempfile
+import time
+from subprocess import Popen
+
+
+def parse_args() -> "argparse.Namespace":
+    """Parse user input arguments
+
+    Returns:
+        argparse.Namespace: User input arguments (argv)
+    """
+    desc = "\
+======================================== dcaspt2 ========================================\n\
+dirac-caspt2 wrapper script.\n\
+You can can calculate the CASPT2 energy of a molecule using this script.\n\
+You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in advance.\n\
+==========================================================================================\n"
+
+    parser = argparse.ArgumentParser(description=desc, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("-i", "--inp", type=str, dest="input", help="Input file [default: active.inp]")
+    parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
+    parser.add_argument("-o", "--out", type=str, dest="output", help="Specify the name of output file [default: dirac_caspt2.out]")
+    parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
+    parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: The directory where this script is used]")
+    parser.add_argument("--omp", dest="threads", type=int, help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]")
+    parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. [default: ~/dcaspt2_tmp]")
+    parser.add_argument("--no_tmp", help="Force not to use the temporary directory.\nCalculate at the current directory.\n[default: False]\n(Note: This option forces the 1-2 integrals files and the input file\nnot to be copied to the temporary directory.\nSo temporary files will remain in the current directory.\nTherefore, this option is recommended only you concern about disk space.)", action="store_true")
+    parser.add_argument("-s", "--save", action="store_true", help="Save the temporary directory after calculation. [default: False]")
+    return parser.parse_args()
+
+
+def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
+    """Create a temporary directory and return the path to the directory
+
+    Args:
+        args ("argparse.Namespace"): User input arguments (argv)
+        input_file_path (str): Path to the input file
+
+    Returns:
+        tmp_dir (str): Path to the temporary directory
+    """
+
+    # --tmp option, Create the root temporary directory path
+    root_tmpdir: str = os.path.expanduser("~/dcaspt2_tmp")
+    if args.tmpdir:
+        root_tmpdir = os.path.abspath(os.path.expanduser(args.tmpdir))
+    if not os.path.exists(root_tmpdir):
+        os.makedirs(root_tmpdir)
+
+    # Preprocess to create tmpdir prefix name
+    input_file_prefix: str = os.path.splitext(os.path.basename(input_file_path))[0]
+    if input_file_prefix == "":
+        input_file_prefix = "input"
+    time_string: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Set the temporary directory's prefix using the input file name and the current time (e.g. input_2020-01-01_12-34-56_)
+    prefix: str = f"{input_file_prefix}_{time_string}_"
+
+    # Create a temporary directory
+    tmp_dir: str = tempfile.mkdtemp(dir=root_tmpdir, prefix=prefix)
+    print(f"Temporary directory : {tmp_dir}")
+    return tmp_dir
+
+
+def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, integrals_path: str) -> None:
+    """Copy input file and integral files to tmpdir
+    Args:
+        input_file_path (str): Path to the input file
+        tmp_dir (str): Path to the temporary directory
+        integrals_path (str): Path to the 1-2 integrals file
+
+    Returns:
+        None
+    """
+
+    shutil.copy(input_file_path, tmp_dir)
+    os.rename(os.path.join(tmp_dir, os.path.basename(input_file_path)), os.path.join(tmp_dir, "active.inp"))
+    shutil.copy(os.path.join(integrals_path, "MDCINT"), tmp_dir)
+    shutil.copy(os.path.join(integrals_path, "MRCONEE"), tmp_dir)
+    for file in glob.glob(os.path.join(integrals_path, "MDCINX*")):
+        shutil.copy(file, tmp_dir)
+    print("log : Copied 1-2 integral files to the temporary directory")
+    return None
+
+
+def set_integrals_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+    """Set the path to the 1-2 integrals file
+
+    default: user_submitted_dir
+    otherwise: args.integrals
+
+    Args:
+        args ("argparse.Namespace"):User input arguments (argv)
+        user_submitted_dir (str): Path to the directory where this script is used
+
+    Returns:
+        integral_path (str): Path to the 1-2 integrals file
+    """
+    if args.integrals is None:
+        integral_path: str = os.path.abspath(user_submitted_dir)
+    else:
+        # absolute path
+        if os.path.isabs(args.integrals):
+            integral_path = os.path.abspath(args.integrals)
+        # relative path
+        else:
+            integral_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.integrals)))
+    return integral_path
+
+
+def check_integral_files(integral_path: str) -> None:
+    """Check if the 1-2 integral files exist"""
+    files = ["MDCINT", "MRCONEE"]
+    for file in files:
+        if not os.path.exists(os.path.join(integral_path, file)):
+            raise Exception(f"\n{file} file is not found under {integral_path}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/user/H2O/MDCINT, dcaspt2 -int /home/user/H2O/ ")
+    return
+
+
+def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
+    """Create a command to run dcaspt2
+
+    Args:
+        args ("argparse.Namespace"): User input arguments (argv)
+        binary_dir (str): Path to the directory where the compiled binaries are stored
+
+    Returns:
+        str: Created command
+    """
+    # --omp option
+    if args.threads is None:
+        pass  # This script don't set OMP_NUM_THREADS
+    elif args.threads <= 1:
+        os.environ["OMP_NUM_THREADS"] = "1"
+    else:
+        os.environ["OMP_NUM_THREADS"] = str(args.threads)
+
+    # --mpi option
+    mpi = ""
+    if args.mpi > 1:
+        mpi = f"mpirun -np {args.mpi}"
+
+    # Create a command
+    ivo_path = os.path.join(binary_dir, "r4divocoexe")
+    casci_path = os.path.join(binary_dir, "r4dcascicoexe")
+    caspt2_path = os.path.join(binary_dir, "r4dcaspt2ocoexe")
+    if args.ivo:
+        command = f"{mpi} {ivo_path}"
+    else:
+        command = f"{mpi} {casci_path} && {mpi} {caspt2_path}"
+    print(f"Created command : {command}")
+    return command
+
+
+def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, output_file_path: str) -> None:
+    """Run the dcaspt2 command
+
+    Args:
+        args ("argparse.Namespace"): User input arguments (argv)
+        command (str): Command to run dcaspt2
+        tmp_dir (str): Path to the temporary directory
+        output_file_path (str): Path to the output file
+    """
+    os.chdir(tmp_dir)
+
+    with open(output_file_path, "w") as f:
+        start_time = time.time()
+        start_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        p = Popen(command, shell=True, stdout=f, stderr=f)
+        p.wait()
+
+        end_time = time.time()
+        end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        user_command = " ".join(sys.argv)
+
+        end_message = "\n================= Calculation finished ================\n"
+        end_message += f"User Command : {user_command}\n"
+        end_message += f"Auto-created Command : {command}\n"
+        end_message += f"Temporary directory : {tmp_dir}\n"
+        end_message += f"Output file : {output_file_path}\n"
+        end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
+        end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n\n"
+
+        if p.returncode == 0:
+            end_message += "NORMAL END OF dirac-caspt2 CALCULATION\n"
+        else:
+            end_message += f"ERROR: dirac-caspt2 calculation failed with return code {p.returncode}\n"
+
+        # Write the end message to the output file and stdout
+        print(end_message)
+        f.write(end_message)
+
+        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
+        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
+        # When the calculation failed, exit with the return code of the calculation
+        if p.returncode != 0:
+            sys.exit(p.returncode)
+
+        return None
+
+
+def main() -> None:
+
+    user_submitted_dir: str = os.getcwd()
+    script_path: str = os.path.abspath(__file__)
+    binary_path: str = os.path.dirname(script_path)
+    print("Script path : ", script_path)
+    print("Command submitted directory : ", user_submitted_dir)
+    args: "argparse.Namespace" = parse_args()
+
+    # Set the input file path
+    if args.input is None:
+        input_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "active.inp"))
+    else:
+        # absolute path
+        if os.path.isabs(args.input):
+            input_file_path = os.path.abspath(args.input)
+        # relative path
+        else:
+            input_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.input)))
+
+    # Set the output file path
+    if args.output is None:
+        output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
+    else:
+        # absolute path
+        if os.path.isabs(args.output):
+            output_file_path = os.path.abspath(args.output)
+        # relative path
+        else:
+            output_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.output)))
+
+    # 1-2 integrals directory
+    integrals_path: str = set_integrals_path(args, user_submitted_dir)
+    check_integral_files(integrals_path)
+
+    # Set and create temporary directory
+    if args.no_tmp:
+        tmp_dir: str = user_submitted_dir
+        print(f"no_tmp option : --no_tmp option is specified. The temporary directory is the submitted directory.\nno_tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
+    else:
+        tmp_dir = create_tmpdir(args, input_file_path)
+        copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
+
+    # Create command to execute and run it
+    command = create_command(args, binary_path)
+    run_command(args, command, tmp_dir, output_file_path)
+
+    return None
+
+
+if __name__ == "__main__":
+    main()

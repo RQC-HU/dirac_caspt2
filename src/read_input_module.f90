@@ -32,7 +32,7 @@ contains
         do while (.not. is_end)
             read (unit_num, "(a)", iostat=iostat) string
             if (iostat < 0) then
-                if (rank == 0) print *, "ERROR: YOU NEED TO ADD 'end' in active.inp"
+                if (rank == 0) print *, "ERROR: YOU NEED TO ADD 'end' AT THE END OF YOUR INPUT FILE."
                 stop
             else if (iostat > 0) then
                 if (rank == 0) print *, "ERROR: Error in input, failed to read active.inp"

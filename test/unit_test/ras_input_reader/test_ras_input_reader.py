@@ -1,7 +1,6 @@
 import os
 import shutil
 from module_testing import (
-    check_test_returncode,
     convert_string_list_to_integer_list,
     create_test_command,
     delete_scratch_files,
@@ -34,9 +33,8 @@ def test_ras_input_reader():
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)
-    test_command = create_test_command(the_number_of_process=1, binaries=[exe_file_path])
-    process = run_test(test_command)
-    check_test_returncode(process)
+    test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
+    run_test(test_command)
 
     string_ref = get_split_string_list_from_output_file(ref_file_path)
     ref_int_list = convert_string_list_to_integer_list(string_ref)

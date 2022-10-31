@@ -13,11 +13,10 @@ def define_args():
     parser = argparse.ArgumentParser(description="This script is used as a setup script for this project.")
     parser.add_argument("--build", action="store_true", help="Build the project after the setup. [default: False]")
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
-    parser.add_argument("--no-clean", action="store_true", help="Don't clean the build directory before building. [default: False]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
     parser.add_argument("--flags", type=str, help="The compiler flags.(If not specified, the default flags will be used.)")
     parser.add_argument("-j", "--parallel", type=int, default=1, help="Specify the number of build processes. This option is used only when the --build option is specified. [default: 1]")
-    parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.")
+    parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.[default compiler: mpiifort]")
     parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
     parser.add_argument("--prefix", type=str, metavar="INSTALL_DIR", help="Specify the installation directory. [default: ./bin]")
@@ -44,12 +43,7 @@ def preprocess(args, exec_path, root_path):
                 print("Removed the directory: ", os.path.abspath(rmdir))
 
     check_cmake_is_installed()
-
-    if args.no_clean:
-        print("--no-clean option is enabled. Skip cleaning the build directory...")
-        pass
-    else:
-        clean_dir()
+    clean_dir()
 
     cmake_flags = ""
     print("\nConfiguring cmake build flags...")
@@ -104,7 +98,7 @@ def configure_source(cmake_flags):
     process = Popen(command, shell=True)
     process.wait()
     if process.returncode != 0:
-        sys.stderr.write("[Error] : CMake configuration failed!\nPlese check the error message above.")
+        sys.stderr.write("Failed to configure the source code!")
         exit(1)
     print("Successfully configured the source code.\n")
 
@@ -114,7 +108,7 @@ def build(args):
     process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
     process.wait()
     if process.returncode != 0:
-        sys.stderr.write("[Error] : build failed!\nPlese check the error message above.\n")
+        sys.stderr.write("Failed to build the project!")
         exit(1)
     print("Successfully built the project.")
 
@@ -137,7 +131,7 @@ def main():
         finish_message = "Finished the setup script.\n"
     print(finish_message)
 
-    parallel_option = "--parallel=<number of processes> " if args.mpi else ""
+    parallel_option = "--mpi=<number of MPI processes> --omp=<number of OpenMP threads per one process>" if args.mpi else ""
     enable_or_disable_mpi = "enabled" if args.mpi else "disabled"
 
     print(
