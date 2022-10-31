@@ -9,9 +9,10 @@
 ## 目次
 
 - [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2#requirements)
-- [How to install](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-install)
-  - [Basic install](https://github.com/kohei-noda-qcrg/dirac_caspt2#basic-install)
+- [How to build](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-build)
+  - [Basic build](https://github.com/kohei-noda-qcrg/dirac_caspt2#basic-build)
   - [MPI support](https://github.com/kohei-noda-qcrg/dirac_caspt2#mpi-support)
+  - [Install](https:://github.com/kohei-noda-qcrg/dirac_caspt2#install)
   - [CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)
 - [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
   - [prerequisites](https://github.com/kohei-noda-qcrg/dirac_caspt2#prerequisites)
@@ -24,8 +25,8 @@
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
 
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
-- [CMake](https://cmake.org/)(version ≧ 3.14 が必要です)
-  - cmakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
+- [CMake(version ≧ 3.14)](https://cmake.org/)
+  - CMakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、以下のコマンドを実行して環境変数\$MKLROOTが設定されているか確認してください
@@ -34,19 +35,20 @@
     echo $MKLROOT
     ```
 
-  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、--nomklオプションを指定し、かつBLAS/LAPACKのリンクを--flagsに指定する必要があります
+  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、--no-mklオプションを指定し、かつBLAS/LAPACKのリンクを--flagsに指定する必要があります
   - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
 
     ビルド例
 
     ```sh
-    ./setup --nomkl --flags "Replace this by Your BLAS and LAPACK Library link path" --fc gfortran --build
+    ./setup --no-mkl --flags "Replace this by Your BLAS and LAPACK Library link path" --fc gfortran --build
     ```
 
 - [Python(version ≧ 3.6)](https://www.python.org/)
   - setup スクリプト,dcaspt2スクリプトおよびテストを実行するのに使用します
   - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
     (e.g.) pyenv setup instruction for Bash users
+
     ```bash
     # Download pyenv
     git clone https://github.com/pyenv/pyenv.git ~/.pyenv
@@ -57,7 +59,7 @@
     echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 
     # Reload ~/.bashrc
-	  source ~/.bashrc
+    source ~/.bashrc
 
     # Install Python (version ≧ 3.6)
     pyenv install 3.9.9
@@ -65,26 +67,27 @@
     # Set default Python version to the one installed with pyenv
     pyenv global 3.9.9
     ```
+
 - [pytest](https://docs.pytest.org/)
   - テストを実行するために使用します
-  - python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
+  - Python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
 
   ```sh
   python -m pip install pytest
   ```
 
-## How to install
+## How to build
 
 - このリポジトリではCMakeを使用してビルドを行います
   - CMakeコマンドを直接使用することもできますが、setupスクリプトを使用することをおすすめします
   - CMakeを直接使ってビルドしたい場合は、[CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)を参照してください
 
-### Basic install
+### Basic build
 
 - GitHubからソースコードをダウンロードします(初回のみ)
 
 ```sh
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
 ```
 
 - ソースコードのディレクトリに移動します
@@ -95,10 +98,10 @@ git clone https://github.com/kohei-noda-qcrg/dirac_caspt2.git
 cd dirac_caspt2
 ```
 
-- セットアップスクリプトを実行します。--buildオプションをつけるとビルドまで行います
+- セットアップスクリプトを実行します。--buildオプションをつけるとビルドまで行います。--fcオプションをつけてコンパイラを明示的に指定することを推奨します
 
   ```sh
-  ./setup --build
+  ./setup --build --fc=ifort
   ```
 
   - セットアップスクリプトのオプションについては以下のコマンドで確認できます
@@ -107,38 +110,22 @@ cd dirac_caspt2
     ./setup --help
     ```
 
-  - Intel Fortranであれば並列ビルドが可能です。並列ビルドは-j 並列数のオプションを付ければ実行可能です
+  - 複数コアを用いた並列ビルドも可能です。並列ビルドは-j 並列数のオプションを付ければ実行できます
 
     ```sh
-    ./setup --fc ifort --build -j 4
+    ./setup --build -j 4
     ```
 
   - OpenMPを使用する場合は--ompオプションを付けてください
 
     ```sh
-    ./setup --omp --build
+    ./setup --fc=ifort --omp --build
     ```
 
-  - 差分ビルドを行う場合は--no-cleanオプションを付けてください
-    (前のビルドオプションでビルドしてしまうことがあるため、ビルドオプションを変更する場合は--no-cleanオプションをつけないでください)
-
-    ```sh
-    ./setup --build --fc ifort --no-clean
-    ```
-
-- ビルドが完了したらテストを実行します
+- ビルドが完了したら問題なくビルドできたか確かめるため、テストを実行することを推奨します
 
 ```sh
 pytest --all
-```
-
-- テストが正常に終了したら以下のいずれかのコマンドで--prefixで指定したインストール先にプログラムをインストールできます
-
-```sh
-# Use CMake to install the program
-cmake --install build
-# or use make to install the program
-make -C build install
 ```
 
 ### MPI Support
@@ -149,10 +136,10 @@ make -C build install
   ./setup --mpi --build
   ```
 
-  - コンパイラを指定する場合は--fcオプションを使用します
+  - コンパイラを指定する場合は--fcオプションを使用します(指定していない場合のデフォルトコンパイラはmpiifortです)
 
     ```sh
-    ./setup --mpi --fc mpif90 --build
+    ./setup --mpi --fc mpif90 --build -j 4
     ```
 
   - OpenMPとのハイブリッドビルドも可能です
@@ -160,20 +147,17 @@ make -C build install
     ```sh
     ./setup --mpi --omp --fc mpiifort --build
     ```
-  - 差分ビルドを行う場合は--no-cleanオプションを付けてください
-    (前のビルドオプションでビルドしてしまうことがあるため、ビルドオプションを変更する場合は--no-cleanオプションをつけないでください)
 
-    ```sh
-    ./setup --build --fc mpiifort --mpi --no-clean
-    ```
-
-- ビルドが完了したらテストを実行します
+- ビルドが完了したら問題なくビルドできたか確かめるため、テストを実行することを推奨します
 
 ```sh
 # e.g. pytest --all --mpi=4
 pytest --all --mpi=<number of MPI processes>
 ```
-- テストが正常に終了したら以下のいずれかのコマンドで--prefixで指定したインストール先にプログラムをインストールできます
+
+### Install
+
+- 以下のいずれかのコマンドで--prefixで指定したインストール先にプログラムをインストールできます
 
 ```sh
 # Use CMake to install the program
@@ -184,7 +168,9 @@ make -C build install
 
 ### CMakeビルドオプション
 
-CMakeを直接つかってビルドする場合以下のようなコマンドを実行するとビルドできます
+(This section is for advanced users.)
+
+CMakeを直接使ってビルドする場合以下のようなコマンドを実行するとビルドできます
 
 ```sh
 # FC: Fortran compiler, e.g. ifort, gfortran, mpiifort
@@ -194,7 +180,7 @@ pytest --all
 
 ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
 
-現時点でサポートしているCMakeビルドオプションは以下のとおりです
+現時点でサポートしているカスタムCMakeビルドオプションは以下のとおりです
 
 - MPI
   - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
@@ -217,7 +203,7 @@ pytest --all
 
 - MKL
 
-  - MKLを使わないときはこのビルドオプションをOFFにする必要があります.デフォルトがONなので指定しなければMKLを使う前提でビルドを行います(default:ON)
+  - MKLを使わないときはこのビルドオプションをOFFにする必要があります.(default:ON)
 
       (例)
 
@@ -231,17 +217,17 @@ pytest --all
 
 - [DIRAC](http://diracprogram.org/)の計算で1,2電子積分ファイル(MRCONEE, MDCINT, MDCINXXXX1...)が得られていることを前提としています
   - 1,2電子積分ファイルを得るには[DIRACの**MOLTRAの項](http://www.diracprogram.org/doc/master/manual/moltra.html)を参照してください
-- 1,2電子積分ファイルは同一のディレクトリ上に存在する必要があります
-- 任意の名前のインプットファイルが必要です
+  - 1,2電子積分ファイルは同一のディレクトリ上に存在する必要があります
+- 任意のファイル名の[インプットファイル](https://github.com/kohei-noda-qcrg/dirac_caspt2#input-file)が必要です
 
 ### Calculation
+
 - ビルド後に作られるbinディレクトリ直下またはprefixを指定した場合はインストール先のディレクトリ直下のdcaspt2スクリプトを用いて計算を行います
   - dcaspt2スクリプトで使用可能なオプションはdcaspt2 -hで確認できます
   - 例えば以下のように使用します
 
   ```sh
-  # If you have 1-2integrals(MDCINT,MRCONEE,MDCINXXXX1...) files in your current directory, you can CASCI/CASPT2 calculation like this
-  dcaspt2 -i /path/to/input
+  dcaspt2 -i h2.caspt2.inp
   ```
 
 
@@ -287,15 +273,15 @@ end
 
 ```in
 Input for CASCI and CASPT2
-[required parameters]
 
+[required parameters]
 ninact      : the number of inactive spinors
 nact        : the number of active spinors
-nsec        : the number of secondary spinors = nbas-ncore-nact-ninact 
+nsec        : the number of secondary spinors = nbas-ncore-nact-ninact
 nelec       : the number of active electrons in active space
 nroot       : the number of roots
 selectroot  : which root do you want to obtain
-totsym      : total symmetry ex. 5 for Ag in C2h closed shell
+totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
 ncore       : the number of core orbital
 nbas        : the number of basis set
 diracver    : DIRAC version
