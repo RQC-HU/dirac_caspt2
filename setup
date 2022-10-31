@@ -16,7 +16,7 @@ def define_args():
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
     parser.add_argument("--flags", type=str, help="The compiler flags.(If not specified, the default flags will be used.)")
     parser.add_argument("-j", "--parallel", type=int, default=1, help="Specify the number of build processes. This option is used only when the --build option is specified. [default: 1]")
-    parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.")
+    parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.[default compiler: mpiifort]")
     parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
     parser.add_argument("--prefix", type=str, metavar="INSTALL_DIR", help="Specify the installation directory. [default: ./bin]")
