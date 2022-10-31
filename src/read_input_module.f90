@@ -118,9 +118,6 @@ contains
                 end if
             end do
 
-        case ("ptgrp")
-            call read_a_string(unit_num, ptgrp)
-
         case ("diracver")
             call read_an_integer(unit_num, 0, intmax, dirac_version)
             is_filled(10) = .true.

@@ -21,13 +21,11 @@ MODULE four_caspt2_module
     ! ncore         : The number of core orbitals
     ! nbas          : Basis set
     ! eshift        : Real shift
-    ! ptgrp         : Point group symmetry
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
     integer         :: totsym, ncore, nbas
     real(8)         :: eshift
-    character       :: ptgrp*6
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
     integer         :: ras1_start, ras1_size, ras2_start, ras2_size, ras3_start, ras3_size
