@@ -45,8 +45,9 @@
     ```
 
 - [Python(version ≧ 3.6)](https://www.python.org/)
-  - setup スクリプト,dcaspt2スクリプトおよびテストを実行するのに使用します
+  - setupスクリプト(ビルド用スクリプト),dcaspt2スクリプト(プログラム実行用スクリプト)およびテストを実行するのに使用します
   - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
+
     (e.g.) pyenv setup instruction for Bash users
 
     ```bash
@@ -78,9 +79,9 @@
 
 ## How to build
 
-- このリポジトリではCMakeを使用してビルドを行います
-  - CMakeコマンドを直接使用することもできますが、setupスクリプトを使用することをおすすめします
-  - CMakeを直接使ってビルドしたい場合は、[CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)を参照してください
+- このプログラムはCMakeを使用してビルドを行います
+  - CMakeコマンドを直接使用してビルドすることもできますが、setupスクリプトを使用することをおすすめします
+  - CMakeを直接使用してビルドしたい場合は、[CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)を参照してください
 
 ### Basic build
 
@@ -98,7 +99,7 @@ git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
 cd dirac_caspt2
 ```
 
-- セットアップスクリプトを実行します。--buildオプションをつけるとビルドまで行います。--fcオプションをつけてコンパイラを明示的に指定することを推奨します
+- セットアップスクリプトを実行します。(--buildオプションをつけるとビルドまで行います。--fcオプションをつけてコンパイラを明示的に指定することを推奨します)
 
   ```sh
   ./setup --build --fc=ifort
@@ -116,7 +117,7 @@ cd dirac_caspt2
     ./setup --build -j 4
     ```
 
-  - OpenMPを使用する場合は--ompオプションを付けてください
+  - スレッド並列実行用にOpenMPを使用する場合は--ompオプションを付けてください
 
     ```sh
     ./setup --fc=ifort --omp --build
@@ -130,29 +131,29 @@ pytest --all
 
 ### MPI Support
 
-- プログラムを並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトでは使用するコンパイラはmpiifortです)
+- プログラムをプロセス並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトで使用するコンパイラはmpiifortです)
 
   ```sh
   ./setup --mpi --build
   ```
 
-  - コンパイラを指定する場合は--fcオプションを使用します(指定していない場合のデフォルトコンパイラはmpiifortです)
+  - コンパイラを指定する場合は--fcオプションを使用します
 
     ```sh
     ./setup --mpi --fc mpif90 --build -j 4
     ```
 
-  - OpenMPとのハイブリッドビルドも可能です
+  - OpenMPとのハイブリッド並列のビルドも可能です
 
     ```sh
-    ./setup --mpi --omp --fc mpiifort --build
+    ./setup --mpi --omp --fc mpiifort --build -j 4
     ```
 
 - ビルドが完了したら問題なくビルドできたか確かめるため、テストを実行することを推奨します
 
 ```sh
-# e.g. pytest --all --mpi=4
-pytest --all --mpi=<number of MPI processes>
+# pytest --all --mpi=<number of MPI processes>
+pytest --all --mpi=4
 ```
 
 ### Install
