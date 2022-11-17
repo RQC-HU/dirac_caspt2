@@ -14,6 +14,7 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
     Call DATE_AND_TIME(VALUES=val)
 
     tsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
+    date = val(3)
 
     if (date0 < val(3)) then
         tsec = tsec + (val(3) - date0)*(6.0d+01)*(6.0d+01)*(2.4d+01)
