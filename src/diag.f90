@@ -24,7 +24,6 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
     integer :: info, lda, lwork
     character :: jobz*1, uplo*1
     real*8, allocatable  ::  work(:)
-    integer :: j0, i0
 
     w(:) = 0.0d+00
     jobz = 'V' ! calculate eigenvectors
@@ -62,14 +61,7 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
     if (cutoff) then
 
         if (rank == 0) print *, 'cut off threshold is ', thresd
-        j0 = 0
-        do i0 = 1, dimn
-            if (w(i0) >= thresd) then
-                j0 = j0 + 1
-            end if
-        end do
-
-        dimm = j0
+        dimm = count(w(1:dimn) >= thresd)
 
     else
         dimm = dimn
@@ -105,7 +97,6 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
 
     complex*16, allocatable  ::  work(:)
     real*8, allocatable      ::  rwork(:)
-    integer :: j0, i0
 
     if (rank == 0) print *, 'Enter cdiagonal part'
     w(:) = 0.0d+00
@@ -207,23 +198,9 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
         return
     end if
 
-!        Do i0 = 1, dimn
-!           write(*,'(I4,E20.10)')i0,w(i0)
-!        End do
-
     if (cutoff) then
-
         if (rank == 0) print *, 'cut off threshold is ', thresd
-
-        j0 = 0
-        do i0 = 1, dimn
-            if (w(i0) >= thresd) then
-                j0 = j0 + 1
-            end if
-        end do
-
-        dimm = j0
-
+        dimm = count(w(1:dimn) >= thresd)
     else
         dimm = dimn
     end if
@@ -249,7 +226,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
     logical                 ::  cutoff
     integer                 ::  j, i, dimn, ncount(nsymrp)
-    integer                 ::  ii, sym, isym
+    integer                 ::  sym, isym
     integer                 ::  ind(n, nsymrp)
 
     real*8, allocatable     ::  mat(:, :), fasym(:, :)
@@ -260,7 +237,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
     if (rank == 0) print *, 'rdiag0 start'
-    w = 0.0d+00
+    w(:) = 0.0d+00
     cutoff = .FALSE.
 
     fa(n0:n1, n0:n1) = 0.0d+00
@@ -270,45 +247,31 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
 ! SET NCOUNT(SYM) : DIMENSION OF EACH SYMMETRY
 
-    ncount = 0
+    ncount(:) = 0
 
     if (rank == 0) print *, 'nsymrp', nsymrp
-    Do sym = 1, nsymrp
 
-        Do i = n0, n1
-            ii = i
-            isym = irpmo(ii)
-            if (isym == sym) then
-                ncount(sym) = ncount(sym) + 1
-                ind(ncount(sym), sym) = i
-            End if
-        End do
-
+    Do i = n0, n1
+        isym = irpmo(i)
+        ncount(isym) = ncount(isym) + 1
+        ind(ncount(isym), isym) = i
     End do
 
     if (rank == 0) print *, 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
     Do sym = 1, nsymrp
 
-        Allocate (fasym(ncount(sym), ncount(sym)))
-        Do j = 1, ncount(sym)
-            Do i = 1, ncount(sym)
-                fasym(i, j) = real(f(ind(i, sym), ind(j, sym)), kind=8)
-            End do
-        End do
-
         dimn = ncount(sym)
+        Allocate (fasym(dimn, dimn))
+        fasym(1:dimn, 1:dimn) = real(f(ind(1:dimn, sym), ind(1:dimn, sym)), kind=8)
 
         Call rdiag(fasym, dimn, dimn, wsym, thres, cutoff)
 !      _________________________________________________________
 
-        Do j = 1, ncount(sym)
-
-            w(ind(j, sym)) = wsym(j)
-
-            Do i = 1, ncount(sym)
+        w(ind(1:dimn, sym)) = wsym(1:dimn)
+        Do j = 1, dimn
+            Do i = 1, dimn
                 fa(ind(i, sym), ind(j, sym)) = fasym(i, j)
             End do
-
         End do
 
         Deallocate (fasym)
@@ -324,16 +287,16 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     mat = MATMUL(mat, real(f))
     mat = MATMUL(mat, fa)
 
-    if (rank == 0) print *, 'OFF DIAGONAL TERM OF U*FU'
-    do i = 1, n
-        do j = 1, n
-            if ((i /= j) .and. (ABS(mat(i, j)) > 1.0d-10)) then
-                if (rank == 0) print '(2E13.5,2I3)', mat(i, j), i, j
-            end if
-        end do
-    end do
-
     if (rank == 0) then
+        print *, 'OFF DIAGONAL TERM OF U*FU'
+        do j = 1, n
+            do i = 1, n
+                if (i /= j .and. (ABS(mat(i, j)) > 1.0d-10)) then
+                    print '(2E13.5,2I3)', mat(i, j), i, j
+                end if
+            end do
+        end do
+
         print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
         do i = 1, n
             print '(4E13.5)', mat(i, i), w(i), ABS(mat(i, i) - w(i))
@@ -362,7 +325,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
     logical                 ::  cutoff, fi
     integer                 ::  j, i, dimn, ncount(nsymrpa)
-    integer                 ::  ii, sym, isym
+    integer                 ::  sym, isym
     integer                 ::  ind(n, nsymrpa)
 
     complex*16, allocatable ::  matc(:, :), facsym(:, :), facsymo(:, :)
@@ -378,15 +341,13 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     end if
 !         nsymrp = nsymrpa
 
-    wc = 0.0d+00
+    wc(:) = 0.0d+00
     cutoff = .FALSE.
-    fi = .FALSE.
-
-    Do i = n0, n1
-        Do j = n0, n1
-            if (ABS(DIMAG(f(i, j))) > 1.0d-10) fi = .TRUE.
-        End do
-    End do
+    if (count(abs(dimag(f(n0:n1, n0:n1))) > 1.0d-10) > 0) then
+        fi = .TRUE.
+    else
+        fi = .FALSE.
+    end if
 
     if (rank == 0) print *, 'fi', fi
 
@@ -397,43 +358,31 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
 ! SET NCOUNT(SYM) : DIMENSION OF EACH SYMMETRY
 
-    ncount = 0
-    ind = 0
+    ncount(:) = 0
+    ind(:, :) = 0
+
+    do i = n0, n1
+        isym = irpmo(i)
+        ncount(isym) = ncount(isym) + 1
+        ind(ncount(isym), isym) = i
+    end do
 
     Do sym = 1, nsymrpa
 
-        Do i = n0, n1
-            ii = i
-            isym = irpmo(ii)
-            If ((nsymrpa == 1) .or. &
-                (nsymrpa /= 1 .and. (isym == sym))) then
-                ncount(sym) = ncount(sym) + 1
-                ind(ncount(sym), sym) = i
-            End if
-        End do
-!            print *,(ind(j,sym),j=1,ncount(sym))
-
-    End do
-
-!         print *,'sym,ncount(sym)',(ncount(sym),sym=1,nsymrpa)
-
-    Do sym = 1, nsymrpa
-
-        Allocate (facsym(ncount(sym), ncount(sym)))
+        dimn = ncount(sym)
+        Allocate (facsym(dimn, dimn))
         facsym = 0.0d+00
 
-        Do j = 1, ncount(sym)
-            Do i = j, ncount(sym)
+        Do j = 1, dimn
+            Do i = j, dimn
                 facsym(i, j) = f(ind(i, sym), ind(j, sym))
-                facsym(j, i) = DCONJG(f(ind(i, sym), ind(j, sym))) ! HERMITE
+                facsym(j, i) = DCONJG(facsym(i, j)) ! HERMITE
             End do
         End do
 
-        dimn = ncount(sym)
-
-        Allocate (facsymo(ncount(sym), ncount(sym)))
+        Allocate (facsymo(dimn, dimn))
         facsymo = facsym
-        Allocate (wcsym(ncount(sym)))
+        Allocate (wcsym(dimn))
         wcsym = 0.0d+00
         cutoff = .FALSE.
 
@@ -447,8 +396,8 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
         ! Check facsymo
         if (rank == 0) then
-            Do i = 1, dimn
-                Do j = 1, dimn
+            Do j = 1, dimn
+                Do i = 1, dimn
                     If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
                         print '("sym=",3I4,2E20.10)', sym, i, j, facsymo(i, j)
                     End if
@@ -463,14 +412,11 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
         Deallocate (facsymo)
 
-        Do j = 1, ncount(sym)
-
-            wc(ind(j, sym)) = wcsym(j)
-
-            Do i = 1, ncount(sym)
+        wc(ind(1:dimn, sym)) = wcsym(1:dimn)
+        Do j = 1, dimn
+            Do i = 1, dimn
                 fac(ind(i, sym), ind(j, sym)) = facsym(i, j)
             End do
-
         End do
 
         Deallocate (facsym)
@@ -492,8 +438,8 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     ! Check U*FU
     if (rank == 0) then
         print *, 'OFF DIAGONAL TERM OF U*FU'
-        do i = n0, n1
-            do j = n0, n1
+        do j = n0, n1
+            do i = n0, n1
                 if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
                     print '(2E13.5,2I3)', matc(i, j), i, j
                 end if
