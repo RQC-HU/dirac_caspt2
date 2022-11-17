@@ -81,17 +81,12 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         print *, ' ENTER solv B part'
         print *, ' nsymrpa', nsymrpa
     end if
-    i0 = 0
-    Do ii = 1, ninact
-        Do ij = 1, ii - 1
-            i0 = i0 + 1 ! i0(1)=100,i0(2)=100,i0(3)=100,i0(4)=100
-        End do
-    End do
-    nij = i0
-    Allocate (iij(ninact, ninact)); Call memminus(KIND(iij), SIZE(iij), 1)
+    Allocate (iij(ninact, ninact)); Call memplus(KIND(iij), SIZE(iij), 1)
     iij = 0
-    Allocate (ii0(nij)); Call memminus(KIND(ii0), SIZE(ii0), 1)
-    Allocate (ij0(nij)); Call memminus(KIND(ii0), SIZE(ii0), 1)
+    ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
+    nij = (ninact*(ninact - 1))/2
+    Allocate (ii0(nij)); Call memplus(KIND(ii0), SIZE(ii0), 1)
+    Allocate (ij0(nij)); Call memplus(KIND(ii0), SIZE(ii0), 1)
 
     i0 = 0
     Do ii = 1, ninact
@@ -184,12 +179,6 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
-        if (rank == 0) then
-            print *, 'ws', ws
-            do count = 1, dimn
-                print *, count, sc(count, count)
-            end do
-        end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
