@@ -248,7 +248,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! Noda ndet^2で回っているので遅くなりそう
     Do i0 = 1, ndet     ! k  (old)
         Do j0 = 1, ndet  ! k~ (new)   <k|k~>
 
@@ -355,7 +354,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        newcicoeff_unit = default_unit
         call open_unformatted_file(unit=newcicoeff_unit, file="NEWCICOEFF", status='replace', optional_action='write')
         write (newcicoeff_unit) ci(1:ndet)
         close (newcicoeff_unit)
