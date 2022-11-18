@@ -254,8 +254,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                             ltr = l + 1
                         end if
 
-                        SignIJ = (-1.0d+00)**mod(i(idx) + j(idx), 2)
-                        SignKL = (-1.0d+00)**mod(k + l, 2)
+                        SignIJ = (-1)**mod(i(idx) + j(idx), 2)
+                        SignKL = (-1)**mod(k + l, 2)
 
                         int2r_f1(k, l, i(idx), j(idx)) = rklr(idx, inz)
                         int2i_f1(k, l, i(idx), j(idx)) = rkli(idx, inz)
@@ -311,8 +311,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                             ltr = l + 1
                         end if
 
-                        SignIJ = (-1.0d+00)**mod(i(idx) + j(idx), 2)
-                        SignKL = (-1.0d+00)**mod(k + l, 2)
+                        SignIJ = (-1)**mod(i(idx) + j(idx), 2)
+                        SignKL = (-1)**mod(k + l, 2)
 
                         if (i(idx) > j(idx) .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
 
