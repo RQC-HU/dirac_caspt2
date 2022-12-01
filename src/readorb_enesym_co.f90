@@ -33,7 +33,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     if (is_end_of_file) then
         print *, 'Error: error in reading NMO, BREIT, ECORE (end of file reached)'
         print *, 'iostat = ', iostat
-        stop
+        call exit(iostat)
     end if
 
     if (rank == 0) then
@@ -53,7 +53,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     if (is_end_of_file) then
         print *, 'Error: error in reading NSYMRP, REPN (end of file reached)'
         print *, 'iostat = ', iostat
-        stop
+        call exit(iostat)
     end if
 
     if (rank == 0) then
@@ -66,7 +66,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     if (is_end_of_file) then
         print *, 'Error: error in reading nsymrpa, repna (end of file reached)'
         print *, 'iostat = ', iostat
-        stop
+        call exit(iostat)
     end if
 
     if (rank == 0) then
@@ -103,7 +103,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     if (is_end_of_file) then
         print *, 'Error: error in reading multb (end of file reached)'
         print *, 'iostat = ', iostat
-        stop
+        call exit(iostat)
     end if
 
 !    Read(mrconee_unit) (IRPMO(IMO),ORBMO(IMO),IMO=1,NMO)                             ! orbital energies <= used here
@@ -214,7 +214,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     if (iostat .ne. 0) then
         print *, 'Error in reading orbital energies'
         print *, 'iostat = ', iostat
-        stop
+        call exit(iostat)
     end if
     CLOSE (mrconee_unit)
 
@@ -339,7 +339,7 @@ contains
             print *, "ERROR: Sorting energy ascending order to RAS order is failed... STOP THE PROGRAM"
             print *, "ORIGINAL ENERGY ORDER LIST : ", original_orb_energy_order
             print *, "LIST OF SORTING IN PROGRESS: ", want_to_sort(1:current_idx_ras_order)
-            stop ! ERROR, STOP THE PROGRAM
+            call exit(1) ! ERROR, STOP THE PROGRAM
         end if
 
         ! Fill active
@@ -370,7 +370,7 @@ contains
             print *, "ERROR: Sorting energy ascending order to RAS order is failed... STOP THE PROGRAM"
             print *, "ORIGINAL ENERGY ORDER LIST : ", original_orb_energy_order
             print *, "LIST OF SORTING IN PROGRESS: ", want_to_sort(1:current_idx_ras_order)
-            stop ! ERROR, STOP THE PROGRAM
+            call exit(1) ! ERROR, STOP THE PROGRAM
         end if
         ! Fill secondary
         do while (current_idx_ras_order <= ninact + nact + nsec)

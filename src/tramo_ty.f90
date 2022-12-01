@@ -174,7 +174,7 @@ contains
             mo_end = ninact + nact + nsec
         else
             print *, "invalid mo_idx =", mo_idx
-            stop
+            call exit(1)
         end if
 
     end subroutine get_mo_range

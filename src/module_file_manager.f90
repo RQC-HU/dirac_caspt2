@@ -24,7 +24,7 @@ contains
         else
             print *, "ERROR: Error occured while reading a file. file: ", file, " iostat: ", iostat
             print *, "EXIT PROGRAM"
-            stop
+            call exit(iostat)
         end if
     end subroutine check_iostat
 
@@ -49,7 +49,7 @@ contains
         if (iostat .ne. 0) then
             print *, 'ERROR: Failed to open ', file, ': iostat = ', iostat, ' unit = ', unit
             print *, 'Exiting...'
-            stop
+            call exit(iostat)
         end if
     end subroutine check_file_open
 
@@ -65,7 +65,7 @@ contains
         if (file_status /= 'old' .and. file_status /= 'new' .and. file_status /= 'replace') then
             print *, 'ERROR: file_status must be old, new or replace. file_status = ', file_status
             print *, 'Exiting...'
-            stop
+            call exit(1)
         end if
         open (unit, form=form, file=file, status=status, iostat=iostat, action=action)
         call check_file_open(file, iostat, unit)
@@ -77,7 +77,7 @@ contains
             print *, 'ERROR: action must be read, write or readwrite. action = ', action
             print *, 'FILE NAME: ', file
             print *, 'Exiting...'
-            stop
+            call exit(1)
         end if
     end subroutine check_action_type
 

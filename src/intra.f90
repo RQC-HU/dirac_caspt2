@@ -266,7 +266,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
-        stop
+        call exit(1)
     end if
 
     ini(1) = 1
@@ -544,7 +544,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl
-        stop
+        call exit(1)
     end if
     ini(1) = 1
     end(1) = ninact

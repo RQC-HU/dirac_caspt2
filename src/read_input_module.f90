@@ -33,10 +33,10 @@ contains
             read (unit_num, "(a)", iostat=iostat) string
             if (iostat < 0) then
                 if (rank == 0) print *, "ERROR: YOU NEED TO ADD 'end' AT THE END OF YOUR INPUT FILE."
-                stop
+                call exit(1)
             else if (iostat > 0) then
                 if (rank == 0) print *, "ERROR: Error in input, failed to read active.inp"
-                stop
+                call exit(1)
             end if
             call is_comment_line(string, is_comment)
             if (is_comment) cycle ! Read the next line
@@ -51,7 +51,7 @@ contains
         end do
         if (.not. is_config_sufficient) then! Error in input. Stop the Program
             if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
-            stop
+            call exit(1)
         end if
         if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
 
@@ -144,7 +144,7 @@ contains
             call uppercase(calctype)
             if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
                 if (rank == 0) print *, "ERROR: calctype must be CASCI or DMRG"
-                stop
+                call exit(1)
             end if
 
         case ("minholeras1")
@@ -155,7 +155,7 @@ contains
 
         case default
             if (rank == 0) print *, "ERROR: Unknown input: ", trim(string)
-            stop
+            call exit(1)
         end select
 
     end subroutine check_input_type
@@ -183,7 +183,7 @@ contains
         read (unit_num, '(a)', iostat=iostat) string ! Read a line of active.inp
         if (iostat /= 0) then
             if (rank == 0) print *, "ERROR: ras_read: iostat = ", iostat, ", string =", string
-            stop
+            call exit(iostat)
         end if
         idx_filled = 0
 
@@ -235,7 +235,7 @@ contains
         subroutine write_error_and_stop_ras_read
             implicit none
             print *, "ERROR: Error in input, can't read ras", ras_chr, " value!!. Stop the program. rank:", rank
-            stop
+            call exit(1)
         end subroutine write_error_and_stop_ras_read
     end subroutine ras_read
 
@@ -517,7 +517,7 @@ contains
         character(len=*), intent(in) :: subroutine_name, input
         print *, "ERROR: Can't parse the input in ", subroutine_name, ", input:", input
         print *, "Stop the program. rank:", rank
-        stop
+        call exit(1)
     end subroutine write_parse_error_and_stop
 
     subroutine check_range_allow_int(allow_int_min, allow_int_max, is_ok)
@@ -581,7 +581,7 @@ contains
                 "but the selected range of integer is invalid.", &
                 "INT_MIN:", int_min, "INT_MAX", int_max
             if (rank == 0) print *, "Stop the program"
-            stop
+            call exit(1)
         end if
         if (int_min < 0 .and. 0 <= int_max) then
             ! (e.g.) [-9, 10]
@@ -634,7 +634,7 @@ contains
             implicit none
             print *, "ERROR: Error in input, can't read a integer value!!. Stop the program. rank:", rank
             print *, "input: ", input
-            stop
+            call exit(1)
         end subroutine write_error_and_stop_read_an_integer
     end subroutine read_an_integer
 
@@ -704,7 +704,7 @@ contains
                 print *, "The number of minholeras1:", min_hole_ras1
                 print *, "The number of minholeras1 you specified is impossible."
                 print *, "Exit the program."
-                stop
+                call exit(1)
             end if
         end if
 
@@ -717,7 +717,7 @@ contains
                 print *, "The max number of allowed electron in ras3:", ras3_max_elec
                 print *, "The max number of allowed electron in ras3 you specified is impossible."
                 print *, "Exit the program."
-                stop
+                call exit(1)
             end if
         end if
 
@@ -765,19 +765,21 @@ contains
                 print *, "RAS    : ", count(electron_filled)
                 print *, "Stop the program."
             end if
-            stop
+            call exit(1)
         end if
     contains
         subroutine write_error_and_stop_check_ras_is_valid
             implicit none
-            print *, "ERROR: Your input is invalid because the same number of the electron have been selected ", &
-                "in the RAS more than once!"
-            print *, "YOUR INPUT"
-            print *, "RAS1 : ", ras1_list
-            print *, "RAS2 : ", ras2_list
-            print *, "RAS3 : ", ras3_list
-            print *, "Stop the program."
-            stop
+            if (rank == 0) then
+                print *, "ERROR: Your input is invalid because the same number of the electron have been selected ", &
+                    "in the RAS more than once!"
+                print *, "YOUR INPUT"
+                print *, "RAS1 : ", ras1_list
+                print *, "RAS2 : ", ras2_list
+                print *, "RAS3 : ", ras3_list
+                print *, "Stop the program."
+            end if
+            call exit(1)
         end subroutine write_error_and_stop_check_ras_is_valid
     end subroutine check_ras_is_valid
 

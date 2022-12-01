@@ -15,10 +15,10 @@ subroutine get_mdcint_filename(count)
         mdcint_basename = "MDCIN"
         if (filename_idx >= 100000) then!! "ERROR": over six digit(can't assign)
             print *, "ERROR: Can't assign MDCINT file to ranks of over six digits. filename_idx:", filename_idx
-            stop
+            call exit(1)
         else if (filename_idx < 0) then !! "ERROR": minus number filename_idx (can't assign)
             print *, "ERROR: Can't assign MDCINT file to negative number of ranks. filename_idx:", filename_idx
-            stop
+            call exit(1)
         else if (filename_idx < 10) then ! one digit (1~9)
             digit_x_padding = "XXXX"
         else if (filename_idx < 100) then ! two digit (10~99)
