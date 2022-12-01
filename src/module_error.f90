@@ -11,7 +11,7 @@ contains
         implicit none
         integer, intent(in) :: errorcode
 #ifdef HAVE_MPI
-        call MPI_ABORT(MPI_COMM_WORLD, errorcode, ierr)
+        call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
         call exit(errorcode)
     end subroutine stop_with_errorcode
