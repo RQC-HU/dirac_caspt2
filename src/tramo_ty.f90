@@ -88,6 +88,7 @@ SUBROUTINE tramo2_ty(i, j, k, l, int2)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_error, only: stop_with_errorcode
 
     Implicit NONE
     integer, intent(in) :: i, j, k, l
@@ -174,7 +175,7 @@ contains
             mo_end = ninact + nact + nsec
         else
             print *, "invalid mo_idx =", mo_idx
-            call exit(1)
+            call stop_with_errorcode(1)
         end if
 
     end subroutine get_mo_range

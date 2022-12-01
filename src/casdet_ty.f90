@@ -5,6 +5,7 @@ SUBROUTINE casdet_ty
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
+    use module_error, only: stop_with_errorcode
     use ras_det_check
     Implicit NONE
 
@@ -72,7 +73,7 @@ SUBROUTINE casdet_ty
             print *, "[ERROR]: The number of CASCI determinant is 0. Therefore, subsequent calculations  &
     &            cannot be performed successfully and the program is terminated."
         end if
-        call exit(1)
+        call stop_with_errorcode(1)
     end if
 
     Allocate (idet(ndet))

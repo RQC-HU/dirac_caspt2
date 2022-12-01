@@ -238,6 +238,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_file_manager
     use four_caspt2_module
 
@@ -266,7 +267,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
-        call exit(1)
+        call stop_with_errorcode(1)
     end if
 
     ini(1) = 1
@@ -515,6 +516,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_file_manager
     use four_caspt2_module
 
@@ -544,7 +546,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl
-        call exit(1)
+        call stop_with_errorcode(1)
     end if
     ini(1) = 1
     end(1) = ninact

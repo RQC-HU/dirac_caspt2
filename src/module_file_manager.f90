@@ -6,6 +6,7 @@ module module_file_manager
 !
 ! This is a utility module that manages the file unit number.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+    use module_error, only: stop_with_errorcode
     use read_input_module, only: lowercase
     implicit none
 
@@ -24,7 +25,7 @@ contains
         else
             print *, "ERROR: Error occured while reading a file. file: ", file, " iostat: ", iostat
             print *, "EXIT PROGRAM"
-            call exit(iostat)
+            call stop_with_errorcode(iostat)
         end if
     end subroutine check_iostat
 
@@ -49,7 +50,7 @@ contains
         if (iostat .ne. 0) then
             print *, 'ERROR: Failed to open ', file, ': iostat = ', iostat, ' unit = ', unit
             print *, 'Exiting...'
-            call exit(iostat)
+            call stop_with_errorcode(iostat)
         end if
     end subroutine check_file_open
 
@@ -65,7 +66,7 @@ contains
         if (file_status /= 'old' .and. file_status /= 'new' .and. file_status /= 'replace') then
             print *, 'ERROR: file_status must be old, new or replace. file_status = ', file_status
             print *, 'Exiting...'
-            call exit(1)
+            call stop_with_errorcode(1)
         end if
         open (unit, form=form, file=file, status=status, iostat=iostat, action=action)
         call check_file_open(file, iostat, unit)
@@ -77,7 +78,7 @@ contains
             print *, 'ERROR: action must be read, write or readwrite. action = ', action
             print *, 'FILE NAME: ', file
             print *, 'Exiting...'
-            call exit(1)
+            call stop_with_errorcode(1)
         end if
     end subroutine check_action_type
 
