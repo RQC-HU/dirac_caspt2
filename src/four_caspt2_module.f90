@@ -36,7 +36,7 @@ MODULE four_caspt2_module
     integer, parameter :: max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: lscom, nhomo
     integer, parameter :: max_ras_spinor_num = 200
-    integer         :: noccgerade, noccungerade
+    integer         :: noccg, noccu
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)
 
