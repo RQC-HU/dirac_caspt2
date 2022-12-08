@@ -11,7 +11,10 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use read_input_module
 
     Implicit NONE
-    integer                 :: nuniq, input_unit
+#ifdef HAVE_MPI
+    include 'mpif.h'
+#endif
+    integer                 :: input_unit
     logical                 :: test
     character*50            :: filename
 
@@ -25,49 +28,53 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
-
-    write (*, *) ''
-    write (*, *) ' ENTER R4DIVO PROGRAM written by M. Abe test17_ty version 2007/7/20'
-    write (*, *) ''
-    ! MPI
+#ifdef HAVE_MPI
+    call MPI_INIT(ierr)
+    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+    call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierr)
+#else
     nprocs = 1
     rank = 0
-    ! MPI
+#endif
+
     tmem = 0.0d+00
-
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
     val = 0
     Call DATE_AND_TIME(VALUES=val)
-    Write (*, *) 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-    Write (*, *) 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-
     totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
     initdate = val(3)
     inittime = totalsec
+    if (rank == 0) then
+        print *, ''
+        print *, ' ENTER R4DIVO PROGRAM written by M. Abe test17_ty version 2007/7/20'
+        print *, ''
+        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
-    write (*, *) inittime
+        print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
+        print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
+        print *, 'inittime = ', inittime
+    end if
+
     nhomo = 0  ! Default value of nhomo
     Call timing(val(3), totalsec, date0, tsec)
     call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
     call read_input(input_unit)
-
-    write (*, *) 'ninact     =', ninact
-    write (*, *) 'nact       =', nact
-    write (*, *) 'nsec       =', nsec
-    write (*, *) 'nelec      =', nelec
-    write (*, *) 'nroot      =', nroot
-    write (*, *) 'selectroot =', selectroot
-    write (*, *) 'totsym     =', totsym
-    write (*, *) 'ncore      =', ncore
-    write (*, *) 'nbas       =', nbas
-    write (*, *) 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
-    write (*, *) 'nhomo      =', nhomo
-    write (*, *) 'lscom      =', lscom
-    write (*, *) 'noccg      =', noccg
-    write (*, *) 'noccu      =', noccu
-    write (*, *) 'diracver   =', dirac_version
-
+    if (rank == 0) then
+        print *, 'ninact     =', ninact
+        print *, 'nact       =', nact
+        print *, 'nsec       =', nsec
+        print *, 'nelec      =', nelec
+        print *, 'nroot      =', nroot
+        print *, 'selectroot =', selectroot
+        print *, 'totsym     =', totsym
+        print *, 'ncore      =', ncore
+        print *, 'nbas       =', nbas
+        print *, 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
+        print *, 'nhomo      =', nhomo
+        print *, 'lscom      =', lscom
+        print *, 'noccg      =', noccg
+        print *, 'noccu      =', noccu
+        print *, 'diracver   =', dirac_version
+    end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     filename = 'MRCONEE'
@@ -81,43 +88,30 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 !Iwamuro create new ikr for dirac
     print *, "Create_newmdcint"
     Call create_newmdcint
-
-    filename = 'MDCINTNEW'
-
-!     nmo = ninact + nact + nsec
-
-    Call readint2_ivo_co(filename, nuniq)
+    call get_mdcint_filename(0)
+    Call readint2_ivo_co(mdcintnew)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
-    write (*, *) ' '
-    write (*, *) '*******************************'
-    write (*, *) ' '
-    write (*, *) 'IREP IS ', repna(totsym)
-    write (*, *) ' '
-    write (*, *) '*******************************'
-    write (*, *) ' '
-
     realcvec = .TRUE.
-
-!    This is test for bug fix about realc part
-
-    write (*, *) realc, 'realc'
-    write (*, *) realcvec, 'realcvec'
-
     test = .true.
-
-    write (*, *) realc, 'realc'
-    write (*, *) realcvec, 'realcvec'
-
     realc = .FALSE.      !!!      realc =.TRUE.
     realcvec = .FALSE.   !!!      realcvec =.TRUE.
-
-    write (*, *) 'FOR TEST WE DO (F,F)'
-    write (*, *) realc, 'realc'
-    write (*, *) realcvec, 'realcvec'
+!    This is test for bug fix about realc part
+    if (rank == 0) then
+        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        print *, ' '
+        print *, '*******************************'
+        print *, ' '
+        print *, 'IREP IS ', repna(totsym)
+        print *, ' '
+        print *, '*******************************'
+        print *, ' '
+        print *, realc, 'realc'
+        print *, realcvec, 'realcvec'
+        print *, 'FOR TEST WE DO (F,F)'
+        print *, realc, 'realc'
+        print *, realcvec, 'realcvec'
+    end if
 
 !!=============================================!
 !                                              !
@@ -162,9 +156,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
     deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+    print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
     Call timing(val(3), totalsec, date0, tsec0)
-    write (*, *) 'End r4divo_co part'
+    print *, 'End r4divo_co part'
 
 END program r4divo_co
