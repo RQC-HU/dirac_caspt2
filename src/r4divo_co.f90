@@ -11,19 +11,8 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use read_input_module
 
     Implicit NONE
-    integer                 :: ii, jj, kk, ll, typetype, i0, j0, imo
-    integer                 ::  j, i, k, l, nuniq
-    integer                 :: k0, l0, nint, n, dimn, n0, n1, nspace(3, 3)
-    integer                 ::  inisym, endsym, input_unit
-
-!        integer                 ::  val(8), initdate, date0, date1
-!        real*8                  :: totalsec, inittime, tsec0, tsec1, tsec
-
-    logical                 :: test, cutoff
-
-    real*8                  :: i2r, i2i, dr, di, nsign, e0, e2, e2all
-    complex*16              ::  cmplxint, dens, trace1, trace2, dens1, dens2
-
+    integer                 :: nuniq, input_unit
+    logical                 :: test
     character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -62,22 +51,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     Call timing(val(3), totalsec, date0, tsec)
     call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
     call read_input(input_unit)
-
-    ! open(5,file='active.ivo.inp',form='formatted',status='old')
-    ! read(5,'(I4)')ninact
-    ! read(5,'(I4)')nact
-    ! read(5,'(I4)')nsec
-    ! read(5,'(I4)')nelec
-    ! read(5,'(I4)')nroot
-    ! read(5,'(I4)')selectroot
-    ! read(5,'(I4)')totsym
-    ! read(5,'(I4)')ncore
-    ! read(5,'(I4)')nbas
-    ! read(5,'(E8.2)')eshift
-    ! read(5,'(A6)')ptgrp
-    ! read(5,'(I4)')nhomo
-    ! read(5,'(I4)')lscom
-    ! close(5)
 
     write (*, *) 'ninact     =', ninact
     write (*, *) 'nact       =', nact
@@ -129,8 +102,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
     realcvec = .TRUE.
 
-!      goto 1000
-
 !    This is test for bug fix about realc part
 
     write (*, *) realc, 'realc'
@@ -154,10 +125,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 !                                              !
 !!=============================================!
 
-!    Call e0test_v2
-
-!      write(*,'("Current Memory is ",F10.2,"MB")')tmem/1024/1024
-
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 !            BUILDING  FOCK MATRIX               !
 !  fij = hij + SIGUMA[<0|Ekl|0>{(ij|kl)-(il|kj)} !
@@ -175,23 +142,15 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 !! fij = hij + SIGUMA_a(ij|aa)-(ia|aj)}
 
-    f(:, :) = 0.0d+00
-
     Call fockivo_co
-!      Call fockivo(nhomo)
 
     deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
-!      deallocate ( orb    );   Call memminus (KIND( orb    ),SIZE( orb    ),1)
     deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
     deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
     deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
     deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-!      deallocate (int2i   );   Call memminus (KIND(int2i   ),SIZE(int2i   ),1)
-!      deallocate (indtwi  );   Call memminus (KIND(indtwi  ),SIZE(indtwi  ),1)
     deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-!      deallocate (int2r   );   Call memminus (KIND(int2r   ),SIZE(int2r   ),1)
-!      deallocate (indtwr  );   Call memminus (KIND(indtwr  ),SIZE(indtwr  ),1)
     deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
     deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
@@ -203,11 +162,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
     deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
-!      write(*,'("Current Memory is ",F10.2,"MB")')tmem/1024/1024
+    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
 
-!      Call timing(val(3), totalsec, date0, tsec0)
+    Call timing(val(3), totalsec, date0, tsec0)
     write (*, *) 'End r4divo_co part'
-
-! 1000 continue
 
 END program r4divo_co
