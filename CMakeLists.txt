@@ -7,6 +7,7 @@ message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
 option(MPI "Enable MPI?" OFF)
 option(OPENMP "Enable OpenMP?" OFF)
 option(MKL "Enable MKL?" ON)
+option(Utest "Enable unit test?" OFF)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)

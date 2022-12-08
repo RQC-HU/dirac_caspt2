@@ -504,6 +504,11 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 
     use four_caspt2_module
     use module_file_manager
+<<<<<<< HEAD
+=======
+
+    Implicit NONE
+>>>>>>> b087a35... Merge branch 'main' of github.com:kohei-noda-qcrg/dirac_caspt2 into merge_to_main_ivo
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -542,9 +547,15 @@ SUBROUTINE vFmat_ord(nab, iab, v)
             jt = it + ninact
             Do iu = 1, it - 1
                 ju = iu + ninact
+<<<<<<< HEAD
 
                 if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
+=======
+
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+
+>>>>>>> b087a35... Merge branch 'main' of github.com:kohei-noda-qcrg/dirac_caspt2 into merge_to_main_ivo
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     pattern_tu_count(isym) = pattern_tu_count(isym) + 1
                     pattern_t(pattern_tu_count(isym), isym) = it

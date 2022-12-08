@@ -8,17 +8,20 @@
 
 ## 目次
 
-- [Requirements](#requirements)
-- [How to build](#how-to-build)
-  - [Basic build](#basic-build)
-  - [MPI support](#mpi-support)
-  - [Install](#install)
-  - [CMakeビルドオプション](#cmakeビルドオプション)
-- [How to use](#how-to-use)
-  - [prerequisites](#prerequisites)
-  - [Calculation](#calculation)
-  - [Input file](#input-file)
-  - [インプットファイルの仕様](#インプットファイルの仕様)
+- [DIRAC-CASPT2](#dirac-caspt2)
+  - [お知らせ](#お知らせ)
+  - [目次](#目次)
+  - [Requirements](#requirements)
+  - [How to build](#how-to-build)
+    - [Basic build](#basic-build)
+    - [MPI Support](#mpi-support)
+    - [Install](#install)
+    - [CMakeビルドオプション](#cmakeビルドオプション)
+  - [How to use](#how-to-use)
+    - [Prerequisites](#prerequisites)
+    - [Calculation](#calculation)
+    - [input file](#input-file)
+    - [インプットファイルの仕様](#インプットファイルの仕様)
 
 ## Requirements
 

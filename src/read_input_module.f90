@@ -124,11 +124,11 @@ contains
             is_filled(10) = .true.
 
         case ("lscom")
-            call read_an_integer(0, 10**9, lscom)
+            call read_an_integer(unit_num, 0, 10**9, lscom)
 
         case ("nhomo")
-            call read_an_integer(0, 10**9, nhomo)
-            
+            call read_an_integer(unit_num, 0, 10**9, nhomo)
+
         case ("ras1")
             call ras_read(unit_num, ras1_list, 1)
             ras1_size = size(ras1_list, 1)
@@ -160,12 +160,12 @@ contains
         case ("skip_mdcint")
             skip_mdcint = .true.
 
-        !ivo 
-        case("noccg")
-            call read_an_integer(0, 10**9, noccg)
-    
-        case("noccu")
-            call read_an_integer(0, 10**9, noccu)
+            !ivo
+        case ("noccg")
+            call read_an_integer(unit_num, 0, 10**9, noccg)
+
+        case ("noccu")
+            call read_an_integer(unit_num, 0, 10**9, noccu)
 
         case ("end")
             is_end = .true.
