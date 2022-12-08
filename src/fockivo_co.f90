@@ -27,6 +27,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, A, nv0, ngu, B
     integer, allocatable :: syminfo(:), dmosym(:)
     complex*16, allocatable :: itrfmog(:, :), itrfmou(:, :)
+    logical                 :: write_itrfmo
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -39,12 +40,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     write (*, *) 'enter building fock matrix for IVO'
 
     if (nhomo == 0) then
-        numh = 0
-        do i = 1, ninact + nact
-            if (ABS(orbmo(i) - orbmo(nelec + ninact)) < 1.0d-01) then
-                numh = numh + 1
-            end if
-        end do
+        numh = count(ABS(orbmo(1:ninact + nact) - orbmo(nelec + ninact)) < 1.0d-01)
     else
         numh = nhomo
     end if
@@ -117,14 +113,18 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     if (dirac_version == 21 .or. dirac_version == 22) then
         read (unit_dfpcmo, '(A150)') line3
     end if
-
     ! Read MO coefficient of DFPCMO
+    write_itrfmo = .true.
     Do I = 1, ngu, 6
         Read (unit_dfpcmo, '(6F22.16)', iostat=iostat) BUF(I:I + 5)
+        if (iostat /= 0) then
+            write_itrfmo = .false.
+            exit
+        end if
     End do
 
     write (*, *) 'end reading MO coefficient'
-    if (iostat /= 0) then
+    if (write_itrfmo) then
         ! unoccupid, gerade, electron
         Do iao = 1, nbasg
             DO imo = 1, neg - noccg
@@ -290,7 +290,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
                 write (*, *)
             End do
 
-        ! Ungerade
+            ! Ungerade
         else
             Allocate (coeff(nbasu, nv))
             Do i = 1, nv0
@@ -308,7 +308,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
                 itrfmog(:, i0) = coeff(:, i)
             End do
 
-        ! Ungerade
+            ! Ungerade
         else
             Do i = 1, nv0
                 i0 = dmosym(i) - npg - neg - npu - noccu
