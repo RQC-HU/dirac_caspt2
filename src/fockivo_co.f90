@@ -7,12 +7,14 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
        use four_caspt2_module
+       use module_file_manager, only: open_formatted_file, open_unformatted_file
 
        Implicit NONE
 
        integer      :: j, i, k, i0, j0
        integer      :: isym, nv, numh
        integer      :: imo, iao, IMAX
+       integer      :: unit_dfpcmo, unit_itrfmog, unit_itrfmou, unit_buf
        real*8       :: thresd
        logical      :: cutoff
        complex*16, allocatable  :: fsym(:, :)
@@ -76,49 +78,32 @@
        do i = 1, nsec
            do j = i, nsec
                f(j, i) = DCONJG(f(i, j))
-
-!                write(*,*)"f(j,i)", f(j,i)
            end do
        end do
 
-!           allocate(readmo   (nbas*2, nbas*2, 2))
-!           allocate(itrfmo   (nbas*2, nbas,   2))
-!           itrfmo = 0.0d+00
-
-!           allocate(readmo (nbas, nbas))
-!           allocate(itrfmo (nbas, nbas, 2))
-!           allocate(mocr   (nbas, nbas))
-!           allocate(moci   (nbas, nbas))
-
-!           open(15,file='r4dorbcoeff',status='old',form='unformatted')
-!           read(15,err=10) readmo
-
-!           Allocate (BUF(nbas*lscom))
-!           Allocate (BUF1(nbas,lscom*2))
-
        IMAX = nbas*lscom
 
-       open (15, file='DFPCMO', status='old', form='formatted')
+       call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
 
 ! From DIRAC dirgp.F WRIPCMO (Write DHF-coefficients and eigenvalues )
 
        if (dirac_version == 21) then
-           read (15, '(A150)') line0
+           read (unit_dfpcmo, '(A150)') line0
        elseif (dirac_version == 22) then
-           read (15, '(A150)') line0
+           read (unit_dfpcmo, '(A150)') line0
        end if
-       read (15, '(A150)') line1
+       read (unit_dfpcmo, '(A150)') line1
        if (dirac_version == 21) then
-           read (15, *) A, B, npg, neg, nbasg, npu, neu, nbasu
+           read (unit_dfpcmo, *) A, B, npg, neg, nbasg, npu, neu, nbasu
            write (*, *) A, B, npg, neg, nbasg, npu, neu, nbasu
        elseif (dirac_version == 22) then
-           read (15, *) A, B, npg, neg, nbasg, npu, neu, nbasu
+           read (unit_dfpcmo, *) A, B, npg, neg, nbasg, npu, neu, nbasu
            write (*, *) A, B, npg, neg, nbasg, npu, neu, nbasu
        else
-           read (15, *) A, npg, neg, nbasg, npu, neu, nbasu
+           read (unit_dfpcmo, *) A, npg, neg, nbasg, npu, neu, nbasu
            write (*, *) A, npg, neg, nbasg, npu, neu, nbasu
        end if
-       read (15, '(A150)') line2
+       read (unit_dfpcmo, '(A150)') line2
 
        write (*, *) 'end reading information, symmetry information and energy'
 
@@ -137,14 +122,14 @@
        itrfmou = 0.0d+00
 
        if (dirac_version == 21) then
-           read (15, '(A150)') line3
+           read (unit_dfpcmo, '(A150)') line3
        elseif (dirac_version == 22) then
-           read (15, '(A150)') line3
+           read (unit_dfpcmo, '(A150)') line3
        end if
 
        ! Read MO coefficient of DFPCMO
        Do I = 1, ngu, 6
-           Read (15, '(6F22.16)', ERR=22) BUF(I:I + 5)
+           Read (unit_dfpcmo, '(6F22.16)', ERR=22) BUF(I:I + 5)
        End do
 
        write (*, *) 'end reading MO coefficient'
@@ -156,13 +141,13 @@
            End do
        End do
 
-       open (37, file='itrfmog_before', status='replace', form='formatted')
+       call open_formatted_file(unit=unit_itrfmog, file='itrfmog_before', status='replace', optional_action='write')
 
        Do iao = 1, nbasg
-           write (37, *) (itrfmog(iao, imo), imo=1, neg - noccg)
+           write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg)
        End do
 
-       close (37)
+       close (unit_itrfmog)
 
        ! unoccupid, ungerade, electron
        Do iao = 1, nbasu
@@ -171,31 +156,23 @@
            End do
        End do
 
-       open (38, file='itrfmou_before', status='replace', form='formatted')
+       call open_formatted_file(unit=unit_itrfmou, file='itrfmou_before', status='replace', optional_action='write')
 
        Do iao = 1, nbasu
-           write (38, *) (itrfmou(iao, imo), imo=1, neu - noccu)
+           write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu)
        End do
 
-       close (38)
+       close (unit_itrfmou)
 
 22     continue
 
-!            if(mod(nsum,6).eq.0) then
-!               Do I = 1, nsum/6*6, 6
-!                 Read(15,'(6E22.12)',ERR=23) eval(I:I+5)
-!               End do
-!            elseif(mod(nsum,6).ne.0) then
-!               I = nsum/6*6 +1
-!               Read(15,'(6E22.12)',ERR=23) eval(I:IMAX)
-!            endif
        if (dirac_version == 21) then
-           read (15, '(A150)') line4
+           read (unit_dfpcmo, '(A150)') line4
        elseif (dirac_version == 22) then
-           read (15, '(A150)') line4
+           read (unit_dfpcmo, '(A150)') line4
        end if
 
-       Read (15, *) eval
+       Read (unit_dfpcmo, *) eval
 
        Do i = 1, nsum
            write (*, *) "eval(i)", eval(i)
@@ -207,12 +184,12 @@
 
        ! Read syminfo from DFPCMO
        if (dirac_version == 21) then
-           read (15, '(A150)') line5
+           read (unit_dfpcmo, '(A150)') line5
        elseif (dirac_version == 22) then
-           read (15, '(A150)') line5
+           read (unit_dfpcmo, '(A150)') line5
        end if
 
-       Read (15, *) syminfo
+       Read (unit_dfpcmo, *) syminfo
 
        Do i = 1, nsum
            write (*, *) "syminfo(i)", syminfo(i)
@@ -220,114 +197,15 @@
 
        write (*, *) 'end reading symmetry information2'
 
-!           read(15,'(A150)',iostat=iostat) line4
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line5
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line6
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line7
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line8
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line9
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line10
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line11
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line12
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line13
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line14
-!           if (iostat < 0) goto  120
-!           read(15,'(A150)',iostat=iostat,ERR=24) line15
+       close (unit_dfpcmo)
 
-       continue
-
-       close (15)
-
-       open (105, file='BUF_write', status='unknown', form='formatted')
+       call open_formatted_file(unit=unit_buf, file='BUF_write', status='unknown', optional_action='write')
 
        Do I = 1, ngu, 6
-           Write (105, '(6F22.16)') BUF(I:I + 5)
+           Write (unit_buf, '(6F22.16)') BUF(I:I + 5)
        End do
 
-       close (105)
-
-!           open(16,file='DFPCMO_complement',status='unknown',form='formatted')
-
-! DFPCMO complement in the symmetry of C32h
-
-!            I = 0
-
-! Electron solution / gerade
-
-!           Do I = 1,nbas/4
-!             Do J = 1,lscom
-!               BUF1(I,J) = BUF(J+lscom*(I-1+nbas/4))
-!               BUF1(I,J+lscom) = BUF1(I,J)
-!             Enddo
-!             Do J = 1,lscom*2
-!               BUF1(I+nbas/4,J) = BUF1(I,J)
-!             Enddo
-!           Enddo
-
-! Electron solution / ungerade
-
-!           Do I = 1+nbas/2, nbas/2+nbas/4
-!             Do J = 1,lscom
-!               BUF1(I,J) = BUF(J+lscom*(I-1+nbas/4))
-!               BUF1(I,J+lscom) = -BUF1(I,J)
-!             Enddo
-!             Do J = 1,lscom*2
-!               BUF1(I+nbas/4,J) = BUF1(I,J)
-!             Enddo
-!           Enddo
-
-! Extract only electron solution
-!             Do I = 1,nbas
-!               Write (16,'(24F10.5)') (BUF1(I,J),J=1,lscom*2)
-!             Enddo
-
-!           close(16)
-
-!          Do iao = 1,lscom*2
-!             Do imo = 1,nbas
-!                mocr(iao,imo) = BUF1(imo,iao)
-!             Enddo
-!          Enddo
-
-!          moci=0.0d0+00
-
-!          open(87,file='mocr',status='unknown',form='formatted')
-!          Do iao = 1,lscom*2
-!             Do imo = 1,nbas
-!                write(87,*) mocr(iao,imo)
-!             Enddo
-!          Enddo
-!          close(87)
-
-! Transform MO order into orbital energy order
-
-!          do imo = 1, nbas
-!             readmo(:,indmor(imo),2) = mocr(:,imo)
-!          enddo
-
-!          open(67,file='readmo',status='unknown',form='formatted')
-
-!          Do iao = 1,lscom*2
-!             Do imo = 1,nbas
-!                write(67,'(24F10.5)') (real(readmo(iao,imo,2)),iao = 1,lscom*2)
-!             Enddo
-!          Enddo
-
-!           close(67)
-
-!          itrfmog(1:lscom*2,1:nbas) = readmo(1:lscom*2,1:nbas)
-
-!           itrfmo(1:lscom*2,1:nbas,1:2) = readmo(1:lscom*2, nbas+1:nbas*2,1:2)
+       close (unit_buf)
 
 ! IVO calculation
 
@@ -452,22 +330,6 @@
                End do
            end if
 
-! Kramers - pairs
-
-!              Do i = 1, nv
-!                 i0 = mosym(i)+ncore+ninact+nact+1
-!                 coeff(:,i)=itrfmo(:,i0)
-!              Enddo
-
-!              coeff(:,:) = MATMUL(coeff(:,:),DCONJG(fsym(:,:)))
-
-!              Do i = 1, nv
-!                 i0 = mosym(i)+ncore+ninact+nact+1
-!                 itrfmo(:,i0,:) = coeff(:,i,:)
-!              Enddo
-
-! Kramers - pairs
-
            deallocate (coeff)
 
            Do i = 1, nv
@@ -492,147 +354,66 @@
            deallocate (dmosym)
        end do
 
-!           open(37,file='itrfmo',status='unknown',form='formatted')
-
-!           Do iao = 1,lscom*2
-!             Do imo = 1,nbas
-!                write(37,*) itrfmo(iao,imo,2)
-!             Enddo
-!           Enddo
-
-!           close(37)
-
-!          readmo(1:lscom*2, 1:nbas,2) = itrfmo(1:lscom*2,1:nbas,2)
-
-!          open(15,file='r4dorbcoeff_ivo',status='unknown',form='unformatted')
-!          write(15) readmo
-!          close(15)
-
-!          open(57,file='readmo_ivo',status='unknown',form='formatted')
-
-!          Do iao = 1,lscom*2
-!             Do imo = 1,nbas
-!                write(57,'(24F10.5)') (real(readmo(iao,imo,2)), iao=1,lscom*2)
-!             Enddo
-!          Enddo
-
-!           close(57)
-
-! Transform MO order into irreducible representation order
-
-!          Do imo = 1, nbas
-!            Do iao = 1,lscom*2
-!                 readmo1(indmo(imo),iao,2)=readmo(iao,imo,2)
-!            Enddo
-!          Enddo
-
-! Extract only the necessary part of the electronic solution and return it to BUF.
-
-!          open(77,file='readmo1',status='unknown',form='formatted')
-
-!          Do iao = 1,lscom*2
-!             Do imo = 1,nbas
-!                write(77,'(24F10.5)') (real(readmo1(imo,iao,2)), iao=1,lscom*2)
-!             Enddo
-!          Enddo
-
-!           close(77)
-
        ! unoccupid, gerade, electron
        Do iao = 1, nbasg
            DO imo = 1, neg - noccg
-               BUF((npg + noccg + (imo - 1))*nbasg + iao) = itrfmog(iao, imo)
+               BUF((npg + noccg + (imo - 1))*nbasg + iao) = real(itrfmog(iao, imo), 8)
            End do
        End do
 
        ! unoccupid, ungerade, electron
        Do iao = 1, nbasu
            DO imo = 1, neu - noccu
-               BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao) = itrfmou(iao, imo)
+               BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao) = real(itrfmou(iao, imo), 8)
            End do
        End do
 
-!         I = 0
-
-!         Do imo = 1, nbas/4
-!           Do iao = 1, lscom
-!                 I = I+1
-!                 BUF(I+lscom*(imo+nbas/4-1))=real(readmo1(imo,iao,2))
-!            Enddo
-!          Enddo
-
-!         I = 0
-
-!         Do imo = 1+nbas/2, nbas/2+nbas/4
-!           Do iao = 1, lscom
-!                 I = I+1
-!                 BUF(I+lscom*(imo+nbas/4-1))=real(readmo1(imo,iao,2))
-!            Enddo
-!          Enddo
-
 ! Create new DFPCMO : DFPCMONEW
 
-       open (19, file='DFPCMONEW', status='replace', form='formatted')
+       call open_formatted_file(unit=unit_dfpcmo, file='DFPCMONEW', status='replace', optional_action="write")
        if (dirac_version == 21) then
-           write (19, '(A150)') line0
+           write (unit_dfpcmo, '(A150)') line0
        elseif (dirac_version == 22) then
-           write (19, '(A150)') line0
+           write (unit_dfpcmo, '(A150)') line0
        end if
-       write (19, '(A150)') line1
+       write (unit_dfpcmo, '(A150)') line1
        if (dirac_version == 21) then
-           write (19, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
+           write (unit_dfpcmo, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
        elseif (dirac_version == 22) then
-           write (19, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
+           write (unit_dfpcmo, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
        else
-           write (19, '(7(X,I0))') A, npg, neg, nbasg, npu, neu, nbasu
+           write (unit_dfpcmo, '(7(X,I0))') A, npg, neg, nbasg, npu, neu, nbasu
        end if
-       write (19, '(A150)') line2
+       write (unit_dfpcmo, '(A150)') line2
        if (dirac_version == 21) then
-           write (19, '(A150)') line3
+           write (unit_dfpcmo, '(A150)') line3
        elseif (dirac_version == 22) then
-           write (19, '(A150)') line3
+           write (unit_dfpcmo, '(A150)') line3
        end if
        Do I = 1, ngu, 6
-           Write (19, '(6F22.16)') BUF(I:I + 5)
+           Write (unit_dfpcmo, '(6F22.16)') BUF(I:I + 5)
        End do
        if (dirac_version == 21) then
-           write (19, '(A150)') line4
+           write (unit_dfpcmo, '(A150)') line4
        elseif (dirac_version == 22) then
-           write (19, '(A150)') line4
+           write (unit_dfpcmo, '(A150)') line4
        end if
 
-       write (19, '(6E22.12)') eval
+       write (unit_dfpcmo, '(6E22.12)') eval
        if (dirac_version == 21) then
-           write (19, '(A150)') line5
+           write (unit_dfpcmo, '(A150)') line5
        elseif (dirac_version == 22) then
-           write (19, '(A150)') line5
+           write (unit_dfpcmo, '(A150)') line5
        end if
-       write (19, '(66(X,I0))') (syminfo(i), i=1, nsum)
-
-!          write(19,'(A150)') line4
-!          write(19,'(A150)', ERR=25) line5
-!          write(19,'(A150)', ERR=25) line6
-!          write(19,'(A150)', ERR=25) line7
-!          write(19,'(A150)', ERR=25) line8
-!          write(19,'(A150)', ERR=25) line9
-!          write(19,'(A150)', ERR=25) line10
-!          write(19,'(A150)', ERR=25) line11
-!          write(19,'(A150)', ERR=25) line12
-!          write(19,'(A150)', ERR=25) line13
-!          write(19,'(A150)', ERR=25) line14
-!          write(19,'(A150)', ERR=25) line15
-
-25     continue
-
-       close (19)
+       write (unit_dfpcmo, '(66(X,I0))') (syminfo(i), i=1, nsum)
+       close (unit_dfpcmo)
 
        goto 100
 
-10     write (*, *) 'reading err of DFPCMO'
-!        deallocate(fdmmy)
+       write (*, *) 'reading err of DFPCMO'
+
+100    write (*, *) 'fockivo_co end'
        deallocate (itrfmog, itrfmou)
        deallocate (BUF)
        deallocate (eval, syminfo)
-
-100    write (*, *) 'fockivo_co end'
    end subroutine fockivo_co

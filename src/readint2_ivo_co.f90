@@ -5,6 +5,7 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
        use four_caspt2_module
+       use module_file_manager, only: open_unformatted_file
 
        Implicit NONE
 
@@ -56,7 +57,7 @@
 
        totalint = 0
        mdcint = 11
-       open (mdcint, file=trim(filename), form='unformatted', status='old', err=10)
+       call open_unformatted_file(unit=mdcint, file=trim(filename), status='old', optional_action="read")
 
        read (mdcint, err=20, end=30) datex, timex, nkr, &
            (kr(i0), kr(-1*i0), i0=1, nkr)
@@ -292,8 +293,6 @@
 
        Goto 60
 
-10     write (*, *) 'error for opening mdcint 10'
-       go to 100
 20     write (*, *) 'error for reading mdcint 20'
        go to 100
 30     write (*, *) 'end mdcint 30'
