@@ -74,15 +74,8 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         print *, ' ENTER solv E part'
         print *, ' nsymrpa', nsymrpa
     end if
-    i0 = 0
-    Do ia = 1, nsec
-        Do ii = 1, ninact
-            Do ij = 1, ii - 1                ! i > j
-                i0 = i0 + 1
-            End do
-        End do
-    End do
-
+    ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
+    i0 = nsec*(ninact*(ninact - 1))/2
     naij = i0
     Allocate (iaij(nsec, ninact, ninact))
     iaij = 0
@@ -91,9 +84,9 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     Allocate (ij0(naij))
 
     i0 = 0
-    Do ia = 1, nsec
-        Do ii = 1, ninact
-            Do ij = 1, ii - 1                ! i > j
+    Do ii = 1, ninact
+        Do ij = 1, ii - 1                ! i > j
+            Do ia = 1, nsec
                 i0 = i0 + 1
                 iaij(ia, ii, ij) = i0
                 iaij(ia, ij, ii) = i0
@@ -283,10 +276,11 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
 !     EtiEaj|0>
 
-            syma = MULTB_D(irpmo(ja), irpmo(jj))
-            symb = MULTB_D(isym, irpmo(ji))
-            syma = MULTB_S(symb, syma)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ja), irpmo(jj))
+                symb = MULTB_D(isym, irpmo(ji))
+                syma = MULTB_S(symb, syma)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn))
@@ -487,6 +481,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -501,28 +496,26 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, taij
-    integer :: it, jt, ik, iostat
+    integer :: it, ik, iostat, twoint_unit
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 
     if (rank == 0) print *, 'Enter vEmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
     v = 0.0d+00
+    twoint_unit = default_unit
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
-    open (1, file=eint, status='old', form='unformatted')  !  (31|21) stored
+    call open_unformatted_file(unit=twoint_unit, file=eint, status='old', optional_action='read') !  (31|21) stored
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of Eint'
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=eint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Eint'
         end if
 
         if (j == l) cycle ! Read the next 2-integral if j equal to l
@@ -536,42 +529,21 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
         v(taij, k) = v(taij, k) - cint2
 
-    !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
-    Do it = 1, nact
-        Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
-        dens = DCMPLX(dr, di)
-        v(taij, it) = v(taij, it) + cint2*dens
-    End do                  ! it
-    !$OMP end parallel do
+        !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
+        Do it = 1, nact
+            Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
+            dens = DCMPLX(dr, di)
+            v(taij, it) = v(taij, it) + cint2*dens
+        End do                  ! it
+        !$OMP end parallel do
 
         if (j < l) then
             cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
         end if
 
-!! Take Kramers conjugate !
-!
-!        Call takekr( i, j, k, l, cint2)
-!
-!        taij = iaij(i, j, l)
-!        ik = k - ninact
-!
-!!        write(*,*) i,j,k,l,taij,cint2
-!
-!        if (j < l) then
-!           cint2 = -1.0d+00*cint2
-!        endif
-!
-!        v(taij,k) = v(taij, k) - cint2
-!
-!        Do it = 1, nact
-!           jt = ninact+it
-!           Call dim1_density (it, ik, dr, di)          ! ik corresponds to p in above formula
-!           dens = DCMPLX(dr, di)
-!           v(taij,jt) = v(taij, jt) + cint2*dens
-!        End do                  ! it
     end do
+    close (twoint_unit)
 
-    close (1)
     if (rank == 0) print *, 'vEmat_ord_ty is ended'
 
 #ifdef HAVE_MPI

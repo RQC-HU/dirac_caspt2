@@ -12,55 +12,74 @@ def delete_scratch_files(delete_files: "list[str]", test_path: str) -> None:
 
 def is_binary_file_exist(binary_file: str) -> None:
     if not os.path.exists(binary_file):
-        error_message = (
-            f"ERROR: {binary_file} is not exist.\nPlease build {binary_file} first."
-        )
+        error_message = f"ERROR: {binary_file} is not exist.\nPlease build {binary_file} first."
         raise Exception(error_message)
 
 
-def create_test_command(the_number_of_process: int, binaries: "list[str]") -> str:
-    if the_number_of_process > 1:  # If the number of process is greater than 1, use MPI
+def create_test_command_for_caspt2(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool) -> str:
+    options = ""
+    if save:
+        tmp_path = os.path.join(test_path, "tmp")
+        options += f" --save --tmp {tmp_path}"
+    if mpi_num_process > 1:
+        options += f" --mpi {mpi_num_process}"
+    if omp_num_threads is None:
+        omp = str(os.environ.get("OMP_NUM_THREADS", 1))
+    else:
+        omp = str(omp_num_threads) if omp_num_threads > 1 else "1"
+    options += f" --omp {omp}"
+
+    test_command = f"{dcaspt2} -i {input_file} -o {output_file} {options}"
+    return test_command
+
+
+def create_test_command(mpi_num_process: int, binaries: "list[str]") -> str:
+    test_command = ""
+    if mpi_num_process > 1:  # If the number of process is greater than 1, use MPI
         for idx, binary in enumerate(binaries):
             if idx == 0:
-                test_command = f"mpirun -np {the_number_of_process} {binary}"
+                test_command = f"mpirun -np {mpi_num_process} {binary}"
             else:
-                test_command += f" && mpirun -np {the_number_of_process} {binary}"
+                test_command = f"{test_command} && mpirun -np {mpi_num_process} {binary}"
     else:  # If the number of process is 1, use serial
         for idx, binary in enumerate(binaries):
             if idx == 0:
                 test_command = f"{binary}"
             else:
-                test_command += f" && {binary}"
+                test_command = f"{test_command} && {binary}"
+    with open("execution_command.log", "w") as file_output:
+        file_output.write(test_command)
     return test_command
 
 
-def run_test(
-    test_command: str, output_file_path: str
-) -> "subprocess.CompletedProcess[str]":
+def run_test_caspt2(test_command: str) -> None:
+    process = subprocess.run(test_command, shell=True)
+    process.check_returncode()
+    return
+
+
+def run_test(test_command: str, output_file_path: str = "stdout.out") -> None:
     with open(output_file_path, "w") as file_output:
         process = subprocess.run(
             test_command,
             shell=True,
             encoding="utf-8",
-            stdout=file_output,  # Redirect output to file_output
+            stdout=file_output,
         )
-    return process
+    process.check_returncode()
+    return
 
 
 def check_test_returncode(process: "subprocess.CompletedProcess[str]") -> None:
     if process.returncode != 0:
-        raise Exception(
-            "ERROR: Process failed. return code status : " + str(process.returncode)
-        )
+        raise Exception("ERROR: Process failed. return code status : " + str(process.returncode))
 
 
 def get_caspt2_energy_from_output_file(file_path: str) -> float:
     with open(file_path, encoding="utf-8", mode="r") as output_file:
         try:
             # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
-            grep_str: list[str] = [
-                s.strip() for s in output_file.readlines() if "Total energy is" in s
-            ]
+            grep_str: list[str] = [s.strip() for s in output_file.readlines() if "Total energy is" in s]
             caspt2_energy = float(grep_str[-1].split()[-2])  # (e.g. -1.117672932144052)
             return caspt2_energy
         except Exception as error:  # Failed to get the reference data

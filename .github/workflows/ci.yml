@@ -10,15 +10,32 @@ on:
       - "**.cmake"
       - "**/CMakeLists.txt"
       - "**.py"
+      - "tools/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - "main"
+    paths:
+    # Ref : https://mzqvis6akmakplpmcjx3.hatenablog.com/entry/2021/02/07/134133
+    # Run CI when only source code, build configuration, test files or files related to CI are modified.
+      - "**.f90"
+      - "**.F90"
+      - "**.cmake"
+      - "**/CMakeLists.txt"
+      - "**.py"
+      - "tools/**"
       - ".github/workflows/**"
 
+# Ref : https://github.com/pytest-dev/pytest/issues/7443#issue-650484842
+env:
+  PYTEST_ADDOPTS: "--color=yes"
 
 defaults:
   run:
     shell: bash
 jobs:
   test-linux-mpiifort:
-    timeout-minutes: 15 # Max execution time (min)
+    timeout-minutes: 60 # Max execution time (min)
     runs-on: ubuntu-latest
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
@@ -26,7 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: cache install
-        timeout-minutes: 2
         id: cache-install
         uses: actions/cache@v3
         with:
@@ -34,7 +50,6 @@ jobs:
             /opt/intel/oneapi
           key: ${{ runner.os }}-install-${{ env.KEYVERSION }}
       - name: Setup Intel fortran (apt)
-        timeout-minutes: 2
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -42,36 +57,38 @@ jobs:
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
           sudo apt-get update
       - name: Install Intel Fortran compiler
-        timeout-minutes: 8
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
+          sudo apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
       - name: Set Intel oneAPI environments
-        timeout-minutes: 1
         run: |
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
       - name: Install python
-        timeout-minutes: 2
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
           architecture: "x64"
       - name: Install pytest for unit test
-        timeout-minutes: 1
         run: python -m pip install pytest
       - name: Build source code (parallel)
-        timeout-minutes: 1
         run: |
-          cmake -DMPI=on -DOPENMP=on -B build
-          cmake --build build -j4 --clean-first
-      - name: Run unittest (parallel)
-        timeout-minutes: 15
+          ./setup --mpi --omp -j 2 --build
+      - name: Run unittest(parallel, run slowonly tests, pull_request)
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --parallel=4
+          pytest --slowonly --mpi=2
+      - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
+        if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --mpi=2
+      - name: Run unittest(parallel, run all tests, push to main branch)
+        if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --all --mpi=2
 
   test-linux-gfortran:
-    timeout-minutes: 15 # Max execution time (min)
+    timeout-minutes: 60 # Max execution time (min)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -82,7 +99,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: cache install (MKL)
-        timeout-minutes: 2
         id: cache-install
         uses: actions/cache@v3
         with:
@@ -90,7 +106,6 @@ jobs:
             /opt/intel/oneapi
           key: ${{ runner.os }}-install-${{ matrix.gcc-version }}-${{ env.KEYVERSION }}
       - name: Setup MKL
-        timeout-minutes: 2
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -98,35 +113,36 @@ jobs:
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
           sudo apt-get update
       - name: Install MKL
-        timeout-minutes: 8
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install intel-oneapi-mkl
+          sudo apt-get install -y intel-oneapi-mkl
       - name: Set Intel oneAPI environments
-        timeout-minutes: 1
         run: |
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
       - name: Install gfortran (apt)
-        timeout-minutes: 2
         run: |
           sudo apt-get update
-          sudo apt-get install gfortran-${{ matrix.gfortran-version }}
+          sudo apt-get install -y gfortran-${{ matrix.gfortran-version }}
       - name: Install python
-        timeout-minutes: 2
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
           architecture: "x64"
       - name: Install pytest for unit test
-        timeout-minutes: 1
         run: python -m pip install pytest
       - name: Build source code
-        timeout-minutes: 1
         run: |
-          cmake -DOPENMP=on -B build
-          cmake --build build --clean-first
-      - name: Run unittest
-        timeout-minutes: 15
+          ./setup --fc gfortran --omp -j 2 --build
+      - name: Run unittest(serial, run slowonly tests, pull_request)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          pytest --slowonly
+      - name: Run unittest(serial, run normal and slow tests, push to other than main branch)
+        if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
           pytest
+      - name: Run unittest(serial, run all tests, push to main branch)
+        if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
+        run: |
+          pytest --all

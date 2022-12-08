@@ -4,6 +4,7 @@ SUBROUTINE casci_ty
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_file_manager
     use four_caspt2_module
     Implicit NONE
 #ifdef HAVE_MPI
@@ -63,15 +64,15 @@ SUBROUTINE casci_ty
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         print *, 'debug1'
-        cimat = 10
+        cimat = default_unit
         filename = 'CIMAT'
-        open (10, file='CIMAT', status='unknown', form='unformatted')
-        write (10) ndet
-        write (10) idet(1:ndet)
-        write (10) ecas(1:ndet)
-        write (10) 2**nact - 1 ! idetrの配列の要素数
-        write (10) idetr(1:2**nact - 1)
-        close (10)
+        call open_unformatted_file(unit=cimat, file=filename, status='replace')
+        write (cimat) ndet
+        write (cimat) idet(1:ndet)
+        write (cimat) ecas(1:ndet)
+        write (cimat) 2**nact - 1 ! idetrの配列の要素数
+        write (cimat) idetr(1:2**nact - 1)
+        close (cimat)
 
 ! Print out C1 matrix!
 
@@ -79,14 +80,14 @@ SUBROUTINE casci_ty
 
         print *, 'debug2'
 
-        cimat = 10
+        cimat = default_unit
         filename = 'CIMAT1'
-        open (10, file='CIMAT1', status='unknown', form='unformatted')
-        write (10) ndet
-        write (10) idet(1:ndet)
-        write (10) ecas(1:ndet)
-        write (10) mat(1:ndet, 1:ndet)
-        close (10)
+        call open_unformatted_file(unit=cimat, file=filename, status='replace')
+        write (cimat) ndet
+        write (cimat) idet(1:ndet)
+        write (cimat) ecas(1:ndet)
+        write (cimat) mat(1:ndet, 1:ndet)
+        close (cimat)
     end if
 ! Print out C1 matrix!
 
@@ -159,4 +160,4 @@ FUNCTION comb(n, m) RESULT(res)
     End do
 
     res = j
-1000 end function comb
+end function comb

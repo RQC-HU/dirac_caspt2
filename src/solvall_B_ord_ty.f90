@@ -81,17 +81,12 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         print *, ' ENTER solv B part'
         print *, ' nsymrpa', nsymrpa
     end if
-    i0 = 0
-    Do ii = 1, ninact
-        Do ij = 1, ii - 1
-            i0 = i0 + 1 ! i0(1)=100,i0(2)=100,i0(3)=100,i0(4)=100
-        End do
-    End do
-    nij = i0
-    Allocate (iij(ninact, ninact)); Call memminus(KIND(iij), SIZE(iij), 1)
+    Allocate (iij(ninact, ninact)); Call memplus(KIND(iij), SIZE(iij), 1)
     iij = 0
-    Allocate (ii0(nij)); Call memminus(KIND(ii0), SIZE(ii0), 1)
-    Allocate (ij0(nij)); Call memminus(KIND(ii0), SIZE(ii0), 1)
+    ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
+    nij = (ninact*(ninact - 1))/2
+    Allocate (ii0(nij)); Call memplus(KIND(ii0), SIZE(ii0), 1)
+    Allocate (ij0(nij)); Call memplus(KIND(ii0), SIZE(ii0), 1)
 
     i0 = 0
     Do ii = 1, ninact
@@ -128,7 +123,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -147,7 +142,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -184,12 +179,6 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
-        if (rank == 0) then
-            print *, 'ws', ws
-            do count = 1, dimn
-                print *, count, sc(count, count)
-            end do
-        end if
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -309,10 +298,10 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Do i0 = 1, nij
             ji = ii0(i0)
             jj = ij0(i0)
-
-            syma = MULTB_D(irpmo(ji) - (-1)**(mod(irpmo(ji), 2)), irpmo(jj))
-            syma = MULTB_S(syma, isym)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ji) - (-1)**(mod(irpmo(ji), 2)), irpmo(jj))
+                syma = MULTB_S(syma, isym)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)
@@ -571,6 +560,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -581,24 +571,43 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     complex*16, intent(out) :: v(nij, nact, nact)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
-    integer :: i, j, k, l, tij
-    integer :: it, jt, ju, iu, iostat
+    integer :: i, j, k, l, tij, i0
+    integer :: it, iu, iostat, twoint_unit
+    integer :: isym, syma, jt, ju
+    integer :: multb_s_reverse(ninact, ninact), pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
+    logical :: is_end_of_file
 
     v = 0.0d+00
+    twoint_unit = default_unit
+    multb_s_reverse(:, :) = 0
+    call create_multb_s_reverse
 
-    open (1, file=bint, status='old', form='unformatted')  !  (21|21) stored (ti|uj) i > j
+    ! Save t,u patterns for each isym
+    pattern_t(:, :) = 0
+    pattern_u(:, :) = 0
+    pattern_tu_count(:) = 0
+    do isym = 1, nsymrpa
+        Do it = 1, nact
+            jt = it + ninact
+            Do iu = 1, it - 1
+                ju = iu + ninact
+
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+
+                if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                    pattern_tu_count(isym) = pattern_tu_count(isym) + 1
+                    pattern_t(pattern_tu_count(isym), isym) = it
+                    pattern_u(pattern_tu_count(isym), isym) = iu
+                End if
+            End do
+        End do
+    end do
+    call open_unformatted_file(unit=twoint_unit, file=bint, status='old', optional_action='read') !  (21|21) stored (ti|uj) i > j
     do
-        read (1, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
-
-        ! Exit the loop if iostat is less than 0
-        if (iostat < 0) then
-            if (rank == 0) then
-                print *, 'End of B1int'
-            end if
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
+        call check_iostat(iostat=iostat, file=bint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Bint'
         end if
 
         if (j <= l) cycle ! Read the next line if j <= l
@@ -626,7 +635,8 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
         ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
         !                             ===========================      ================
         !                                loop for t                     loop for u(variable u is renamed to t)
-        !$OMP parallel do schedule(dynamic,1) private(dr,di,dens,iu,ju)
+        !!$OMP parallel
+        !!$OMP do schedule(dynamic,1) private(dr,di,dens,iu)
         Do it = 1, nact
 
             Call dim1_density(k, it, dr, di)
@@ -637,26 +647,59 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
             Call dim1_density(i, it, dr, di)
             dens = DCMPLX(dr, di)
             v(tij, it, k) = v(tij, it, k) - cint2*dens
+        end do
+        !!$OMP end do
+        isym = multb_s_reverse(j, l)
+        !!$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        do i0 = 1, pattern_tu_count(isym)
+            it = pattern_t(i0, isym)
+            iu = pattern_u(i0, isym)
 
             ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
             !                             ==================
             !                              loop for t and u
 
-            Do iu = 1, it - 1
-                ju = iu + ninact
-                Call dim2_density(i, it, k, iu, dr, di)
-                dens = DCMPLX(dr, di)
-                v(tij, it, iu) = v(tij, it, iu) + cint2*dens
-            End do
+            ! Do iu = 1, it - 1
+            Call dim2_density(i, it, k, iu, dr, di)
+            dens = DCMPLX(dr, di)
+            v(tij, it, iu) = v(tij, it, iu) + cint2*dens
+            ! End do
 
         End do
-        !$OMP end parallel do
+        !!$OMP end do
+        !!$OMP end parallel
     end do
 
-    close (1)
+    close (twoint_unit)
     if (rank == 0) print *, 'vBmat_ord_ty is ended'
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1), nij*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
+contains
+    subroutine create_multb_s_reverse
+        !========================================================================================================
+        ! This subroutine creates multb_s_reverse
+        !
+        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+        !========================================================================================================
+        implicit none
+        integer :: ii, ij
+
+        if (nsymrpa == 1) then
+            multb_s_reverse(:, :) = 1
+        else
+            do ii = 1, ninact
+                do ij = 1, ii - 1
+                    syma = MULTB_D(irpmo(ii) - (-1)**(mod(irpmo(ii), 2)), irpmo(ij))
+                    do isym = 1, nsymrpa
+                        if (MULTB_S(syma, isym) == 1) then
+                            multb_s_reverse(ii, ij) = isym
+                            exit
+                        end if
+                    end do
+                end do
+            end do
+        end if
+    end subroutine create_multb_s_reverse
 end subroutine vBmat_ord_ty

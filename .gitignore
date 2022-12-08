@@ -1,5 +1,6 @@
 # Ignore dotfiles (except .gitignore, .vscode, .editorconfig and .github)
 .*
+!.gitkeep
 !.gitignore
 !.vscode
 !.editorconfig
@@ -40,6 +41,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Ignore user created log files
+/*.log
 
 ## CMake
 CMakeCache.txt

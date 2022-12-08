@@ -21,13 +21,11 @@ MODULE four_caspt2_module
     ! ncore         : The number of core orbitals
     ! nbas          : Basis set
     ! eshift        : Real shift
-    ! ptgrp         : Point group symmetry
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
     integer         :: totsym, ncore, nbas
     real(8)         :: eshift
-    character       :: ptgrp*6
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
     integer         :: ras1_start, ras1_size, ras2_start, ras2_size, ras3_start, ras3_size
@@ -151,6 +149,6 @@ MODULE four_caspt2_module
     integer         :: ierr, nprocs, rank
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
-    integer, parameter :: normal_output = 3000, read_line_max = 1000
+    integer, parameter :: normal_output = 3000, read_line_max = 1000, default_unit = 21
 
 end MODULE four_caspt2_module

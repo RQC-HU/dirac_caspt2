@@ -70,7 +70,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     end if
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
-    tsectmp1 = tsectmp0; 
+    tsectmp1 = tsectmp0
     thresd = 1.0D-08
     thres = 1.0D-08
 
@@ -128,7 +128,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             Do iu = 1, nact
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -149,7 +149,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             Do iu = 1, nact
                 ju = iu + ninact
 
-                syma = MULTB_D(irpmo(jt), irpmo(ju))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -309,10 +309,10 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         Do i0 = 1, nai
             ja = ia0(i0)
             ji = ii0(i0)
-
-            syma = MULTB_D(irpmo(ja), irpmo(ji))
-            syma = MULTB_S(syma, isym)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ja), irpmo(ji))
+                syma = MULTB_S(syma, isym)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn))
@@ -506,6 +506,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -516,10 +517,11 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     real*8                  :: dr, di
     complex*16              :: cint1, cint2, d
     complex*16              :: effh(nsec, ninact)
-    integer :: i, j, k, l, tai, iostat
+    integer :: i, j, k, l, tai, iostat, twoint_unit
     integer :: it, jt, ju, iu, ia, ii, ja, ji
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 
     if (rank == 0) print *, 'Enter vDmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
@@ -527,6 +529,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     tsectmp1 = tsectmp0
     v = 0.0d+00
     effh = 0.0d+00
+    twoint_unit = default_unit
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(tai, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -565,16 +568,13 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    open (1, file=d1int, status='old', form='unformatted')
+
+    call open_unformatted_file(unit=twoint_unit, file=d1int, status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of D1int'
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        call check_iostat(iostat=iostat, file=d1int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading D1int'
         end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -601,7 +601,8 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         End do
         !$OMP end parallel do
     end do
-    close (1)
+    close (twoint_unit)
+
     if (rank == 0) print *, 'reading D1int2 is over'
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -614,16 +615,13 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    open (1, file=d2int, status='old', form='unformatted')
+
+    call open_unformatted_file(unit=twoint_unit, file=d2int, status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of D2int'
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        call check_iostat(iostat=iostat, file=d2int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading D2int'
         end if
 
         ja = i
@@ -642,24 +640,22 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         End do
         !$OMP end parallel do
     end do
+    close (twoint_unit)
 
-    close (1)
-    if (rank == 0) print *, 'reading D2int2 is over'
-    if (rank == 0) print *, 'before d3int'
+    if (rank == 0) then
+        print *, 'reading D2int2 is over'
+        print *, 'before d3int'
+    end if
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    open (1, file=d3int, status='old', form='unformatted') ! (ai|jk) is stored
-    do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
 
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of D3int'
+    call open_unformatted_file(unit=twoint_unit, file=d3int, status='old', optional_action='read') ! (ai|jk) is stored
+    do
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        call check_iostat(iostat=iostat, file=d3int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        else if (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading D3int'
         end if
 
         if (j /= k .and. k == l) then !(ai|kk)
@@ -672,10 +668,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 
         end if
     end do
+    close (twoint_unit)
 
-    close (1)
     if (rank == 0) print *, 'reading D3int2 is over'
-    if (rank == 0) print *, 'end d3int'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0

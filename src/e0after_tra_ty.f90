@@ -6,12 +6,14 @@ SUBROUTINE e0aftertra_ty
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
 
     integer :: ii, jj, kk, ll
     integer :: j, i, k, l
+    integer :: e0after_unit
 
     real*8 :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
@@ -27,9 +29,10 @@ SUBROUTINE e0aftertra_ty
 
     debug = .FALSE.
     thres = 1.0d-15
+    e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then
-        open (5, file='e0after', status='unknown', form='unformatted')
+        call open_unformatted_file(unit=e0after_unit, file='e0after', status='replace', optional_action='write')
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
         print *, 'iroot = ', iroot
@@ -159,7 +162,7 @@ SUBROUTINE e0aftertra_ty
 
                 oneeff = oneeff - cmplxint
 
-300         end do           ! k
+            end do           ! k
 
             Call tramo1_ty(i, j, cmplxint)
 
@@ -240,7 +243,7 @@ SUBROUTINE e0aftertra_ty
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
                         ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
-                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens)
+                        if (iroot == 1 .and. rank == 0) write (e0after_unit) i, j, k, l, DBLE(cmplxint), DBLE(dens)
 
                         energy(iroot, 4) = energy(iroot, 4) &
                                            + (0.5d+00)*dens*cmplxint
@@ -274,7 +277,7 @@ SUBROUTINE e0aftertra_ty
 
                     end if
 
-100             end do        ! l
+                end do        ! l
             end do    ! k
         end do       ! j
     end do          ! i
@@ -318,9 +321,8 @@ SUBROUTINE e0aftertra_ty
 
 !!###   end do ! about type
     if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        close (5)
+        close (e0after_unit)
     end if
-1000 continue
     deallocate (energy)
     print *, 'e0aftertra end'
 End subroutine e0aftertra_ty
@@ -333,6 +335,7 @@ SUBROUTINE e0aftertrac_ty
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
@@ -354,12 +357,7 @@ SUBROUTINE e0aftertrac_ty
 
     debug = .FALSE.
     thres = 1.0d-15
-!        thres = 0.0d+00
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        open (5, file='e0after', status='unknown', form='unformatted')
-!        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
-        print *, 'iroot = ', iroot
-    end if
+    if (rank == 0) print *, 'iroot = ', iroot
 
 !        Do iroot = 1, nroot
 
@@ -375,12 +373,10 @@ SUBROUTINE e0aftertrac_ty
     energyHF(1) = 0.0d+00
 
     do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        ! do i = 1, ninact + nelec
 
         cmplxint = 0.0d+00
 
         Call tramo1_ty(i, i, cmplxint)
-!            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
         energyHF(1) = energyHF(1) + cmplxint
 
     end do
@@ -388,27 +384,6 @@ SUBROUTINE e0aftertrac_ty
     call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
 #endif
     if (rank == 0) print *, 'energyHF(1)', energyHF(1)
-!         do i = 1, ninact
-!
-!            cmplxint = 0.0d+00
-!
-!            Call tramo1_ty ( i, i, cmplxint)
-!            energyHF(1) = energyHF(1) + cmplxint
-!
-!         end do
-!
-!         print *,'energyHF(1)',energyHF(1)
-!
-!         do i = ninact+1, ninact+nelec
-!
-!            cmplxint = 0.0d+00
-!
-!            Call tramo1_ty ( i, i, cmplxint)
-!            energyHF(1) = energyHF(1) + cmplxint
-!
-!         end do
-!
-!         print *,'energyHF(1)',energyHF(1)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF2          !
@@ -422,7 +397,6 @@ SUBROUTINE e0aftertrac_ty
     energyHF(2) = 0.0d+00
 
     do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        ! do i = 1, ninact + nelec
         do j = i, ninact + nelec
 
             Call tramo2_ty(i, i, j, j, cmplxint)
@@ -455,7 +429,6 @@ SUBROUTINE e0aftertrac_ty
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
     do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        ! do i = 1, ninact
 
         Call tramo1_ty(i, i, cmplxint)
 
@@ -473,7 +446,6 @@ SUBROUTINE e0aftertrac_ty
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
     do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        ! do i = 1, ninact
         do j = i, ninact
 
             Call tramo2_ty(i, i, j, j, cmplxint)
@@ -501,31 +473,21 @@ SUBROUTINE e0aftertrac_ty
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
     do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        ! do i = ninact + 1, ninact + nact
         do j = i, ninact + nact
 
             oneeff = 0.0d+00
 
             do k = 1, ninact            ! kk is inactive spinor
-
                 Call tramo2_ty(i, j, k, k, cmplxint)
-
                 oneeff = oneeff + cmplxint
 
                 Call tramo2_ty(i, k, k, j, cmplxint)
-
                 oneeff = oneeff - cmplxint
-
-300         end do           ! k
+            end do           ! k
 
             Call tramo1_ty(i, j, cmplxint)
-
             oneeff = oneeff + cmplxint
-
-!___________________________________________________________!
-            !
-            if (i == j) oneeff = 0.5d+00*oneeff             !
-!___________________________________________________________!
+            if (i == j) oneeff = 0.5d+00*oneeff
 
             if (realcvec) then
 
@@ -541,7 +503,6 @@ SUBROUTINE e0aftertrac_ty
                 Call dim1_density(ii, jj, dr, di)
 
                 dens = CMPLX(dr, di, 16)
-!                  write(*,'(2I4,2E20.10)') i, j,DBLE(oneeff), DBLE(dens)
                 energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
             end if
@@ -561,46 +522,28 @@ SUBROUTINE e0aftertrac_ty
 !"""""""""""""""""""""""""""""
 
     do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        ! do i = ninact + 1, ninact + nact
         do j = ninact + 1, ninact + nact
             do k = ninact + 1, ninact + nact
                 do l = i, ninact + nact
 
-!          if((i < ninact+3).and.(j < ninact+3).and.(k < ninact+3).and.(l < ninact+3)) then
-!             debug = .TRUE. ; print *, i,j,k,l
-!          else
-!             debug = .FALSE.
-!          endif
-
                     Call tramo2_ty(i, j, k, l, cmplxint)
 
                     If (i == l) cmplxint = cmplxint*(0.5d+00)
-
+                    ii = i - ninact
+                    jj = j - ninact
+                    kk = k - ninact
+                    ll = l - ninact
                     if (realcvec) then
-                        ii = i - ninact
-                        jj = j - ninact
-                        kk = k - ninact
-                        ll = l - ninact
 
                         Call dim2_density_R(ii, jj, kk, ll, dr)
 
-                        energy(iroot, 4) = energy(iroot, 4) &
-                                           + (0.5d+00)*dr*cmplxint
+                        energy(iroot, 4) = energy(iroot, 4) + (0.5d+00)*dr*cmplxint
                     else
-                        ii = i - ninact
-                        jj = j - ninact
-                        kk = k - ninact
-                        ll = l - ninact
 
                         Call dim2_density(ii, jj, kk, ll, dr, di)
 
                         dens = CMPLX(dr, di, 16)
-
-!                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
-                        if (iroot == 1 .and. rank == 0) write (5) i, j, k, l, DBLE(cmplxint), DBLE(dens) ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-
-                        energy(iroot, 4) = energy(iroot, 4) &
-                                           + (0.5d+00)*dens*cmplxint
+                        energy(iroot, 4) = energy(iroot, 4) + (0.5d+00)*dens*cmplxint
                     end if
 
                     if (j == k) then
@@ -615,8 +558,7 @@ SUBROUTINE e0aftertrac_ty
 
                             Call dim1_density_R(ii, ll, dr)
 
-                            energy(iroot, 4) = energy(iroot, 4) &
-                                               - (0.5d+00)*dr*cmplxint
+                            energy(iroot, 4) = energy(iroot, 4) - (0.5d+00)*dr*cmplxint
                         else
 
                             ii = i - ninact
@@ -625,22 +567,18 @@ SUBROUTINE e0aftertrac_ty
                             Call dim1_density(ii, ll, dr, di)
 
                             dens = CMPLX(dr, di, 16)
-                            energy(iroot, 4) = energy(iroot, 4) &
-                                               - (0.5d+00)*dens*cmplxint
+                            energy(iroot, 4) = energy(iroot, 4) - (0.5d+00)*dens*cmplxint
                         end if
 
                     end if
 
-100             end do        ! l
+                end do        ! l
             end do    ! k
         end do       ! j
     end do          ! i
 
     energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
 
-!         if(ABS(eigen(iroot)-ecore &
-!         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
-!          > 1.0d-5 ) then
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
     call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -666,15 +604,6 @@ SUBROUTINE e0aftertrac_ty
             eigen(iroot) - ecore &
             - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
-! Iwamuro modify
-        print *, 'Iwamuro modify'
-
-!         else
-!            print *,'C the error ', &
-!            eigen(iroot)-ecore &
-!            -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
-!         end if
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !      end do                    ! iroot = 1, nroot
@@ -684,13 +613,6 @@ SUBROUTINE e0aftertrac_ty
         print *, 'CAUTION! HF energy may not be obtained correctly '
         print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
     end if
-!!###   end do ! about type
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        close (5)
-    end if
-1000 continue
     deallocate (energy)
-!      print *,'e0aftertrac end'
-! Iwamuro modify
     if (rank == 0) print *, 'e0aftertrac_ty end'
 End subroutine e0aftertrac_ty

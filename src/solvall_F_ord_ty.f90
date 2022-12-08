@@ -119,7 +119,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
 
-                syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -140,7 +140,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
 
-                syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -300,10 +300,10 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
             jb = ib0(i0)
 
 !     EatEbu|0>
-
-            syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
-            syma = MULTB_S(syma, isym)
-
+            if (nsymrpa /= 1) then
+                syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                syma = MULTB_S(syma, isym)
+            end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
 
                 Allocate (vc(dimn))
@@ -511,6 +511,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -524,58 +525,85 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
 
-    integer :: i, j, k, l, tab, ip, iq
-    integer :: it, jt, ju, iu, iostat
+    integer :: i, j, k, l, tab, i0
+    integer :: it, jt, iu, ju, iostat, twoint_unit, isym, syma
+    integer :: multb_s_reverse(nsec, nsec), pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
+    logical :: is_end_of_file
 
     if (rank == 0) print *, 'Enter vFmat. Please ignore timer under this line.'
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
-    v = 0.0d+00
 
+    ! Initialization
+    v = 0.0d+00
+    multb_s_reverse(:, :) = 0
+    call create_multb_s_reverse
+
+    ! Save t,u patterns for each isym
+    pattern_t(:, :) = 0
+    pattern_u(:, :) = 0
+    pattern_tu_count(:) = 0
+    do isym = 1, nsymrpa
+        Do it = 1, nact
+            jt = it + ninact
+            Do iu = 1, it - 1
+                ju = iu + ninact
+
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+
+                if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                    pattern_tu_count(isym) = pattern_tu_count(isym) + 1
+                    pattern_t(pattern_tu_count(isym), isym) = it
+                    pattern_u(pattern_tu_count(isym), isym) = iu
+                End if
+            End do
+        End do
+    end do
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
-    open (1, file=fint, status='old', form='unformatted')  !  (32|32) stored  a > b
+    call open_unformatted_file(unit=twoint_unit, file=fint, status='old', optional_action='read')  !  (32|32) stored  a > b
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of Eint'
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=fint, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading Eint'
         end if
         if (i <= k) cycle ! Read the next line if i is less than or equal to k
 
         tab = iab(i, k)
-        ! ip = j - ninact
-        ! iq = l - ninact
 
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 !                                <0|EtjEul|0>(ij|kl)                             (ij|kl)
 !
 !                             p=j, q=l loop for t and u             u=j, p=l loop for t
 !
-        !$OMP parallel do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        !$OMP parallel
+        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
         Do it = 1, nact
-            Do iu = 1, it - 1
-                Call dim2_density(it, j, iu, l, dr, di)
-                dens = DCMPLX(dr, di)
-                v(tab, it, iu) = v(tab, it, iu) + cint2*dens
-            End do  ! iu
-
             Call dim1_density(it, l, dr, di)
             dens = DCMPLX(dr, di)
             v(tab, it, j) = v(tab, it, j) - cint2*dens
+        End do
+        !$OMP end do
 
-        End do                  ! ip
-        !$OMP end parallel do
+        isym = multb_s_reverse(i, k)
+        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        do i0 = 1, pattern_tu_count(isym)
+            it = pattern_t(i0, isym)
+            iu = pattern_u(i0, isym)
+
+            Call dim2_density(it, j, iu, l, dr, di)
+            dens = DCMPLX(dr, di)
+            v(tab, it, iu) = v(tab, it, iu) + cint2*dens
+        end do
+        !$OMP end do
+        !$OMP end parallel
+
     end do
-
-    close (1)
+    close (twoint_unit)
 
     if (rank == 0) print *, 'vFmat_ord is ended'
 
@@ -586,4 +614,32 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
+contains
+    subroutine create_multb_s_reverse
+        !========================================================================================================
+        ! This subroutine creates multb_s_reverse
+        !
+        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+        !========================================================================================================
+        implicit none
+        integer :: ia, ib, ja, jb
+
+        if (nsymrpa == 1) then
+            multb_s_reverse(:, :) = 1
+        else
+            do ia = 1, nsec
+                ja = ia + ninact + nact
+                do ib = 1, ia - 1
+                    jb = ib + ninact + nact
+                    syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                    do isym = 1, nsymrpa
+                        if (MULTB_S(syma, isym) == 1) then
+                            multb_s_reverse(ia, ib) = isym
+                            exit
+                        end if
+                    end do
+                end do
+            end do
+        end if
+    end subroutine create_multb_s_reverse
 end subroutine vFmat_ord

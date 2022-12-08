@@ -108,10 +108,11 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
-                    syma = MULTB_D(irpmo(jx), isym)
-                    symb = MULTB_D(irpmo(jy), irpmo(jz))
-                    syma = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(jx), isym)
+                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_S(syma, symb)
+                    end if
                     ! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
@@ -136,11 +137,12 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
                     jx = ix + ninact
                     jy = iy + ninact
                     jz = iz + ninact
-                    syma = MULTB_D(irpmo(jx), isym)
-                    symb = MULTB_D(irpmo(jy), irpmo(jz))
-                    syma = MULTB_S(syma, symb)
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(jx), isym)
+                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_S(syma, symb)
+                    end if
 
-                    ! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                         ixyz = ixyz + 1
                         indsym(1, ixyz) = ix
@@ -543,6 +545,7 @@ SUBROUTINE vAmat_ord_ty(v)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -553,11 +556,12 @@ SUBROUTINE vAmat_ord_ty(v)
     real*8                  :: dr, di
     complex*16              :: cint2, d, dens1(nact, nact), effh(nact, ninact)
     complex*16              :: cint1
+    logical                 :: is_end_of_file
 
     integer :: it, iu, iv, ii, ip
     integer :: jt, ju, jv, ji, jp
     integer :: i, j, k, l, dim(nsymrpa)
-    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat
+    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, twoint_unit
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer, allocatable :: ind2u(:, :), ind2v(:, :)
     integer :: datetmp0, datetmp1
@@ -590,6 +594,7 @@ SUBROUTINE vAmat_ord_ty(v)
     dens1 = 0.0d+00
     effh = 0.0d+00
     dim = 0
+    twoint_unit = default_unit
 
     Allocate (indt(nact**3, nsymrpa)); Call memplus(KIND(indt), SIZE(indt), 1)
     Allocate (indu(nact**3, nsymrpa)); Call memplus(KIND(indu), SIZE(indu), 1)
@@ -608,10 +613,11 @@ SUBROUTINE vAmat_ord_ty(v)
                     ju = iu + ninact
 
 ! EtiEuv
-                    syma = MULTB_D(irpmo(jt), isym)
-                    symb = MULTB_D(irpmo(ju), irpmo(jv))
-                    symc = MULTB_S(syma, symb)
-
+                    if (nsymrpa /= 1) then
+                        syma = MULTB_D(irpmo(jt), isym)
+                        symb = MULTB_D(irpmo(ju), irpmo(jv))
+                        symc = MULTB_S(syma, symb)
+                    end if
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. symc == 1)) then
                         dim(isym) = dim(isym) + 1
                         indt(dim(isym), isym) = it
@@ -638,8 +644,7 @@ SUBROUTINE vAmat_ord_ty(v)
             Do iv = 1, nact
                 jv = iv + ninact
 
-                syma = MULTB_D(irpmo(jv), irpmo(ju))
-
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jv), irpmo(ju))
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dim2(isym) = dim2(isym) + 1
                     ind2u(dim2(isym), isym) = iu
@@ -673,17 +678,13 @@ SUBROUTINE vAmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=a1int, status='old', form='unformatted')
+    call open_unformatted_file(unit=twoint_unit, file=a1int, status='old', optional_action='read')
     if (rank == 0) print *, 'open A1int'
     do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if iostat is less than 0
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of A1int'
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        call check_iostat(iostat=iostat, file=a1int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading A1int'
         end if
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -728,23 +729,18 @@ SUBROUTINE vAmat_ord_ty(v)
 
     end do
 
-    close (1)
+    close (twoint_unit)
 
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    open (1, file=a2int, status='old', form='unformatted') ! TYPE 2 integrals
-
+    call open_unformatted_file(unit=twoint_unit, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
     do
-        read (1, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
-        ! Exit the loop if iostat is less than 0
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of A2int'
+        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        call check_iostat(iostat=iostat, file=a2int, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            stop 'Error: Error in reading A2int'
         end if
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  effh(p,i) = h(pi)+ SIGUMA_k:inact{(pi|kk)-(pk|ki)}
@@ -762,7 +758,7 @@ SUBROUTINE vAmat_ord_ty(v)
         end if
     end do
 
-    close (1)
+    close (twoint_unit)
     if (rank == 0) print *, 'reading A2int2 is over'
 
 #ifdef HAVE_MPI

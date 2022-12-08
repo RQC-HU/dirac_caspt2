@@ -6,6 +6,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
@@ -14,8 +15,10 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 #endif
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
+    logical :: is_end_of_file
 
-    integer, allocatable :: indsym(:, :, :), nsym(:, :)
+    integer                 :: unit
+    integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
     real*8                  :: thresd
@@ -26,7 +29,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo
 
     thresd = 1.0d-15
-
+    unit = default_unit
     ini(1) = 1
     end(1) = ninact
     ini(2) = ninact + 1
@@ -73,17 +76,12 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')  ! no symmetry about spi,spj,spk,spl
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(l)
@@ -100,10 +98,8 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             l1 = indsym(spl, isym, lnew)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
-
     end do
-
-    close (1)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -115,9 +111,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
 
     traint2 = 0.0d+00
 
@@ -126,17 +122,12 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(k)
 
@@ -144,9 +135,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             k1 = indsym(spk, isym, knew)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
-
     end do
-    close (1)
+    close (unit)
+
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -157,10 +148,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -168,17 +158,12 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the third index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(j)
 
@@ -186,10 +171,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             j1 = indsym(spj, isym, jnew)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -200,10 +184,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -211,17 +194,12 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the fourth index integral transformation  '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(i)
 
@@ -229,9 +207,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             i1 = indsym(spi, isym, inew)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
-
     end do
-    close (1)
+    close (unit)
+
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -242,10 +220,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -261,6 +238,8 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
@@ -269,8 +248,10 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 #endif
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
+    logical :: is_end_of_file
 
-    integer, allocatable :: indsym(:, :, :), nsym(:, :)
+    integer                 :: unit = 20
+    integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
     real*8                  :: thresd
@@ -282,10 +263,11 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
 
     thresd = 1.0d-15
+    unit = default_unit
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
-        stop
+        call stop_with_errorcode(1)
     end if
 
     ini(1) = 1
@@ -331,17 +313,12 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
         isym = irpmo(l)
 
@@ -397,10 +374,8 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             l1 = indsym(spl, isym, lnew)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
-
     end do
-
-    close (1)
+    close (unit)
 
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
@@ -412,10 +387,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -423,18 +397,13 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
 
-        read (1, iostat=iostat) i, j, k, l, cint2
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(k)
@@ -444,8 +413,8 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -456,10 +425,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -467,17 +435,12 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the third index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(j)
@@ -486,10 +449,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             j1 = indsym(spj, isym, jnew)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -500,10 +462,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -511,18 +472,12 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the fourth index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpmo(i)
@@ -531,10 +486,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             i1 = indsym(spi, isym, inew)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -545,10 +499,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
@@ -563,6 +516,8 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
+    use module_file_manager
     use four_caspt2_module
 
     Implicit NONE
@@ -571,12 +526,14 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 #endif
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
+    logical :: is_end_of_file
 
+    integer                 :: unit = 20
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
     real*8                  :: thresd
-    complex*16              :: cint2
+    complex*16              :: cint2, initial_cint2
 
     integer :: i, j, k, l
     integer :: initial_i, initial_j, initial_k, initial_l
@@ -585,10 +542,11 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
     thresd = 1.0d-15
+    unit = default_unit
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl
-        stop
+        call stop_with_errorcode(1)
     end if
     ini(1) = 1
     end(1) = ninact
@@ -636,25 +594,20 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the first index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
-        ! save initial indices i,j,k,l to initial_i,initial_j,initial_k,initial_l, respectively.
+        ! save initial indices i,j,k,l,cint2 to initial_i,initial_j,initial_k,initial_l,initial_cint2 respectively.
         initial_i = i
         initial_j = j
         initial_k = k
         initial_l = l
+        initial_cint2 = cint2
 
         isym = irpamo(l)
 
@@ -681,7 +634,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
         if (mod(initial_k, 2) == 1) l = initial_k + 1
         if (mod(initial_l, 2) == 0) k = initial_l - 1
         if (mod(initial_l, 2) == 1) k = initial_l + 1
-        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*cint2
+        cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*initial_cint2
         isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
@@ -696,10 +649,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             l1 = indsym(spl, isym, lnew)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -710,10 +662,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -721,18 +672,12 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the second index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpamo(k)
@@ -741,10 +686,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             k1 = indsym(spk, isym, knew)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -754,10 +698,10 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 ! Storing integrals to disk
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
 
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -765,18 +709,12 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of third index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpamo(j)
@@ -785,10 +723,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             j1 = indsym(spj, isym, jnew)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -799,10 +736,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
-
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -810,18 +746,12 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='old', form='unformatted')
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
     do
-        read (1, iostat=iostat) i, j, k, l, cint2
-
-        ! Exit the loop if the end of the file is reached
-        if (iostat < 0) then
-            if (rank == 0) print *, 'End of the fourth index integral transformation '//trim(fname)
+        read (unit, iostat=iostat) i, j, k, l, cint2
+        call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) then
             exit
-        elseif (iostat > 0) then
-            ! If iostat is greater than 0, error detected in the input file, so exit the program
-            print *, "Error : Error in reading file ", trim(fname)
-            stop
         end if
 
         isym = irpamo(i)
@@ -830,10 +760,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             i1 = indsym(spi, isym, inew)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
-
     end do
+    close (unit)
 
-    close (1)
 #ifdef HAVE_MPI
     call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
                        MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
@@ -844,9 +773,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    open (1, file=trim(fname), status='replace', form='unformatted')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd)
-    close (1)
+    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
+    close (unit)
 
     if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
@@ -855,7 +784,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
 end subroutine intra_3
 
-subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
+subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit)
     !==============================================================================================
     ! This is a writing subroutine for two-electron integrals
     ! after the fourth integral transformation.
@@ -869,7 +798,7 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
     use four_caspt2_module, only: nprocs, rank
     implicit none
     integer                 :: n_cnt, i, j, k, l
-    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le
+    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit
     real(8)                 :: thresd
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
     integer                 :: i_tra, j_tra, k_tra, l_tra
@@ -902,7 +831,7 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
                     !===================================================================================================
                     if (ABS(traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)) > thresd) then
                         if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
-                            write (1) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)
+                            write (unit) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)
                         end if
                         n_cnt = n_cnt + 1
                     end if
@@ -940,11 +869,11 @@ contains
     end subroutine where_subspace_is
 end subroutine write_traint2_to_disk_fourth
 
-subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd)
+subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit)
     use four_caspt2_module, only: nprocs, rank
     implicit none
     integer                 :: n_cnt, i, j, k, l
-    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le
+    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit
     real(8)                 :: thresd
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
     ! 4重ループを1重ループに変換する方法
@@ -965,7 +894,7 @@ subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd
                 Do i = ii, ie
                     if (ABS(traint2(i, j, k, l)) > thresd) then
                         if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
-                            write (1) i, j, k, l, traint2(i, j, k, l)
+                            write (unit) i, j, k, l, traint2(i, j, k, l)
                         end if
                         ! if traint2(i,j,k,l)>thresd, all MPI process need to count up n_cnt!!!
                         n_cnt = n_cnt + 1

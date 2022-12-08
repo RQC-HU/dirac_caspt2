@@ -1,2 +1,4 @@
 *_exe
-*out*
+*.out
+*.log
+test_command.txt

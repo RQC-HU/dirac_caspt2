@@ -29,18 +29,14 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     Do i0 = 1, ndet
         i = 0
         ok = 0
-        Do j0 = 0, 31
-            if (btest(idet(i0), j0)) then
+        Do j0 = 0, 63 ! 64 bits integer are possible with 64 spinors
+            if (btest(idet(i0), j0)) then ! This condition should be true nelec times
                 i = i + 1
-                Do ii = 1, nact
-                    if (ii == j0 + 1) then  ! j0+1 means occupied spinor labeled by casci
-                        occ(i, i0) = ii         ! This is energetic order inside active spinor!
-                        ok = ok + 1
-                        goto 200
-                    End if
-                End do
-
-200         end if
+                if (j0 + 1 <= nact) then ! j0+1 means occupied spinor labeled by casci
+                    occ(i, i0) = j0 + 1  ! This is energetic order inside active spinor!
+                    ok = ok + 1
+                End if
+            end if
         End do
     End do
 
@@ -203,6 +199,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -211,7 +208,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
     integer :: i0, j0, i, info
-    integer :: ii, ok
+    integer :: ok, newcicoeff_unit
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
@@ -251,7 +248,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! Noda ndet^2で回っているので遅くなりそう
     Do i0 = 1, ndet     ! k  (old)
         Do j0 = 1, ndet  ! k~ (new)   <k|k~>
 
@@ -264,107 +260,34 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    if (rank == 0) print *, 'Obtain inverse of ds matrix'
+    ! if (rank == 0) print *, 'Obtain inverse of ds matrix'
     Allocate (IPIV(ndet))
-    Allocate (dsold(ndet, ndet))
-
-    dsold = ds
-    if (rank == 0) print *, 'Start get LU factorization of ds'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    ! Noda Attention :: 逆行列の計算の計算量 (n*n行列の場合)
-    ! LU分解+前進後退代入による逆行列の計算        n^3+n-1n3+n−1
-    ! ZGETRFはある行列に対してLU分解を与える
-    ! ZGETRIはLU分解したものを使って逆行列を計算する
-    ! つまりZGETRF+ZGETRIの計算量はO(n^3)でcdiagと同等の計算量が必要
-    Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
-    if (rank == 0) print *, 'info', info
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
-    if (rank == 0) print *, 'End get LU factorization of ds'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    Allocate (work(ndet))
-    if (rank == 0) print *, 'Start get a inverse matrix of ds'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
-    if (rank == 0) print *, 'info', info
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
-    if (rank == 0) print *, 'End get a inverse matrix of ds, ndet', ndet
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    Deallocate (work)
-    Deallocate (IPIV)
-#ifdef DEBUG
-    if (rank == 0) print *, 'Check whether inverese matrix is really so'
-    error = .FALSE.
-
-    ! Noda ndet^2で回っているので遅くなりそう
-    ! dsold=AA^(-1)?
-    ! AA^(-1)=E => if(i0/=j0)dsold(i0,j0)=0,else dsold(i0,j0)=1.0 ??
-    ! Matmulは一般にO(N^3)の計算量なので行列の積をとるだけの操作にO(N^3)かかっている
-    dsold = MATMUL(ds, dsold)
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
-    if (rank == 0) print *, 'End dsold = matmul(ds, dsold) so dsold should be a identity matrix.'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    !    do i0 = 1, ndet
-    !        dsold(i0, i0) = dsold(i0, i0) - 1.0d+00
-    !    end do
-    !    if (maxval(abs(real(dsold))) > 1.0d-10) then
-    !        if (rank == 0) then
-    !            print '(E13.5)', maxval(abs(real(dsold)))
-    !        end if
-    !    end if
-    Do i0 = 1, ndet
-        Do j0 = 1, ndet
-
-            If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
-                error = .TRUE.
-                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
-            Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
-                error = .TRUE.
-                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
-            End if
-
-        End do
-    End do
-
-    if (rank == 0) print *, 'Inverse matrix is obtained correclty'
-#endif
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    Deallocate (dsold)
-
-!        Now ds is inverse matrix!
-
     Allocate (ci(ndet))
-
-    ci = 0.0d+00
     ci = DCMPLX(cir(1:ndet, selectroot), cii(1:ndet, selectroot))
-    ci = MATMUL(ds, ci)
+
+    ! We want to create a ci vector rotated by ds^(-1) matrix
+    ! rotated_ci = ds^(-1) * ci
+    ! Therefore we need to solve ds * rotated_ci = ci, so we can get rotated_ci by simply calling zgesv.
+    if (rank == 0) print *, 'directly call zgesv'
+    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+    datetmp1 = datetmp0
+    tsectmp1 = tsectmp0
+    Call zgesv(ndet, 1, ds, ndet, IPIV, ci, ndet, info) ! ds is overwritten by its LU decomposition, ci is overwritten by rotated_ci
+    if (rank == 0) print *, 'info', info
+    Deallocate (IPIV)
+    if (rank == 0) print *, 'End zgesv', rank
+    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+    datetmp1 = datetmp0
+    tsectmp1 = tsectmp0
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        open (5, file='NEWCICOEFF', status='unknown', form='unformatted')
-        write (5) ci(1:ndet)
-        close (5)
+        call open_unformatted_file(unit=newcicoeff_unit, file="NEWCICOEFF", status='replace', optional_action='write')
+        write (newcicoeff_unit) ci(1:ndet)
+        close (newcicoeff_unit)
     end if
 
     Deallocate (ci)
-
     Deallocate (ds)
 
 End subroutine tracic

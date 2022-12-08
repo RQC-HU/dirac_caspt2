@@ -7,13 +7,14 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager
     use read_input_module
 
     Implicit NONE
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: i0, nuniq, inisym, endsym
+    integer                 :: i0, nuniq, inisym, endsym, eps_unit = default_unit, input_unit = default_unit
     logical                 :: test
     character*50            :: filename
 
@@ -58,7 +59,10 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
         print *, inittime
     end if
-    call read_input
+
+    call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
+    call read_input(input_unit)
+    close (input_unit)
 
     if (rank == 0) then
         print *, 'ninact        =', ninact
@@ -71,7 +75,6 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'ncore         =', ncore
         print *, 'nbas          =', nbas
         print *, 'eshift        =', eshift
-        print *, 'ptgrp         =', ptgrp
         print *, 'dirac_version =', dirac_version
         if (is_ras1_configured) print *, "RAS1 =", ras1_list
         if (is_ras2_configured) print *, "RAS2 =", ras2_list
@@ -203,10 +206,10 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        open (5, file='EPS', form='unformatted', status='unknown')
-        write (5) nmo
-        write (5) eps(1:nmo)
-        close (5)
+        call open_unformatted_file(unit=eps_unit, file="EPS", status="replace", optional_action="write")
+        write (eps_unit) nmo
+        write (eps_unit) eps(1:nmo)
+        close (eps_unit)
     end if
     ! end if
 

@@ -1,0 +1,1929 @@
+initialization of mpi, rank :       0 nprocs :       1
+ 
+  ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19
+ 
+Current Memory is       0.00MB
+ Year =                   2022 Mon =                      9 Date = 
+                     7
+ Hour =                      5 Min =                     24 Sec = 
+                    21 .                   916
+   19461.9160000000     
+ ninact        =                     6
+ nact          =                     8
+ nsec          =                    40
+ nelec         =                     4
+ nroot         =                     1
+ selectroot    =                     1
+ totsym        =                     2
+ ncore         =                     0
+ nbas          =                    54
+ eshift        =  0.000000000000000E+000
+ ptgrp         =C1    
+ dirac_version =                    22
+ NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
+                    54 F   25.8634067154006                          1
+  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars
+                     2   1A            2A          
+                     1    A   a
+ MULTB
+  2  1
+  1  2
+ MULTB2
+  2  1
+  1  2
+ end multb1,2
+ MULTB_S
+  1
+ MULTB_D
+  1
+ moint1 is closed.
+ If pgsym=c1, this route goes through.
+ MULTB_SD
+  1
+ MULTB_DS
+  1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ orb sort end
+ i0,orb(i0),sort_orb(i0)
+                     1  -11.0068200437985       -11.0068200437985     
+                     2  -11.0068200437985       -11.0068200437985     
+                     3  -1.19193618468519       -1.19193618468519     
+                     4  -1.19193618468519       -1.19193618468519     
+                     5 -0.723475057164008      -0.723475057164008     
+                     6 -0.723475057164008      -0.723475057164008     
+                     7 -0.720393306268582      -0.720393306268582     
+                     8 -0.720393306268582      -0.720393306268582     
+                     9 -0.717355807879845      -0.717355807879845     
+                    10 -0.717355807879845      -0.717355807879845     
+                    11  0.304685545613299       0.304685545613299     
+                    12  0.304685545613299       0.304685545613299     
+                    13  0.418675232542878       0.418675232542878     
+                    14  0.418675232542878       0.418675232542878     
+                    15  0.419538465756506       0.419538465756506     
+                    16  0.419538465756506       0.419538465756506     
+                    17  0.420392972654535       0.420392972654535     
+                    18  0.420392972654535       0.420392972654535     
+                    19  0.812061586336921       0.812061586336921     
+                    20  0.812061586336921       0.812061586336921     
+                    21  0.813393827410128       0.813393827410128     
+                    22  0.813393827410128       0.813393827410128     
+                    23  0.814726107447037       0.814726107447037     
+                    24  0.814726107447037       0.814726107447037     
+                    25   1.39006553077264        1.39006553077264     
+                    26   1.39006553077264        1.39006553077264     
+                    27   1.58722726635587        1.58722726635587     
+                    28   1.58722726635587        1.58722726635587     
+                    29   1.58876006855949        1.58876006855949     
+                    30   1.58876006855949        1.58876006855949     
+                    31   1.59025090132579        1.59025090132579     
+                    32   1.59025090132579        1.59025090132579     
+                    33   2.28556249003735        2.28556249003735     
+                    34   2.28556249003735        2.28556249003735     
+                    35   4.46018615899736        4.46018615899736     
+                    36   4.46018615899736        4.46018615899736     
+                    37   4.46799104504372        4.46799104504372     
+                    38   4.46799104504372        4.46799104504372     
+                    39   4.47597910816957        4.47597910816957     
+                    40   4.47597910816957        4.47597910816957     
+                    41   5.91814855326803        5.91814855326803     
+                    42   5.91814855326803        5.91814855326803     
+                    43   6.04194156113187        6.04194156113187     
+                    44   6.04194156113187        6.04194156113187     
+                    45   6.05036109407112        6.05036109407112     
+                    46   6.05036109407112        6.05036109407112     
+                    47   6.05935812561232        6.05935812561232     
+                    48   6.05935812561232        6.05935812561232     
+                    49   7.58641705941349        7.58641705941349     
+                    50   7.58641705941349        7.58641705941349     
+                    51   23.7496301965574        23.7496301965574     
+                    52   23.7496301965574        23.7496301965574     
+                    53   107.065337123423        107.065337123423     
+                    54   107.065337123423        107.065337123423     
+indmor output   1   1   1
+indmor output   3  28   2
+indmor output   5   2   3
+indmor output   7  29   4
+indmor output   9   3   5
+indmor output  11  30   6
+indmor output  13   4   7
+indmor output  15  31   8
+indmor output  17   5   9
+indmor output  19  32  10
+indmor output  21   6  11
+indmor output  23  33  12
+indmor output  25   7  13
+indmor output  27  34  14
+indmor output  29   8  15
+indmor output  31  35  16
+indmor output  33   9  17
+indmor output  35  36  18
+indmor output  37  10  19
+indmor output  39  37  20
+indmor output  41  11  21
+indmor output  43  38  22
+indmor output  45  12  23
+indmor output  47  39  24
+indmor output  49  13  25
+indmor output  51  40  26
+indmor output  53  14  27
+indmor output   2  41  28
+indmor output   4  15  29
+indmor output   6  42  30
+indmor output   8  16  31
+indmor output  10  43  32
+indmor output  12  17  33
+indmor output  14  44  34
+indmor output  16  18  35
+indmor output  18  45  36
+indmor output  20  19  37
+indmor output  22  46  38
+indmor output  24  20  39
+indmor output  26  47  40
+indmor output  28  21  41
+indmor output  30  48  42
+indmor output  32  22  43
+indmor output  34  49  44
+indmor output  36  23  45
+indmor output  38  50  46
+indmor output  40  24  47
+indmor output  42  51  48
+indmor output  44  25  49
+indmor output  46  52  50
+indmor output  48  26  51
+indmor output  50  53  52
+indmor output  52  27  53
+indmor output  54  54  54
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ inactive
+   1   1     -0.1100682004E+02     1
+   2  28     -0.1100682004E+02     1
+   3   2     -0.1191936185E+01     1
+   4  29     -0.1191936185E+01     1
+   5   3     -0.7234750572E+00     1
+   6  30     -0.7234750572E+00     1
+ active
+   7   4     -0.7203933063E+00     1
+   8  31     -0.7203933063E+00     1
+   9   5     -0.7173558079E+00     1
+  10  32     -0.7173558079E+00     1
+  11   6      0.3046855456E+00     1
+  12  33      0.3046855456E+00     1
+  13   7      0.4186752325E+00     1
+  14  34      0.4186752325E+00     1
+ secondary
+  15   8      0.4195384658E+00     1
+  16  35      0.4195384658E+00     1
+  17   9      0.4203929727E+00     1
+  18  36      0.4203929727E+00     1
+  19  10      0.8120615863E+00     1
+  20  37      0.8120615863E+00     1
+  21  11      0.8133938274E+00     1
+  22  38      0.8133938274E+00     1
+  23  12      0.8147261074E+00     1
+  24  39      0.8147261074E+00     1
+  25  13      0.1390065531E+01     1
+  26  40      0.1390065531E+01     1
+  27  14      0.1587227266E+01     1
+  28  41      0.1587227266E+01     1
+  29  15      0.1588760069E+01     1
+  30  42      0.1588760069E+01     1
+  31  16      0.1590250901E+01     1
+  32  43      0.1590250901E+01     1
+  33  17      0.2285562490E+01     1
+  34  44      0.2285562490E+01     1
+  35  18      0.4460186159E+01     1
+  36  45      0.4460186159E+01     1
+  37  19      0.4467991045E+01     1
+  38  46      0.4467991045E+01     1
+  39  20      0.4475979108E+01     1
+  40  47      0.4475979108E+01     1
+  41  21      0.5918148553E+01     1
+  42  48      0.5918148553E+01     1
+  43  22      0.6041941561E+01     1
+  44  49      0.6041941561E+01     1
+  45  23      0.6050361094E+01     1
+  46  50      0.6050361094E+01     1
+  47  24      0.6059358126E+01     1
+  48  51      0.6059358126E+01     1
+  49  25      0.7586417059E+01     1
+  50  52      0.7586417059E+01     1
+  51  26      0.2374963020E+02     1
+  52  53      0.2374963020E+02     1
+  53  27      0.1070653371E+03     1
+  54  54      0.1070653371E+03     1
+ Enter read1mo_co
+ T realc
+ realc T   25.8634067154006                          6                     8
+                    40                    54
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  21.919sec  
+computational time =   7day  5h  24min 21.919sec
+ datex broadcast
+ if ierr == 0, datex broadcast successed. ierr=                     0
+ timex broadcast
+ if ierr == 0, timex broadcast successed. ierr=                     0
+ nkr broadcast
+ if ierr == 0, nkr broadcast successed. ierr=                     0
+ kr broadcast
+ if ierr == 0, kr broadcast successed. ierr=                     0
+ datex broadcast
+ if ierr == 0, datex broadcast successed. ierr=                     0
+ get filename : MDCINT MDCINTNEW MDCINT_debug MDCINT_int
+ get filename : MDCINT MDCINTNEW MDCINT_debug MDCINT_int
+                     0                     0                     0 
+ MDCINT_debug                                      
+ get filename : MDCINXXXX1 MDCINTNEW MDCINT_debug MDCINT_int
+                     0                     0                     0 
+ MDCINT_debug                                      
+ get filename : MDCINXXXX2 MDCINTNEW MDCINT_debug MDCINT_int
+                     0                     0                     0 
+ MDCINT_debug                                      
+ get filename : MDCINXXXX3 MDCINTNEW MDCINT_debug MDCINT_int
+                     0                     0                     0 
+ MDCINT_debug                                      
+ get filename : MDCINXXXX4 MDCINTNEW MDCINT_debug MDCINT_int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.492sec  
+computational time =   0day  0h   0min  1.573sec
+ end create_binmdcint.
+Before readint2_casci_co
+ Enter readint2_casci_co
+Current Memory is      99.22MB
+  20220907 05:16:56
+ readint2nkr                    27 kr(+),kr(-)                     1
+                    28                     2                    29
+                     3                    30                     4
+                    31                     5                    32
+                     6                    33                     7
+                    34                     8                    35
+                     9                    36                    10
+                    37                    11                    38
+                    12                    39                    13
+                    40                    14                    41
+                    15                    42                    16
+                    43                    17                    44
+                    18                    45                    19
+                    46                    20                    47
+                    21                    48                    22
+                    49                    23                    50
+                    24                    51                    25
+                    52                    26                    53
+                    27                    54
+ END OF FILE: MDCINTNEW
+ end Read mdcint normal
+                  2111                514534
+ End MPI_Allreduce inttwr, inttwi, int2r_f1, int2i_f1, int2r_f2, int2i_f2
+ nmo        =                    54
+ iwamuro modify
+Current Memory is      10.20MB
+  
+ *******************************
+  
+ IREP IS a   
+  
+ *******************************
+  
+ ndet                    70
+ Enter casdet_ty
+ allow  =                     70
+ totsym =                      2
+ ndet   =                     70
+ before allocate mat(ndet,ndet)
+Current Memory is      10.21MB
+ kind of complex16 array named mat is                      8
+ expected used memory after allocate mat is    10.2802200317383      MB
+ end allocate mat(ndet,ndet)
+ Cas mat enter
+ allocated oc and vi
+ end casmat
+ Reduce mat(:,:)
+ end allreduce mat(:,:)
+ before allocate ecas(ndet)
+ allocate ecas(ndet)
+ Start mat cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.680sec  
+computational time =   0day  0h   0min  0.188sec
+ ndet before cdiag                    70
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ End mat cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.700sec  
+computational time =   0day  0h   0min  0.020sec
+ debug1
+ debug2
+ debug3
+ debug4
+CASCI ENERGY FOR  2 STATE
+   1           -37.460541313037439
+Root =    1
+ T T T T F F F F
+   1    0.9999450E+00    0.6777583E-15 Weights  0.9998899E+00
+ F realc
+ F realcvec
+ F realc
+ F realcvec
+ FOR TEST WE DO (F,F)
+ F realc
+ F realcvec
+ enter e0test
+ energy 1 = (-70.8028120498445,0.000000000000000E+000)
+ energy 2 = (14.1848638777701,0.000000000000000E+000)
+ energy 3 = (-10.5357011890656,0.000000000000000E+000)
+ energy 4 = (3.82970133270207,-5.313946559639069E-017)
+                     1 t-energy(1-4) (-63.3239480284380,-5.313946559639069E-017)
+                     1 t-energy  -63.3239480284380     
+ C the error  (-2.220446049250313E-014,5.313946559639069E-017)
+ energy HF  = (-37.4603369267068,0.000000000000000E+000)
+ e0test end
+Current Memory is      10.21MB
+ fockhf1_ty start
+  
+ FOR TEST, FOCK MATRIX OF HF STATE IS CALCULATED 
+  
+ OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 
+  
+   5  13    0.1269833741E-05    0.5089917788E-08
+   6  14    0.1269833741E-05   -0.5089917788E-08
+  27  43    0.1141423836E-05    0.2735254835E-08
+  28  44    0.1141423836E-05   -0.2735254835E-08
+  29  45    0.7366656224E-06    0.8458263574E-06
+  30  46    0.7366656224E-06   -0.8458263574E-06
+  31  47    0.1133816608E-05   -0.3015388758E-08
+  32  48    0.1133816608E-05    0.3015388758E-08
+  33  49    0.1180003108E-05   -0.2455689985E-12
+  34  50    0.1180003108E-05    0.2455689985E-12
+  
+ THESE DIAGONAL ELEMENTS SHOULD BE CORESPOND TO HF SPINOR ENERGY 
+  
+   NO.   Spinor Energy(Re)   Spinor Energy(Im) Spinor Energy (HF)        ERROR
+   1   -0.1100682707E+02   -0.1825517345E-16   -0.1100682004E+02    0.7027786353E-05
+   2   -0.1100682707E+02    0.1520586063E-16   -0.1100682004E+02    0.7027786355E-05
+   3   -0.1191939634E+01   -0.4712249527E-16   -0.1191936185E+01    0.3449716070E-05
+   4   -0.1191939634E+01   -0.6254454993E-16   -0.1191936185E+01    0.3449716071E-05
+   5   -0.7234784170E+00   -0.2340654848E-15   -0.7234750572E+00    0.3359853156E-05
+   6   -0.7234784170E+00   -0.2101287572E-15   -0.7234750572E+00    0.3359853156E-05
+   7   -0.7203966720E+00    0.5719945730E-15   -0.7203933063E+00    0.3365754882E-05
+   8   -0.7203966720E+00   -0.1016741080E-14   -0.7203933063E+00    0.3365754882E-05
+   9   -0.7173591805E+00   -0.1284885454E-15   -0.7173558079E+00    0.3372657714E-05
+  10   -0.7173591805E+00    0.1245650887E-15   -0.7173558079E+00    0.3372657715E-05
+  11    0.3046845868E+00   -0.2413745807E-16    0.3046855456E+00    0.9587996064E-06
+  12    0.3046845868E+00    0.2413662522E-16    0.3046855456E+00    0.9587996065E-06
+  13    0.4186744871E+00    0.3732091752E-15    0.4186752325E+00    0.7454366938E-06
+  14    0.4186744871E+00   -0.3609006218E-16    0.4186752325E+00    0.7454366936E-06
+  15    0.4195377104E+00    0.1246954471E-14    0.4195384658E+00    0.7553378091E-06
+  16    0.4195377104E+00   -0.1685839511E-14    0.4195384658E+00    0.7553378092E-06
+  17    0.4203922071E+00    0.4424250548E-15    0.4203929727E+00    0.7655458465E-06
+  18    0.4203922071E+00   -0.3537644222E-15    0.4203929727E+00    0.7655458465E-06
+  19    0.8120594759E+00    0.4439007318E-15    0.8120615863E+00    0.2110447225E-05
+  20    0.8120594759E+00   -0.5498679416E-15    0.8120615863E+00    0.2110447225E-05
+  21    0.8133917240E+00   -0.6734216863E-15    0.8133938274E+00    0.2103444650E-05
+  22    0.8133917240E+00   -0.9636185621E-16    0.8133938274E+00    0.2103444650E-05
+  23    0.8147240114E+00    0.1875688155E-15    0.8147261074E+00    0.2096045084E-05
+  24    0.8147240114E+00   -0.6062876945E-15    0.8147261074E+00    0.2096045084E-05
+  25    0.1390063432E+01    0.2253589799E-15    0.1390065531E+01    0.2099130429E-05
+  26    0.1390063432E+01   -0.2253459452E-15    0.1390065531E+01    0.2099130429E-05
+  27    0.1587224821E+01   -0.1062835833E-14    0.1587227266E+01    0.2445792205E-05
+  28    0.1587224821E+01    0.1109507348E-14    0.1587227266E+01    0.2445792205E-05
+  29    0.1588757588E+01   -0.7740407301E-15    0.1588760069E+01    0.2481021938E-05
+  30    0.1588757588E+01   -0.3664682964E-14    0.1588760069E+01    0.2481021938E-05
+  31    0.1590248386E+01   -0.5783207312E-15    0.1590250901E+01    0.2515310368E-05
+  32    0.1590248386E+01    0.5922510351E-15    0.1590250901E+01    0.2515310368E-05
+  33    0.2285560008E+01    0.1271813967E-15    0.2285562490E+01    0.2482038418E-05
+  34    0.2285560008E+01   -0.1271815797E-15    0.2285562490E+01    0.2482038418E-05
+  35    0.4460182018E+01    0.1561102898E-15    0.4460186159E+01    0.4141102402E-05
+  36    0.4460182018E+01   -0.1821311419E-15    0.4460186159E+01    0.4141102402E-05
+  37    0.4467986893E+01   -0.9214515679E-15    0.4467991045E+01    0.4152415086E-05
+  38    0.4467986893E+01    0.3435735041E-16    0.4467991045E+01    0.4152415086E-05
+  39    0.4475974944E+01   -0.5252058494E-15    0.4475979108E+01    0.4164190369E-05
+  40    0.4475974944E+01    0.4739230867E-15    0.4475979108E+01    0.4164190370E-05
+  41    0.5918144614E+01    0.5338344279E-15    0.5918148553E+01    0.3939043763E-05
+  42    0.5918144614E+01   -0.5338521096E-15    0.5918148553E+01    0.3939043761E-05
+  43    0.6041937269E+01    0.5809810632E-15    0.6041941561E+01    0.4292086976E-05
+  44    0.6041937269E+01   -0.5972915296E-15    0.6041941561E+01    0.4292086977E-05
+  45    0.6050356806E+01   -0.8226519509E-15    0.6050361094E+01    0.4287997697E-05
+  46    0.6050356806E+01    0.7159664571E-15    0.6050361094E+01    0.4287997697E-05
+  47    0.6059353845E+01   -0.2478592045E-15    0.6059358126E+01    0.4281098002E-05
+  48    0.6059353845E+01    0.2437290719E-15    0.6059358126E+01    0.4281098002E-05
+  49    0.7586412352E+01   -0.6522656399E-15    0.7586417059E+01    0.4706928729E-05
+  50    0.7586412352E+01    0.6522654359E-15    0.7586417059E+01    0.4706928729E-05
+  51    0.2374962386E+02    0.4374022041E-15    0.2374963020E+02    0.6339878762E-05
+  52    0.2374962386E+02   -0.4374021750E-15    0.2374963020E+02    0.6339878762E-05
+  53    0.1070653298E+03    0.1630890481E-16    0.1070653371E+03    0.7278311330E-05
+  54    0.1070653298E+03   -0.1630890528E-16    0.1070653371E+03    0.7278311330E-05
+ fockhf end
+ before building fock
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.726sec  
+computational time =   0day  0h   0min  0.234sec
+ enter building fock matrix
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.726sec  
+computational time =   0day  0h   0min  1.810sec
+ enter building fock matrix
+ fockcasci before f allreduce
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.938sec  
+computational time =   0day  0h   0min  0.212sec
+ fockcasci end
+ end building fock
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.938sec  
+computational time =   0day  0h   0min  0.212sec
+ F debug
+ fockdiag start
+ REALF F
+ FOR INACTIVE-INACTIVE ROTATION !
+ cdiag0 start
+ nsymrpa                     1
+ fi T
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ OFF DIAGONAL TERM OF U*FU
+ DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE
+ cdiag0 end
+ FOR ACTIVE-ACTIVE ROTATION !
+ cdiag0 start
+ nsymrpa                     1
+ fi T
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ OFF DIAGONAL TERM OF U*FU
+ DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE
+ cdiag0 end
+ FOR SECONDARY-SECONDARY ROTATION !
+ cdiag0 start
+ nsymrpa                     1
+ fi T
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ OFF DIAGONAL TERM OF U*FU
+ DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE
+ cdiag0 end
+ Enter TRACI
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.939sec  
+computational time =   0day  0h   0min  0.001sec
+ Before allocate a matrix named ds
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.939sec  
+computational time =   0day  0h   0min  0.000sec
+ Initialized a matrix named ds
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.939sec  
+computational time =   0day  0h   0min  0.000sec
+ End detsc
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.940sec  
+computational time =   0day  0h   0min  0.001sec
+ Obtain inverse of ds matrix
+ Start get LU factorization of ds
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.940sec  
+computational time =   0day  0h   0min  0.000sec
+ info                     0
+ End get LU factorization of ds
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.940sec  
+computational time =   0day  0h   0min  0.000sec
+ Start get a inverse matrix of ds
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.940sec  
+computational time =   0day  0h   0min  0.000sec
+ info                     0
+ End get a inverse matrix of ds, ndet                    70
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.940sec  
+computational time =   0day  0h   0min  0.000sec
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  23.940sec  
+computational time =   0day  0h   0min  0.000sec
+ iroot =                      1
+ energyHF(1) (-97.9274796093452,-1.031063854278680E-022)
+ energyHF(2) (34.6037359678204,0.000000000000000E+000)
+ Iwamuro modify
+ energy 1 = (-70.8028120498445,3.212267952781599E-026)
+ energy 2 = (14.1848638777700,0.000000000000000E+000)
+ energy 3 = (-10.5357011890656,0.000000000000000E+000)
+ energy 4 = (3.82970133270207,0.000000000000000E+000)
+                     1 t-energy(1-4) (-63.3239480284380,3.212267952781599E-026)
+                     1 t-energy  -63.3239480284380     
+                     1 eigen e0  -37.4605413130374     
+ C the error  (-4.751754545395670E-014,-3.212267952781599E-026)
+ Iwamuro modify
+ CAUTION! HF energy may not be obtained correctly 
+ energy HF  = (-37.4603369261242,-1.031063854278680E-022)
+ e0aftertrac_ty end
+ fockdiag end
+ eps(                     1 )=  -11.0069448822278     
+ eps(                     2 )=  -11.0069448822278     
+ eps(                     3 )=  -1.19200091793621     
+ eps(                     4 )=  -1.19200091793621     
+ eps(                     5 )= -0.723544422938467     
+ eps(                     6 )= -0.723544422938465     
+ eps(                     7 )= -0.720432625600627     
+ eps(                     8 )= -0.720432625600626     
+ eps(                     9 )= -0.717395442801673     
+ eps(                    10 )= -0.717395442801672     
+ eps(                    11 )=  0.304650753755721     
+ eps(                    12 )=  0.304650753755722     
+ eps(                    13 )=  0.418649482961750     
+ eps(                    14 )=  0.418649482961754     
+ eps(                    15 )=  0.419519472766752     
+ eps(                    16 )=  0.419519472766756     
+ eps(                    17 )=  0.420374483533622     
+ eps(                    18 )=  0.420374483533625     
+ eps(                    19 )=  0.812025134590048     
+ eps(                    20 )=  0.812025134590050     
+ eps(                    21 )=  0.813357371149619     
+ eps(                    22 )=  0.813357371149621     
+ eps(                    23 )=  0.814690513867706     
+ eps(                    24 )=  0.814690513867711     
+ eps(                    25 )=   1.39002782754795     
+ eps(                    26 )=   1.39002782754795     
+ eps(                    27 )=   1.58717530598452     
+ eps(                    28 )=   1.58717530598452     
+ eps(                    29 )=   1.58870923103338     
+ eps(                    30 )=   1.58870923103338     
+ eps(                    31 )=   1.59019603311532     
+ eps(                    32 )=   1.59019603311533     
+ eps(                    33 )=   2.28551049392860     
+ eps(                    34 )=   2.28551049392861     
+ eps(                    35 )=   4.46010586995674     
+ eps(                    36 )=   4.46010586995675     
+ eps(                    37 )=   4.46791184378156     
+ eps(                    38 )=   4.46791184378156     
+ eps(                    39 )=   4.47589949392856     
+ eps(                    40 )=   4.47589949392856     
+ eps(                    41 )=   5.91806895779876     
+ eps(                    42 )=   5.91806895779877     
+ eps(                    43 )=   6.04185115869633     
+ eps(                    44 )=   6.04185115869634     
+ eps(                    45 )=   6.05027103102174     
+ eps(                    46 )=   6.05027103102175     
+ eps(                    47 )=   6.05926842962447     
+ eps(                    48 )=   6.05926842962450     
+ eps(                    49 )=   7.58632385334638     
+ eps(                    50 )=   7.58632385334639     
+ eps(                    51 )=   23.7495153823420     
+ eps(                    52 )=   23.7495153823420     
+ eps(                    53 )=   107.065211302289     
+ eps(                    54 )=   107.065211302289     
+Current Memory is      -0.00MB
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.359sec  
+computational time =   0day  0h   0min  2.443sec
+ End r4dcasci_ty part
+ 
+  ENTER R4DCASPT2_TRA_TY PROGRAM written by M. Abe 2007.7.23
+ 
+ Year =                   2022 Mon =                      9 Date = 
+                     7
+ Hour =                      5 Min =                     24 Sec = 
+                    24 .                   397
+   19464.3970000000     
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.397sec  
+computational time =   0day  0h   0min  0.000sec
+ ninact        =                     6
+ nact          =                     8
+ nsec          =                    40
+ nelec         =                     4
+ nroot         =                     1
+ selectroot    =                     1
+ totsym        =                     2
+ ncore         =                     0
+ nbas          =                    54
+ eshift        =  0.000000000000000E+000
+ ptgrp         =C1    
+ dirac_version =                    22
+  ENTER READ MRCONEE
+ NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
+                    54 F   25.8634067154006                          1
+  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)                         ! IRs chars
+                     2   1A            2A          
+                     1    A   a
+ MULTB
+  2  1
+  1  2
+ MULTB2
+  2  1
+  1  2
+ end multb1,2
+ MULTB_S
+  1
+ MULTB_D
+  1
+ moint1 is closed.
+ If pgsym=c1, this route goes through.
+ MULTB_SD
+  1
+ MULTB_DS
+  1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ orb sort end
+ i0,orb(i0),sort_orb(i0)
+                     1  -11.0068200437985       -11.0068200437985     
+                     2  -11.0068200437985       -11.0068200437985     
+                     3  -1.19193618468519       -1.19193618468519     
+                     4  -1.19193618468519       -1.19193618468519     
+                     5 -0.723475057164008      -0.723475057164008     
+                     6 -0.723475057164008      -0.723475057164008     
+                     7 -0.720393306268582      -0.720393306268582     
+                     8 -0.720393306268582      -0.720393306268582     
+                     9 -0.717355807879845      -0.717355807879845     
+                    10 -0.717355807879845      -0.717355807879845     
+                    11  0.304685545613299       0.304685545613299     
+                    12  0.304685545613299       0.304685545613299     
+                    13  0.418675232542878       0.418675232542878     
+                    14  0.418675232542878       0.418675232542878     
+                    15  0.419538465756506       0.419538465756506     
+                    16  0.419538465756506       0.419538465756506     
+                    17  0.420392972654535       0.420392972654535     
+                    18  0.420392972654535       0.420392972654535     
+                    19  0.812061586336921       0.812061586336921     
+                    20  0.812061586336921       0.812061586336921     
+                    21  0.813393827410128       0.813393827410128     
+                    22  0.813393827410128       0.813393827410128     
+                    23  0.814726107447037       0.814726107447037     
+                    24  0.814726107447037       0.814726107447037     
+                    25   1.39006553077264        1.39006553077264     
+                    26   1.39006553077264        1.39006553077264     
+                    27   1.58722726635587        1.58722726635587     
+                    28   1.58722726635587        1.58722726635587     
+                    29   1.58876006855949        1.58876006855949     
+                    30   1.58876006855949        1.58876006855949     
+                    31   1.59025090132579        1.59025090132579     
+                    32   1.59025090132579        1.59025090132579     
+                    33   2.28556249003735        2.28556249003735     
+                    34   2.28556249003735        2.28556249003735     
+                    35   4.46018615899736        4.46018615899736     
+                    36   4.46018615899736        4.46018615899736     
+                    37   4.46799104504372        4.46799104504372     
+                    38   4.46799104504372        4.46799104504372     
+                    39   4.47597910816957        4.47597910816957     
+                    40   4.47597910816957        4.47597910816957     
+                    41   5.91814855326803        5.91814855326803     
+                    42   5.91814855326803        5.91814855326803     
+                    43   6.04194156113187        6.04194156113187     
+                    44   6.04194156113187        6.04194156113187     
+                    45   6.05036109407112        6.05036109407112     
+                    46   6.05036109407112        6.05036109407112     
+                    47   6.05935812561232        6.05935812561232     
+                    48   6.05935812561232        6.05935812561232     
+                    49   7.58641705941349        7.58641705941349     
+                    50   7.58641705941349        7.58641705941349     
+                    51   23.7496301965574        23.7496301965574     
+                    52   23.7496301965574        23.7496301965574     
+                    53   107.065337123423        107.065337123423     
+                    54   107.065337123423        107.065337123423     
+indmor output   1   1   1
+indmor output   3  28   2
+indmor output   5   2   3
+indmor output   7  29   4
+indmor output   9   3   5
+indmor output  11  30   6
+indmor output  13   4   7
+indmor output  15  31   8
+indmor output  17   5   9
+indmor output  19  32  10
+indmor output  21   6  11
+indmor output  23  33  12
+indmor output  25   7  13
+indmor output  27  34  14
+indmor output  29   8  15
+indmor output  31  35  16
+indmor output  33   9  17
+indmor output  35  36  18
+indmor output  37  10  19
+indmor output  39  37  20
+indmor output  41  11  21
+indmor output  43  38  22
+indmor output  45  12  23
+indmor output  47  39  24
+indmor output  49  13  25
+indmor output  51  40  26
+indmor output  53  14  27
+indmor output   2  41  28
+indmor output   4  15  29
+indmor output   6  42  30
+indmor output   8  16  31
+indmor output  10  43  32
+indmor output  12  17  33
+indmor output  14  44  34
+indmor output  16  18  35
+indmor output  18  45  36
+indmor output  20  19  37
+indmor output  22  46  38
+indmor output  24  20  39
+indmor output  26  47  40
+indmor output  28  21  41
+indmor output  30  48  42
+indmor output  32  22  43
+indmor output  34  49  44
+indmor output  36  23  45
+indmor output  38  50  46
+indmor output  40  24  47
+indmor output  42  51  48
+indmor output  44  25  49
+indmor output  46  52  50
+indmor output  48  26  51
+indmor output  50  53  52
+indmor output  52  27  53
+indmor output  54  54  54
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+irpamo  1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ inactive
+   1   1     -0.1100682004E+02     1
+   2  28     -0.1100682004E+02     1
+   3   2     -0.1191936185E+01     1
+   4  29     -0.1191936185E+01     1
+   5   3     -0.7234750572E+00     1
+   6  30     -0.7234750572E+00     1
+ active
+   7   4     -0.7203933063E+00     1
+   8  31     -0.7203933063E+00     1
+   9   5     -0.7173558079E+00     1
+  10  32     -0.7173558079E+00     1
+  11   6      0.3046855456E+00     1
+  12  33      0.3046855456E+00     1
+  13   7      0.4186752325E+00     1
+  14  34      0.4186752325E+00     1
+ secondary
+  15   8      0.4195384658E+00     1
+  16  35      0.4195384658E+00     1
+  17   9      0.4203929727E+00     1
+  18  36      0.4203929727E+00     1
+  19  10      0.8120615863E+00     1
+  20  37      0.8120615863E+00     1
+  21  11      0.8133938274E+00     1
+  22  38      0.8133938274E+00     1
+  23  12      0.8147261074E+00     1
+  24  39      0.8147261074E+00     1
+  25  13      0.1390065531E+01     1
+  26  40      0.1390065531E+01     1
+  27  14      0.1587227266E+01     1
+  28  41      0.1587227266E+01     1
+  29  15      0.1588760069E+01     1
+  30  42      0.1588760069E+01     1
+  31  16      0.1590250901E+01     1
+  32  43      0.1590250901E+01     1
+  33  17      0.2285562490E+01     1
+  34  44      0.2285562490E+01     1
+  35  18      0.4460186159E+01     1
+  36  45      0.4460186159E+01     1
+  37  19      0.4467991045E+01     1
+  38  46      0.4467991045E+01     1
+  39  20      0.4475979108E+01     1
+  40  47      0.4475979108E+01     1
+  41  21      0.5918148553E+01     1
+  42  48      0.5918148553E+01     1
+  43  22      0.6041941561E+01     1
+  44  49      0.6041941561E+01     1
+  45  23      0.6050361094E+01     1
+  46  50      0.6050361094E+01     1
+  47  24      0.6059358126E+01     1
+  48  51      0.6059358126E+01     1
+  49  25      0.7586417059E+01     1
+  50  52      0.7586417059E+01     1
+  51  26      0.2374963020E+02     1
+  52  53      0.2374963020E+02     1
+  53  27      0.1070653371E+03     1
+  54  54      0.1070653371E+03     1
+ Enter read1mo_co
+ T realc
+  EXIT READ MRCONEE
+  ENTER READ MDCINT
+ get filename : MDCINT MDCINTNEW MDCINT_debug MDCINT_int
+ enter readint2_ord_co
+Current Memory is       0.07MB
+  20220907 05:16:56
+ nkr                    27 kr(+),kr(-)                     1
+                    28                     2                    29
+                     3                    30                     4
+                    31                     5                    32
+                     6                    33                     7
+                    34                     8                    35
+                     9                    36                    10
+                    37                    11                    38
+                    12                    39                    13
+                    40                    14                    41
+                    15                    42                    16
+                    43                    17                    44
+                    18                    45                    19
+                    46                    20                    47
+                    21                    48                    22
+                    49                    23                    50
+                    24                    51                    25
+                    52                    26                    53
+                    27                    54
+ end readint2_ord_co
+Current Memory is       0.05MB
+ nmo        =                    54
+  ENTER READ NEWCICOEFF                    70
+  EXIT READ NEWCICOEFF
+  
+ *******************************
+  
+ IREP IS a   
+  
+ *******************************
+  
+ F realc
+ T realcvec
+ FOR TEST WE DO (F,F)
+ F realc
+ F realcvec
+                     1 iroot
+ e0 = Siguma_w(w:active) eps(w)Dww is   -2.87542252584507     
+ end
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.855sec  
+computational time =   0day  0h   0min  0.458sec
+ A1int filename : A1int rank                     0
+Current Memory is       0.14MB
+ END OF FILE: A1int
+ END OF FILE: A1int
+ END OF FILE: A1int
+ END OF FILE: A1int
+ read and write file properly. filename : A1int
+ End intra3 A1int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.879sec  
+computational time =   7day  0h   0min  0.024sec
+Current Memory is       0.12MB
+ END OF FILE: A2int
+ END OF FILE: A2int
+ END OF FILE: A2int
+ END OF FILE: A2int
+ read and write file properly. filename : A2int
+ End intra_3 A2int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.893sec  
+computational time =   0day  0h   0min  0.014sec
+ Enter solvA
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.893sec  
+computational time =   0day  0h   0min  0.000sec
+  ENTER solv A part
+  nsymrpa                     1
+ before vAmat
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.893sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter vAmat. Please ignore timer under this line.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  24.893sec  
+computational time =   0day  0h   0min  0.000sec
+ solvA: isym, dim(isym)                     1                   512
+  64   1
+ open A1int
+ END OF FILE: A1int                                             
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.690sec  
+computational time =   0day  0h   0min  1.797sec
+ END OF FILE: A2int                                             
+ reading A2int2 is over
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.691sec  
+computational time =   0day  0h   0min  0.001sec
+ vAmat_ord_ty is ended
+ end allreduce vAmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.732sec  
+computational time =   0day  0h   0min  0.041sec
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.732sec  
+computational time =   0day  0h   0min  1.839sec
+ isym, dimn                     1                   512
+ before sAmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.734sec  
+computational time =   0day  0h   0min  0.002sec
+ sc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.943sec  
+computational time =   0day  0h   0min  0.209sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  26.944sec  
+computational time =   0day  0h   0min  0.001sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after sc cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  27. 84sec  
+computational time =   0day  0h   0min  0.140sec
+ OK cdiag                   512                    56
+ before bAmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  27. 86sec  
+computational time =   0day  0h   0min  0.002sec
+ bAmat loop: dimn                   512
+ bAmat is ended
+ bc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.626sec  
+computational time =   0day  0h   0min  1.540sec
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.626sec  
+computational time =   0day  0h   0min  0.000sec
+ New dimension becomes                     56
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.626sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.626sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.627sec  
+computational time =   0day  0h   0min  0.001sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.644sec  
+computational time =   0day  0h   0min  0.017sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.644sec  
+computational time =   0day  0h   0min  0.000sec
+ bC1 matrix is diagonalized!
+e2a(  1) =    -0.1442687007E-04 a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.645sec  
+computational time =   0day  0h   0min  0.001sec
+e2a      =    -0.1442687007E-04 a.u.
+sumc2,a  =     0.5894625828E-05
+ end solvA_ord_ty
+ -1.442687006846436E-005
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.645sec  
+computational time =   0day  0h   0min  3.752sec
+Current Memory is       0.12MB
+ END OF FILE: Bint
+ END OF FILE: Bint
+ END OF FILE: Bint
+ END OF FILE: Bint
+ End intra_2 Bint
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.660sec  
+computational time =   0day  0h   0min  0.015sec
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.660sec  
+computational time =   0day  0h   0min  0.000sec
+  ENTER solv B part
+  nsymrpa                     1
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.660sec  
+computational time =   0day  0h   0min  0.000sec
+ END OF FILE: Bint                                              
+ vBmat_ord_ty is ended
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.730sec  
+computational time =   0day  0h   0min  0.070sec
+ isym, dimn                     1                    28
+ before sBmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.730sec  
+computational time =   0day  0h   0min  0.000sec
+ sc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.731sec  
+computational time =   0day  0h   0min  0.001sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.731sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after s cdiag, new dimension is                    22
+ ws  6.235067859471920E-010  1.701928771486720E-009  1.832301285928505E-009
+  1.832317988775593E-009  1.832329824382211E-009  1.851291220271505E-009
+  5.316555651356853E-006  5.358728957622157E-006  5.382360267477268E-006
+  5.388591019906506E-006  5.650313994628705E-006  5.657538467509368E-006
+  5.681479791251994E-006  5.725261413640515E-006  4.921826150645823E-005
+  4.925779707230453E-005  4.932786842142622E-005  4.941343615730858E-005
+  4.963011667009828E-005  4.971679602467899E-005  4.978816102002750E-005
+  4.982714102179026E-005  0.999889913601122       0.999889913616673     
+  0.999889913811462       0.999898028948877       0.999925752657812     
+   1.00006612728293     
+                     1 (0.101734552188437,-2.224417988421618E-002)
+                     2 (-0.108338705252544,-0.136613354990429)
+                     3 (0.175015772234798,0.226411245656251)
+                     4 (0.326363046258786,-0.194200081505195)
+                     5 (-4.163863432804069E-002,-0.189470843351533)
+                     6 (-0.339692582359123,-0.578166274414749)
+                     7 (5.303374702323142E-002,-0.222553061204977)
+                     8 (0.191283432419197,-7.909628330332263E-002)
+                     9 (0.215420919879864,-8.057180889456564E-002)
+                    10 (-0.212338725394530,5.723727523657496E-002)
+                    11 (4.850029908679421E-002,-2.466786507385059E-002)
+                    12 (3.181739113397659E-002,6.630114049275061E-002)
+                    13 (4.376872522722685E-002,-0.209611568426872)
+                    14 (0.196816699915653,-3.017031088432291E-002)
+                    15 (-1.007999198010843E-005,5.427658287627018E-006)
+                    16 (-0.417516640854366,-8.272988107528062E-002)
+                    17 (-1.037213603124572E-002,-0.238706002701250)
+                    18 (9.952228685283313E-002,-0.161554527161888)
+                    19 (-0.190052491925945,-4.469411710245410E-002)
+                    20 (3.007442669837745E-006,-2.671277805314654E-005)
+                    21 (-6.981048021662897E-006,-1.095236763057958E-005)
+                    22 (0.284353539912703,0.119627547387314)
+                    23 (-2.686789002057089E-006,3.486292224533233E-006)
+                    24 (4.848551803110964E-006,4.917697694252603E-006)
+                    25 (-3.441199976950405E-006,1.313298209187061E-006)
+                    26 (3.473563569124227E-004,-1.119078856903996E-003)
+                    27 (0.552359191037326,-0.316160549682495)
+                    28 (0.707082312522478,0.000000000000000E+000)
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.731sec  
+computational time =   0day  0h   0min  0.000sec
+ before bBmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.732sec  
+computational time =   0day  0h   0min  0.001sec
+ B space Bmat iroot=                     1
+ bBmat is ended
+ bc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.737sec  
+computational time =   0day  0h   0min  0.005sec
+ OK cdiag                    28                    22
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.737sec  
+computational time =   0day  0h   0min  0.000sec
+ New dimension becomes                     22
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.737sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.737sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.737sec  
+computational time =   0day  0h   0min  0.000sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.738sec  
+computational time =   0day  0h   0min  0.001sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.738sec  
+computational time =   0day  0h   0min  0.000sec
+ bC1 matrix is diagonalized!
+e2b(  1) =    -0.1168916482E-02a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.738sec  
+computational time =   0day  0h   0min  0.000sec
+e2b      =    -0.1168916482E-02 a.u.
+sumc2,b  =     0.4555693988E-03
+ end solvB_ord_ty
+ -1.183343352560057E-003
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.738sec  
+computational time =   0day  0h   0min  0.078sec
+Current Memory is       0.39MB
+ END OF FILE: C1int
+ END OF FILE: C1int
+ END OF FILE: C1int
+ END OF FILE: C1int
+ read and write file properly. filename : C1int
+ End intra_3 C1int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.862sec  
+computational time =   0day  0h   0min  0.124sec
+Current Memory is       0.26MB
+ END OF FILE: C2int
+ END OF FILE: C2int
+ END OF FILE: C2int
+ END OF FILE: C2int
+ read and write file properly. filename : C2int
+ End intra_3 C2int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  28.930sec  
+computational time =   0day  0h   0min  0.068sec
+Current Memory is       0.26MB
+ END OF FILE: C3int
+ END OF FILE: C3int
+ END OF FILE: C3int
+ END OF FILE: C3int
+ End intra_1 C3int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  29.  7sec  
+computational time =   0day  0h   0min  0.077sec
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  29.  7sec  
+computational time =   0day  0h   0min  0.000sec
+  ENTER solv C part
+  nsymrpa                     1
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  29.  7sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter vCmat. Please ignore timer under this line.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  29.  7sec  
+computational time =   0day  0h   0min  0.000sec
+ solvC: isym, dim(isym)                     1                   512
+ END OF FILE: C1int                                             
+ reading C1int2 is over
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.245sec  
+computational time =   0day  0h   0min 10.238sec
+ END OF FILE: C2int                                             
+ reading C2int2 is over
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.248sec  
+computational time =   0day  0h   0min  0.003sec
+ END OF FILE: C3int                                             
+ reading C3int2 is over
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.250sec  
+computational time =   0day  0h   0min  0.002sec
+ vCmat_ord is ended
+ end Allreduce vCmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.471sec  
+computational time =   0day  0h   0min  0.221sec
+ come
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.471sec  
+computational time =   0day  0h   0min 10.464sec
+ isym, dimn                     1                   512
+ before sCmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.472sec  
+computational time =   0day  0h   0min  0.001sec
+ sC matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.654sec  
+computational time =   0day  0h   0min  0.182sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.655sec  
+computational time =   0day  0h   0min  0.001sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after sc cdiag
+ after s cdiag, new dimension is                    56
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.721sec  
+computational time =   0day  0h   0min  0.066sec
+ OK cdiag                   512                    56
+ before bCmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  39.723sec  
+computational time =   0day  0h   0min  0.002sec
+ C space Bmat iroot=                     1
+ bCmat is ended
+ bC matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.807sec  
+computational time =   0day  0h   0min  1.084sec
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.808sec  
+computational time =   0day  0h   0min  0.001sec
+ New dimension becomes                     56
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.808sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.808sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.809sec  
+computational time =   0day  0h   0min  0.001sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.825sec  
+computational time =   0day  0h   0min  0.016sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.826sec  
+computational time =   0day  0h   0min  0.001sec
+ bC1 matrix is diagonalized!
+e2c(  1) =    -0.8015839082E-03 a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.828sec  
+computational time =   0day  0h   0min  0.002sec
+e2c      =    -0.8015839082E-03 a.u.
+sumc2,c  =     0.2140292982E-03
+ end solvC_ord_ty
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.828sec  
+computational time =   0day  0h   0min 11.821sec
+Current Memory is       0.32MB
+ END OF FILE: D1int
+ END OF FILE: D1int
+ END OF FILE: D1int
+ END OF FILE: D1int
+ read and write file properly. filename : D1int
+ End intra_1 D1int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  40.920sec  
+computational time =   0day  0h   0min  0.092sec
+Current Memory is       0.32MB
+ END OF FILE: D2int
+ END OF FILE: D2int
+ END OF FILE: D2int
+ END OF FILE: D2int
+ End intra_1 D2int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  41. 21sec  
+computational time =   0day  0h   0min  0.101sec
+Current Memory is       0.21MB
+ END OF FILE: D3int
+ END OF FILE: D3int
+ END OF FILE: D3int
+ END OF FILE: D3int
+ read and write file properly. filename : D3int
+ End intra_1 D3int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  41. 71sec  
+computational time =   0day  0h   0min  0.050sec
+  ENTER solv D part
+  nsymrpa                     1
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  41. 71sec  
+computational time =   0day  0h   0min  0.000sec
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  41. 71sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter vDmat. Please ignore timer under this line.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  41. 71sec  
+computational time =   0day  0h   0min  0.000sec
+ before d1int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  41. 99sec  
+computational time =   0day  0h   0min  0.028sec
+ END OF FILE: D1int                                             
+ reading D1int2 is over
+ before d2int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  42.219sec  
+computational time =   0day  0h   0min  1.120sec
+ END OF FILE: D2int                                             
+ reading D2int2 is over
+ before d3int
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.506sec  
+computational time =   0day  0h   0min  1.287sec
+ END OF FILE: D3int                                             
+ reading D3int2 is over
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.508sec  
+computational time =   0day  0h   0min  0.002sec
+ end allreduce effh
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.508sec  
+computational time =   0day  0h   0min  0.000sec
+ vDmat_ord_ty is ended
+ end Allreduce vDmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.537sec  
+computational time =   0day  0h   0min  0.029sec
+ end after vDmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.537sec  
+computational time =   0day  0h   0min  2.466sec
+ come
+ isym, dimn                     1                    64
+ before sDmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.537sec  
+computational time =   0day  0h   0min  0.000sec
+ sc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.540sec  
+computational time =   0day  0h   0min  0.003sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.540sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after s cdiag
+ before bDmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.540sec  
+computational time =   0day  0h   0min  0.000sec
+ F space Bmat iroot=                     1
+ bDmat is ended
+ bc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.560sec  
+computational time =   0day  0h   0min  0.020sec
+ OK cdiag                    64                    36
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.560sec  
+computational time =   0day  0h   0min  0.000sec
+ New dimension becomes                     36
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.560sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.560sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.560sec  
+computational time =   0day  0h   0min  0.000sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.560sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.561sec  
+computational time =   0day  0h   0min  0.001sec
+ bC1 matrix is diagonalized!
+e2d(  1) =    -0.9242557654E-02 a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.562sec  
+computational time =   0day  0h   0min  0.001sec
+e2d      =    -0.9242557654E-02 a.u.
+sumc2,d  =     0.2883371990E-02
+ end solvD_ord_ty
+ -1.122748491464747E-002
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.562sec  
+computational time =   0day  0h   0min  2.491sec
+Current Memory is       0.26MB
+ END OF FILE: Eint
+ END OF FILE: Eint
+ END OF FILE: Eint
+ END OF FILE: Eint
+ End intra_1 Eint
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.640sec  
+computational time =   0day  0h   0min  0.078sec
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.640sec  
+computational time =   0day  0h   0min  0.000sec
+  ENTER solv E part
+  nsymrpa                     1
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.640sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter vEmat. Please ignore timer under this line.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.640sec  
+computational time =   0day  0h   0min  0.000sec
+ END OF FILE: Eint                                              
+ vEmat_ord_ty is ended
+ end Allreduce vEmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.777sec  
+computational time =   0day  0h   0min  0.137sec
+ come
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.777sec  
+computational time =   0day  0h   0min  0.137sec
+ isym, dimn                     1                     8
+ before sEmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.777sec  
+computational time =   0day  0h   0min  0.000sec
+ sc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.001sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after s cdiag, new dimension is                     8
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ before bEmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ E space Bmat iroot=                     1
+ bEmat is ended
+ bc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ OK cdiag                     8                     8
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ New dimension becomes                      8
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+ bC1 matrix is diagonalized!
+e2e(  1) =    -0.4538079615E-02 a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.000sec
+e2e      =    -0.4538079615E-02 a.u.
+sumc2,e  =     0.1045952972E-02
+ end solveE_ord_ty
+ -1.576556453014712E-002
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  43.778sec  
+computational time =   0day  0h   0min  0.138sec
+Current Memory is       1.64MB
+ END OF FILE: Fint
+ END OF FILE: Fint
+ END OF FILE: Fint
+ END OF FILE: Fint
+ End intra_1 Fint
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  44.464sec  
+computational time =   0day  0h   0min  0.686sec
+  ENTER solv F part
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  44.464sec  
+computational time =   0day  0h   0min  0.000sec
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  44.464sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter vFmat. Please ignore timer under this line.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  44.464sec  
+computational time =   0day  0h   0min  0.000sec
+ END OF FILE: Fint                                              
+ vFmat_ord is ended
+ end allreduce vFmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 58sec  
+computational time =   0day  0h   0min  2.594sec
+ end after vFmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 58sec  
+computational time =   0day  0h   0min  2.594sec
+ isym, dimn                     1                    28
+ before sFmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 58sec  
+computational time =   0day  0h   0min  0.000sec
+ sc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 59sec  
+computational time =   0day  0h   0min  0.001sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 59sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after s cdiag, new dimension is                    22
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 59sec  
+computational time =   0day  0h   0min  0.000sec
+ before bFmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 59sec  
+computational time =   0day  0h   0min  0.000sec
+ F space Bmat iroot=                     1
+ bFmat is ended
+ bc matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.005sec
+ OK cdiag                    28                    22
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.000sec
+ New dimension becomes                     22
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.000sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 64sec  
+computational time =   0day  0h   0min  0.000sec
+ bC1 matrix is diagonalized!
+e2f(  1) =    -0.3208649717E-01 a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 65sec  
+computational time =   0day  0h   0min  0.001sec
+e2f      =    -0.3208649717E-01 a.u.
+sumc2,f  =     0.7175588315E-02
+ end solvF_ord_ty
+ -4.785206169906737E-002
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47. 65sec  
+computational time =   0day  0h   0min  2.601sec
+Current Memory is       1.25MB
+ END OF FILE: Gint
+ END OF FILE: Gint
+ END OF FILE: Gint
+ END OF FILE: Gint
+ End intra_1 Gint
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47.582sec  
+computational time =   0day  0h   0min  0.517sec
+  ENTER solv G part
+  nsymrpa                     1
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47.582sec  
+computational time =   0day  0h   0min  0.000sec
+ come
+ end before v matrices
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47.583sec  
+computational time =   0day  0h   0min  0.001sec
+ Enter vGmat. Please ignore timer under this line.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  47.583sec  
+computational time =   0day  0h   0min  0.001sec
+ END OF FILE: Gint                                              
+ vGmat_ord_ty is ended
+ end allreduce vGmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   7day  5h  24min 48.635sec
+ end after vGmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  1.052sec
+ isym, dimn                     1                     8
+ before sGmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ sG matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ cut off threshold is   1.000000000000000E-008
+ end cdiag
+ after s cdiag, new dimension is                     8
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ before bGmat
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ G space Bmat iroot=                     1
+ bGmat is ended
+ bC matrix is obtained normally
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ OK cdiag                     8                     8
+ before ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ New dimension becomes                      8
+ OK ccutoff
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ before ucramda_s_half
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ ucrams half OK
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ bC matrix is transrated to bc1(M*M matrix)!
+ before cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ Enter cdiagonal part
+ Finish zheev info =                      0
+ end cdiag
+ end cdiag
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.635sec  
+computational time =   0day  0h   0min  0.000sec
+ bC1 matrix is diagonalized!
+e2g(  1) =    -0.4246825790E-01 a.u.
+ End e2(isym) add
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.637sec  
+computational time =   0day  0h   0min  0.002sec
+e2g      =    -0.4246825790E-01 a.u.
+sumc2,g  =     0.7324872675E-02
+ end solvG_ord_ty
+ -9.032031960359732E-002
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  48.637sec  
+computational time =   0day  0h   0min  1.055sec
+Current Memory is       0.96MB
+ END OF FILE: Hint
+ END OF FILE: Hint
+ END OF FILE: Hint
+ END OF FILE: Hint
+ End intra_1 Hint
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  49. 22sec  
+computational time =   0day  0h   0min  0.385sec
+ enter solveH_ord_ty
+ END OF FILE: Hint                                              
+ reading Hint is over
+e2h      =    -0.3683213916E-01 a.u.
+sumc2,h  =     0.3783610756E-02
+ end solvH_ord_ty
+ -0.127152458758857     
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  49. 36sec  
+computational time =   0day  0h   0min  0.014sec
+c^2              0.022888890028971
+weight of 0th wave function is             0.977623288069614
+Total second order energy is             -0.127152458758857 a.u.
+Total energy is            -37.587693771796296 a.u.
+Present time is
+year  = 2022month =    9date  =    7
+                 5h     24min  49. 36sec  
+computational time =   0day  0h   0min 24.639sec
+ End r4dcaspt2_tra_ty
+MPI_Wtime :    0.246388E+02
