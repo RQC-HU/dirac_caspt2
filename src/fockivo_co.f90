@@ -1,32 +1,32 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-   SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
+SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-       use four_caspt2_module
-       use module_file_manager, only: open_formatted_file, open_unformatted_file
+    use four_caspt2_module
+    use module_file_manager
 
-       Implicit NONE
+    Implicit NONE
 
-       integer      :: j, i, k, i0, j0
-       integer      :: isym, nv, numh
-       integer      :: imo, iao, IMAX
-       integer      :: unit_dfpcmo, unit_itrfmog, unit_itrfmou, unit_buf
-       real*8       :: thresd
-       logical      :: cutoff
-       complex*16, allocatable  :: fsym(:, :)
-       complex*16, allocatable  :: coeff(:, :)
-       real*8, allocatable      :: wsym(:), BUF(:), eval(:)
-       integer, allocatable     :: mosym(:)
-       character*150 :: line0, line1, line2, line3, line4, line5
+    integer      :: j, i, k, i0, j0
+    integer      :: isym, nv, numh
+    integer      :: imo, iao, IMAX, iostat
+    integer      :: unit_dfpcmo, unit_itrfmog, unit_itrfmou, unit_buf
+    real*8       :: thresd
+    logical      :: cutoff
+    complex*16, allocatable  :: fsym(:, :)
+    complex*16, allocatable  :: coeff(:, :)
+    real*8, allocatable      :: wsym(:), BUF(:), eval(:)
+    integer, allocatable     :: mosym(:)
+    character*150 :: line0, line1, line2, line3, line4, line5
 
-       ! for new code of IVO
-       integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, A, nv0, ngu, B
-       integer, allocatable :: syminfo(:), dmosym(:)
-       complex*16, allocatable :: itrfmog(:, :), itrfmou(:, :)
+    ! for new code of IVO
+    integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, A, nv0, ngu, B
+    integer, allocatable :: syminfo(:), dmosym(:)
+    complex*16, allocatable :: itrfmog(:, :), itrfmou(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -34,386 +34,358 @@
 !! NOW MAKE FOCK MATRIX FOR IVO
 !! fij = hij + SIGUMA_k (ij|kk)-(ik|kj)} i, j run over virtual spinors k runs occupied spinors except HOMO
 
-       f = 0.0d+00
+    f = 0.0d+00
 
-       write (*, *) 'enter building fock matrix for IVO'
+    write (*, *) 'enter building fock matrix for IVO'
 
-       if (nhomo == 0) then
-           numh = 0
-           do i = 1, ninact + nact
-               if (ABS(orbmo(i) - orbmo(nelec + ninact)) < 1.0d-01) then
-                   numh = numh + 1
-               end if
-           end do
-       else
-           numh = nhomo
-       end if
+    if (nhomo == 0) then
+        numh = 0
+        do i = 1, ninact + nact
+            if (ABS(orbmo(i) - orbmo(nelec + ninact)) < 1.0d-01) then
+                numh = numh + 1
+            end if
+        end do
+    else
+        numh = nhomo
+    end if
 
-       write (*, *) 'number of degeneracy of HOMO is', numh, DBLE(numh), 1.0d+00/DBLE(numh)
+    write (*, *) 'number of degeneracy of HOMO is', numh, DBLE(numh), 1.0d+00/DBLE(numh)
 
-       do i = 1, nsec
-           i0 = i + ninact + nact
-           f(i, i) = orbmo(i0)
-           do j = i, nsec
-               j0 = j + ninact + nact
-               do k = ninact + nact - numh + 1, ninact + nact
+    do i = 1, nsec
+        i0 = i + ninact + nact
+        f(i, i) = orbmo(i0)
+        do j = i, nsec
+            j0 = j + ninact + nact
+            do k = ninact + nact - numh + 1, ninact + nact
 
-                   if (k > ninact + nact - 2 .and. mod(nelec, 2) == 1) then
+                if (k > ninact + nact - 2 .and. mod(nelec, 2) == 1) then
 
-                       f(i, j) = f(i, j) &
-                           &  - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                       f(i, j) = f(i, j) &
-                           &  + 0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
+                    f(i, j) = f(i, j) - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                    f(i, j) = f(i, j) + 0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
 
-                   else
-                       f(i, j) = f(i, j) - DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                       f(i, j) = f(i, j) + DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
-                   end if
+                else
+                    f(i, j) = f(i, j) - DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                    f(i, j) = f(i, j) + DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
+                end if
 
-               end do
+            end do
 
-           end do
-       end do
+        end do
+    end do
 
-       do i = 1, nsec
-           do j = i, nsec
-               f(j, i) = DCONJG(f(i, j))
-           end do
-       end do
+    do i = 1, nsec
+        do j = i, nsec
+            f(j, i) = DCONJG(f(i, j))
+        end do
+    end do
 
-       IMAX = nbas*lscom
+    IMAX = nbas*lscom
 
-       call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
+    call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
 
 ! From DIRAC dirgp.F WRIPCMO (Write DHF-coefficients and eigenvalues )
 
-       if (dirac_version == 21) then
-           read (unit_dfpcmo, '(A150)') line0
-       elseif (dirac_version == 22) then
-           read (unit_dfpcmo, '(A150)') line0
-       end if
-       read (unit_dfpcmo, '(A150)') line1
-       if (dirac_version == 21) then
-           read (unit_dfpcmo, *) A, B, npg, neg, nbasg, npu, neu, nbasu
-           write (*, *) A, B, npg, neg, nbasg, npu, neu, nbasu
-       elseif (dirac_version == 22) then
-           read (unit_dfpcmo, *) A, B, npg, neg, nbasg, npu, neu, nbasu
-           write (*, *) A, B, npg, neg, nbasg, npu, neu, nbasu
-       else
-           read (unit_dfpcmo, *) A, npg, neg, nbasg, npu, neu, nbasu
-           write (*, *) A, npg, neg, nbasg, npu, neu, nbasu
-       end if
-       read (unit_dfpcmo, '(A150)') line2
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        read (unit_dfpcmo, '(A150)') line0
+    end if
+    read (unit_dfpcmo, '(A150)') line1
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        read (unit_dfpcmo, *) A, B, npg, neg, nbasg, npu, neu, nbasu
+        write (*, *) A, B, npg, neg, nbasg, npu, neu, nbasu
+    else
+        read (unit_dfpcmo, *) A, npg, neg, nbasg, npu, neu, nbasu
+        write (*, *) A, npg, neg, nbasg, npu, neu, nbasu
+    end if
+    read (unit_dfpcmo, '(A150)') line2
 
-       write (*, *) 'end reading information, symmetry information and energy'
+    write (*, *) 'end reading information, symmetry information and energy'
 
-       nsum = npg + neg + npu + neu
+    nsum = npg + neg + npu + neu
 
-       ! ngu : the sum of gerade and ungerade
-       ngu = (npg + neg)*nbasg + (npu + neu)*nbasu
+    ! ngu : the sum of gerade and ungerade
+    ngu = (npg + neg)*nbasg + (npu + neu)*nbasu
 
-       allocate (itrfmog(nbasg, neg - noccg))
-       allocate (itrfmou(nbasu, neu - noccu))
-       allocate (eval(nsum))
-       allocate (syminfo(nsum))
-       Allocate (BUF(ngu))
+    allocate (itrfmog(nbasg, neg - noccg))
+    allocate (itrfmou(nbasu, neu - noccu))
+    allocate (eval(nsum))
+    allocate (syminfo(nsum))
+    Allocate (BUF(ngu))
 
-       itrfmog = 0.0d+00
-       itrfmou = 0.0d+00
+    itrfmog = 0.0d+00
+    itrfmou = 0.0d+00
 
-       if (dirac_version == 21) then
-           read (unit_dfpcmo, '(A150)') line3
-       elseif (dirac_version == 22) then
-           read (unit_dfpcmo, '(A150)') line3
-       end if
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        read (unit_dfpcmo, '(A150)') line3
+    end if
 
-       ! Read MO coefficient of DFPCMO
-       Do I = 1, ngu, 6
-           Read (unit_dfpcmo, '(6F22.16)', ERR=22) BUF(I:I + 5)
-       End do
+    ! Read MO coefficient of DFPCMO
+    Do I = 1, ngu, 6
+        Read (unit_dfpcmo, '(6F22.16)', iostat=iostat) BUF(I:I + 5)
+    End do
 
-       write (*, *) 'end reading MO coefficient'
+    write (*, *) 'end reading MO coefficient'
+    if (iostat /= 0) then
+        ! unoccupid, gerade, electron
+        Do iao = 1, nbasg
+            DO imo = 1, neg - noccg
+                itrfmog(iao, imo) = BUF((npg + noccg + (imo - 1))*nbasg + iao)
+            End do
+        End do
 
-       ! unoccupid, gerade, electron
-       Do iao = 1, nbasg
-           DO imo = 1, neg - noccg
-               itrfmog(iao, imo) = BUF((npg + noccg + (imo - 1))*nbasg + iao)
-           End do
-       End do
+        call open_formatted_file(unit=unit_itrfmog, file='itrfmog_before', status='replace', optional_action='write')
 
-       call open_formatted_file(unit=unit_itrfmog, file='itrfmog_before', status='replace', optional_action='write')
+        Do iao = 1, nbasg
+            write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg)
+        End do
 
-       Do iao = 1, nbasg
-           write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg)
-       End do
+        close (unit_itrfmog)
 
-       close (unit_itrfmog)
+        ! unoccupid, ungerade, electron
+        Do iao = 1, nbasu
+            DO imo = 1, neu - noccu
+                itrfmou(iao, imo) = BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao)
+            End do
+        End do
 
-       ! unoccupid, ungerade, electron
-       Do iao = 1, nbasu
-           DO imo = 1, neu - noccu
-               itrfmou(iao, imo) = BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao)
-           End do
-       End do
+        call open_formatted_file(unit=unit_itrfmou, file='itrfmou_before', status='replace', optional_action='write')
 
-       call open_formatted_file(unit=unit_itrfmou, file='itrfmou_before', status='replace', optional_action='write')
+        Do iao = 1, nbasu
+            write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu)
+        End do
 
-       Do iao = 1, nbasu
-           write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu)
-       End do
+        close (unit_itrfmou)
+    end if
 
-       close (unit_itrfmou)
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        read (unit_dfpcmo, '(A150)') line4
+    end if
 
-22     continue
+    Read (unit_dfpcmo, *) eval
 
-       if (dirac_version == 21) then
-           read (unit_dfpcmo, '(A150)') line4
-       elseif (dirac_version == 22) then
-           read (unit_dfpcmo, '(A150)') line4
-       end if
+    Do i = 1, nsum
+        write (*, *) "eval(i)", eval(i)
+    End do
 
-       Read (unit_dfpcmo, *) eval
+    write (*, *) 'end reading eigenvalue'
 
-       Do i = 1, nsum
-           write (*, *) "eval(i)", eval(i)
-       End do
+    continue
 
-       write (*, *) 'end reading eigenvalue'
+    ! Read syminfo from DFPCMO
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        read (unit_dfpcmo, '(A150)') line5
+    end if
 
-       continue
+    Read (unit_dfpcmo, *) syminfo
 
-       ! Read syminfo from DFPCMO
-       if (dirac_version == 21) then
-           read (unit_dfpcmo, '(A150)') line5
-       elseif (dirac_version == 22) then
-           read (unit_dfpcmo, '(A150)') line5
-       end if
+    Do i = 1, nsum
+        write (*, *) "syminfo(i)", syminfo(i)
+    End do
 
-       Read (unit_dfpcmo, *) syminfo
+    write (*, *) 'end reading symmetry information2'
 
-       Do i = 1, nsum
-           write (*, *) "syminfo(i)", syminfo(i)
-       End do
+    close (unit_dfpcmo)
 
-       write (*, *) 'end reading symmetry information2'
+    call open_formatted_file(unit=unit_buf, file='BUF_write', status='unknown', optional_action='write')
 
-       close (unit_dfpcmo)
+    Do I = 1, ngu, 6
+        Write (unit_buf, '(6F22.16)') BUF(I:I + 5)
+    End do
 
-       call open_formatted_file(unit=unit_buf, file='BUF_write', status='unknown', optional_action='write')
-
-       Do I = 1, ngu, 6
-           Write (unit_buf, '(6F22.16)') BUF(I:I + 5)
-       End do
-
-       close (unit_buf)
+    close (unit_buf)
 
 ! IVO calculation
 
 ! gerade
 
-       Do isym = 1, nsymrpa, 2
-           nv = 0
-           Do i = 1, nsec
-               i0 = i + ninact + nact
-               if (irpmo(i0) == isym) then
+    Do isym = 1, nsymrpa, 2
+        nv = 0
+        Do i = 1, nsec
+            i0 = i + ninact + nact
+            if (irpmo(i0) == isym) then
 !                 if(irpamo(i0)==isym) then
-                   nv = nv + 1
-               end if
-           end do
+                nv = nv + 1
+            end if
+        end do
 
-           Allocate (mosym(nv))
-           Allocate (fsym(nv, nv))
+        Allocate (mosym(nv))
+        Allocate (fsym(nv, nv))
 
-           fsym = 0.0d+00
-           nv = 0
-           Do i = 1, nsec
-               i0 = i + ninact + nact
-               if (irpmo(i0) == isym) then
+        fsym = 0.0d+00
+        nv = 0
+        Do i = 1, nsec
+            i0 = i + ninact + nact
+            if (irpmo(i0) == isym) then
 !                 if(irpamo(i0)==isym) then
-                   nv = nv + 1
-                   mosym(nv) = i
-               end if
-           end do
+                nv = nv + 1
+                mosym(nv) = i
+            end if
+        end do
 
 !C32h gerade
-           if (isym <= nsymrpa/2) then
-               nv0 = 0
-               Do i0 = npg + noccg + 1, npg + neg
-                   if (ABS(syminfo(i0)) == isym) then
+        if (isym <= nsymrpa/2) then
+            nv0 = 0
+            Do i0 = npg + noccg + 1, npg + neg
+                if (ABS(syminfo(i0)) == isym) then
 !                 if(irpamo(i0)==isym) then
-                       nv0 = nv0 + 1
-                   end if
-               end do
+                    nv0 = nv0 + 1
+                end if
+            end do
 
-               Allocate (dmosym(nv0))
+            Allocate (dmosym(nv0))
 
-               nv0 = 0
-               Do i0 = npg + noccg + 1, npg + neg
-                   if (ABS(syminfo(i0)) == isym) then
+            nv0 = 0
+            Do i0 = npg + noccg + 1, npg + neg
+                if (ABS(syminfo(i0)) == isym) then
 !                 if(irpamo(i0)==isym) then
-                       nv0 = nv0 + 1
-                       dmosym(nv0) = i0
-                   end if
-               end do
+                    nv0 = nv0 + 1
+                    dmosym(nv0) = i0
+                end if
+            end do
 
 !C32h ungerade
-           else
-               nv0 = 0
-               Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu
-                   if (ABS(syminfo(i0)) + nsymrpa/2 == isym) then
+        else
+            nv0 = 0
+            Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu
+                if (ABS(syminfo(i0)) + nsymrpa/2 == isym) then
 !                 if(irpamo(i0)==isym) then
-                       nv0 = nv0 + 1
-                   end if
-               end do
+                    nv0 = nv0 + 1
+                end if
+            end do
 
-               Allocate (dmosym(nv0))
+            Allocate (dmosym(nv0))
 
-               nv0 = 0
-               Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu
-                   if (ABS(syminfo(i0)) + nsymrpa/2 == isym) then
+            nv0 = 0
+            Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu
+                if (ABS(syminfo(i0)) + nsymrpa/2 == isym) then
 !                 if(irpamo(i0)==isym) then
-                       nv0 = nv0 + 1
-                       dmosym(nv0) = i0
-                   end if
-               end do
-           end if
+                    nv0 = nv0 + 1
+                    dmosym(nv0) = i0
+                end if
+            end do
+        end if
 
-           Do i = 1, nv
-               i0 = mosym(i)
-               Do j = i, nv
-                   j0 = mosym(j)
-                   fsym(i, j) = f(i0, j0)
-                   fsym(j, i) = DCONJG(f(i0, j0))
+        Do i = 1, nv
+            i0 = mosym(i)
+            Do j = i, nv
+                j0 = mosym(j)
+                fsym(i, j) = f(i0, j0)
+                fsym(j, i) = DCONJG(f(i0, j0))
 !                    write(*,*)fsym(i,j)
-               end do
-           end do
+            end do
+        end do
 
-           Allocate (wsym(nv))
-           wsym = 0.0d+00
-           cutoff = .FALSE.
-           thresd = 0.0d+00
+        Allocate (wsym(nv))
+        wsym = 0.0d+00
+        cutoff = .FALSE.
+        thresd = 0.0d+00
 
-           call cdiag(fsym, nv, nv, wsym, thresd, cutoff)
+        call cdiag(fsym, nv, nv, wsym, thresd, cutoff)
 
-           ! Gerade
-           if (isym <= nsymrpa/2) then
-               Allocate (coeff(nbasg, nv))
-               Do i = 1, nv0
-                   i0 = dmosym(i) - npg - noccg
-                   coeff(:, i) = itrfmog(:, i0)
-                   write (*, *)
-               End do
+        ! Gerade
+        if (isym <= nsymrpa/2) then
+            Allocate (coeff(nbasg, nv))
+            Do i = 1, nv0
+                i0 = dmosym(i) - npg - noccg
+                coeff(:, i) = itrfmog(:, i0)
+                write (*, *)
+            End do
 
-               ! Ungerade
-           else
-               Allocate (coeff(nbasu, nv))
-               Do i = 1, nv0
-                   i0 = dmosym(i) - npg - neg - npu - noccu
-                   coeff(:, i) = itrfmou(:, i0)
-               End do
-           end if
+        ! Ungerade
+        else
+            Allocate (coeff(nbasu, nv))
+            Do i = 1, nv0
+                i0 = dmosym(i) - npg - neg - npu - noccu
+                coeff(:, i) = itrfmou(:, i0)
+            End do
+        end if
 
-           coeff(:, :) = MATMUL(coeff(:, :), fsym(:, :))
+        coeff(:, :) = MATMUL(coeff(:, :), fsym(:, :))
 
-           ! Gerade
-           if (isym <= nsymrpa/2) then
-               Do i = 1, nv0
-                   i0 = dmosym(i) - npg - noccg
-                   itrfmog(:, i0) = coeff(:, i)
-               End do
+        ! Gerade
+        if (isym <= nsymrpa/2) then
+            Do i = 1, nv0
+                i0 = dmosym(i) - npg - noccg
+                itrfmog(:, i0) = coeff(:, i)
+            End do
 
-               ! Ungerade
-           else
-               Do i = 1, nv0
-                   i0 = dmosym(i) - npg - neg - npu - noccu
-                   itrfmou(:, i0) = coeff(:, i)
-               End do
-           end if
+        ! Ungerade
+        else
+            Do i = 1, nv0
+                i0 = dmosym(i) - npg - neg - npu - noccu
+                itrfmou(:, i0) = coeff(:, i)
+            End do
+        end if
 
-           deallocate (coeff)
+        deallocate (coeff)
 
-           Do i = 1, nv
-               i0 = mosym(i)
-               write (*, '(I4,F20.10)') i0, wsym(i)
-           end do
+        Do i = 1, nv
+            i0 = mosym(i)
+            write (*, '(I4,F20.10)') i0, wsym(i)
+        end do
 
-           Do i = 1, nv
-               i0 = mosym(i)
-               write (*, *) ''
-               write (*, *) 'new ', i0 + ninact + nact, 'th ms consists of '
-               Do j = 1, nv
-                   j0 = mosym(j)
-                   if (ABS(fsym(j, i))**2 > 1.0d-03) then
-                       write (*, '(I4,"  Weights ",F20.10)') j0 + ninact + nact, ABS(fsym(j, i))**2
-                   end if
-               end do
-           end do
-           deallocate (fsym)
-           deallocate (wsym)
-           deallocate (mosym)
-           deallocate (dmosym)
-       end do
+        Do i = 1, nv
+            i0 = mosym(i)
+            write (*, *) ''
+            write (*, *) 'new ', i0 + ninact + nact, 'th ms consists of '
+            Do j = 1, nv
+                j0 = mosym(j)
+                if (ABS(fsym(j, i))**2 > 1.0d-03) then
+                    write (*, '(I4,"  Weights ",F20.10)') j0 + ninact + nact, ABS(fsym(j, i))**2
+                end if
+            end do
+        end do
+        deallocate (fsym)
+        deallocate (wsym)
+        deallocate (mosym)
+        deallocate (dmosym)
+    end do
 
-       ! unoccupid, gerade, electron
-       Do iao = 1, nbasg
-           DO imo = 1, neg - noccg
-               BUF((npg + noccg + (imo - 1))*nbasg + iao) = real(itrfmog(iao, imo), 8)
-           End do
-       End do
+    ! unoccupid, gerade, electron
+    Do iao = 1, nbasg
+        DO imo = 1, neg - noccg
+            BUF((npg + noccg + (imo - 1))*nbasg + iao) = real(itrfmog(iao, imo), 8)
+        End do
+    End do
 
-       ! unoccupid, ungerade, electron
-       Do iao = 1, nbasu
-           DO imo = 1, neu - noccu
-               BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao) = real(itrfmou(iao, imo), 8)
-           End do
-       End do
+    ! unoccupid, ungerade, electron
+    Do iao = 1, nbasu
+        DO imo = 1, neu - noccu
+            BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao) = real(itrfmou(iao, imo), 8)
+        End do
+    End do
 
 ! Create new DFPCMO : DFPCMONEW
 
-       call open_formatted_file(unit=unit_dfpcmo, file='DFPCMONEW', status='replace', optional_action="write")
-       if (dirac_version == 21) then
-           write (unit_dfpcmo, '(A150)') line0
-       elseif (dirac_version == 22) then
-           write (unit_dfpcmo, '(A150)') line0
-       end if
-       write (unit_dfpcmo, '(A150)') line1
-       if (dirac_version == 21) then
-           write (unit_dfpcmo, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
-       elseif (dirac_version == 22) then
-           write (unit_dfpcmo, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
-       else
-           write (unit_dfpcmo, '(7(X,I0))') A, npg, neg, nbasg, npu, neu, nbasu
-       end if
-       write (unit_dfpcmo, '(A150)') line2
-       if (dirac_version == 21) then
-           write (unit_dfpcmo, '(A150)') line3
-       elseif (dirac_version == 22) then
-           write (unit_dfpcmo, '(A150)') line3
-       end if
-       Do I = 1, ngu, 6
-           Write (unit_dfpcmo, '(6F22.16)') BUF(I:I + 5)
-       End do
-       if (dirac_version == 21) then
-           write (unit_dfpcmo, '(A150)') line4
-       elseif (dirac_version == 22) then
-           write (unit_dfpcmo, '(A150)') line4
-       end if
+    call open_formatted_file(unit=unit_dfpcmo, file='DFPCMONEW', status='replace', optional_action="write")
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        write (unit_dfpcmo, '(A150)') line0
+    end if
+    write (unit_dfpcmo, '(A150)') line1
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        write (unit_dfpcmo, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
+    else
+        write (unit_dfpcmo, '(7(X,I0))') A, npg, neg, nbasg, npu, neu, nbasu
+    end if
+    write (unit_dfpcmo, '(A150)') line2
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        write (unit_dfpcmo, '(A150)') line3
+    end if
+    Do I = 1, ngu, 6
+        Write (unit_dfpcmo, '(6F22.16)') BUF(I:I + 5)
+    End do
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        write (unit_dfpcmo, '(A150)') line4
+    end if
 
-       write (unit_dfpcmo, '(6E22.12)') eval
-       if (dirac_version == 21) then
-           write (unit_dfpcmo, '(A150)') line5
-       elseif (dirac_version == 22) then
-           write (unit_dfpcmo, '(A150)') line5
-       end if
-       write (unit_dfpcmo, '(66(X,I0))') (syminfo(i), i=1, nsum)
-       close (unit_dfpcmo)
+    write (unit_dfpcmo, '(6E22.12)') eval
+    if (dirac_version == 21 .or. dirac_version == 22) then
+        write (unit_dfpcmo, '(A150)') line5
+    end if
+    write (unit_dfpcmo, '(66(X,I0))') (syminfo(i), i=1, nsum)
+    close (unit_dfpcmo)
 
-       goto 100
-
-       write (*, *) 'reading err of DFPCMO'
-
-100    write (*, *) 'fockivo_co end'
-       deallocate (itrfmog, itrfmou)
-       deallocate (BUF)
-       deallocate (eval, syminfo)
-   end subroutine fockivo_co
+    write (*, *) 'fockivo_co end'
+    deallocate (itrfmog, itrfmou)
+    deallocate (BUF)
+    deallocate (eval, syminfo)
+end subroutine fockivo_co
