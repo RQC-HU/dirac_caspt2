@@ -37,13 +37,19 @@ contains
         integer :: ii, ie
         integer :: i, idx_end, cnt
         integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
 
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
         end if
+        if (sizeof(mat) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
 
-        call MPI_Allreduce(MPI_IN_PLACE, mat, 1, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, mat, 1, datatype, op, MPI_COMM_WORLD, ierr)
         call check_ierr(ierr)
 
     end subroutine allreduce_i
@@ -56,6 +62,7 @@ contains
         integer :: ii, ie
         integer :: i, idx_end, cnt
         integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
 
         if (present(optional_op)) then
             call check_operation(optional_op)
@@ -64,6 +71,11 @@ contains
 
         ! Set the first and last index of the array for each dimension.
         ii = lbound(mat, 1); ie = ubound(mat, 1)
+        if (sizeof(mat(ii)) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
 
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
@@ -71,11 +83,11 @@ contains
                 idx_end = min(i + max_i4 - 1, ie)
                 cnt = idx_end - i + 1
                 call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end), &
-                                   cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                   cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
         else ! no limit
-            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), datatype, op, MPI_COMM_WORLD, ierr)
             call check_ierr(ierr)
         end if
     end subroutine allreduce_i_1
@@ -88,6 +100,7 @@ contains
         integer :: ii, ie, ji, je
         integer :: i, j, idx_end, cnt
         integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
 
         if (present(optional_op)) then
             call check_operation(optional_op)
@@ -97,7 +110,11 @@ contains
         ! Set the first and last index of the array for each dimension.
         ii = lbound(mat, 1); ie = ubound(mat, 1)
         ji = lbound(mat, 2); je = ubound(mat, 2)
-
+        if (sizeof(mat(ii, ji)) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do j = ji, je
@@ -105,7 +122,7 @@ contains
                     idx_end = min(i + max_i4 - 1, ie)
                     cnt = idx_end - i + 1
                     call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j), &
-                                       cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                       cnt, datatype, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
@@ -114,11 +131,11 @@ contains
                 idx_end = min(j + max_i4 - 1, je)
                 cnt = (idx_end - j + 1)*size(mat, 1)
                 call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end), &
-                                   cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                   cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
         else ! no limit
-            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), datatype, op, MPI_COMM_WORLD, ierr)
             call check_ierr(ierr)
         end if
     end subroutine allreduce_i_2
@@ -131,6 +148,7 @@ contains
         integer :: ii, ie, ji, je, ki, ke
         integer :: i, j, k, idx_end, cnt
         integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
 
         if (present(optional_op)) then
             call check_operation(optional_op)
@@ -141,7 +159,11 @@ contains
         ii = lbound(mat, 1); ie = ubound(mat, 1)
         ji = lbound(mat, 2); je = ubound(mat, 2)
         ki = lbound(mat, 3); ke = ubound(mat, 3)
-
+        if (sizeof(mat(ii, ji, ki)) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do k = ki, ke
@@ -150,7 +172,7 @@ contains
                         idx_end = min(i + max_i4 - 1, ie)
                         cnt = idx_end - i + 1
                         call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k), &
-                                           cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                           cnt, datatype, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
                 end do
@@ -161,7 +183,7 @@ contains
                     idx_end = min(j + max_i4 - 1, je)
                     cnt = (idx_end - j + 1)*size(mat, 1)
                     call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k), &
-                                       cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                       cnt, datatype, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
@@ -170,11 +192,11 @@ contains
                 idx_end = min(k + max_i4 - 1, ke)
                 cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
                 call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end), &
-                                   cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                   cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
         else ! no limit
-            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), datatype, op, MPI_COMM_WORLD, ierr)
             call check_ierr(ierr)
         end if
     end subroutine allreduce_i_3
@@ -187,6 +209,7 @@ contains
         integer :: ii, ie, ji, je, ki, ke, li, le
         integer :: i, j, k, l, idx_end, cnt
         integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
 
         if (present(optional_op)) then
             call check_operation(optional_op)
@@ -198,7 +221,11 @@ contains
         ji = lbound(mat, 2); je = ubound(mat, 2)
         ki = lbound(mat, 3); ke = ubound(mat, 3)
         li = lbound(mat, 4); le = ubound(mat, 4)
-
+        if (sizeof(mat(ii, ji, ki, li)) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do l = li, le
@@ -208,7 +235,7 @@ contains
                             idx_end = min(i + max_i4 - 1, ie)
                             cnt = idx_end - i + 1
                             call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k, l), &
-                                               cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                               cnt, datatype, op, MPI_COMM_WORLD, ierr)
                             call check_ierr(ierr)
                         end do
                     end do
@@ -221,7 +248,7 @@ contains
                         idx_end = min(j + max_i4 - 1, je)
                         cnt = (idx_end - j + 1)*size(mat, 1)
                         call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k, l), &
-                                           cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                           cnt, datatype, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
                 end do
@@ -232,7 +259,7 @@ contains
                     idx_end = min(k + max_i4 - 1, ke)
                     cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
                     call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end, l), &
-                                       cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                       cnt, datatype, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
@@ -241,11 +268,11 @@ contains
                 idx_end = min(l + max_i4 - 1, le)
                 cnt = (idx_end - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
                 call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l:idx_end), &
-                                   cnt, MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+                                   cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
         else ! no limit
-            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_INTEGER8, op, MPI_COMM_WORLD, ierr)
+            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), datatype, op, MPI_COMM_WORLD, ierr)
             call check_ierr(ierr)
         end if
     end subroutine allreduce_i_4
