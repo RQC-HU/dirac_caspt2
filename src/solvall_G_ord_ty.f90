@@ -368,11 +368,11 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer, intent(in)      :: dimn, indt(dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
     real*8  ::a, b
@@ -398,7 +398,7 @@ SUBROUTINE sGmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
     End do                  !i
 !    !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=sc)
 #endif
 
 End subroutine sGmat
@@ -487,11 +487,10 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
 
     use four_caspt2_module
     use module_file_manager
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer, intent(in)     :: nabi, iabi(nsec, nsec, ninact)
 
@@ -541,7 +540,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
 
     if (rank == 0) print *, 'vGmat_ord_ty is ended'
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nabi*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=v)
     if (rank == 0) print *, 'end allreduce vGmat'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

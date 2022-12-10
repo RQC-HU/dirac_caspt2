@@ -5,11 +5,11 @@ SUBROUTINE casmat(mat)
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     complex*16, intent(out) :: mat(ndet, ndet)
 
     integer              :: occ, vir, indr, inds, inda, indb
@@ -222,7 +222,7 @@ SUBROUTINE casmat(mat)
         print *, 'Reduce mat(:,:)'
     end if
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, mat(1, 1), ndet**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=mat)
     if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
 end subroutine casmat

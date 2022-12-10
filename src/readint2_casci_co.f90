@@ -6,7 +6,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     use four_caspt2_module
     use module_file_manager
-
+#ifdef HAVE_MPI
+    use module_mpi, only: allreduce_wrapper
+#endif
     Implicit NONE
 #ifdef HAVE_MPI
     include 'mpif.h'
@@ -37,20 +39,16 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     Allocate (i(read_line_max)); call memplus(kind(i), size(i), 1)
     Allocate (j(read_line_max)); call memplus(kind(j), size(j), 1)
     Allocate (nz(read_line_max)); call memplus(kind(nz), size(nz), 1)
-    Allocate (int2r_f1(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc))
-    Allocate (int2i_f1(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc))
-    Allocate (int2r_f2(ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc, ninact + nact + 1:ninact + nact + nsec))
-    Allocate (int2i_f2(ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc, ninact + nact + 1:ninact + nact + nsec))
-    Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-    Call memplus(KIND(int2i_f1), SIZE(int2i_f1), 1)
-    Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-    Call memplus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+    Allocate (int2r_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
+    Allocate (int2i_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2i_f1), SIZE(int2i_f1), 1)
+    Allocate (int2r_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
+    Allocate (int2i_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2i_f2), SIZE(int2i_f2), 1)
     Allocate (inttwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwr), SIZE(inttwr), 1)
     Allocate (inttwi(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwi), SIZE(inttwi), 1)
     Allocate (indk(read_line_max, nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
-    Allocate (indl(read_line_max, nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
-    Allocate (rklr(read_line_max, nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
-    Allocate (rkli(read_line_max, nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
+    Allocate (indl(read_line_max, nmo**2)); Call memplus(KIND(indl), SIZE(indl), 1)
+    Allocate (rklr(read_line_max, nmo**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
+    Allocate (rkli(read_line_max, nmo**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
     !Iwamuro modify
     Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
@@ -391,16 +389,12 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     if (allocated(j)) deallocate (j); Call memminus(KIND(j), SIZE(j), 1)
     if (allocated(nz)) deallocate (nz); call memminus(kind(nz), size(nz), 1)
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, inttwr(1, 1, 1, 1), nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, inttwi(1, 1, 1, 1), nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
-                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
-                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
-                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
-                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=inttwr)
+    call allreduce_wrapper(mat=inttwi)
+    call allreduce_wrapper(mat=int2r_f1)
+    call allreduce_wrapper(mat=int2i_f1)
+    call allreduce_wrapper(mat=int2r_f2)
+    call allreduce_wrapper(mat=int2i_f2)
     if (rank == 0) print *, 'End MPI_Allreduce inttwr, inttwi, int2r_f1, int2i_f1, int2r_f2, int2i_f2'
 #endif
 end subroutine readint2_casci_co
