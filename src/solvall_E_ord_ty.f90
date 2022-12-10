@@ -99,9 +99,6 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
     Allocate (v(naij, nact))
     v = 0.0d+00
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0

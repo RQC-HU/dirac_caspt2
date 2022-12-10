@@ -77,9 +77,6 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         print *, ' nsymrpa', nsymrpa
     end if
     Allocate (v(nsec, nact, nact, nact))
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
