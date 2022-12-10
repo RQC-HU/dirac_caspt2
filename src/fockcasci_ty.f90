@@ -39,22 +39,22 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
 
             f(i, j) = DCMPLX(oner(i, j), onei(i, j))
             do k = 1, ninact
-                f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k), 16)
-                f(i, j) = f(i, j) - CMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j), 16)
+                f(i, j) = f(i, j) + DCMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k))
+                f(i, j) = f(i, j) - DCMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j))
             End do           ! k
             do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
                 do l = ninact + 1, ninact + nact           ! ACTIVE SPACE
                     If (realcvec) then
                         Call dim1_density_R(k - ninact, l - ninact, dr)
-                        f(i, j) = f(i, j) + dr*CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
-                        f(i, j) = f(i, j) - dr*CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
+                        f(i, j) = f(i, j) + dr*DCMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l))
+                        f(i, j) = f(i, j) - dr*DCMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j))
                     Else
                         dr = 0.0d+00
                         Call dim1_density(k - ninact, l - ninact, dr, di)
-                        dens = CMPLX(dr, di, 16)
+                        dens = DCMPLX(dr, di)
 
-                        f(i, j) = f(i, j) + dens*CMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l), 16)
-                        f(i, j) = f(i, j) - dens*CMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j), 16)
+                        f(i, j) = f(i, j) + dens*DCMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l))
+                        f(i, j) = f(i, j) - dens*DCMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j))
                     End if
                 End do     ! l
             End do        ! k
@@ -81,7 +81,7 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
                         f(i, j) = f(i, j) - dr*DCMPLX(int2r_f2(i, l, k, j), int2i_f2(i, l, k, j))
                     Else
                         Call dim1_density(k - ninact, l - ninact, dr, di)
-                        dens = CMPLX(dr, di, 16)
+                        dens = DCMPLX(dr, di)
                         f(i, j) = f(i, j) + dens*DCMPLX(int2r_f1(i, j, k, l), int2i_f1(i, j, k, l))
                         f(i, j) = f(i, j) - dens*DCMPLX(int2r_f2(i, l, k, j), int2i_f2(i, l, k, j))
                     End if

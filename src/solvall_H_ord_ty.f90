@@ -153,7 +153,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
                 coeff1 = v(i0, j0)/e
                 sumc2local = sumc2local + ABS(coeff1)**2
 
-                e2h = e2h - DCONJG(v(i0, j0))*v(i0, j0)/e
+                e2h = e2h - DBLE(DCONJG(v(i0, j0))*v(i0, j0)/e)
             end if
         End do
     End do

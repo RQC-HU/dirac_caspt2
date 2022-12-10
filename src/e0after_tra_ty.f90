@@ -186,7 +186,7 @@ SUBROUTINE e0aftertra_ty
                 jj = j - ninact
                 Call dim1_density(ii, jj, dr, di)
 
-                dens = CMPLX(dr, di, 16)
+                dens = DCMPLX(dr, di)
 !                  write(*,'(2I4,2E20.10)') i, j,DBLE(oneeff), DBLE(dens)
                 energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
@@ -239,7 +239,7 @@ SUBROUTINE e0aftertra_ty
 
                         Call dim2_density(ii, jj, kk, ll, dr, di)
 
-                        dens = CMPLX(dr, di, 16)
+                        dens = DCMPLX(dr, di)
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
                         ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
@@ -270,7 +270,7 @@ SUBROUTINE e0aftertra_ty
 
                             Call dim1_density(ii, ll, dr, di)
 
-                            dens = CMPLX(dr, di, 16)
+                            dens = DCMPLX(dr, di)
                             energy(iroot, 4) = energy(iroot, 4) &
                                                - (0.5d+00)*dens*cmplxint
                         end if
@@ -502,7 +502,7 @@ SUBROUTINE e0aftertrac_ty
                 jj = j - ninact
                 Call dim1_density(ii, jj, dr, di)
 
-                dens = CMPLX(dr, di, 16)
+                dens = DCMPLX(dr, di)
                 energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
             end if
@@ -542,7 +542,7 @@ SUBROUTINE e0aftertrac_ty
 
                         Call dim2_density(ii, jj, kk, ll, dr, di)
 
-                        dens = CMPLX(dr, di, 16)
+                        dens = DCMPLX(dr, di)
                         energy(iroot, 4) = energy(iroot, 4) + (0.5d+00)*dens*cmplxint
                     end if
 
@@ -566,7 +566,7 @@ SUBROUTINE e0aftertrac_ty
 
                             Call dim1_density(ii, ll, dr, di)
 
-                            dens = CMPLX(dr, di, 16)
+                            dens = DCMPLX(dr, di)
                             energy(iroot, 4) = energy(iroot, 4) - (0.5d+00)*dens*cmplxint
                         end if
 

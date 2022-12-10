@@ -39,8 +39,8 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
             f(i, j) = DCMPLX(oner(i, j), onei(i, j))
             do k = 1, ninact + nelec
 
-                f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k), 16)
-                f(i, j) = f(i, j) - CMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j), 16)
+                f(i, j) = f(i, j) + DCMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k))
+                f(i, j) = f(i, j) - DCMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j))
 
             End do           ! k
 

@@ -40,7 +40,7 @@ SUBROUTINE tramo1_ty(i, j, int1)
             do idx_i0 = 1, count_n_list1
                 i0 = n_list_sym1(idx_i0)
                 j0 = n_list_sym2(idx_j0)
-                int1 = int1 + DCONJG(f(i0, i))*CMPLX(oner(i0, j0), onei(i0, j0), 16)*f(j0, j)
+                int1 = int1 + DCONJG(f(i0, i))*DCMPLX(oner(i0, j0), onei(i0, j0))*f(j0, j)
             end do
         end do
 
@@ -179,12 +179,6 @@ contains
         end if
 
     end subroutine get_mo_range
-    subroutine count_allocate_n_list(idx_start, idx_end, sym, count_n_list)
-        implicit none
-        integer, intent(in) :: idx_start, idx_end, sym
-        integer, intent(out) :: count_n_list
-        count_n_list = count(irpamo(idx_start:idx_end) == sym)
-    end subroutine count_allocate_n_list
     subroutine craete_n_list(idx_start, idx_end, isym, n_list)
         implicit none
         integer, intent(in) :: idx_start, idx_end, isym

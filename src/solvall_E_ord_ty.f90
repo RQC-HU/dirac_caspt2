@@ -300,7 +300,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
                 vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm))
 
                 Do j = 1, dimm
-                    e = DCONJG(vc1(j))*vc1(j)/(alpha + wb(j))
+                    e = DBLE(DCONJG(vc1(j))*vc1(j)/(alpha + wb(j)))
                     sumc2local = sumc2local + e/(alpha + wb(j))
                     e2(isym) = e2(isym) - e
                 End do

@@ -204,7 +204,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         ii = 0
         do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
             cmplxint = 0.0d+00
-            cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+            cmplxint = DCMPLX(oner(i, i), onei(i, i))
             energyHF(1) = energyHF(1) + cmplxint
         end do
 
@@ -230,7 +230,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 i2r = inttwr(i, i, j, j)
                 i2i = inttwi(i, i, j, j)
 
-                cmplxint = CMPLX(i2r, i2i, 16)
+                cmplxint = DCMPLX(i2r, i2i)
                 energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
 
                 cmplxint = 0.0d+00
@@ -242,7 +242,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 i2r = inttwr(i, j, j, i)
                 i2i = inttwi(i, j, j, i)
 
-                cmplxint = CMPLX(i2r, i2i, 16)
+                cmplxint = DCMPLX(i2r, i2i)
                 energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
 
             end do
@@ -260,7 +260,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
         do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            cmplxint = CMPLX(oner(i, i), onei(i, i), 16)
+            cmplxint = DCMPLX(oner(i, i), onei(i, i))
             energy(iroot, 1) = energy(iroot, 1) + cmplxint
         end do
 
@@ -278,13 +278,13 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 i2r = inttwr(i, i, j, j)
                 i2i = inttwi(i, i, j, j)
 
-                cmplxint = CMPLX(i2r, i2i, 16)
+                cmplxint = DCMPLX(i2r, i2i)
                 energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
 
                 i2r = inttwr(i, j, j, i)
                 i2i = inttwi(i, j, j, i)
 
-                cmplxint = CMPLX(i2r, i2i, 16)
+                cmplxint = DCMPLX(i2r, i2i)
                 energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
 
             end do
@@ -313,17 +313,17 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                     i2r = inttwr(i, j, k, k)
                     i2i = inttwi(i, j, k, k)
 
-                    cmplxint = CMPLX(i2r, i2i, 16)
+                    cmplxint = DCMPLX(i2r, i2i)
                     oneeff = oneeff + cmplxint
 
                     i2r = inttwr(i, k, k, j)
                     i2i = inttwi(i, k, k, j)
 
-                    cmplxint = CMPLX(i2r, i2i, 16)
+                    cmplxint = DCMPLX(i2r, i2i)
                     oneeff = oneeff - cmplxint
 
                 end do           ! kk
-                cmplxint = CMPLX(oner(i, j), onei(i, j), 16)
+                cmplxint = DCMPLX(oner(i, j), onei(i, j))
                 oneeff = oneeff + cmplxint
 
                 if (i == j) oneeff = oneeff*(0.5d+00)
@@ -341,7 +341,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                     Call dim1_density(i - ninact, j - ninact, dr, di)
 
-                    dens = CMPLX(dr, di, 16)
+                    dens = DCMPLX(dr, di)
                     energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
                 end if
@@ -373,7 +373,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                         i2r = inttwr(i, j, k, l)
                         i2i = inttwi(i, j, k, l)
 
-                        cmplxint = CMPLX(i2r, i2i, 16)
+                        cmplxint = DCMPLX(i2r, i2i)
 
                         if (realcvec) then
                             ii = i - ninact
@@ -396,7 +396,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                             Call dim2_density(ii, jj, kk, ll, dr, di)
 
-                            dens = CMPLX(dr, di, 16)
+                            dens = DCMPLX(dr, di)
 
                             energy(iroot, 4) = energy(iroot, 4) + (0.5d+00)*dens*cmplxint
                         end if
@@ -430,7 +430,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                                 kk = k
                                 ll = l
 
-                                dens = CMPLX(dr, di, 16)
+                                dens = DCMPLX(dr, di)
                                 energy(iroot, 4) = energy(iroot, 4) - (0.5d+00)*dens*cmplxint
                             end if
 

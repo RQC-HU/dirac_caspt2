@@ -49,14 +49,14 @@ SUBROUTINE casmat(mat)
         !    cmplxint = 0.0d+00
         Do i0 = 1, ninact
             ir = i0
-            cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
+            cmplxint = DCMPLX(oner(ir, ir), onei(ir, ir))
             mat(i, i) = mat(i, i) + cmplxint
         End do
 
         Do i0 = 1, nelec
             indr = oc(i0)
             ir = indr + ninact
-            cmplxint = CMPLX(oner(ir, ir), onei(ir, ir), 16)
+            cmplxint = DCMPLX(oner(ir, ir), onei(ir, ir))
             mat(i, i) = mat(i, i) + cmplxint
         End do
 
@@ -84,14 +84,14 @@ SUBROUTINE casmat(mat)
                 ! two electron integral : (ir, ir | is, is)
                 i2r = inttwr(ir, ir, is, is)
                 i2i = inttwi(ir, ir, is, is)
-                cmplxint = CMPLX(i2r, i2i, 16)
+                cmplxint = DCMPLX(i2r, i2i)
 
                 mat0 = mat0 + 0.5d+00*cmplxint
 
                 ! two electron integral : (ir, is | is, ir)
                 i2r = inttwr(ir, is, is, ir)
                 i2i = inttwi(ir, is, is, ir)
-                cmplxint = CMPLX(i2r, i2i, 16)
+                cmplxint = DCMPLX(i2r, i2i)
 
                 mat0 = mat0 - 0.5d+00*cmplxint
 
@@ -115,7 +115,7 @@ SUBROUTINE casmat(mat)
                 j = idetr(newidet1)
 
                 If (j > i) then
-                    cmplxint = CMPLX(oner(ir, ia), onei(ir, ia), 16)
+                    cmplxint = DCMPLX(oner(ir, ia), onei(ir, ia))
                     mat(i, j) = mat(i, j) + cmplxint
                     Do l0 = 1, ninact
                         is = l0
@@ -123,14 +123,14 @@ SUBROUTINE casmat(mat)
                         ! two electron integral : (ir, ia | is, is)
                         i2r = inttwr(ir, ia, is, is)
                         i2i = inttwi(ir, ia, is, is)
-                        cmplxint = CMPLX(i2r, i2i, 16)
+                        cmplxint = DCMPLX(i2r, i2i)
 
                         mat(i, j) = mat(i, j) + cmplxint
 
                         ! two electron integral : (ir, is | is, ia)
                         i2r = inttwr(ir, is, is, ia)
                         i2i = inttwi(ir, is, is, ia)
-                        cmplxint = CMPLX(i2r, i2i, 16)
+                        cmplxint = DCMPLX(i2r, i2i)
 
                         mat(i, j) = mat(i, j) - cmplxint
                     End do      !l0
@@ -142,14 +142,14 @@ SUBROUTINE casmat(mat)
                         ! two electron integral : (ir, ia | is, is)
                         i2r = inttwr(ir, ia, is, is)
                         i2i = inttwi(ir, ia, is, is)
-                        cmplxint = CMPLX(i2r, i2i, 16)
+                        cmplxint = DCMPLX(i2r, i2i)
 
                         mat(i, j) = mat(i, j) + cmplxint
 
                         ! two electron integral : (ir, is | is, ia)
                         i2r = inttwr(ir, is, is, ia)
                         i2i = inttwi(ir, is, is, ia)
-                        cmplxint = CMPLX(i2r, i2i, 16)
+                        cmplxint = DCMPLX(i2r, i2i)
 
                         mat(i, j) = mat(i, j) - cmplxint
                     End do      !l0
@@ -192,14 +192,14 @@ SUBROUTINE casmat(mat)
                             ! two electron integral : (ir, ia | is, ib)
                             i2r = inttwr(ir, ia, is, ib)
                             i2i = inttwi(ir, ia, is, ib)
-                            cmplxint = CMPLX(i2r, i2i, 16)
+                            cmplxint = DCMPLX(i2r, i2i)
 
                             mat(i, j) = cmplxint
 
                             ! two electron integral : (ir, ib | is, ia)
                             i2r = inttwr(ir, ib, is, ia)
                             i2i = inttwi(ir, ib, is, ia)
-                            cmplxint = CMPLX(i2r, i2i, 16)
+                            cmplxint = DCMPLX(i2r, i2i)
 
                             mat(i, j) = mat(i, j) - cmplxint
 
