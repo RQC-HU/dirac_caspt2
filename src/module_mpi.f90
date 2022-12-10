@@ -4,13 +4,18 @@ module module_mpi
 #ifdef HAVE_MPI
     include 'mpif.h'
     private
-    public allreduce_wrapper
+    public reduce_wrapper, allreduce_wrapper
+    interface reduce_wrapper
+        module procedure reduce_i, reduce_i_1, reduce_c_2
+    end interface reduce_wrapper
+
     interface allreduce_wrapper
         ! Default operation is MPI_SUM
         module procedure allreduce_i, allreduce_i_1, allreduce_i_2, allreduce_i_3, allreduce_i_4, &
             allreduce_r, allreduce_r_1, allreduce_r_2, allreduce_r_3, allreduce_r_4, &
             allreduce_c, allreduce_c_1, allreduce_c_2, allreduce_c_3, allreduce_c_4
     end interface allreduce_wrapper
+
     integer, parameter, public :: op_mpi_max = MPI_MAX          ! MPI_MAX      最大値
     integer, parameter, public :: op_mpi_min = MPI_MIN          ! MPI_MIN      最小値
     integer, parameter, public :: op_mpi_sum = MPI_SUM          ! MPI_SUM      和
@@ -28,6 +33,139 @@ module module_mpi
                                       op_mpi_land, op_mpi_band, op_mpi_lor, op_mpi_bor, &
                                       op_mpi_lxor, op_mpi_bxor, op_mpi_maxloc, op_mpi_minloc/)
 contains
+
+    subroutine reduce_i(mat, root_rank, optional_op)
+        ! Reduce for an integer value
+        implicit none
+        integer, intent(inout) :: mat
+        integer, intent(in) :: root_rank
+        integer, optional, intent(in) :: optional_op
+        integer :: ii, ie
+        integer :: i, idx_end, cnt
+        integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
+
+        if (present(optional_op)) then
+            call check_operation(optional_op)
+            op = optional_op
+        end if
+        if (sizeof(mat) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
+
+        if (rank == root_rank) then
+            call MPI_Reduce(MPI_IN_PLACE, mat, 1, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+        else
+            call MPI_Reduce(mat, mat, 1, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+        end if
+
+    end subroutine reduce_i
+
+    subroutine reduce_i_1(mat, root_rank, optional_op)
+        ! Reduce for 1 dimensional integer array
+        implicit none
+        integer, intent(inout) :: mat(:)
+        integer, intent(in) :: root_rank
+        integer, optional, intent(in) :: optional_op
+        integer :: ii, ie
+        integer :: i, idx_end, cnt
+        integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
+
+        if (present(optional_op)) then
+            call check_operation(optional_op)
+            op = optional_op
+        end if
+
+        ! Set the first and last index of the array for each dimension.
+        ii = lbound(mat, 1); ie = ubound(mat, 1)
+        if (sizeof(mat(ii)) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
+
+        ! Because of the limitation of the size of the array, the array is divided into several parts and reduce is performed.
+        if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
+            do i = ii, ie, max_i4
+                idx_end = min(i + max_i4 - 1, ie)
+                cnt = idx_end - i + 1
+                if (rank == root_rank) then
+                    call MPI_Reduce(MPI_IN_PLACE, mat(i:idx_end), &
+                                    cnt, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+                else
+                    call MPI_Reduce(mat(i:idx_end), mat(i:idx_end), &
+                                    cnt, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+                end if
+                call check_ierr(ierr)
+            end do
+        else ! no limit
+            if (rank == root_rank) then
+                call MPI_Reduce(MPI_IN_PLACE, mat, size(mat), datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+            else
+                call MPI_Reduce(mat, mat, size(mat), datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+            end if
+            call check_ierr(ierr)
+        end if
+    end subroutine reduce_i_1
+
+    subroutine reduce_c_2(mat, root_rank, optional_op)
+        ! Reduce for 2 dimensional complex*16 array
+        implicit none
+        complex*16, intent(inout) :: mat(:, :)
+        integer, intent(in) :: root_rank
+        integer, optional, intent(in) :: optional_op
+        integer :: ii, ie, ji, je
+        integer :: i, j, idx_end, cnt
+        integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
+
+        if (present(optional_op)) then
+            call check_operation(optional_op)
+            op = optional_op
+        end if
+
+        ! Set the first and last index of the array for each dimension.
+        ii = lbound(mat, 1); ie = ubound(mat, 1)
+        ji = lbound(mat, 2); je = ubound(mat, 2)
+
+        ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
+        if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
+            do j = ji, je
+                do i = ii, ie, max_i4
+                    idx_end = min(i + max_i4 - 1, ie)
+                    cnt = idx_end - i + 1
+                    if (rank == root_rank) then
+                        call MPI_Reduce(MPI_IN_PLACE, mat(i:idx_end, j), &
+                                        cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+                    else
+                        call MPI_Reduce(mat(i:idx_end, j), mat(i:idx_end, j), &
+                                        cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+                    end if
+                    call check_ierr(ierr)
+                end do
+            end do
+        else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
+            do j = ji, je, max_i4
+                idx_end = min(j + max_i4 - 1, je)
+                cnt = (idx_end - j + 1)*size(mat, 1)
+                if (rank == root_rank) then
+                    call MPI_Reduce(MPI_IN_PLACE, mat(:, j:idx_end), &
+                                    cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+                else
+                    call MPI_Reduce(mat(:, j:idx_end), mat(:, j:idx_end), &
+                                    cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+                end if
+                call check_ierr(ierr)
+            end do
+        else ! no limit
+            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
+            call check_ierr(ierr)
+        end if
+
+    end subroutine reduce_c_2
 
     subroutine allreduce_i(mat, optional_op)
         ! Allreduce for a integer value
