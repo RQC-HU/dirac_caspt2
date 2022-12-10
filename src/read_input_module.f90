@@ -151,6 +151,9 @@ contains
         case ("minholeras1")
             call read_an_integer(unit_num, 0, intmax, min_hole_ras1)
 
+        case ("skip_mdcint")
+            skip_mdcint = .true.
+
         case ("end")
             is_end = .true.
 
