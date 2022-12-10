@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
+from subprocess import Popen
 import argparse
 import datetime
 import glob
 import os
 import shutil
+import signal
 import sys
 import tempfile
 import time
-from subprocess import Popen
 
 
 def parse_args() -> "argparse.Namespace":
@@ -27,6 +28,7 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser = argparse.ArgumentParser(description=desc, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-i", "--inp", type=str, dest="input", help="Input file [default: active.inp]")
     parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
+    parser.add_argument("--skip_casci", action="store_true", help="Skip CASCI calculation [default: False]", dest="skip_casci")
     parser.add_argument("-o", "--out", type=str, dest="output", help="Specify the name of output file [default: dirac_caspt2.out]")
     parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
     parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: The directory where this script is used]")
@@ -154,6 +156,8 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
     caspt2_path = os.path.join(binary_dir, "r4dcaspt2ocoexe")
     if args.ivo:
         command = f"{mpi} {ivo_path}"
+    elif args.skip_casci:
+        command = f"{mpi} {caspt2_path}"
     else:
         command = f"{mpi} {casci_path} && {mpi} {caspt2_path}"
     print(f"Created command : {command}")
@@ -169,14 +173,25 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, output_f
         tmp_dir (str): Path to the temporary directory
         output_file_path (str): Path to the output file
     """
+
+    def delete_tmp_dir():
+        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
+        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
     os.chdir(tmp_dir)
 
     with open(output_file_path, "w") as f:
         start_time = time.time()
         start_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        p = Popen(command, shell=True, stdout=f, stderr=f)
-        p.wait()
+        try:
+            p = Popen(command, shell=True, stdout=f, stderr=f)
+            p.wait()
+        except KeyboardInterrupt:
+            delete_tmp_dir()
+            print("Calculation was interrupted by the user.(ctrl+c, SIGINT)")
+            sys.exit(signal.SIGINT)
 
         end_time = time.time()
         end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -199,9 +214,7 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, output_f
         print(end_message)
         f.write(end_message)
 
-        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
-        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
-            shutil.rmtree(tmp_dir)
+        delete_tmp_dir()
 
         # When the calculation failed, exit with the return code of the calculation
         if p.returncode != 0:
