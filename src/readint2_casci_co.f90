@@ -7,12 +7,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     use four_caspt2_module
     use module_file_manager
 #ifdef HAVE_MPI
-    use module_mpi, only: allreduce_wrapper
+    use module_mpi
 #endif
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-#endif
     character*50, intent(in) :: filename
 
     character  :: datex*10, timex*8
@@ -368,13 +365,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
     close (mdcint)
 #ifdef HAVE_MPI
-    if (rank == 0) then
-        call MPI_Reduce(MPI_IN_PLACE, nuniq, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-        call MPI_Reduce(MPI_IN_PLACE, totalint, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    else
-        call MPI_Reduce(nuniq, nuniq, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-        call MPI_Reduce(totalint, totalint, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    end if
+    call reduce_wrapper(mat=nuniq, root_rank=0)
+    call reduce_wrapper(mat=totalint, root_rank=0)
 #endif
     if (rank == 0) then
         print *, nuniq, totalint

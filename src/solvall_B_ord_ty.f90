@@ -27,7 +27,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
 
     integer, allocatable     :: ii0(:), ij0(:), iij(:, :)
-    integer                  :: nij, count
+    integer                  :: nij
 
     logical :: cutoff
     integer :: j, i, syma, isym, i0
@@ -443,11 +443,10 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer, intent(in) :: dimn, indsym(2, dimn)
     complex*16, intent(in)  :: sc(dimn, dimn)
@@ -532,11 +531,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
     End do                  !j
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    if (rank == 0) then
-        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    else
-        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    end if
+    call reduce_wrapper(mat=bc, root_rank=0)
 #endif
     if (rank == 0) print *, 'bBmat is ended'
 End subroutine bBmat

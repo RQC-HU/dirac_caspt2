@@ -407,11 +407,10 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer :: it, iu, iw, jt, ju, jw
     integer :: i, j
@@ -458,11 +457,7 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
     End do                  !j
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    if (rank == 0) then
-        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    else
-        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    end if
+    call reduce_wrapper(mat=bc, root_rank=0)
 #endif
     if (rank == 0) print *, 'bEmat is ended'
 End subroutine bEmat
