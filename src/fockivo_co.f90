@@ -47,7 +47,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
     if (rank == 0) print *, 'number of degeneracy of HOMO is', numh, DBLE(numh), 1.0d+00/DBLE(numh)
 
-    do i = 1, nsec, nprocs
+    do i = 1, nsec
         i0 = i + ninact + nact
         f(i, i) = orbmo(i0)
         do j = i, nsec
@@ -66,15 +66,12 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         end do
     end do
 
-    do i = 1, nsec, nprocs
+    do i = 1, nsec
         do j = i, nsec
             f(j, i) = DCONJG(f(i, j))
         end do
     end do
 
-#ifdef HAVE_MPI
-    call mpi_allreduce(MPI_IN_PLACE, f(1, 1), nsec*nsec, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-#endif
 
     IMAX = nbas*lscom
     call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
@@ -109,6 +106,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
     itrfmog = 0.0d+00
     itrfmou = 0.0d+00
+    BUF = 0.0d+00
 
     if (dirac_version == 21 .or. dirac_version == 22) then
         read (unit_dfpcmo, '(A150)') line3
@@ -124,36 +122,33 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     End do
 
     if (rank == 0) print *, 'end reading MO coefficient'
-    if (write_itrfmo .and. rank == 0) then
+    if (write_itrfmo) then
         ! unoccupid, gerade, electron
         Do iao = 1, nbasg
             DO imo = 1, neg - noccg
                 itrfmog(iao, imo) = BUF((npg + noccg + (imo - 1))*nbasg + iao)
             End do
         End do
-
-        call open_formatted_file(unit=unit_itrfmog, file='itrfmog_before', status='replace', optional_action='write')
-
-        Do iao = 1, nbasg
-            write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg)
-        End do
-
-        close (unit_itrfmog)
-
+        if (rank == 0) then
+            call open_formatted_file(unit=unit_itrfmog, file='itrfmog_before', status='replace', optional_action='write')
+            Do iao = 1, nbasg
+                write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg)
+            End do
+            close (unit_itrfmog)
+        end if
         ! unoccupid, ungerade, electron
         Do iao = 1, nbasu
             DO imo = 1, neu - noccu
                 itrfmou(iao, imo) = BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao)
             End do
         End do
-
-        call open_formatted_file(unit=unit_itrfmou, file='itrfmou_before', status='replace', optional_action='write')
-
-        Do iao = 1, nbasu
-            write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu)
-        End do
-
-        close (unit_itrfmou)
+        if (rank == 0) then
+            call open_formatted_file(unit=unit_itrfmou, file='itrfmou_before', status='replace', optional_action='write')
+            Do iao = 1, nbasu
+                write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu)
+            End do
+            close (unit_itrfmou)
+        end if
     end if
 
     if (dirac_version == 21 .or. dirac_version == 22) then
@@ -182,7 +177,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     close (unit_dfpcmo)
 
     if (rank == 0) then
-        call open_formatted_file(unit=unit_buf, file='BUF_write', status='unknown', optional_action='write')
+        call open_formatted_file(unit=unit_buf, file='BUF_write', status='replace', optional_action='write')
         Do I = 1, ngu, 6
             Write (unit_buf, '(6F22.16)') BUF(I:I + 5)
         End do
