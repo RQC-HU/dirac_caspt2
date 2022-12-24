@@ -31,10 +31,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #ifdef HAVE_MPI
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierr)
+    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
 #else
-    nprocs = 1
-    rank = 0
+    rank = 0; nprocs = 1
 #endif
 
     tmem = 0.0d+00
@@ -44,6 +43,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     initdate = val(3)
     inittime = totalsec
     if (rank == 0) then
+        print '(A,I8,A,I8)', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
         print *, ' ENTER R4DIVO PROGRAM written by M. Abe test17_ty version 2007/7/20'
         print *, ''
@@ -86,8 +86,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !Iwamuro create new ikr for dirac
-    print *, "Create_newmdcint"
-    Call create_newmdcint
+    if (rank == 0) print *, "Create_newmdcint"
+    call create_newmdcint
+
     call get_mdcint_filename(0)
     Call readint2_ivo_co(mdcintnew)
 
@@ -127,38 +128,44 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
+    if (rank == 0) then
+        Allocate (f(nsec, nsec)); Call memplus(KIND(f), SIZE(f), 2)
 
-    Allocate (f(nsec, nsec)); Call memplus(KIND(f), SIZE(f), 2)
-
-    f(:, :) = 0.0d+00
+        f(:, :) = 0.0d+00
 
 !! NOW MAKE FOCK MATRIX FOR IVO (only virtual spinors
 
 !! fij = hij + SIGUMA_a(ij|aa)-(ia|aj)}
 
-    Call fockivo_co
+        Call fockivo_co
 
-    deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
-    deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
-    deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
-    deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
-    deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
-    deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-    deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-    deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-    deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
-    deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-    deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
-    deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
-    deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
-    deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
-    deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
-    deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
-    deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
+        deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
+    end if
+    if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
+    if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
+    if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
+    if (allocated(MULTB_DF)) deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
+    if (allocated(MULTB_DB)) deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
+    if (allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
+    if (allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
+    if (allocated(irpamo)) deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
+    if (allocated(indmo)) deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
+    if (allocated(indmor)) deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
+    if (allocated(onei)) deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
+    if (allocated(oner)) deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
+    if (allocated(int2r_f1)) deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
+    if (allocated(int2i_f1)) deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
+    if (allocated(int2r_f2)) deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
+    if (allocated(int2i_f2)) deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
 
-    print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+    if (rank == 0) then
+        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
-    Call timing(val(3), totalsec, date0, tsec0)
-    print *, 'End r4divo_co part'
+        Call timing(val(3), totalsec, date0, tsec0)
+        print *, 'End r4divo_co part'
+    end if
+#ifdef HAVE_MPI
+    call MPI_FINALIZE(ierr)
+#endif
 
 END program r4divo_co
