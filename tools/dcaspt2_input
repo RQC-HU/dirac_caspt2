@@ -49,12 +49,13 @@ Therefore, this option is recommended only you concern about disk space.)",
     return parser.parse_args()
 
 
-def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
+def create_tmpdir(args: "argparse.Namespace", input_file_path: str, user_submitted_dir: str) -> str:
     """Create a temporary directory and return the path to the directory
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
         input_file_path (str): Path to the input file
+        user_submitted_dir (str): Path to the directory where this script is used
 
     Returns:
         tmp_dir (str): Path to the temporary directory
@@ -91,7 +92,11 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
     # --tmp option, Create the root temporary directory path
     root_tmpdir: str = os.path.expanduser("~/dcaspt2_tmp")
     if args.tmpdir:
-        root_tmpdir = os.path.abspath(os.path.expanduser(args.tmpdir))
+        expand_root = os.path.expanduser(args.tmpdir)
+        if os.path.isabs(expand_root):  # absolute path
+            root_tmpdir = expand_root
+        else:  # relative path
+            root_tmpdir = os.path.abspath(os.path.join(user_submitted_dir, expand_root))
 
     try:
         os.makedirs(root_tmpdir, exist_ok=True)
@@ -153,12 +158,11 @@ def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: str) -> st
     if args.integrals is None:
         integrals_dir: str = os.path.abspath(user_submitted_dir)
     else:
-        # absolute path
-        if os.path.isabs(args.integrals):
-            integrals_dir = os.path.abspath(args.integrals)
-        # relative path
-        else:
-            integrals_dir = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.integrals)))
+        expand_integrals = os.path.expanduser(args.integrals)
+        if os.path.isabs(expand_integrals):  # absolute path
+            integrals_dir = expand_integrals
+        else:  # relative path
+            integrals_dir = os.path.abspath(os.path.join(user_submitted_dir, expand_integrals))
     return integrals_dir
 
 
@@ -286,12 +290,11 @@ def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
     if args.input is None:
         input_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "active.inp"))
     else:
-        # absolute path
-        if os.path.isabs(args.input):
-            input_file_path = os.path.abspath(args.input)
-        # relative path
-        else:
-            input_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.input)))
+        expand_input = os.path.expanduser(args.input)
+        if os.path.isabs(expand_input):  # absolute path
+            input_file_path = expand_input
+        else:  # relative path
+            input_file_path = os.path.abspath(os.path.join(user_submitted_dir, expand_input))
 
     # Check if the input file exists
     if not os.path.exists(input_file_path):
@@ -315,12 +318,11 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
     if args.output is None:
         output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
     else:
-        # absolute path
-        if os.path.isabs(args.output):
-            output_file_path = os.path.abspath(args.output)
-        # relative path
-        else:
-            output_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.output)))
+        expand_output = os.path.expanduser(args.output)
+        if os.path.isabs(expand_output):  # absolute path
+            output_file_path = expand_output
+        else:  # relative path
+            output_file_path = os.path.abspath(os.path.join(user_submitted_dir, expand_output))
 
     return output_file_path
 
@@ -346,7 +348,7 @@ def main() -> None:
         tmp_dir: str = user_submitted_dir
         print(f"--no-tmp option : --no-tmp option is specified. The temporary directory is the submitted directory.\n--no-tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
     else:
-        tmp_dir = create_tmpdir(args, input_file_path)
+        tmp_dir = create_tmpdir(args, input_file_path, user_submitted_dir)
         print(f"Temporary directory : {tmp_dir}")
     copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_dir)
 
