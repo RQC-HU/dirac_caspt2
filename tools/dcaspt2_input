@@ -26,13 +26,14 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
 
     parser = argparse.ArgumentParser(description=desc, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-i", "--inp", type=str, dest="input", help="Input file [default: active.inp]")
-    parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
     parser.add_argument("-o", "--out", type=str, dest="output", help="Specify the name of output file [default: dirac_caspt2.out]")
-    parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
     parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: The directory where this script is used]")
+    parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
+    parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
     parser.add_argument("--omp", dest="threads", type=int, help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]")
+    parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the temporary directory.\nRegular expression is available.\n[default: None]")
     parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. [default: ~/dcaspt2_tmp]")
-    parser.add_argument("--no_tmp", help="Force not to use the temporary directory.\nCalculate at the current directory.\n[default: False]\n(Note: This option forces the 1-2 integrals files and the input file\nnot to be copied to the temporary directory.\nSo temporary files will remain in the current directory.\nTherefore, this option is recommended only you concern about disk space.)", action="store_true")
+    parser.add_argument("--no-tmp", dest="notmp", help="Force not to use the temporary directory.\nCalculate at the current directory.\n[default: False]\n(Note: This option forces the 1-2 integrals files and the input file\nnot to be copied to the temporary directory.\nSo temporary files will remain in the current directory.\nTherefore, this option is recommended only you concern about disk space.)", action="store_true")
     parser.add_argument("-s", "--save", action="store_true", help="Save the temporary directory after calculation. [default: False]")
     return parser.parse_args()
 
@@ -160,13 +161,14 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
     return command
 
 
-def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, output_file_path: str) -> None:
+def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_submitted_dir: str, output_file_path: str) -> None:
     """Run the dcaspt2 command
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
         command (str): Command to run dcaspt2
         tmp_dir (str): Path to the temporary directory
+        user_submitted_dir (str): Path to the directory where this script is used
         output_file_path (str): Path to the output file
     """
     os.chdir(tmp_dir)
@@ -199,8 +201,24 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, output_f
         print(end_message)
         f.write(end_message)
 
-        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
-        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
+        # Copy the specified files from the temporary directory to the user submitted directory
+        if args.get is not None:  # and args.notmp is False:
+            get_files = str(args.get).split()  # Split the string by space
+            for file_regex in get_files:  # regex is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
+                for file in glob.glob(file_regex):
+                    print(f"Copying {file} to {user_submitted_dir}")
+                    if os.path.isfile(file):
+                        try:
+                            shutil.copy(file, user_submitted_dir)
+                        except shutil.SameFileError:
+                            print(f"File {file} already exists in {user_submitted_dir}")
+                        except PermissionError:
+                            print(f"Permission denied: {file}")
+                    else:
+                        print(f"File {file} is not found")
+
+        # Delete the temporary directory if the user didn't specify the -s or --save option and --no-tmp option
+        if not args.notmp and not args.save and os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
 
         # When the calculation failed, exit with the return code of the calculation
@@ -214,7 +232,7 @@ def main() -> None:
 
     user_submitted_dir: str = os.getcwd()
     script_path: str = os.path.abspath(__file__)
-    binary_path: str = os.path.dirname(script_path)
+    binary_dir: str = os.path.dirname(script_path)
     print("Script path : ", script_path)
     print("Command submitted directory : ", user_submitted_dir)
     args: "argparse.Namespace" = parse_args()
@@ -246,16 +264,16 @@ def main() -> None:
     check_integral_files(integrals_path)
 
     # Set and create temporary directory
-    if args.no_tmp:
+    if args.notmp:
         tmp_dir: str = user_submitted_dir
-        print(f"no_tmp option : --no_tmp option is specified. The temporary directory is the submitted directory.\nno_tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
+        print(f"--no-tmp option : --no-tmp option is specified. The temporary directory is the submitted directory.\n--no-tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
     else:
         tmp_dir = create_tmpdir(args, input_file_path)
         copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
 
     # Create command to execute and run it
-    command = create_command(args, binary_path)
-    run_command(args, command, tmp_dir, output_file_path)
+    command = create_command(args, binary_dir)
+    run_command(args, command, tmp_dir, user_submitted_dir, output_file_path)
 
     return None
 
