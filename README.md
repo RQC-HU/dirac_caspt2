@@ -8,17 +8,17 @@
 
 ## 目次
 
-- [Requirements](https://github.com/kohei-noda-qcrg/dirac_caspt2#requirements)
-- [How to build](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-build)
-  - [Basic build](https://github.com/kohei-noda-qcrg/dirac_caspt2#basic-build)
-  - [MPI support](https://github.com/kohei-noda-qcrg/dirac_caspt2#mpi-support)
-  - [Install](https:://github.com/kohei-noda-qcrg/dirac_caspt2#install)
-  - [CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)
-- [How to use](https://github.com/kohei-noda-qcrg/dirac_caspt2#how-to-use)
-  - [prerequisites](https://github.com/kohei-noda-qcrg/dirac_caspt2#prerequisites)
-  - [Calculation](https://github.com/kohei-noda-qcrg/dirac_caspt2#calculation)
-  - [Input file](https://github.com/kohei-noda-qcrg/dirac_caspt2#input-file)
-  - [インプットファイルの仕様](https://github.com/kohei-noda-qcrg/dirac_caspt2#インプットファイルの仕様)
+- [Requirements](#requirements)
+- [How to build](#how-to-build)
+  - [Basic build](#basic-build)
+  - [MPI support](#mpi-support)
+  - [Install](#install)
+  - [CMakeビルドオプション](#cmakeビルドオプション)
+- [How to use](#how-to-use)
+  - [prerequisites](#prerequisites)
+  - [Calculation](#calculation)
+  - [Input file](#input-file)
+  - [インプットファイルの仕様](#インプットファイルの仕様)
 
 ## Requirements
 
@@ -81,7 +81,7 @@
 
 - このプログラムはCMakeを使用してビルドを行います
   - CMakeコマンドを直接使用してビルドすることもできますが、setupスクリプトを使用することをおすすめします
-  - CMakeを直接使用してビルドしたい場合は、[CMakeビルドオプション](https://github.com/kohei-noda-qcrg/dirac_caspt2#CMakeビルドオプション)を参照してください
+  - CMakeを直接使用してビルドしたい場合は、[CMakeビルドオプション](#cmakeビルドオプション)を参照してください
 
 ### Basic build
 
@@ -219,7 +219,7 @@ pytest --all
 - [DIRAC](http://diracprogram.org/)の計算で1,2電子積分ファイル(MRCONEE, MDCINT, MDCINXXXX1...)が得られていることを前提としています
   - 1,2電子積分ファイルを得るには[DIRACの**MOLTRAの項](http://www.diracprogram.org/doc/master/manual/moltra.html)を参照してください
   - 1,2電子積分ファイルは同一のディレクトリ上に存在する必要があります
-- 任意のファイル名の[インプットファイル](https://github.com/kohei-noda-qcrg/dirac_caspt2#input-file)が必要です
+- 任意のファイル名の[インプットファイル](#input-file)が必要です
 
 ### Calculation
 
