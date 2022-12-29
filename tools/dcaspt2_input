@@ -263,16 +263,16 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_sub
         return None
 
 
-def main() -> None:
+def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+    """Set the path to the input file
 
-    user_submitted_dir: str = os.getcwd()
-    script_path: str = os.path.abspath(__file__)
-    binary_dir: str = os.path.dirname(script_path)
-    print("Script path : ", script_path)
-    print("Command submitted directory : ", user_submitted_dir)
-    args: "argparse.Namespace" = parse_args()
+    Args:
+        args ("argparse.Namespace"): User input arguments (argv)
+        user_submitted_dir (str): Path to the directory where this script is used
 
-    # Set the input file path
+    Returns:
+        str: Path to the input file
+    """
     if args.input is None:
         input_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "active.inp"))
     else:
@@ -283,12 +283,25 @@ def main() -> None:
         else:
             input_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.input)))
 
+    # Check if the input file exists
     if not os.path.exists(input_file_path):
         print(f"Input file {input_file_path} does not exist")
         print("Please specify the input file path with -i or --input option")
         sys.exit(1)
 
-    # Set the output file path
+    return input_file_path
+
+
+def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+    """Set the path to the output file
+
+    Args:
+        args ("argparse.Namespace"): User input arguments (argv)
+        user_submitted_dir (str): Path to the directory where this script is used
+
+    Returns:
+        str: Path to the output file
+    """
     if args.output is None:
         output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
     else:
@@ -298,6 +311,21 @@ def main() -> None:
         # relative path
         else:
             output_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.output)))
+
+    return output_file_path
+
+
+def main() -> None:
+
+    user_submitted_dir: str = os.getcwd()
+    script_path: str = os.path.abspath(__file__)
+    binary_dir: str = os.path.dirname(script_path)
+    print("Script path : ", script_path)
+    print("Command submitted directory : ", user_submitted_dir)
+    args: "argparse.Namespace" = parse_args()
+
+    input_file_path: str = set_input_file_path(args, user_submitted_dir)
+    output_file_path: str = set_ouput_file_path(args, user_submitted_dir)
 
     # 1-2 integrals directory
     integrals_path: str = set_integrals_path(args, user_submitted_dir)
