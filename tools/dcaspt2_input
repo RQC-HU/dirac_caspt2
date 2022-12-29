@@ -94,7 +94,7 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str, user_submitt
     if args.tmpdir:
         expand_root = os.path.expanduser(args.tmpdir)
         if os.path.isabs(expand_root):  # absolute path
-            root_tmpdir = expand_root
+            root_tmpdir = os.path.abspath(expand_root)
         else:  # relative path
             root_tmpdir = os.path.abspath(os.path.join(user_submitted_dir, expand_root))
 
@@ -160,7 +160,7 @@ def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: str) -> st
     else:
         expand_integrals = os.path.expanduser(args.integrals)
         if os.path.isabs(expand_integrals):  # absolute path
-            integrals_dir = expand_integrals
+            integrals_dir = os.path.abspath(expand_integrals)
         else:  # relative path
             integrals_dir = os.path.abspath(os.path.join(user_submitted_dir, expand_integrals))
     return integrals_dir
@@ -292,7 +292,7 @@ def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
     else:
         expand_input = os.path.expanduser(args.input)
         if os.path.isabs(expand_input):  # absolute path
-            input_file_path = expand_input
+            input_file_path = os.path.abspath(expand_input)
         else:  # relative path
             input_file_path = os.path.abspath(os.path.join(user_submitted_dir, expand_input))
 
@@ -320,7 +320,7 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
     else:
         expand_output = os.path.expanduser(args.output)
         if os.path.isabs(expand_output):  # absolute path
-            output_file_path = expand_output
+            output_file_path = os.path.abspath(expand_output)
         else:  # relative path
             output_file_path = os.path.abspath(os.path.join(user_submitted_dir, expand_output))
 
