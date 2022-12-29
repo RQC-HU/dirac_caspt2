@@ -34,7 +34,17 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the temporary directory.\nRegular expression is available.\n[default: None]")
     parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. Add the subdirectory to the specified directory.\n(e.g.) --tmp /home/username/tmp => Create /home/username/tmp/active_tmp_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_tmp]")
     parser.add_argument("--fulltmp", dest="fulltmp", help="Set the temporary directory. Use the specified directory as the temporary directory.\n[default: None]")
-    parser.add_argument("--no-tmp", dest="notmp", help="Force not to use the temporary directory.\nCalculate at the current directory.\n[default: False]\n(Note: This option forces the 1-2 integrals files and the input file\nnot to be copied to the temporary directory.\nSo temporary files will remain in the current directory.\nTherefore, this option is recommended only you concern about disk space.)", action="store_true")
+    parser.add_argument(
+        "--no-tmp",
+        dest="notmp",
+        help="Force not to use the temporary directory.\n\
+Calculate at the current directory.\n\
+[default: False]\n\
+(Note: Temporary files will remain in the current directory.\n\
+You can prevent file copying if there are 1 or 2 electronic integral files and input files in the current directory in advance.\n\
+Therefore, this option is recommended only you concern about disk space.)",
+        action="store_true",
+    )
     parser.add_argument("-s", "--save", action="store_true", help="Save the temporary directory after calculation. [default: False]")
     return parser.parse_args()
 
@@ -103,12 +113,12 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
     return tmp_dir
 
 
-def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, integrals_path: str) -> None:
+def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, integrals_dir: str) -> None:
     """Copy input file and integral files to tmpdir
     Args:
         input_file_path (str): Path to the input file
         tmp_dir (str): Path to the temporary directory
-        integrals_path (str): Path to the 1-2 integrals file
+        integrals_dir (str): Directory that 1-2 integrals files are stored
 
     Returns:
         None
@@ -118,17 +128,17 @@ def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, 
     if input_file_dir != tmp_dir:
         shutil.copy(input_file_path, tmp_dir)
     os.rename(os.path.join(tmp_dir, os.path.basename(input_file_path)), os.path.join(tmp_dir, "active.inp"))  # Rename the input file to "active.inp"
-    if integrals_path != tmp_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
-        shutil.copy(os.path.join(integrals_path, "MDCINT"), tmp_dir)
-        shutil.copy(os.path.join(integrals_path, "MRCONEE"), tmp_dir)
-        for file in glob.glob(os.path.join(integrals_path, "MDCINX*")):
+    if integrals_dir != tmp_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
+        shutil.copy(os.path.join(integrals_dir, "MDCINT"), tmp_dir)
+        shutil.copy(os.path.join(integrals_dir, "MRCONEE"), tmp_dir)
+        for file in glob.glob(os.path.join(integrals_dir, "MDCINX*")):
             shutil.copy(file, tmp_dir)
         print("log : Copied 1-2 integral files to the temporary directory")
     return None
 
 
-def set_integrals_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
-    """Set the path to the 1-2 integrals file
+def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+    """Set the directory to the 1-2 integrals file
 
     default: user_submitted_dir
     otherwise: args.integrals
@@ -138,26 +148,26 @@ def set_integrals_path(args: "argparse.Namespace", user_submitted_dir: str) -> s
         user_submitted_dir (str): Path to the directory where this script is used
 
     Returns:
-        integral_path (str): Path to the 1-2 integrals file
+        integrals_dir (str): Directory that 1-2 integrals files are stored
     """
     if args.integrals is None:
-        integral_path: str = os.path.abspath(user_submitted_dir)
+        integrals_dir: str = os.path.abspath(user_submitted_dir)
     else:
         # absolute path
         if os.path.isabs(args.integrals):
-            integral_path = os.path.abspath(args.integrals)
+            integrals_dir = os.path.abspath(args.integrals)
         # relative path
         else:
-            integral_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.integrals)))
-    return integral_path
+            integrals_dir = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.integrals)))
+    return integrals_dir
 
 
-def check_integral_files(integral_path: str) -> None:
+def check_integral_files(integrals_dir: str) -> None:
     """Check if the 1-2 integral files exist"""
     files = ["MDCINT", "MRCONEE"]
     for file in files:
-        if not os.path.exists(os.path.join(integral_path, file)):
-            raise Exception(f"\n{file} file is not found under {integral_path}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/user/H2O/MDCINT, dcaspt2 -int /home/user/H2O/ ")
+        if not os.path.exists(os.path.join(integrals_dir, file)):
+            raise Exception(f"\n{file} file is not found under {integrals_dir}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/user/H2O/MDCINT, dcaspt2 -int /home/user/H2O/ ")
     return
 
 
@@ -328,8 +338,8 @@ def main() -> None:
     output_file_path: str = set_ouput_file_path(args, user_submitted_dir)
 
     # 1-2 integrals directory
-    integrals_path: str = set_integrals_path(args, user_submitted_dir)
-    check_integral_files(integrals_path)
+    integrals_dir: str = set_integrals_dir(args, user_submitted_dir)
+    check_integral_files(integrals_dir)
 
     # Set and create temporary directory
     if args.notmp:
@@ -338,7 +348,7 @@ def main() -> None:
     else:
         tmp_dir = create_tmpdir(args, input_file_path)
         print(f"Temporary directory : {tmp_dir}")
-    copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
+    copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_dir)
 
     # Create command to execute and run it
     command = create_command(args, binary_dir)
