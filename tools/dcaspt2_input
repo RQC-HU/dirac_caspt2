@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import datetime
@@ -32,7 +32,8 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
     parser.add_argument("--omp", dest="threads", type=int, help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]")
     parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the temporary directory.\nRegular expression is available.\n[default: None]")
-    parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. [default: ~/dcaspt2_tmp]")
+    parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. Add the subdirectory to the specified directory.\n(e.g.) --tmp /home/username/tmp => Create /home/username/tmp/active_tmp_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_tmp]")
+    parser.add_argument("--fulltmp", dest="fulltmp", help="Set the temporary directory. Use the specified directory as the temporary directory.\n[default: None]")
     parser.add_argument("--no-tmp", dest="notmp", help="Force not to use the temporary directory.\nCalculate at the current directory.\n[default: False]\n(Note: This option forces the 1-2 integrals files and the input file\nnot to be copied to the temporary directory.\nSo temporary files will remain in the current directory.\nTherefore, this option is recommended only you concern about disk space.)", action="store_true")
     parser.add_argument("-s", "--save", action="store_true", help="Save the temporary directory after calculation. [default: False]")
     return parser.parse_args()
@@ -49,25 +50,56 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str) -> str:
         tmp_dir (str): Path to the temporary directory
     """
 
+    # ================
+    #  Sub functions
+    # ================
+
+    def permission_denied_error_message(tmp_dir: str) -> None:
+        """Print error message when permission denied
+
+        Args:
+            tmp_dir (str): Path to the temporary directory
+        """
+        print(f"Permission denied: You do not have permission to create the directory '{tmp_dir}'.")
+        print("Please specify the directory that you have permission to create.")
+        print("Error: Failed to create the temporary directory.\nExiting...")
+
+    # ================
+    #  Main process
+    # ================
+
+    # If --fulltmp is specified, Use the specified directory as the temporary directory
+    if args.fulltmp is not None:
+        tmp_dir: str = os.path.abspath(os.path.expanduser(args.fulltmp))
+        try:
+            os.makedirs(tmp_dir, exist_ok=True)
+        except PermissionError:
+            permission_denied_error_message(tmp_dir)
+            sys.exit(1)
+        return tmp_dir
+
     # --tmp option, Create the root temporary directory path
     root_tmpdir: str = os.path.expanduser("~/dcaspt2_tmp")
     if args.tmpdir:
         root_tmpdir = os.path.abspath(os.path.expanduser(args.tmpdir))
-    if not os.path.exists(root_tmpdir):
-        os.makedirs(root_tmpdir)
 
-    # Preprocess to create tmpdir prefix name
-    input_file_prefix: str = os.path.splitext(os.path.basename(input_file_path))[0]
-    if input_file_prefix == "":
-        input_file_prefix = "input"
+    try:
+        os.makedirs(root_tmpdir, exist_ok=True)
+    except PermissionError:
+        permission_denied_error_message(root_tmpdir)
+        sys.exit(PermissionError)
+
+    # Preprocess to create tmpdir name
+    input_file_name: str = os.path.splitext(os.path.basename(input_file_path))[0]  # Remove the extension (e.g. active.inp => active)
+    if input_file_name == "":
+        input_file_name = "input"
     time_string: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Set the temporary directory's prefix using the input file name and the current time (e.g. input_2020-01-01_12-34-56_)
-    prefix: str = f"{input_file_prefix}_{time_string}_"
+    prefix: str = f"{input_file_name}_{time_string}_"
 
-    # Create a temporary directory
-    tmp_dir: str = tempfile.mkdtemp(dir=root_tmpdir, prefix=prefix)
-    print(f"Temporary directory : {tmp_dir}")
+    # Create a temporary directory (e.g. /home/username/dcaspt2_tmp/input_2020-01-01_12-34-56_XXXXXX)
+    tmp_dir = tempfile.mkdtemp(dir=root_tmpdir, prefix=prefix)
     return tmp_dir
 
 
@@ -82,13 +114,16 @@ def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, 
         None
     """
 
-    shutil.copy(input_file_path, tmp_dir)
-    os.rename(os.path.join(tmp_dir, os.path.basename(input_file_path)), os.path.join(tmp_dir, "active.inp"))
-    shutil.copy(os.path.join(integrals_path, "MDCINT"), tmp_dir)
-    shutil.copy(os.path.join(integrals_path, "MRCONEE"), tmp_dir)
-    for file in glob.glob(os.path.join(integrals_path, "MDCINX*")):
-        shutil.copy(file, tmp_dir)
-    print("log : Copied 1-2 integral files to the temporary directory")
+    input_file_dir = os.path.dirname(input_file_path)  # (e.g. /home/username/active.inp => /home/username)
+    if input_file_dir != tmp_dir:
+        shutil.copy(input_file_path, tmp_dir)
+    os.rename(os.path.join(tmp_dir, os.path.basename(input_file_path)), os.path.join(tmp_dir, "active.inp"))  # Rename the input file to "active.inp"
+    if integrals_path != tmp_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
+        shutil.copy(os.path.join(integrals_path, "MDCINT"), tmp_dir)
+        shutil.copy(os.path.join(integrals_path, "MRCONEE"), tmp_dir)
+        for file in glob.glob(os.path.join(integrals_path, "MDCINX*")):
+            shutil.copy(file, tmp_dir)
+        print("log : Copied 1-2 integral files to the temporary directory")
     return None
 
 
@@ -248,6 +283,11 @@ def main() -> None:
         else:
             input_file_path = os.path.abspath(os.path.join(user_submitted_dir, os.path.expanduser(args.input)))
 
+    if not os.path.exists(input_file_path):
+        print(f"Input file {input_file_path} does not exist")
+        print("Please specify the input file path with -i or --input option")
+        sys.exit(1)
+
     # Set the output file path
     if args.output is None:
         output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
@@ -269,7 +309,8 @@ def main() -> None:
         print(f"--no-tmp option : --no-tmp option is specified. The temporary directory is the submitted directory.\n--no-tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
     else:
         tmp_dir = create_tmpdir(args, input_file_path)
-        copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
+        print(f"Temporary directory : {tmp_dir}")
+    copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_path)
 
     # Create command to execute and run it
     command = create_command(args, binary_dir)
