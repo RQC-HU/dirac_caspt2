@@ -32,26 +32,27 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
     parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
     parser.add_argument("--omp", dest="threads", type=int, help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]")
-    parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the temporary directory.\nRegular expression is available.\n[default: None]")
-    parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. Add the subdirectory to the specified directory.\n(e.g.) --tmp /home/username/tmp => Create /home/username/tmp/active_tmp_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_tmp]")
-    parser.add_argument("--fulltmp", dest="fulltmp", help="Set the temporary directory. Use the specified directory as the temporary directory.\n[default: None]")
+    parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the scratch directory.\nRegular expression is available.\n[default: None]")
+    parser.add_argument("--scratch", dest="scratchdir", help="Set the scratch directory. Add the subdirectory to the specified directory.\n(e.g.) --scratch /home/username/scratch \n=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_scratch]")
+    parser.add_argument("--scratchfull", dest="scratchfull", help="Set the scratch directory. Use the specified directory as the scratch directory.\n[default: None]")
     parser.add_argument("--skip-casci", dest="skipcasci", action="store_true", help="Skip the CASCI calculation. [default: False]")
     parser.add_argument(
-        "--no-tmp",
-        dest="notmp",
-        help="Force not to use the temporary directory.\n\
+        "--no-scratch",
+        dest="noscratch",
+        help="Force not to use the scratch directory.\n\
 Calculate at the current directory.\n\
 [default: False]\n\
 (Note: Temporary files will remain in the current directory.\n\
-You can prevent file copying if there are 1 or 2 electronic integral files and input files in the current directory in advance.\n\
+You can prevent file copying if there are 1 or 2 electronic integral files and input files\n\
+in the current directory in advance.\n\
 Therefore, this option is recommended only you concern about disk space.)",
         action="store_true",
     )
-    parser.add_argument("-s", "--save", action="store_true", help="Save the temporary directory after calculation. [default: False]")
+    parser.add_argument("-s", "--save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
     return parser.parse_args()
 
 
-def create_tmpdir(args: "argparse.Namespace", input_file_path: str, user_submitted_dir: str) -> str:
+def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_submitted_dir: str) -> str:
     """Create a temporary directory and return the path to the directory
 
     Args:
@@ -60,20 +61,20 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str, user_submitt
         user_submitted_dir (str): Path to the directory where this script is used
 
     Returns:
-        tmp_dir (str): Path to the temporary directory
+        scratch_dir (str): Path to the temporary directory
     """
 
     # ================
     #  Sub functions
     # ================
 
-    def permission_denied_error_message(tmp_dir: str) -> None:
+    def permission_denied_error_message(scratch_dir: str) -> None:
         """Print error message when permission denied
 
         Args:
-            tmp_dir (str): Path to the temporary directory
+            scratch_dir (str): Path to the temporary directory
         """
-        print(f"Permission denied: You do not have permission to create the directory '{tmp_dir}'.")
+        print(f"Permission denied: You do not have permission to create the directory '{scratch_dir}'.")
         print("Please specify the directory that you have permission to create.")
         print("Error: Failed to create the temporary directory.\nExiting...")
 
@@ -81,32 +82,32 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str, user_submitt
     #  Main process
     # ================
 
-    # If --fulltmp is specified, Use the specified directory as the temporary directory
-    if args.fulltmp is not None:
-        tmp_dir: str = os.path.abspath(os.path.expanduser(args.fulltmp))
+    # If --scratchfull is specified, Use the specified directory as the scratch directory
+    if args.scratchfull is not None:
+        scratch_dir: str = os.path.abspath(os.path.expanduser(args.scratchfull))
         try:
-            os.makedirs(tmp_dir, exist_ok=True)
+            os.makedirs(scratch_dir, exist_ok=True)
         except PermissionError:
-            permission_denied_error_message(tmp_dir)
+            permission_denied_error_message(scratch_dir)
             sys.exit(1)
-        return tmp_dir
+        return scratch_dir
 
-    # --tmp option, Create the root temporary directory path
-    root_tmpdir: str = os.path.expanduser("~/dcaspt2_tmp")
-    if args.tmpdir:
-        expand_root = os.path.expanduser(args.tmpdir)
+    # --scratch option, Create the root scratch directory path
+    root_scr_dir: str = os.path.expanduser("~/dcaspt2_scratch")
+    if args.scratchdir:
+        expand_root = os.path.expanduser(args.scratchdir)
         if os.path.isabs(expand_root):  # absolute path
-            root_tmpdir = os.path.abspath(expand_root)
+            root_scr_dir = os.path.abspath(expand_root)
         else:  # relative path
-            root_tmpdir = os.path.abspath(os.path.join(user_submitted_dir, expand_root))
+            root_scr_dir = os.path.abspath(os.path.join(user_submitted_dir, expand_root))
 
     try:
-        os.makedirs(root_tmpdir, exist_ok=True)
+        os.makedirs(root_scr_dir, exist_ok=True)
     except PermissionError:
-        permission_denied_error_message(root_tmpdir)
+        permission_denied_error_message(root_scr_dir)
         sys.exit(PermissionError)
 
-    # Preprocess to create tmpdir name
+    # Preprocess to create scratch dir name
     input_file_name: str = os.path.splitext(os.path.basename(input_file_path))[0]  # Remove the extension (e.g. active.inp => active)
     if input_file_name == "":
         input_file_name = "input"
@@ -115,32 +116,32 @@ def create_tmpdir(args: "argparse.Namespace", input_file_path: str, user_submitt
     # Set the temporary directory's prefix using the input file name and the current time (e.g. input_2020-01-01_12-34-56_)
     prefix: str = f"{input_file_name}_{time_string}_"
 
-    # Create a temporary directory (e.g. /home/username/dcaspt2_tmp/input_2020-01-01_12-34-56_XXXXXX)
-    tmp_dir = tempfile.mkdtemp(dir=root_tmpdir, prefix=prefix)
-    return tmp_dir
+    # Create a temporary directory (e.g. /home/username/dcaspt2_scratch/input_2020-01-01_12-34-56_XXXXXX)
+    scratch_dir = tempfile.mkdtemp(dir=root_scr_dir, prefix=prefix)
+    return scratch_dir
 
 
-def copy_input_and_integral_files_to_tmpdir(input_file_path: str, tmp_dir: str, integrals_dir: str) -> None:
-    """Copy input file and integral files to tmpdir
+def copy_essential_files_to_scratch_dir(input_file_path: str, integrals_dir: str, scratch_dir: str) -> None:
+    """Copy input file and integral files to scratch directory
     Args:
         input_file_path (str): Path to the input file
-        tmp_dir (str): Path to the temporary directory
         integrals_dir (str): Directory that 1-2 integrals files are stored
+        scratch_dir (str): Path to the temporary directory
 
     Returns:
         None
     """
 
     input_file_dir = os.path.dirname(input_file_path)  # (e.g. /home/username/active.inp => /home/username)
-    if input_file_dir != tmp_dir:
-        shutil.copy(input_file_path, tmp_dir)
-    os.rename(os.path.join(tmp_dir, os.path.basename(input_file_path)), os.path.join(tmp_dir, "active.inp"))  # Rename the input file to "active.inp"
-    if integrals_dir != tmp_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
-        shutil.copy(os.path.join(integrals_dir, "MDCINT"), tmp_dir)
-        shutil.copy(os.path.join(integrals_dir, "MRCONEE"), tmp_dir)
+    if input_file_dir != scratch_dir:
+        shutil.copy(input_file_path, scratch_dir)
+    os.rename(os.path.join(scratch_dir, os.path.basename(input_file_path)), os.path.join(scratch_dir, "active.inp"))  # Rename the input file to "active.inp"
+    if integrals_dir != scratch_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
+        shutil.copy(os.path.join(integrals_dir, "MDCINT"), scratch_dir)
+        shutil.copy(os.path.join(integrals_dir, "MRCONEE"), scratch_dir)
         for file in glob.glob(os.path.join(integrals_dir, "MDCINX*")):
-            shutil.copy(file, tmp_dir)
-        print("log : Copied 1-2 integral files to the temporary directory")
+            shutil.copy(file, scratch_dir)
+        print("log : Copied 1-2 integral files to the scratch directory")
     return None
 
 
@@ -214,23 +215,23 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
     return command
 
 
-def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_submitted_dir: str, output_file_path: str) -> None:
+def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user_submitted_dir: str, output_file_path: str) -> None:
     """Run the dcaspt2 command
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
         command (str): Command to run dcaspt2
-        tmp_dir (str): Path to the temporary directory
+        scratch_dir (str): Path to the scratch directory
         user_submitted_dir (str): Path to the directory where this script is used
         output_file_path (str): Path to the output file
     """
 
-    def delete_tmp_dir():
-        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
-        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
-            shutil.rmtree(tmp_dir)
+    def delete_scratch_dir():
+        # Delete the scratch directory if the user didn't specify the -s or --save option and --noscratch option
+        if not args.noscratch and not args.save and os.path.exists(scratch_dir):
+            shutil.rmtree(scratch_dir)
 
-    os.chdir(tmp_dir)
+    os.chdir(scratch_dir)
 
     with open(output_file_path, "w") as f:
         start_time = time.time()
@@ -240,7 +241,7 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_sub
             p = Popen(command, shell=True, stdout=f, stderr=f)
             p.wait()
         except KeyboardInterrupt:
-            delete_tmp_dir()
+            delete_scratch_dir()
             print("Calculation was interrupted by the user.(ctrl+c, SIGINT)")
             sys.exit(signal.SIGINT)
 
@@ -251,7 +252,7 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_sub
         end_message = "\n================= Calculation finished ================\n"
         end_message += f"User Command : {user_command}\n"
         end_message += f"Auto-created Command : {command}\n"
-        end_message += f"Temporary directory : {tmp_dir}\n"
+        end_message += f"Scratch directory : {scratch_dir}\n"
         end_message += f"Output file : {output_file_path}\n"
         end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
         end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n\n"
@@ -265,8 +266,8 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_sub
         print(end_message)
         f.write(end_message)
 
-        # Copy the specified files from the temporary directory to the user submitted directory
-        if args.get is not None:  # and args.notmp is False:
+        # Copy the specified files from the scratch directory to the user submitted directory
+        if args.get is not None:  # and args.noscratch is False:
             get_files = str(args.get).split()  # Split the string by space
             for file_regex in get_files:  # regex is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
                 for file in glob.glob(file_regex):
@@ -281,9 +282,9 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_sub
                     else:
                         print(f"File {file} is not found")
 
-        # Delete the temporary directory if the user didn't specify the -s or --save option and --no-tmp option
-        if not args.notmp and not args.save and os.path.exists(tmp_dir):
-            shutil.rmtree(tmp_dir)
+        # Delete the temporary directory if the user didn't specify the -s or --save option and --no-scratch option
+        if not args.noscratch and not args.save and os.path.exists(scratch_dir):
+            shutil.rmtree(scratch_dir)
 
         # When the calculation failed, exit with the return code of the calculation
         if p.returncode != 0:
@@ -358,18 +359,18 @@ def main() -> None:
     integrals_dir: str = set_integrals_dir(args, user_submitted_dir)
     check_integral_files(integrals_dir)
 
-    # Set and create temporary directory
-    if args.notmp:
-        tmp_dir: str = user_submitted_dir
-        print(f"--no-tmp option : --no-tmp option is specified. The temporary directory is the submitted directory.\n--no-tmp option : Temporary files will remain in the {user_submitted_dir} directory.")
+    # Set and create scratch directory
+    if args.noscratch:
+        scratch_dir: str = user_submitted_dir
+        print(f"--no-scratch option : --no-scratch option is specified. The scratch directory is the submitted directory.\n--no-scratch option : Temporary files will remain in the {user_submitted_dir} directory.")
     else:
-        tmp_dir = create_tmpdir(args, input_file_path, user_submitted_dir)
-        print(f"Temporary directory : {tmp_dir}")
-    copy_input_and_integral_files_to_tmpdir(input_file_path, tmp_dir, integrals_dir)
+        scratch_dir = create_scratch_dir(args, input_file_path, user_submitted_dir)
+        print(f"Scratch directory : {scratch_dir}")
+    copy_essential_files_to_scratch_dir(input_file_path, integrals_dir, scratch_dir)
 
     # Create command to execute and run it
     command = create_command(args, binary_dir)
-    run_command(args, command, tmp_dir, user_submitted_dir, output_file_path)
+    run_command(args, command, scratch_dir, user_submitted_dir, output_file_path)
 
     return None
 
