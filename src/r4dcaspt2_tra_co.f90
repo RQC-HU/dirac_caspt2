@@ -410,7 +410,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(val(3), totalsec, date0, tsec0)
     if (rank == 0) print *, 'End r4dcaspt2_tra_ty'
 #ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
     time1 = MPI_Wtime()
     if (rank == 0) then
         write (*, "(a,e16.6)") "MPI_Wtime :", time1 - time0

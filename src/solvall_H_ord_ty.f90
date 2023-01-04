@@ -8,11 +8,11 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 
     use four_caspt2_module
     use module_file_manager
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     real*8, intent(in) :: e0
     real*8, intent(out):: e2h
     Integer                 :: ia, ib, ii, ij, syma, symb, i, j, k, l
@@ -130,7 +130,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     close (twoint_unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), nab*nij, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=v)
 #endif
     if (rank == 0) print *, 'reading Hint is over'
 

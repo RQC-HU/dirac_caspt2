@@ -337,11 +337,11 @@ SUBROUTINE e0aftertrac_ty
 
     use module_file_manager
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include "mpif.h"
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer :: ii, jj, kk, ll
     integer :: j, i, k, l
 
@@ -381,7 +381,7 @@ SUBROUTINE e0aftertrac_ty
 
     end do
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, energyHF(1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=energyHF(1))
 #endif
     if (rank == 0) print *, 'energyHF(1)', energyHF(1)
 
@@ -412,7 +412,7 @@ SUBROUTINE e0aftertrac_ty
 
     energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, energyHF(2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=energyHF(2))
 #endif
     if (rank == 0) print *, 'energyHF(2)', energyHF(2)
 
@@ -580,10 +580,7 @@ SUBROUTINE e0aftertrac_ty
     energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 1), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 2), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 3), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, energy(iroot, 4), 1, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=energy(iroot, 1:4))
 #endif
 
     if (rank == 0) then
