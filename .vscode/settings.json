@@ -36,9 +36,9 @@
     ],
     "cmake.configureOnOpen": false,
     "fortran.linter.includePaths": [
-        "${workspaceFolder}/modules"
+        "${workspaceFolder}/.vscode/modules"
     ],
-    "fortran.linter.modOutput": "${workspaceFolder}/modules",
+    "fortran.linter.modOutput": "${workspaceFolder}/.vscode/modules",
     "python.testing.pytestArgs": [
         "."
     ],

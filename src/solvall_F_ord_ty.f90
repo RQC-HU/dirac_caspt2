@@ -97,9 +97,6 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
     Allocate (v(nab, nact, nact))
     v = 0.0d+00
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -372,11 +369,11 @@ SUBROUTINE sFmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer, intent(in)      :: dimn, indsym(2, dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
     real*8  :: a, b
@@ -411,7 +408,7 @@ SUBROUTINE sFmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
     End do                  !i
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=sc)
 #endif
 End subroutine sFmat
 
@@ -427,11 +424,10 @@ SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer, intent(in) :: dimn, indsym(2, dimn)
     complex*16, intent(in)  :: sc(dimn, dimn)
@@ -491,11 +487,7 @@ SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
     End do                  !j
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    if (rank == 0) then
-        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    else
-        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    end if
+    call reduce_wrapper(mat=bc, root_rank=0)
 #endif
     if (rank == 0) print *, 'bFmat is ended'
 End subroutine bFmat
@@ -512,11 +504,10 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 
     use four_caspt2_module
     use module_file_manager
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer, intent(in)     :: nab, iab(nsec, nsec)
 
@@ -525,8 +516,9 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
 
-    integer :: i, j, k, l, tab
-    integer :: it, iu, iostat, twoint_unit
+    integer :: i, j, k, l, tab, i0
+    integer :: it, jt, iu, ju, iostat, twoint_unit, isym, syma
+    integer :: multb_s_reverse(nsec, nsec), pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
     logical :: is_end_of_file
@@ -535,9 +527,32 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
-    v = 0.0d+00
-    twoint_unit = default_unit
 
+    ! Initialization
+    v = 0.0d+00
+    multb_s_reverse(:, :) = 0
+    call create_multb_s_reverse
+
+    ! Save t,u patterns for each isym
+    pattern_t(:, :) = 0
+    pattern_u(:, :) = 0
+    pattern_tu_count(:) = 0
+    do isym = 1, nsymrpa
+        Do it = 1, nact
+            jt = it + ninact
+            Do iu = 1, it - 1
+                ju = iu + ninact
+
+                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+
+                if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                    pattern_tu_count(isym) = pattern_tu_count(isym) + 1
+                    pattern_t(pattern_tu_count(isym), isym) = it
+                    pattern_u(pattern_tu_count(isym), isym) = iu
+                End if
+            End do
+        End do
+    end do
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
     call open_unformatted_file(unit=twoint_unit, file=fint, status='old', optional_action='read')  !  (32|32) stored  a > b
@@ -556,30 +571,66 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 !
 !                             p=j, q=l loop for t and u             u=j, p=l loop for t
 !
-        !$OMP parallel do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        !$OMP parallel
+        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
         Do it = 1, nact
-            Do iu = 1, it - 1
-                Call dim2_density(it, j, iu, l, dr, di)
-                dens = DCMPLX(dr, di)
-                v(tab, it, iu) = v(tab, it, iu) + cint2*dens
-            End do  ! iu
-
             Call dim1_density(it, l, dr, di)
             dens = DCMPLX(dr, di)
             v(tab, it, j) = v(tab, it, j) - cint2*dens
+        End do
+        !$OMP end do
 
-        End do                  ! it
-        !$OMP end parallel do
+        isym = multb_s_reverse(i, k)
+        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
+        do i0 = 1, pattern_tu_count(isym)
+            it = pattern_t(i0, isym)
+            iu = pattern_u(i0, isym)
+
+            Call dim2_density(it, j, iu, l, dr, di)
+            dens = DCMPLX(dr, di)
+            v(tab, it, iu) = v(tab, it, iu) + cint2*dens
+        end do
+        !$OMP end do
+        !$OMP end parallel
+
     end do
     close (twoint_unit)
 
     if (rank == 0) print *, 'vFmat_ord is ended'
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1, 1), nab*nact**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=v)
     if (rank == 0) print *, 'end allreduce vFmat'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
+contains
+    subroutine create_multb_s_reverse
+        !========================================================================================================
+        ! This subroutine creates multb_s_reverse
+        !
+        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+        !========================================================================================================
+        implicit none
+        integer :: ia, ib, ja, jb
+
+        if (nsymrpa == 1) then
+            multb_s_reverse(:, :) = 1
+        else
+            do ia = 1, nsec
+                ja = ia + ninact + nact
+                do ib = 1, ia - 1
+                    jb = ib + ninact + nact
+                    syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                    do isym = 1, nsymrpa
+                        if (MULTB_S(syma, isym) == 1) then
+                            multb_s_reverse(ia, ib) = isym
+                            exit
+                        end if
+                    end do
+                end do
+            end do
+        end if
+    end subroutine create_multb_s_reverse
 end subroutine vFmat_ord

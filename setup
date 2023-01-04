@@ -131,8 +131,9 @@ def main():
         finish_message = "Finished the setup script.\n"
     print(finish_message)
 
-    parallel_option = "--mpi=<number of MPI processes> --omp=<number of OpenMP threads per one process>" if args.mpi else ""
-    enable_or_disable_mpi = "enabled" if args.mpi else "disabled"
+    mpi_option_message = " --mpi=[number of MPI processes]" if args.mpi else ""
+    omp_option_message = " --omp=[number of OpenMP threads per one process]" if args.omp else ""
+    enable_or_disable_mpi = "set" if args.mpi else "do not set"
 
     print(
         f"Note:\n\
@@ -140,9 +141,9 @@ def main():
         We recommend you to run tests to check if the build is successful.\n\
         You {enable_or_disable_mpi} --mpi option. Therefore, you should run one of the following tests:\n\
         - Run all tests:\n\
-        \tpytest --all {parallel_option}\n\
+        \tpytest --all{mpi_option_message}{omp_option_message}\n\
         - Run tests excluding the tests long time to run:\n\
-        \tpytest {parallel_option}\n\
+        \tpytest{mpi_option_message}{omp_option_message}\n\
         For more information, please read the README.md file."
     )
 

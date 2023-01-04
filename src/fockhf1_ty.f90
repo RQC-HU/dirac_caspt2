@@ -7,11 +7,11 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer :: j, i, k, n
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -39,8 +39,8 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
             f(i, j) = DCMPLX(oner(i, j), onei(i, j))
             do k = 1, ninact + nelec
 
-                f(i, j) = f(i, j) + CMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k), 16)
-                f(i, j) = f(i, j) - CMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j), 16)
+                f(i, j) = f(i, j) + DCMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k))
+                f(i, j) = f(i, j) - DCMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j))
 
             End do           ! k
 
@@ -64,7 +64,7 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         End do       ! j
     End do          ! i
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, f(1, 1), nmo**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=f(1:nmo, 1:nmo))
 #endif
 
     if (rank == 0) then

@@ -8,11 +8,11 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
     use module_file_manager
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
     logical :: is_end_of_file
@@ -102,8 +102,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,8 +138,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,8 +173,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,8 +208,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,13 +234,14 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_file_manager
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
     logical :: is_end_of_file
@@ -266,7 +263,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
-        stop
+        call stop_with_errorcode(1)
     end if
 
     ini(1) = 1
@@ -377,8 +374,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -415,8 +411,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -452,8 +447,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -489,8 +483,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -515,13 +508,14 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_file_manager
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer, intent(in)        :: spi, spj, spk, spl
     character(50), intent(in)    :: fname
     logical :: is_end_of_file
@@ -544,7 +538,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl
-        stop
+        call stop_with_errorcode(1)
     end if
     ini(1) = 1
     end(1) = ninact
@@ -651,8 +645,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -688,8 +681,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -725,8 +717,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -762,8 +753,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(traint2)
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

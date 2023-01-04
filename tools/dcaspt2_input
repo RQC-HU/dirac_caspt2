@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
+from subprocess import Popen
 import argparse
 import datetime
 import glob
 import os
 import shutil
+import signal
 import sys
 import tempfile
 import time
-from subprocess import Popen
 
 
 def parse_args() -> "argparse.Namespace":
@@ -34,6 +35,7 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the temporary directory.\nRegular expression is available.\n[default: None]")
     parser.add_argument("--tmp", dest="tmpdir", help="Set the temporary directory. Add the subdirectory to the specified directory.\n(e.g.) --tmp /home/username/tmp => Create /home/username/tmp/active_tmp_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_tmp]")
     parser.add_argument("--fulltmp", dest="fulltmp", help="Set the temporary directory. Use the specified directory as the temporary directory.\n[default: None]")
+    parser.add_argument("--skip-casci", dest="skipcasci", action="store_true", help="Skip the CASCI calculation. [default: False]")
     parser.add_argument(
         "--no-tmp",
         dest="notmp",
@@ -204,6 +206,8 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
     caspt2_path = os.path.join(binary_dir, "r4dcaspt2ocoexe")
     if args.ivo:
         command = f"{mpi} {ivo_path}"
+    elif args.skipcasci:
+        command = f"{mpi} {caspt2_path}"
     else:
         command = f"{mpi} {casci_path} && {mpi} {caspt2_path}"
     print(f"Created command : {command}")
@@ -220,14 +224,25 @@ def run_command(args: "argparse.Namespace", command: str, tmp_dir: str, user_sub
         user_submitted_dir (str): Path to the directory where this script is used
         output_file_path (str): Path to the output file
     """
+
+    def delete_tmp_dir():
+        # Delete the temporary directory if the user didn't specify the -s or --save option and --no_tmp option
+        if not args.no_tmp and not args.save and os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
     os.chdir(tmp_dir)
 
     with open(output_file_path, "w") as f:
         start_time = time.time()
         start_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        p = Popen(command, shell=True, stdout=f, stderr=f)
-        p.wait()
+        try:
+            p = Popen(command, shell=True, stdout=f, stderr=f)
+            p.wait()
+        except KeyboardInterrupt:
+            delete_tmp_dir()
+            print("Calculation was interrupted by the user.(ctrl+c, SIGINT)")
+            sys.exit(signal.SIGINT)
 
         end_time = time.time()
         end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

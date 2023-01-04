@@ -32,9 +32,6 @@ SUBROUTINE casci_ty
         print *, 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
     end if
 
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
     if (rank == 0) print *, "end allocate mat(ndet,ndet)"
     Call casmat(mat)
@@ -54,9 +51,6 @@ SUBROUTINE casci_ty
     if (rank == 0) print *, 'ndet before cdiag', ndet
     Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
 
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) print *, 'End mat cdiag'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0

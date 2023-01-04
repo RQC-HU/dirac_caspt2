@@ -74,15 +74,8 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         print *, ' ENTER solv E part'
         print *, ' nsymrpa', nsymrpa
     end if
-    i0 = 0
-    Do ia = 1, nsec
-        Do ii = 1, ninact
-            Do ij = 1, ii - 1                ! i > j
-                i0 = i0 + 1
-            End do
-        End do
-    End do
-
+    ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
+    i0 = nsec*(ninact*(ninact - 1))/2
     naij = i0
     Allocate (iaij(nsec, ninact, ninact))
     iaij = 0
@@ -91,9 +84,9 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     Allocate (ij0(naij))
 
     i0 = 0
-    Do ia = 1, nsec
-        Do ii = 1, ninact
-            Do ij = 1, ii - 1                ! i > j
+    Do ii = 1, ninact
+        Do ij = 1, ii - 1                ! i > j
+            Do ia = 1, nsec
                 i0 = i0 + 1
                 iaij(ia, ii, ij) = i0
                 iaij(ia, ij, ii) = i0
@@ -106,9 +99,6 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 
     Allocate (v(naij, nact))
     v = 0.0d+00
-#ifdef HAVE_MPI
-    call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
     if (rank == 0) print *, 'end before v matrices'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -307,7 +297,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
                 vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm))
 
                 Do j = 1, dimm
-                    e = DCONJG(vc1(j))*vc1(j)/(alpha + wb(j))
+                    e = DBLE(DCONJG(vc1(j))*vc1(j)/(alpha + wb(j)))
                     sumc2local = sumc2local + e/(alpha + wb(j))
                     e2(isym) = e2(isym) - e
                 End do
@@ -357,11 +347,11 @@ SUBROUTINE sEmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
+
     integer, intent(in)      :: dimn, indt(dimn)
     complex*16, intent(out)  :: sc(dimn, dimn)
 
@@ -395,7 +385,7 @@ SUBROUTINE sEmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
     End do                  !i
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, sc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=sc)
 #endif
 
 End subroutine sEmat
@@ -417,11 +407,10 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer :: it, iu, iw, jt, ju, jw
     integer :: i, j
@@ -468,11 +457,7 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
     End do                  !j
     !$OMP end parallel do
 #ifdef HAVE_MPI
-    if (rank == 0) then
-        call MPI_Reduce(MPI_IN_PLACE, bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    else
-        call MPI_Reduce(bc(1, 1), bc(1, 1), dimn**2, MPI_COMPLEX16, MPI_SUM, 0, MPI_COMM_WORLD, ierr)
-    end if
+    call reduce_wrapper(mat=bc, root_rank=0)
 #endif
     if (rank == 0) print *, 'bEmat is ended'
 End subroutine bEmat
@@ -489,11 +474,10 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
     use four_caspt2_module
     use module_file_manager
-
-    Implicit NONE
 #ifdef HAVE_MPI
-    include 'mpif.h'
+    use module_mpi
 #endif
+    Implicit NONE
 
     integer, intent(in)     :: naij, iaij(nsec, ninact, ninact)
 
@@ -548,34 +532,13 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
             cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
         end if
 
-!! Take Kramers conjugate !
-!
-!        Call takekr( i, j, k, l, cint2)
-!
-!        taij = iaij(i, j, l)
-!        ik = k - ninact
-!
-!!        write(*,*) i,j,k,l,taij,cint2
-!
-!        if (j < l) then
-!           cint2 = -1.0d+00*cint2
-!        endif
-!
-!        v(taij,k) = v(taij, k) - cint2
-!
-!        Do it = 1, nact
-!           jt = ninact+it
-!           Call dim1_density (it, ik, dr, di)          ! ik corresponds to p in above formula
-!           dens = DCMPLX(dr, di)
-!           v(taij,jt) = v(taij, jt) + cint2*dens
-!        End do                  ! it
     end do
     close (twoint_unit)
 
     if (rank == 0) print *, 'vEmat_ord_ty is ended'
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, v(1, 1), naij*nact, MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    call allreduce_wrapper(mat=v)
     if (rank == 0) print *, 'end Allreduce vEmat'
 #endif
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
