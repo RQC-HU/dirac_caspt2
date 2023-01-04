@@ -74,15 +74,8 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         print *, ' ENTER solv E part'
         print *, ' nsymrpa', nsymrpa
     end if
-    i0 = 0
-    Do ia = 1, nsec
-        Do ii = 1, ninact
-            Do ij = 1, ii - 1                ! i > j
-                i0 = i0 + 1
-            End do
-        End do
-    End do
-
+    ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
+    i0 = nsec*(ninact*(ninact - 1))/2
     naij = i0
     Allocate (iaij(nsec, ninact, ninact))
     iaij = 0
@@ -91,9 +84,9 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     Allocate (ij0(naij))
 
     i0 = 0
-    Do ia = 1, nsec
-        Do ii = 1, ninact
-            Do ij = 1, ii - 1                ! i > j
+    Do ii = 1, ninact
+        Do ij = 1, ii - 1                ! i > j
+            Do ia = 1, nsec
                 i0 = i0 + 1
                 iaij(ia, ii, ij) = i0
                 iaij(ia, ij, ii) = i0
@@ -307,7 +300,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
                 vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm))
 
                 Do j = 1, dimm
-                    e = DCONJG(vc1(j))*vc1(j)/(alpha + wb(j))
+                    e = DBLE(DCONJG(vc1(j))*vc1(j)/(alpha + wb(j)))
                     sumc2local = sumc2local + e/(alpha + wb(j))
                     e2(isym) = e2(isym) - e
                 End do
@@ -548,27 +541,6 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
             cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!
         end if
 
-!! Take Kramers conjugate !
-!
-!        Call takekr( i, j, k, l, cint2)
-!
-!        taij = iaij(i, j, l)
-!        ik = k - ninact
-!
-!!        write(*,*) i,j,k,l,taij,cint2
-!
-!        if (j < l) then
-!           cint2 = -1.0d+00*cint2
-!        endif
-!
-!        v(taij,k) = v(taij, k) - cint2
-!
-!        Do it = 1, nact
-!           jt = ninact+it
-!           Call dim1_density (it, ik, dr, di)          ! ik corresponds to p in above formula
-!           dens = DCMPLX(dr, di)
-!           v(taij,jt) = v(taij, jt) + cint2*dens
-!        End do                  ! it
     end do
     close (twoint_unit)
 

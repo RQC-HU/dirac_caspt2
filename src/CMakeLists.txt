@@ -1,9 +1,10 @@
 add_library(dcaspt2_module STATIC
   four_caspt2_module.f90
-  module_sort_swap.f90
+  module_error.f90
   module_file_manager.f90
-  read_input_module.f90
+  module_sort_swap.f90
   ras_det_check.f90
+  read_input_module.f90
 )
 add_executable(r4dcascicoexe
   calce0.f90

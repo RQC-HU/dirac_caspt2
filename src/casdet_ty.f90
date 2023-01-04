@@ -5,6 +5,7 @@ SUBROUTINE casdet_ty
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
+    use module_error, only: stop_with_errorcode
     use ras_det_check
     Implicit NONE
 
@@ -56,8 +57,8 @@ SUBROUTINE casdet_ty
                 idetr(i) = ndet
             else
                 Call detsym_ty(i, isym)
-                if (rank == 0) print '(a,L,a,i20,a,b50)', 'is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
                 if (isym == totsym) then
+                    if (rank == 0) print '(a,L,a,i20,a,b50)', 'is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
                     ndet = ndet + 1
                     idet0(ndet) = i
                     idetr(i) = ndet
@@ -65,6 +66,15 @@ SUBROUTINE casdet_ty
             End if
         End if
     End do
+    ! Stop the program if ndet == 0 because ndet == 0 means the number of CASCI determinant.
+    if (ndet == 0) then
+        if (rank == 0) then
+
+            print *, "[ERROR]: The number of CASCI determinant is 0. Therefore, subsequent calculations  &
+    &            cannot be performed successfully and the program is terminated."
+        end if
+        call stop_with_errorcode(1)
+    end if
 
     Allocate (idet(ndet))
     idet(1:ndet) = idet0(1:ndet)
@@ -75,15 +85,6 @@ SUBROUTINE casdet_ty
     end if
 !        print *,idet(1:ndet)
     Deallocate (idet0)
-
-    ! Stop the program if ndet == 0 because ndet == 0 means the number of CASCI determinant.
-    if (ndet == 0) then
-        if (rank == 0) then
-            print *, "[ERROR]: The number of CASCI determinant is 0. Therefore, subsequent calculations  &
-            cannot be performed successfully and the program is terminated."
-        end if
-        stop
-    end if
 
 end subroutine casdet_ty
 

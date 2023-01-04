@@ -59,7 +59,7 @@ jobs:
       - name: Install Intel Fortran compiler
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
+          sudo apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh
@@ -115,7 +115,7 @@ jobs:
       - name: Install MKL
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install intel-oneapi-mkl
+          sudo apt-get install -y intel-oneapi-mkl
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh
@@ -123,7 +123,7 @@ jobs:
       - name: Install gfortran (apt)
         run: |
           sudo apt-get update
-          sudo apt-get install gfortran-${{ matrix.gfortran-version }}
+          sudo apt-get install -y gfortran-${{ matrix.gfortran-version }}
       - name: Install python
         uses: actions/setup-python@v4
         with:

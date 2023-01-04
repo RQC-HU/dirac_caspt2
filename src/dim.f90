@@ -33,8 +33,8 @@ subroutine dim1_density(creat1, anhi1, sr, si)
 
         if (j0 == 0) cycle ! Next i0
 
-        cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
-        cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
+        cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
+        cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
 
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
@@ -78,8 +78,8 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
 
         if (j0 == 0) cycle ! Next i0
 
-        cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
-        cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
+        cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
+        cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
 
         cmplxs = DCONJG(cmplxcii)*DCONJG(cmplxcij)    ! This part is unique for Aperp term.
 
@@ -121,8 +121,8 @@ subroutine dim1_density_diag(creat1, anhi1, s)
 
         if (j0 == 0) cycle ! Next i0
 
-        cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
-        cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
+        cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
+        cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
 
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
@@ -175,8 +175,8 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
 
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
 
-        cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
-        cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
+        cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
+        cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
 
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
@@ -235,8 +235,8 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
 
         if (j0 == 0) cycle ! Next i0
 
-        cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
-        cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
+        cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
+        cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
 
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
@@ -300,8 +300,8 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
 
         if (j0 == 0) cycle ! Next i0
 
-        cmplxcii = CMPLX(cir(i0, iroot), cii(i0, iroot), 16)
-        cmplxcij = CMPLX(cir(j0, iroot), cii(j0, iroot), 16)
+        cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
+        cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
 
         cmplxs = cmplxcii*DCONJG(cmplxcij)
 
