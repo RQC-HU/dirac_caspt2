@@ -27,7 +27,7 @@
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
 - [CMake(version ≧ 3.14)](https://cmake.org/)
   - CMakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
-- [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-mkl-for-dpcpp/top.html)
+- [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、以下のコマンドを実行して環境変数\$MKLROOTが設定されているか確認してください
 
@@ -175,7 +175,7 @@ CMakeを直接使ってビルドする場合以下のようなコマンドを実
 
 ```sh
 # FC: Fortran compiler, e.g. ifort, gfortran, mpiifort
-FC=ifort cmake -B build -DCMAKE_BUILD_TYPE=Release -DOMP=ON && cmake --build build
+FC=ifort cmake -B build -DCMAKE_BUILD_TYPE=Release -DOPENMP=ON && cmake --build build
 pytest --all
 ```
 
