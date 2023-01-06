@@ -16,7 +16,7 @@ SUBROUTINE casci_ty
     complex*16, allocatable :: mat(:, :)
     real*8, allocatable     :: ecas(:)
     logical                 :: cutoff
-    character*20            :: filename
+    character*20            :: filename, chr_root
     real(8) :: expected_mem
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -102,7 +102,8 @@ SUBROUTINE casci_ty
 
         print '("CASCI ENERGY FOR ",I2," STATE")', totsym
         Do irec = 1, nroot
-            print '(I4,F30.15)', irec, eigen(irec)
+            write (chr_root, '(I4)') irec
+            print '("CASCI Total Energy ROOT",a,F30.15," a.u.")', trim(adjustl(chr_root)), eigen(irec)
         End do
     end if
     do j = 1, ndet
