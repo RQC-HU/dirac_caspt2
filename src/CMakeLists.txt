@@ -2,10 +2,7 @@ add_library(dcaspt2_module STATIC
   four_caspt2_module.f90
   module_error.f90
   module_file_manager.f90
-<<<<<<< HEAD
   module_mpi.f90
-=======
->>>>>>> b087a35... Merge branch 'main' of github.com:kohei-noda-qcrg/dirac_caspt2 into merge_to_main_ivo
   module_sort_swap.f90
   ras_det_check.f90
   read_input_module.f90

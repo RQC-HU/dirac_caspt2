@@ -33,9 +33,8 @@ MODULE four_caspt2_module
     logical         :: is_ras1_configured, is_ras2_configured, is_ras3_configured
     logical         :: skip_mdcint = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
-    integer, parameter :: max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: lscom, nhomo
-    integer, parameter :: max_ras_spinor_num = 200
+    integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: noccg, noccu
     character       :: date*8, time*10
     integer, allocatable :: idet(:), sp(:), idetr(:)

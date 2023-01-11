@@ -57,8 +57,9 @@ SUBROUTINE casdet_ty
                 idetr(i) = ndet
             else
                 Call detsym_ty(i, isym)
+                if (rank == 0) print '(a,i20,a,b50,a,i5)', "i:", i, "bit(i)", i, "isym:", isym
                 if (isym == totsym) then
-                    if (rank == 0) print '(a,L,a,i20,a,b50)', 'is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
+                    !if (rank == 0) print '(a,L,a,i20,a,b50)', 'is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
                     ndet = ndet + 1
                     idet0(ndet) = i
                     idetr(i) = ndet

@@ -122,7 +122,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
     return scratch_dir
 
 
-def copy_essential_files_to_scratch_dir(input_file_path: str, integrals_dir: str, scratch_dir: str) -> None:
+def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_path: str, integrals_dir: str, scratch_dir: str) -> None:
     """Copy input file and integral files to scratch directory
     Args:
         input_file_path (str): Path to the input file
@@ -140,6 +140,8 @@ def copy_essential_files_to_scratch_dir(input_file_path: str, integrals_dir: str
     if integrals_dir != scratch_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
         shutil.copy(os.path.join(integrals_dir, "MDCINT"), scratch_dir)
         shutil.copy(os.path.join(integrals_dir, "MRCONEE"), scratch_dir)
+        if args.ivo:
+            shutil.copy(os.path.join(integrals_dir, "DFPCMO"), scratch_dir)
         for file in glob.glob(os.path.join(integrals_dir, "MDCINX*")):
             shutil.copy(file, scratch_dir)
         print("log : Copied 1-2 integral files to the scratch directory")
@@ -372,7 +374,7 @@ def main() -> None:
     else:
         scratch_dir = create_scratch_dir(args, input_file_path, user_submitted_dir)
         print(f"Scratch directory : {scratch_dir}")
-    copy_essential_files_to_scratch_dir(input_file_path, integrals_dir, scratch_dir)
+    copy_essential_files_to_scratch_dir(args, input_file_path, integrals_dir, scratch_dir)
 
     # Create command to execute and run it
     command = create_command(args, binary_dir)

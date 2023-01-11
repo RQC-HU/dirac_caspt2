@@ -230,7 +230,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call timing(date1, tsec1, date0, tsec0)
     ! date1 = date0
     ! tsec1 = tsec0
-
     if (rank == 0) print *, 'A1int filename : ', trim(a1int), ' rank', rank
 
     ! Call intra_3(2, 1, 2, 2, 'A1int')
@@ -368,14 +367,18 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
 
-    Call intra_2(3, 1, 3, 1, hint)
-    if (rank == 0) print *, 'End intra_1 Hint'
     date1 = date0
     tsec1 = tsec0
     Call timing(date1, tsec1, date0, tsec0)
 
     sumc2local = 0.0d+00
     if (rank == 0) print *, 'enter solveH_ord_ty'
+    if (rank == 0) print *, 'Enter intra_2 Hint'
+    Call intra_2(3, 1, 3, 1, hint)
+    if (rank == 0) print *, 'End intra_2 Hint'
+    date1 = date0
+    tsec1 = tsec0
+    Call timing(date1, tsec1, date0, tsec0)
 
     Call solvH_ord_ty(e0, e2)
     e2all = e2all + e2

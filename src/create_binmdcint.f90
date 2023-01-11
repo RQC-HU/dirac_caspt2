@@ -83,7 +83,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     call get_mdcint_filename(file_idx)
     call open_unformatted_file(unit=mdcintnew_unit, file=mdcintNew, status="replace", optional_action="write")
     write (mdcintnew_unit) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-    print *, "MDCINTNEWrank file is created.", mdcintNew
+    print *, "File ", trim(mdcintNew), " is created."
 
     is_file_exist = .true.
     do while (is_file_exist) ! Continue reading 2-electron integrals until mdcint_filename doesn't exist.
@@ -92,7 +92,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         if (.not. is_file_exist) exit ! Exit do while loop if mdcint_filename doesn't exist.
         call open_unformatted_file(unit=mdcint_unit, file=mdcint_filename, status="old", optional_action="read")
         read (mdcint_unit)
-        if (rank == 0) print *, "Reading MDCINT file named: ", mdcint_filename
+        print *, "Reading MDCINT file named: ", trim(mdcint_filename), ', rank = ', rank
 
         read (mdcint_unit, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
         if (iostat == 0) then ! 2-integral values are complex numbers if iostat == 0
