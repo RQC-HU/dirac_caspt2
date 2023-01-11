@@ -174,8 +174,8 @@ make -C build install
 CMakeを直接使ってビルドする場合以下のようなコマンドを実行するとビルドできます
 
 ```sh
-# FC: Fortran compiler, e.g. ifort, gfortran, mpiifort
-FC=ifort cmake -B build -DCMAKE_BUILD_TYPE=Release -DOPENMP=ON && cmake --build build
+# DCMAKE_Fortran_COMPILER: Fortran compiler, (e.g.) ifort, gfortran, mpiifort
+cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DOPENMP=ON && cmake --build build
 pytest --all
 ```
 
@@ -189,7 +189,7 @@ pytest --all
       (例)
 
       ```sh
-      FC=mpiifort cmake -DMPI=on -B build && cmake --build build
+      cmake -DCMAKE_Fortran_COMPILER=mpiifort -DMPI=on -B build && cmake --build build
       ```
 
 - OPENMP
@@ -199,7 +199,7 @@ pytest --all
       (例)
 
       ```sh
-      FC=ifort cmake -DOPENMP=on -B build && cmake --build build
+      cmake -DCMAKE_Fortran_COMPILER=ifort -DOPENMP=on -B build && cmake --build build
       ```
 
 - MKL
@@ -209,7 +209,7 @@ pytest --all
       (例)
 
       ```sh
-      LDFLAGS="/your/blas/link/path /your/lapack/link/path" FC=ifort cmake -DMKL=off -B build && cmake --build build
+      LDFLAGS="/your/blas/link/path /your/lapack/link/path" cmake -DCMAKE_Fortran_COMPILER=ifort -DMKL=off -B build && cmake --build build
       ```
 
 ## How to use
