@@ -164,6 +164,9 @@ contains
         case ("noccu")
             call read_an_integer(unit_num, 0, 10**9, noccu)
 
+        case ("skip_mdcint")
+            skip_mdcint = .true.
+
         case ("end")
             is_end = .true.
 

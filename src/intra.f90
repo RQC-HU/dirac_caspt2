@@ -102,8 +102,10 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,8 +141,10 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,8 +179,10 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,8 +217,10 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -378,8 +386,10 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -416,8 +426,10 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -453,8 +465,10 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -490,8 +504,10 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -653,8 +669,10 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -690,8 +708,10 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -727,8 +747,10 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -764,8 +786,10 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     close (unit)
 
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, li), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1)*(le - li + 1), &
-                       MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do l = li, le
+        call MPI_Allreduce(MPI_IN_PLACE, traint2(ii, ji, ki, l), (ie - ii + 1)*(je - ji + 1)*(ke - ki + 1), &
+                           MPI_COMPLEX16, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
 #endif
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

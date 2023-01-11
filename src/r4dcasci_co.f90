@@ -91,7 +91,11 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     !Iwamuro create new ikr for dirac
-    Call create_newmdcint
+    if (skip_mdcint) then
+        if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
+    else
+        call create_newmdcint
+    end if
     if (rank == 0) print '(a)', 'Before readint2_casci_co'
 
     Call readint2_casci_co(mdcintnew, nuniq)

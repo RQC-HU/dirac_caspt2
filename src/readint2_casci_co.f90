@@ -391,16 +391,20 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     if (allocated(j)) deallocate (j); Call memminus(KIND(j), SIZE(j), 1)
     if (allocated(nz)) deallocate (nz); call memminus(kind(nz), size(nz), 1)
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, inttwr(1, 1, 1, 1), nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, inttwi(1, 1, 1, 1), nmoc**4, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
-                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
-                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
-                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
-                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do i0 = 1, nmoc
+        call MPI_Allreduce(MPI_IN_PLACE, inttwr(1, 1, 1, i0), nmoc**3, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, inttwi(1, 1, 1, i0), nmoc**3, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(ninact + nact + 1, ninact + nact + 1, 1, i0), &
+                           nsec*nsec*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(ninact + nact + 1, ninact + nact + 1, 1, i0), &
+                           nsec*nsec*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
+    do i0 = 1, nsec
+        call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(ninact + nact + 1, 1, 1, ninact + nact + i0), &
+                           nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(ninact + nact + 1, 1, 1, ninact + nact + i0), &
+                           nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
     if (rank == 0) print *, 'End MPI_Allreduce inttwr, inttwi, int2r_f1, int2i_f1, int2r_f2, int2i_f2'
 #endif
 end subroutine readint2_casci_co

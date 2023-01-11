@@ -16,7 +16,7 @@ SUBROUTINE readint2_ivo_co(filename) ! 2 electorn integrals created by typart in
 
     character  :: datex*10, timex*8
 
-    integer    :: mdcint, nkr, nuniq, nmom, nmoc, iostat
+    integer    :: mdcint, nkr, nuniq, nmoc, nsec_start, nsec_end, iostat
     integer    :: nz, j0, i0
     integer    :: i, j, k, l, jtr0, itr0
     integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint, save, count
@@ -28,12 +28,13 @@ SUBROUTINE readint2_ivo_co(filename) ! 2 electorn integrals created by typart in
     logical              :: end_of_file
 
     nmoc = ninact + nact
-    nmom = ninact + nact + nsec
+    nsec_start = ninact + nact + 1
+    nsec_end = ninact + nact + nsec
 
-    Allocate (int2r_f1(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc))
-    Allocate (int2i_f1(ninact + nact + 1:ninact + nact + nsec, ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc))
-    Allocate (int2r_f2(ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc, ninact + nact + 1:ninact + nact + nsec))
-    Allocate (int2i_f2(ninact + nact + 1:ninact + nact + nsec, nmoc, nmoc, ninact + nact + 1:ninact + nact + nsec))
+    Allocate (int2r_f1(nsec_start:nsec_end, nsec_start:nsec_end, nmoc, nmoc))
+    Allocate (int2i_f1(nsec_start:nsec_end, nsec_start:nsec_end, nmoc, nmoc))
+    Allocate (int2r_f2(nsec_start:nsec_end, nmoc, nmoc, nsec_start:nsec_end))
+    Allocate (int2i_f2(nsec_start:nsec_end, nmoc, nmoc, nsec_start:nsec_end))
     Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
     Call memplus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
@@ -293,21 +294,39 @@ SUBROUTINE readint2_ivo_co(filename) ! 2 electorn integrals created by typart in
     end do
 
     close (mdcint)
-    if (rank == 0) print *, nuniq, totalint
+    print *, nuniq, totalint, rank
     deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
     deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
     deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
     deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
     deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
 #ifdef HAVE_MPI
-    call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
-                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(ninact + nact + 1, ninact + nact + 1, 1, 1), &
-                       nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
-                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(ninact + nact + 1, 1, 1, ninact + nact + 1), &
-                       nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    ! integer(4) max : 3805902864 == 2**31 - 1 >= ncount
+    ! call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(nsec_start, nsec_start, 1, 1), &
+    !                    nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    ! call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(nsec_start, nsec_start, 1, 1), &
+    !                    nsec*nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    if (rank == 0) print *, 'Start MPI_Allreduce int2r_f1, int2i_f1, nmoc = ', nmoc
+    do i = 1, nmoc
+        if (rank == 0) print *, 'Start MPI_Allreduce int2r_f2, int2i_f2', i
+        call MPI_Allreduce(MPI_IN_PLACE, int2r_f1(nsec_start, nsec_start, 1, i), &
+                           nsec*nsec*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, int2i_f1(nsec_start, nsec_start, 1, i), &
+                           nsec*nsec*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
+    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+    if (rank == 0) print *, "int2r_f1 and int2i_f1 are summed up, nsec = ", nsec
+    ! call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(nsec_start, 1, 1, nsec_start), &
+    !                    nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    ! call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(nsec_start, 1, 1, nsec_start), &
+    !                    nsec*nmoc*nmoc*nsec, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    do i = 1, nsec
+        if (rank == 0) print *, 'Start MPI_Allreduce int2r_f2, int2i_f2', i
+        call MPI_Allreduce(MPI_IN_PLACE, int2r_f2(nsec_start, 1, 1, ninact + nact + i), &
+                           nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+        call MPI_Allreduce(MPI_IN_PLACE, int2i_f2(nsec_start, 1, 1, ninact + nact + i), &
+                           nsec*nmoc*nmoc, MPI_REAL8, MPI_SUM, MPI_COMM_WORLD, ierr)
+    end do
     if (rank == 0) print *, 'End MPI_Allreduce int2r_f1, int2i_f1, int2r_f2, int2i_f2'
 #endif
 end subroutine readint2_ivo_co
