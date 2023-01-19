@@ -19,8 +19,8 @@ def is_binary_file_exist(binary_file: str) -> None:
 def create_test_command_for_caspt2(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool) -> str:
     options = ""
     if save:
-        tmp_path = os.path.join(test_path, "tmp")
-        options += f" --save --tmp {tmp_path}"
+        scratch_path = os.path.join(test_path, "scratch")
+        options += f" --save --scratch {scratch_path}"
     if mpi_num_process > 1:
         options += f" --mpi {mpi_num_process}"
     if omp_num_threads is None:
@@ -72,15 +72,18 @@ def run_test(test_command: str, output_file_path: str = "stdout.out") -> None:
 
 def check_test_returncode(process: "subprocess.CompletedProcess[str]") -> None:
     if process.returncode != 0:
-        raise Exception("ERROR: Process failed. return code status : " + str(process.returncode))
+        raise Exception(
+            "ERROR: Process failed. return code status : " + str(process.returncode))
 
 
 def get_caspt2_energy_from_output_file(file_path: str) -> float:
     with open(file_path, encoding="utf-8", mode="r") as output_file:
         try:
             # (e.g. ['Total energy is             -1.117672932144052 a.u.'])
-            grep_str: list[str] = [s.strip() for s in output_file.readlines() if "Total energy is" in s]
-            caspt2_energy = float(grep_str[-1].split()[-2])  # (e.g. -1.117672932144052)
+            grep_str: list[str] = [
+                s.strip() for s in output_file.readlines() if "Total energy is" in s]
+            # (e.g. -1.117672932144052)
+            caspt2_energy = float(grep_str[-1].split()[-2])
             return caspt2_energy
         except Exception as error:  # Failed to get the reference data
             error_message = f"{error}\nERROR: Failed to get the CASPT2 energy from the reference file {file_path}."
