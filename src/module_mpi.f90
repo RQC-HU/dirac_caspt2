@@ -159,7 +159,11 @@ contains
                 call check_ierr(ierr)
             end do
         else ! no limit
-            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
+            if (rank == root_rank) then
+                call MPI_Reduce(MPI_IN_PLACE, mat, size(mat), MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+            else
+                call MPI_Reduce(mat, mat, size(mat), MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+            end if
             call check_ierr(ierr)
         end if
 
