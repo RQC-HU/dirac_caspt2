@@ -53,7 +53,7 @@ def preprocess(args, exec_path, root_path):
         cmake_flags += f" -DCMAKE_Fortran_COMPILER={args.fc}"
     if args.flags is not None:
         # CMAKE_<LANG>_FLAGS: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html#variable:CMAKE_%3CLANG%3E_FLAGS
-        cmake_flags += f" -DCMAKE_Fortran_FLAGS={args.flags}"
+        cmake_flags += f" -DCMAKE_Fortran_FLAGS='{args.flags}'"
 
     if args.no_mkl:
         cmake_flags += " -DMKL=off"
