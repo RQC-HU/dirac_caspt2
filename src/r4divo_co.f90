@@ -91,6 +91,8 @@
         write(*,*)'nhomo      =' ,nhomo
         write(*,*)'lscom      =' ,lscom             
         write(*,*)'noccg      =' ,noccg
+        write(*,*)'noccu      =' ,noccu
+        write(*,*)'diracver   =' ,dirac_version
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -179,23 +181,13 @@
       Call fockivo_co
 !      Call fockivo(nhomo)
 
-      write(*,*)"debug1"
-
       deallocate ( f   )   ;   Call memminus (KIND( f    ),SIZE( f   ),2)
-      write(*,*)"1"
-
-      deallocate ( orb    );   Call memminus (KIND( orb    ),SIZE( orb    ),1)
-      write(*,*)"1"
+!      deallocate ( orb    );   Call memminus (KIND( orb    ),SIZE( orb    ),1)
       deallocate ( irpmo  );   Call memminus (KIND( irpmo  ),SIZE( irpmo  ),1)
-      write(*,*)"1"
       deallocate ( irpamo );   Call memminus (KIND( irpamo ),SIZE( irpamo ),1)
-      write(*,*)"1"
       deallocate ( indmo  );   Call memminus (KIND( indmo  ),SIZE( indmo  ),1)
-      write(*,*)"1"
       deallocate (indmor  );   Call memminus (KIND(indmor  ),SIZE(indmor  ),1)
-      write(*,*)"1"
       deallocate (onei    );   Call memminus (KIND(onei    ),SIZE(onei    ),1)
-      write(*,*)"debug2"
 !      deallocate (int2i   );   Call memminus (KIND(int2i   ),SIZE(int2i   ),1)
 !      deallocate (indtwi  );   Call memminus (KIND(indtwi  ),SIZE(indtwi  ),1)
       deallocate ( oner   );   Call memminus (KIND( oner   ),SIZE( oner   ),1)
@@ -212,16 +204,12 @@
       deallocate (MULTB_DB);   Call memminus (KIND(MULTB_DB),SIZE(MULTB_DB),1)
       deallocate (MULTB_SB);   Call memminus (KIND(MULTB_SB),SIZE(MULTB_SB),1)
 
-      write(*,*)"debug3"
-
 !      write(*,'("Current Memory is ",F10.2,"MB")')tmem/1024/1024
 
 
 !      Call timing(val(3), totalsec, date0, tsec0)
       write(*,*)'End r4divo_co part'
 
- 1000 continue 
+! 1000 continue 
+
       END program r4divo_co
-
-
-

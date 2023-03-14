@@ -20,17 +20,16 @@
         logical   ::cutoff
         integer :: iostat
         complex*16,allocatable :: fsym(:,:), fdmmy(:,:)
-        complex*16,allocatable :: coeff(:,:,:),readmo(:,:,:),mocr(:,:),moci(:,:),readmo1(:,:,:)
+        complex*16,allocatable :: coeff(:,:)
         real*8,    allocatable :: wsym(:), BUF(:), BUF1(:,:), eval(:)
         integer,   allocatable :: mosym(:)
         integer :: nnmo, nnao , IMAX
-        character*150 :: line1, line2, line3, line4, line5, line6, line7
-        character*150  :: line8, line9, line10, line11, line12, line13, line14, line15
+        character*150 :: line0, line1, line2, line3, line4, line5
 
       ! for new code of IVO
-        integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, noccg, nvirg, negerade, noccu, A, nv0
-        integer, allocatable :: syminfo(:), dmosym(:), itrfmog(:,:,:), itrfmou(:,:,:)
-
+        integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, A, nv0, ngu, B
+        integer, allocatable :: syminfo(:), dmosym(:)
+        complex*16,allocatable :: itrfmog(:,:), itrfmou(:,:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -99,76 +98,136 @@
 !           allocate(mocr   (nbas, nbas))
 !           allocate(moci   (nbas, nbas))
 
-           nsum = npg + neg + npu + neu
-
-           allocate(readmo   (lscom*2, nbas, 2))
-           allocate(itrfmo   (lscom*2, nbas, 2))
-           allocate(mocr   (lscom*2, nbas))
-           allocate(moci   (lscom*2, nbas))
-           allocate(readmo1   ( nbas,lscom*2,2))
-           allocate(eval(nbas))
-           allocate(itrfmog(nbasg, neg-noccg, 2))
-           allocate(itrfmou(nbasu, neu-noccu, 2))
-           allocate(syminfo(nsum))
-         
-           itrfmo = 0.0d+00
-           itrfmog = 0.0d+00
-           itrfmou = 0.0d+00
-
 !           open(15,file='r4dorbcoeff',status='old',form='unformatted')
 !           read(15,err=10) readmo
 
 !           Allocate (BUF(nbas*lscom))
 !           Allocate (BUF1(nbas,lscom*2))
-! New allocate
-           Allocate(BUF(nsum))
 
            IMAX = nbas*lscom
 
            open(15,file='DFPCMO',status='old',form='formatted')
 
+! From DIRAC dirgp.F WRIPCMO (Write DHF-coefficients and eigenvalues )
+
+           if(dirac_version == 21) then
+              read(15,'(A150)') line0
+           elseif(dirac_version == 22) then
+              read(15,'(A150)') line0
+           endif
            read(15,'(A150)') line1
-           read(15,'(7I2)') A, npg, neg, nbasg, npu, neu, nbasu
+           if(dirac_version == 21) then
+            read(15,*) A, B, npg, neg, nbasg, npu, neu, nbasu
+            write(*,*) A, B, npg, neg, nbasg, npu, neu, nbasu
+           elseif(dirac_version == 22) then
+            read(15,*) A, B, npg, neg, nbasg, npu, neu, nbasu
+            write(*,*) A, B, npg, neg, nbasg, npu, neu, nbasu
+           else
+            read(15,*) A, npg, neg, nbasg, npu, neu, nbasu
+            write(*,*) A, npg, neg, nbasg, npu, neu, nbasu
+           endif
            read(15,'(A150)') line2
 
- 
+           write(*,*)'end reading information, symmetry information and energy'
+
+           nsum = npg + neg + npu + neu
+           
+           ! ngu : the sum of gerade and ungerade
+           ngu = (npg+neg)*nbasg+(npu+neu)*nbasu
+
+           allocate(itrfmog(nbasg, neg-noccg))
+           allocate(itrfmou(nbasu, neu-noccu))
+           allocate(eval(nsum))
+           allocate(syminfo(nsum))
+           Allocate(BUF(ngu))
+
+           itrfmog = 0.0d+00
+           itrfmou = 0.0d+00
+
+        if(dirac_version == 21) then
+            read(15,'(A150)') line3
+        elseif(dirac_version == 22) then
+            read(15,'(A150)') line3
+        endif
+
           ! Read MO coefficient of DFPCMO  
-             Do I = 1, nsum
-              Read(15,'(6F22.16)',ERR=22) BUF(I)
+             Do I = 1, ngu, 6
+              Read(15,'(6F22.16)',ERR=22) BUF(I:I+5)
              Enddo 
 
+             write(*,*)'end reading MO coefficient'
+
            ! unoccupid, gerade, electron 
-             Do j = 1, neg-noccg
-               DO i = 1, nbasg
-                 itrfmog(i,j,:) = BUF((npg+noccg+(nbasg*(j-1)+i))*nbasg)
-               Enddo
+             Do iao = 1, nbasg
+               DO imo = 1, neg-noccg
+                 itrfmog(iao,imo) = BUF((npg+noccg+(imo-1))*nbasg+iao)
+                Enddo
              Enddo
+
+           open(37,file='itrfmog_before',status='unknown',form='formatted')
+
+           Do iao = 1,nbasg
+                write(37,*) (itrfmog(iao,imo), imo = 1, neg-noccg)
+             Enddo
+
+           close(37)
 
            ! unoccupid, ungerade, electron
-
-             Do j = 1, neu-noccu
-               DO i = 1, nbasu
-                 itrfmou(i,j,:) = BUF((npg+neg)*nbasg + (npu+noccu+(nbasu*(j-1)+i))*nbasu)
+             Do iao = 1, nbasu
+               DO imo = 1, neu-noccu
+                 itrfmou(iao,imo) = BUF((npg+neg)*nbasg + (npu+noccu+(imo-1))*nbasu+iao)
                Enddo
              Enddo
+
+             open(38,file='itrfmou_before',status='unknown',form='formatted')
+
+             Do iao = 1,nbasu
+                  write(38,*) (itrfmou(iao,imo), imo = 1, neu-noccu)
+               Enddo
+  
+             close(38)
+
 
  22         continue
 
-            if(mod(nbas,6).eq.0) then
-               Do I = 1, nbas/6*6, 6
-                 Read(15,'(6E22.12)',ERR=23) eval(I:I+5)
-               End do
-            elseif(mod(nbas,6).ne.0) then
-               I = nbas/6*6 +1
-               Read(15,'(6E22.12)',ERR=23) eval(I:IMAX)
+!            if(mod(nsum,6).eq.0) then
+!               Do I = 1, nsum/6*6, 6
+!                 Read(15,'(6E22.12)',ERR=23) eval(I:I+5)
+!               End do
+!            elseif(mod(nsum,6).ne.0) then
+!               I = nsum/6*6 +1
+!               Read(15,'(6E22.12)',ERR=23) eval(I:IMAX)
+!            endif
+            if(dirac_version == 21) then
+                read(15,'(A150)') line4
+            elseif(dirac_version == 22) then
+                read(15,'(A150)') line4
             endif
+
+             Read(15,*) eval
+
+             Do i = 1, nsum
+                write(*,*) "eval(i)", eval(i)
+              Enddo
+
+            write(*,*)'end reading eigenvalue'
 
  23        continue
 
             ! Read syminfo from DFPCMO
-            Do i = 1, nbas
-              Read(15, *) syminfo(i)
+            if(dirac_version == 21) then
+                read(15,'(A150)') line5
+            elseif(dirac_version == 22) then
+                read(15,'(A150)') line5
+            endif
+
+             Read(15,*) syminfo
+
+            Do i = 1, nsum
+              write(*,*) "syminfo(i)", syminfo(i)
             Enddo
+
+            write(*,*)'end reading symmetry information2'
 
 !           read(15,'(A150)',iostat=iostat) line4
 !           if (iostat < 0) goto  120
@@ -201,13 +260,13 @@
 
            open(105,file='BUF_write',status='unknown',form='formatted')
 
-           Do I = 1,nsum
-              Write(105,'(12F10.5)') BUF(I)
+           Do I = 1,ngu, 6
+              Write(105,'(6F22.16)') BUF(I:I+5)
            Enddo
 
            close(105)
 
-           open(16,file='DFPCMO_complement',status='unknown',form='formatted')
+!           open(16,file='DFPCMO_complement',status='unknown',form='formatted')
 
 ! DFPCMO complement in the symmetry of C32h
 
@@ -282,7 +341,12 @@
 
 ! IVO calculation 
 
+! gerade   
+
+write(*,*) "debug1"
+           
            Do isym = 1, nsymrpa, 2
+             write(*,*) "isym=", isym
               nv = 0
               Do i = 1, nsec
                  i0 = i+ninact+nact
@@ -290,11 +354,10 @@
 !                 if(irpamo(i0)==isym) then
                     nv = nv + 1
                 endif
-              enddo
-
+             enddo
+             
               Allocate(mosym(nv))
               Allocate(fsym(nv,nv))
-              Allocate(dmosym(nv))
 
               fsym = 0.0d+00
               nv = 0
@@ -307,8 +370,21 @@
                  endif
               enddo
 
+write(*,*) "debug2"
+              
 !C32h gerade
-            nv0 = 0
+            if (isym <= nsymrpa/2) then
+             nv0 = 0
+             Do i0 = npg+noccg+1,npg+neg
+                if(ABS(syminfo(i0))==isym) then
+!                 if(irpamo(i0)==isym) then
+                   nv0 = nv0 + 1
+                endif
+             enddo
+
+             Allocate(dmosym(nv0))
+
+             nv0 = 0
              Do i0 = npg+noccg+1,npg+neg
                 if(ABS(syminfo(i0))==isym) then
 !                 if(irpamo(i0)==isym) then
@@ -317,14 +393,32 @@
                 endif
              enddo
 
+write(*,*) "debug3"
+             
 !C32h ungerade
+            else
+             nv0 = 0
              Do i0 = npg+neg+npu+noccu+1,npg+neg+npu+neu
-                if(ABS(syminfo(i0))+16==isym) then
+                if(ABS(syminfo(i0))+ nsymrpa/2 ==isym) then
 !                 if(irpamo(i0)==isym) then
-                   nv0 = nv0 + 1
-                   dmosym(nv0) = i0
+                  nv0 = nv0 + 1
                 endif
              enddo
+
+             Allocate(dmosym(nv0))
+
+write(*,*) "debug4"
+             
+             nv0 = 0
+             Do i0 = npg+neg+npu+noccu+1,npg+neg+npu+neu
+               if(ABS(syminfo(i0))+ nsymrpa/2 ==isym) then
+!                 if(irpamo(i0)==isym) then
+                  nv0 = nv0 + 1
+                  dmosym(nv0) = i0
+               endif
+             enddo
+            endif
+
 
               Do i = 1, nv
                  i0 = mosym(i)
@@ -335,6 +429,7 @@
 !                    write(*,*)fsym(i,j)
                  enddo
               enddo
+
               Allocate(wsym(nv))
               wsym = 0.0d+00
               cutoff = .FALSE.
@@ -342,54 +437,71 @@
 
               call cdiag (fsym, nv, nv,wsym , thresd, cutoff)
 
-              Allocate(coeff(nbas*2,nv,2))  
-
+write(*,*) "debug5"
+              
             ! Gerade  
-              if (isym <= 16) then
-                Do i = 1, nv
-                 i0 = dmosym(i)-noccg-npg
-                 coeff(:,i,:)=itrfmog(:,i0,:)
+              if (isym <= nsymrpa/2) then
+                write(*,*) "debug5.1.1"
+               write(*,*) "nbasg,nv", nbasg,nv
+                Allocate(coeff(nbasg,nv))  
+                write(*,*) "debug5.1.2"
+                Do i = 1, nv0
+                    write(*,*) "debug5.1.3"
+                 i0 = dmosym(i)-npg-noccg
+                 write(*,*) "debug5.1.4"
+                 coeff(:,i)=itrfmog(:,i0)
+                 write(*,*)"debug5.1.5"
                 Enddo
+
+                write(*,*) "debug5.1"
 
             ! Ungerade    
               else
-                Do i = 1, nv
-                i0 = dmosym(i)-noccu-npu
-                coeff(:,i,:)=itrfmou(:,i0,:)
+                Allocate(coeff(nbasu,nv))  
+                Do i = 1, nv0
+                i0 = dmosym(i)-npg-neg-npu-noccu
+                coeff(:,i)=itrfmou(:,i0)
                 Enddo
               endif
-              
-              coeff(:,:,1) = MATMUL(coeff(:,:,1),fsym(:,:))
-              coeff(:,:,2) = MATMUL(coeff(:,:,2),fsym(:,:))
+
+              write(*,*) "debug5.2"
+
+              coeff(:,:) = MATMUL(coeff(:,:),fsym(:,:))
             
+              write(*,*) "debug5.3"
+
             ! Gerade  
-              if (isym <= 16) then              
-                Do i = 1, nv
-                i0 = dmosym(i)-noccg-npg
-                itrfmog(:,i0,:) = coeff(:,i,:)
+              if (isym <= nsymrpa/2) then              
+                Do i = 1, nv0
+                i0 = dmosym(i)-npg-noccg
+                itrfmog(:,i0) = coeff(:,i)
                 Enddo
+
+                write(*,*) "debug5.4"
             ! Ungerade 
             else
-                Do i = 1, nv
-                i0 = dmosym(i)-noccg-npg
-                itrfmou(:,i0,:) = coeff(:,i,:)
+                Do i = 1, nv0
+                i0 = dmosym(i)-npg-neg-npu-noccu
+                itrfmou(:,i0) = coeff(:,i)
                 Enddo
               endif  
 
+            
+write(*,*) "debug6"
+              
 ! Kramers - pairs
               
-              Do i = 1, nv
-                 i0 = mosym(i)+ncore+ninact+nact+1
-                 coeff(:,i,:)=itrfmo(:,i0,:)
-              Enddo
+!              Do i = 1, nv
+!                 i0 = mosym(i)+ncore+ninact+nact+1
+!                 coeff(:,i)=itrfmo(:,i0)
+!              Enddo
 
-              coeff(:,:,1) = MATMUL(coeff(:,:,1),DCONJG(fsym(:,:)))
-              coeff(:,:,2) = MATMUL(coeff(:,:,2),DCONJG(fsym(:,:)))
+!              coeff(:,:) = MATMUL(coeff(:,:),DCONJG(fsym(:,:)))
               
-              Do i = 1, nv
-                 i0 = mosym(i)+ncore+ninact+nact+1
-                 itrfmo(:,i0,:) = coeff(:,i,:)
-              Enddo
+!              Do i = 1, nv
+!                 i0 = mosym(i)+ncore+ninact+nact+1
+!                 itrfmo(:,i0,:) = coeff(:,i,:)
+!              Enddo
 
 ! Kramers - pairs
 
@@ -417,6 +529,8 @@
              deallocate(dmosym)
           enddo
 
+          write(*,*) "debug7"
+          
 !           open(37,file='itrfmo',status='unknown',form='formatted')
 
 !           Do iao = 1,lscom*2
@@ -463,22 +577,21 @@
 
 !           close(77)
 
-! Electron solution / gerade
-
-           Do j = 1, neg-noccg               
-            Do i = 1,nbasg
-                BUF((npg+noccg+(nbasg*(j-1)+i))*nbasg) = real(itrfmog(i,j,2))
-             Enddo
-           Enddo
-
-! Electron solution / ungerade
-
-           Do j = 1, neu-noccu
-            DO i = 1, nbasu
-                BUF((npg+neg)*nbasg+(npu+noccu+(nbasu*(j-1)+i))*nbasu) = real(itrfmou(i,j,2))
+           ! unoccupid, gerade, electron 
+          Do iao = 1, nbasg
+            DO imo = 1, neg-noccg
+             BUF((npg+noccg+(imo-1))*nbasg+iao) = itrfmog(iao,imo)
             Enddo
           Enddo
 
+        ! unoccupid, ungerade, electron
+          Do iao = 1, nbasu
+            DO imo = 1, neu-noccu
+              BUF((npg+neg)*nbasg + (npu+noccu+(imo-1))*nbasu+iao) = itrfmou(iao,imo)
+            Enddo
+          Enddo
+write(*,*) "debug8"
+          
 !         I = 0
 
 !         Do imo = 1, nbas/4
@@ -500,21 +613,41 @@
 ! Create new DFPCMO : DFPCMONEW
 
           open(19,file='DFPCMONEW',status='unknown',form='formatted')
-          open(29,file='BUF_write_ivo',status='unknown',form='formatted')
+          if(dirac_version == 21) then
+            write(19,'(A150)') line0
+          elseif(dirac_version == 22) then
+            write(19,'(A150)') line0
+          endif
           write(19,'(A150)') line1
-          write(19,'(7I2)') A, npg, neg, nbasg, npu, neu, nbasu
+          if(dirac_version == 21) then
+            write(19,'(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
+          elseif(dirac_version == 22) then
+            write(19,'(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
+          else
+            write(19,'(7(X,I0))') A, npg, neg, nbasg, npu, neu, nbasu
+          endif
           write(19,'(A150)') line2
-
-             Do I = 1, nsum
-               Write(19,'(6F22.16)') BUF(I)
-               Write(29,'(12F10.5)') BUF(I)
+          if(dirac_version == 21) then
+            write(19,'(A150)') line3
+          elseif(dirac_version == 22) then
+            write(19,'(A150)') line3
+          endif
+             Do I = 1, ngu, 6
+               Write(19,'(6F22.16)') BUF(I:I+5)
              End do
+          if(dirac_version == 21) then
+            write(19,'(A150)') line4
+          elseif(dirac_version == 22) then
+                write(19,'(A150)') line4
+          endif
 
           write(19,'(6E22.12)') eval
-
-          Do i = 1, nbas
-            write(19, *) syminfo(i)
-          Enddo
+          if(dirac_version == 21) then
+            write(19,'(A150)') line5
+          elseif(dirac_version == 22) then
+            write(19,'(A150)') line5
+          endif
+          write(19,'(66(X,I0))') (syminfo(i), i=1,nsum)
 
 !          write(19,'(A150)') line4
 !          write(19,'(A150)', ERR=25) line5
@@ -532,16 +665,14 @@
  25       continue
 
           close(19)
-          close(29)
 
           goto 100
 
  10       write(*,*)'reading err of DFPCMO'
 !        deallocate(fdmmy)
-          deallocate(readmo, readmo1)      
-          deallocate(itrfmo)
-          deallocate(BUF, BUF1)
-          deallocate(mocr,moci,eval)
+          deallocate(itrfmog, itrfmou)
+          deallocate(BUF)
+          deallocate(eval, syminfo)
 
  100      write(*,*)'fockivo_co end'
       end subroutine fockivo_co
