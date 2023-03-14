@@ -14,7 +14,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     integer, allocatable :: dammo(:), UTCHEMIMO1(:, :), UTCHEMIMO2(:, :)
     integer, allocatable :: SD(:, :), DS(:, :)
     logical :: breit
-
+    
 !  Write(UT_sys_ftmp) NMO,UT_molinp_atm_enm - DELETE, &
 !                     BREIT,ETOTAL,scfru
 !  Write(UT_sys_ftmp) NSYMRP,(REPN(IRP),IRP=1,NSYMRP)

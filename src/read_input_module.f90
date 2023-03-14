@@ -164,11 +164,11 @@ contains
             call read_an_integer(0, 10**9, min_hole_ras1)
 
         !ivo 
-        case("noccgerade")
-            call read_an_integer(0, 10**9, noccgerade)
+        case("noccg")
+            call read_an_integer(0, 10**9, noccg)
     
-        case("noccungerade")
-            call read_an_integer(0, 10**9, noccungerade)
+        case("noccu")
+            call read_an_integer(0, 10**9, noccu)
 
         case ("end")
             is_end = .true.

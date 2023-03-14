@@ -90,6 +90,8 @@
         write(*,*)'ptgrp      =' ,ptgrp
         write(*,*)'nhomo      =' ,nhomo
         write(*,*)'lscom      =' ,lscom             
+        write(*,*)'noccg      =' ,noccg
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -180,12 +182,18 @@
       write(*,*)"debug1"
 
       deallocate ( f   )   ;   Call memminus (KIND( f    ),SIZE( f   ),2)
+      write(*,*)"1"
 
       deallocate ( orb    );   Call memminus (KIND( orb    ),SIZE( orb    ),1)
+      write(*,*)"1"
       deallocate ( irpmo  );   Call memminus (KIND( irpmo  ),SIZE( irpmo  ),1)
+      write(*,*)"1"
       deallocate ( irpamo );   Call memminus (KIND( irpamo ),SIZE( irpamo ),1)
+      write(*,*)"1"
       deallocate ( indmo  );   Call memminus (KIND( indmo  ),SIZE( indmo  ),1)
+      write(*,*)"1"
       deallocate (indmor  );   Call memminus (KIND(indmor  ),SIZE(indmor  ),1)
+      write(*,*)"1"
       deallocate (onei    );   Call memminus (KIND(onei    ),SIZE(onei    ),1)
       write(*,*)"debug2"
 !      deallocate (int2i   );   Call memminus (KIND(int2i   ),SIZE(int2i   ),1)
