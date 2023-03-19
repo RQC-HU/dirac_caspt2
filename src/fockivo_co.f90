@@ -40,10 +40,11 @@
 
        write (*, *) 'enter building fock matrix for IVO'
 
+       ! Question. nhomo周りの処理が何をやっているのかよくわからない
        if (nhomo == 0) then
            numh = 0
            do i = 1, ninact + nact
-               if (ABS(orbmo(i) - orbmo(nelec + ninact)) < 1.0d-01) then
+               if (ABS(orbmo(i) - orbmo(nelec + ninact)) < 1.0d-01) then ! Question. このスレッショルドは何？
                    numh = numh + 1
                end if
            end do
@@ -63,7 +64,7 @@
                    if (k > ninact + nact - 2 .and. mod(nelec, 2) == 1) then
 
                        f(i, j) = f(i, j) &
-                           &  - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                           &  - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh) ! Question. DBLE(numh)で割るのはなぜ？
                        f(i, j) = f(i, j) &
                            &  + 0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
 
@@ -112,6 +113,13 @@
            read (15, '(A150)') line0
        end if
        read (15, '(A150)') line1
+       ! DFPCMO 3行目の内容
+       !  npg: Gerade陽電子解の数
+       !  neg: Gerade電子解の数
+       !  nbasg: Geradeの軌道数
+       !  npu: Ungerade陽電子解の数
+       !  neu: Ungerade電子解の数
+       !  nbasu: Ungeradeの軌道数
        if (dirac_version == 21) then
            read (15, *) A, B, npg, neg, nbasg, npu, neu, nbasu
            write (*, *) A, B, npg, neg, nbasg, npu, neu, nbasu
@@ -129,6 +137,8 @@
        nsum = npg + neg + npu + neu
 
        ! ngu : the sum of gerade and ungerade
+       ! Question.電子解の数と軌道数を掛けた結果、なぜ軌道数の合計になるのかよくわからない
+       ! おそらくnbas[g,u]の意味が分かっていないのが原因
        ngu = (npg + neg)*nbasg + (npu + neu)*nbasu
 
        allocate (itrfmog(nbasg, neg - noccg))
@@ -148,7 +158,7 @@
 
        ! Read MO coefficient of DFPCMO
        Do I = 1, ngu, 6
-           Read (15, '(6F22.16)', ERR=22) BUF(I:I + 5)
+           Read (15, '(6F22.16)', ERR=22) BUF(I:I + 5) ! ここのvirtual部分だけ書き換える
        End do
 
        write (*, *) 'end reading MO coefficient'
@@ -156,7 +166,7 @@
        ! unoccupid, gerade, electron
        Do iao = 1, nbasg
            DO imo = 1, neg - noccg
-               itrfmog(iao, imo) = BUF((npg + noccg + (imo - 1))*nbasg + iao)
+               itrfmog(iao, imo) = BUF((npg + noccg + (imo - 1))*nbasg + iao) ! Question. virtualのどこにアクセスしていることになる？
            End do
        End do
 
@@ -340,8 +350,10 @@
 
        write (*, *) "debug1"
 
-       Do isym = 1, nsymrpa, 2
+       Do isym = 1, nsymrpa, 2 ! Question. なぜisymが奇数の時だけ計算するのか？
            write (*, *) "isym=", isym
+           ! isymに対応するsymmetryのMOの数を数える(=nv)
+           ! Gerade/Ungeradeは無視して数え上げ
            nv = 0
            Do i = 1, nsec
                i0 = i + ninact + nact
@@ -354,6 +366,8 @@
            Allocate (mosym(nv))
            Allocate (fsym(nv, nv))
 
+           ! 実際にsymmetryがisymのMOの番号をmosymに格納する
+           ! (mosym(nv)はnv番目のsymmetryがisymのMOの番号)
            fsym = 0.0d+00
            nv = 0
            Do i = 1, nsec
@@ -368,7 +382,12 @@
            write (*, *) "debug2"
 
 !C32h gerade
+           ! Question. GeradeかUngeradeかの判断は
+           ! nsymrpa/2よりisymが大きいか否かで判別する方法で
+           ! 他の対称性についても判別可能か？
            if (isym <= nsymrpa/2) then
+               ! isymに対応するsymmetryのMOの数を数える(=nv0)
+               ! Gerade内のsymmetryのMOの数を数える
                nv0 = 0
                Do i0 = npg + noccg + 1, npg + neg
                    if (ABS(syminfo(i0)) == isym) then
@@ -384,7 +403,7 @@
                    if (ABS(syminfo(i0)) == isym) then
 !                 if(irpamo(i0)==isym) then
                        nv0 = nv0 + 1
-                       dmosym(nv0) = i0
+                       dmosym(nv0) = i0 ! Question. dmosymのdの意味は？
                    end if
                end do
 
@@ -414,6 +433,7 @@
                end do
            end if
 
+           ! isym用fock行列を作成
            Do i = 1, nv
                i0 = mosym(i)
                Do j = i, nv
@@ -429,10 +449,12 @@
            cutoff = .FALSE.
            thresd = 0.0d+00
 
+           ! isym用fock行列の対角化
            call cdiag(fsym, nv, nv, wsym, thresd, cutoff)
 
            write (*, *) "debug5"
 
+           ! Question. このセクションは元のMO係数をcoeffに再代入している？
            ! Gerade
            if (isym <= nsymrpa/2) then
                write (*, *) "debug5.1.1"
@@ -459,11 +481,14 @@
            end if
 
            write (*, *) "debug5.2"
-
+           ! F′vw=Fvw+⟨χv|−Jα+Kα|χw⟩ #岩室さん修論 式(28), χ: 基底関数, F': 対角化済みFock行列
+           ! U†F′U=ε #岩室さん修論 式(29)
+           ! Question. この積1回でU†F′U=εを計算したことになっている？
            coeff(:, :) = MATMUL(coeff(:, :), fsym(:, :))
 
            write (*, *) "debug5.3"
 
+           ! itrfmog, itrfmouにcoeffを代入することで、virtual軌道のMO係数を更新
            ! Gerade
            if (isym <= nsymrpa/2) then
                Do i = 1, nv0
