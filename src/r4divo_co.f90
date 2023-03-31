@@ -73,6 +73,8 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'lscom      =', lscom
         print *, 'noccg      =', noccg
         print *, 'noccu      =', noccu
+        print *, 'nvcutg     =', nvcutg
+        print *, 'nvcutu     =', nvcutu
         print *, 'diracver   =', dirac_version
     end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
