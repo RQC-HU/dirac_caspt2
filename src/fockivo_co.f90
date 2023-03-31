@@ -17,14 +17,19 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     integer      :: unit_dfpcmo, unit_itrfmog, unit_itrfmou, unit_buf
     real*8       :: thresd
     logical      :: cutoff
-    complex*16, allocatable  :: fsym(:, :)
+    complex*16, allocatable  :: fsym(:, :) ! Symmetrized fock_ivo_matrix for particular irrep
     complex*16, allocatable  :: coeff(:, :)
-    real*8, allocatable      :: wsym(:), BUF(:), eval(:)
+    real*8, allocatable      :: BUF(:)  ! One dimensional array representing MO coeff. read from DFPCMO
+    real*8, allocatable      :: wsym(:), eval(:)
     integer, allocatable     :: mosym(:)
     character*150 :: line0, line1, line2, line3, line4, line5
 
     ! for new code of IVO
-    integer :: npg, neg, npu, neu, nbasg, nbasu, nsum, A, nv0, ngu, B
+    integer :: npg, neg, nbasg ! number of positronic gerade(g), electronic g, basis set for g
+    integer :: npu, neu, nbasu ! number of positronic ungerade(u), electronic u, basis set for u
+    ! integer :: nvcutg, nvcutu ! number of virtual cut (g) and (u).
+    integer :: nsum !nsum = npg + neg + npu + neu
+    integer :: nv0, ngu, A, B ! A and B are dammy indices written in DFPCMO, A is nfsym in DIRAC
     integer, allocatable :: syminfo(:), dmosym(:)
     complex*16, allocatable :: itrfmog(:, :), itrfmou(:, :)
     logical                 :: write_itrfmo
@@ -72,7 +77,6 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         end do
     end do
 
-
     IMAX = nbas*lscom
     call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
 
@@ -98,8 +102,8 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     ! ngu : the sum of gerade and ungerade
     ngu = (npg + neg)*nbasg + (npu + neu)*nbasu
 
-    allocate (itrfmog(nbasg, neg - noccg))
-    allocate (itrfmou(nbasu, neu - noccu))
+    allocate (itrfmog(nbasg, neg - noccg - nvcutg))
+    allocate (itrfmou(nbasu, neu - noccu - nvcutu))
     allocate (eval(nsum))
     allocate (syminfo(nsum))
     Allocate (BUF(ngu))
@@ -125,27 +129,27 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     if (write_itrfmo) then
         ! unoccupid, gerade, electron
         Do iao = 1, nbasg
-            DO imo = 1, neg - noccg
+            DO imo = 1, neg - noccg - nvcutg
                 itrfmog(iao, imo) = BUF((npg + noccg + (imo - 1))*nbasg + iao)
             End do
         End do
         if (rank == 0) then
             call open_formatted_file(unit=unit_itrfmog, file='itrfmog_before', status='replace', optional_action='write')
             Do iao = 1, nbasg
-                write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg)
+                write (unit_itrfmog, *) (itrfmog(iao, imo), imo=1, neg - noccg - nvcutg)
             End do
             close (unit_itrfmog)
         end if
         ! unoccupid, ungerade, electron
         Do iao = 1, nbasu
-            DO imo = 1, neu - noccu
+            DO imo = 1, neu - noccu - nvcutu
                 itrfmou(iao, imo) = BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao)
             End do
         End do
         if (rank == 0) then
             call open_formatted_file(unit=unit_itrfmou, file='itrfmou_before', status='replace', optional_action='write')
             Do iao = 1, nbasu
-                write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu)
+                write (unit_itrfmou, *) (itrfmou(iao, imo), imo=1, neu - noccu - nvcutu)
             End do
             close (unit_itrfmou)
         end if
@@ -207,12 +211,12 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
 !C32h gerade
         if (isym <= nsymrpa/2) then
-            nv0 = count(ABS(syminfo(npg + noccg + 1:npg + neg)) == isym)
+            nv0 = count(ABS(syminfo(npg + noccg + 1:npg + neg - nvcutg)) == isym)
 
             Allocate (dmosym(nv0))
 
             nv0 = 0
-            Do i0 = npg + noccg + 1, npg + neg
+            Do i0 = npg + noccg + 1, npg + neg - nvcutg
                 if (ABS(syminfo(i0)) == isym) then
 !                 if(irpamo(i0)==isym) then
                     nv0 = nv0 + 1
@@ -222,12 +226,12 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
 !C32h ungerade
         else
-            nv0 = count(ABS(syminfo(npg + neg + npu + noccu + 1:npg + neg + npu + neu)) + nsymrpa/2 == isym)
+            nv0 = count(ABS(syminfo(npg + neg + npu + noccu + 1:npg + neg + npu + neu - nvcutu)) + nsymrpa/2 == isym)
 
             Allocate (dmosym(nv0))
 
             nv0 = 0
-            Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu
+            Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu - nvcutu
                 if (ABS(syminfo(i0)) + nsymrpa/2 == isym) then
 !                 if(irpamo(i0)==isym) then
                     nv0 = nv0 + 1
@@ -257,7 +261,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         if (isym <= nsymrpa/2) then
             Allocate (coeff(nbasg, nv))
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - noccg
+                i0 = dmosym(i) - npg - noccg - nvcutg
                 coeff(:, i) = itrfmog(:, i0)
             End do
 
@@ -265,7 +269,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         else
             Allocate (coeff(nbasu, nv))
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - neg - npu - noccu
+                i0 = dmosym(i) - npg - neg - npu - noccu - nvcutu
                 coeff(:, i) = itrfmou(:, i0)
             End do
         end if
@@ -275,14 +279,14 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         ! Gerade
         if (isym <= nsymrpa/2) then
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - noccg
+                i0 = dmosym(i) - npg - noccg - nvcutg
                 itrfmog(:, i0) = coeff(:, i)
             End do
 
             ! Ungerade
         else
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - neg - npu - noccu
+                i0 = dmosym(i) - npg - neg - npu - noccu - nvcutu
                 itrfmou(:, i0) = coeff(:, i)
             End do
         end if
@@ -315,14 +319,14 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
     ! unoccupid, gerade, electron
     Do iao = 1, nbasg
-        DO imo = 1, neg - noccg
+        DO imo = 1, neg - noccg - nvcutg
             BUF((npg + noccg + (imo - 1))*nbasg + iao) = DBLE(itrfmog(iao, imo))
         End do
     End do
 
     ! unoccupid, ungerade, electron
     Do iao = 1, nbasu
-        DO imo = 1, neu - noccu
+        DO imo = 1, neu - noccu - nvcutu
             BUF((npg + neg)*nbasg + (npu + noccu + (imo - 1))*nbasu + iao) = DBLE(itrfmou(iao, imo))
         End do
     End do

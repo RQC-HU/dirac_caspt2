@@ -8,7 +8,6 @@ module read_input_module
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
     use four_caspt2_module, only: rank
     use module_error, only: stop_with_errorcode
-    implicit none
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end
@@ -163,6 +162,12 @@ contains
 
         case ("noccu")
             call read_an_integer(unit_num, 0, 10**9, noccu)
+
+        case ("nvcutg")
+            call read_an_integer(unit_num, 0, 10**9, nvcutg)
+
+        case ("nvcutu")
+            call read_an_integer(unit_num, 0, 10**9, nvcutu)
 
         case ("skip_mdcint")
             skip_mdcint = .true.
