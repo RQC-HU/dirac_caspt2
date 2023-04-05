@@ -261,7 +261,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         if (isym <= nsymrpa/2) then
             Allocate (coeff(nbasg, nv))
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - noccg - nvcutg
+                i0 = dmosym(i) - npg - noccg
                 coeff(:, i) = itrfmog(:, i0)
             End do
 
@@ -269,7 +269,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         else
             Allocate (coeff(nbasu, nv))
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - neg - npu - noccu - nvcutu
+                i0 = dmosym(i) - npg - neg - npu - noccu
                 coeff(:, i) = itrfmou(:, i0)
             End do
         end if
@@ -279,14 +279,14 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         ! Gerade
         if (isym <= nsymrpa/2) then
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - noccg - nvcutg
+                i0 = dmosym(i) - npg - noccg
                 itrfmog(:, i0) = coeff(:, i)
             End do
 
             ! Ungerade
         else
             Do i = 1, nv0
-                i0 = dmosym(i) - npg - neg - npu - noccu - nvcutu
+                i0 = dmosym(i) - npg - neg - npu - noccu
                 itrfmou(:, i0) = coeff(:, i)
             End do
         end if
