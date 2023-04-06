@@ -78,11 +78,10 @@ add_executable(r4divocoexe
 	fockivo_co.f90
 	get_filename.f90
 	mem.f90
-	nbitsa.f90
 	one_e_exct.f90
 	r4divo_co.f90
 	read1mo_co.f90
-	readint2_ivo_co.f90
+	readint2_casci_co.f90
 	readorb_enesym_co.f90
 	takekr.f90
 	timing.f90

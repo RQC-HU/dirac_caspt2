@@ -8,6 +8,7 @@ module read_input_module
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
     use four_caspt2_module, only: rank
     use module_error, only: stop_with_errorcode
+    implicit none
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end

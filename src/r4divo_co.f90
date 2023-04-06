@@ -14,7 +14,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: input_unit
+    integer                 :: input_unit, nuniq
     logical                 :: test
     character*50            :: filename
 
@@ -92,7 +92,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call create_newmdcint
 
     call get_mdcint_filename(0)
-    Call readint2_ivo_co(mdcintnew)
+    call readint2_casci_co(mdcintnew,nuniq)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     realcvec = .TRUE.

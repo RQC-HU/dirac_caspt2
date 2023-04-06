@@ -50,10 +50,6 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 
 !Iwamuro modify
 
-    if (rank == 0) then
-        print *, 'noda: nmom       : ', nmom
-        print *, 'noda: indmor(max): ', maxval(indmor(1:nmom))
-    end if
     do i0 = 1, nmom
         do j0 = 1, nmom
 !           oner(i0,j0) = roner(i0,j0,1)
