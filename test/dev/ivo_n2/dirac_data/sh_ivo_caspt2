@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+    DAT=`pwd`
+
+	DCASPT2=/home/noda/develop/dirac_caspt2_add_ivo_test/bin/dcaspt2 # REPLACE THIS PATH TO YOUR DCASPT2 EXECUTABLE
+	MPI=8
+    MOL=N2
+
+	rm M* DFPCMO*
+    INPFILE=$MOL.inp
+    MOLFILE=$MOL.mol
+    LOGFILE=$MOL.log
+
+	# DIRAC HF-MP2-CCSD(T) calculation
+    module load DIRAC/19.0
+    pam --mpi=$MPI --get="MRCONEE MDCIN* DFPCMO" --mol=${MOLFILE} --inp=${INPFILE} >& ${LOGFILE}
+    module unload DIRAC/19.0
+
+	# IVO calculation
+	$DCASPT2 -i active.ivo.inp -o $DAT/$MOL.ivo.out --mpi $MPI --scratch $DAT/ivo --ivo --get "DFPCMONEW"
+    cp $DAT/DFPCMONEW $DAT/DFPCMO
+
+	INPFILE=$MOL.ivo.inp
+	LOGFILE=$MOL.ivo.log
+
+	# DIRAC INTEGRAL TRANSFORMATION
+	module load DIRAC/19.0
+	pam --mpi=$MPI --put="DFPCMO" --get="MRCONEE MDCIN*" --mol=${MOLFILE} --inp=${INPFILE} >& ${LOGFILE}
+	module unload DIRAC/19.0
+
+	# CASCI-CASPT2 calculation
+	$DCASPT2 -i active.caspt2.inp -o $DAT/$MOL.caspt2.out --mpi $MPI --scratch $DAT/caspt2
