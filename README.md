@@ -8,17 +8,20 @@
 
 ## 目次
 
-- [Requirements](#requirements)
-- [How to build](#how-to-build)
-  - [Basic build](#basic-build)
-  - [MPI support](#mpi-support)
-  - [Install](#install)
-  - [CMakeビルドオプション](#cmakeビルドオプション)
-- [How to use](#how-to-use)
-  - [prerequisites](#prerequisites)
-  - [Calculation](#calculation)
-  - [Input file](#input-file)
-  - [インプットファイルの仕様](#インプットファイルの仕様)
+- [DIRAC-CASPT2](#dirac-caspt2)
+  - [お知らせ](#お知らせ)
+  - [目次](#目次)
+  - [Requirements](#requirements)
+  - [How to build](#how-to-build)
+    - [Basic build](#basic-build)
+    - [MPI Support](#mpi-support)
+    - [Install](#install)
+    - [CMakeビルドオプション](#cmakeビルドオプション)
+  - [How to use](#how-to-use)
+    - [Prerequisites](#prerequisites)
+    - [Calculation](#calculation)
+    - [input file](#input-file)
+    - [インプットファイルの仕様](#インプットファイルの仕様)
 
 ## Requirements
 
@@ -231,7 +234,6 @@ pytest --all
   dcaspt2 -i h2.caspt2.inp
   ```
 
-
 ### input file
 
 - インプットファイルには以下のような内容を記述してください
@@ -288,6 +290,10 @@ nbas        : the number of basis set
 diracver    : DIRAC version
 end         : The identifier at the end of the input file
 
+[required parameters (IVO)]
+noccg       : The number of occupied spinors (gerade)
+noccu       : The number of occupied spinors (ungerade)
+
 [optional parameters]
 eshift      : for real shift (if you don't write, it will be 0)
 ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
@@ -295,6 +301,11 @@ ras2        : RAS2 spinor list
 ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 minholeras1 : The minimum number of hole in ras1 (If you don't write, it will be 0)
 calctype    : The type of calculation. only CASCI or DMRG are currently supported. (if you don't write, it will be CASCI(default))
+
+[optional parameters (IVO)]
+nhomo       : The number of HOMO-like spinors
+nvcutg      : The number of virtual cut spinors (gerade)
+nvcutu      : The number of virtual cut spinors (ungerade)
 ```
 
 ### インプットファイルの仕様

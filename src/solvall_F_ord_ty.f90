@@ -382,7 +382,7 @@ SUBROUTINE sFmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
     sc = 0.0d+00
 
-    !$OMP parallel do schedule(dynamic,1) private(iv,ix,j,it,iu,a,b)
+!$OMP parallel do schedule(dynamic,1) private(iv,ix,j,it,iu,a,b)
     Do i = rank + 1, dimn, nprocs
         iv = indsym(1, i)
         ix = indsym(2, i)
@@ -406,7 +406,7 @@ SUBROUTINE sFmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
         End do               !j
     End do                  !i
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=sc)
 #endif
@@ -443,7 +443,7 @@ SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 
     if (rank == 0) print *, 'F space Bmat iroot=', iroot
 
-    !$OMP parallel do schedule(dynamic,1) private(iv,jv,ix,jx,j,it,jt,iu,ju,e,iw,jw,denr,deni,den)
+!$OMP parallel do schedule(dynamic,1) private(iv,jv,ix,jx,j,it,jt,iu,ju,e,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
 
         iv = indsym(1, i)
@@ -485,7 +485,7 @@ SUBROUTINE bFmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 
         End do               !i
     End do                  !j
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=bc, root_rank=0)
 #endif
@@ -571,17 +571,17 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 !
 !                             p=j, q=l loop for t and u             u=j, p=l loop for t
 !
-        !$OMP parallel
-        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
+!$OMP parallel
+!$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
         Do it = 1, nact
             Call dim1_density(it, l, dr, di)
             dens = DCMPLX(dr, di)
             v(tab, it, j) = v(tab, it, j) - cint2*dens
         End do
-        !$OMP end do
+!$OMP end do
 
         isym = multb_s_reverse(i, k)
-        !$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
+!$OMP do schedule(dynamic,1) private(it,iu,dr,di,dens)
         do i0 = 1, pattern_tu_count(isym)
             it = pattern_t(i0, isym)
             iu = pattern_u(i0, isym)
@@ -590,8 +590,8 @@ SUBROUTINE vFmat_ord(nab, iab, v)
             dens = DCMPLX(dr, di)
             v(tab, it, iu) = v(tab, it, iu) + cint2*dens
         end do
-        !$OMP end do
-        !$OMP end parallel
+!$OMP end do
+!$OMP end parallel
 
     end do
     close (twoint_unit)
