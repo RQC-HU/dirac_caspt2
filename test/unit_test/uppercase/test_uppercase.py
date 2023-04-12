@@ -14,7 +14,7 @@ import pytest
 def test_uppercase():
 
     # Set file names
-    ref_filename = "expected"  # Reference
+    ref_output_file = "expected"  # Reference
     output_filename = "result.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.result.out"  # latest passed output (After test, the output file is moved to this)
     exe_filename = "test_uppercase_exe"  # Executable file
@@ -25,7 +25,7 @@ def test_uppercase():
     print(test_path, "test start")  # Debug output
 
     # Set file paths
-    ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
+    ref_output_file_path = os.path.abspath(os.path.join(test_path, ref_output_file))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
@@ -36,7 +36,7 @@ def test_uppercase():
 
     run_test(test_command)
 
-    string_ref = get_stripped_string_from_output_file(ref_file_path)
+    string_ref = get_stripped_string_from_output_file(ref_output_file_path)
     string_result = get_stripped_string_from_output_file(output_file_path)
 
     # Evaluate the difference between references and results

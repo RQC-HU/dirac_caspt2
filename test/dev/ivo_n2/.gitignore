@@ -1,11 +1,3 @@
-*
-!dirac_data
-!dirac_data/**
-!.gitignore
-!active*.inp
-!MDCINT
-!MDCINX*
-!MRCONEE
-!reference*out
-!test*py
-!*DFPCMO*
+*DFPCMONEW*
+c32h_n2_dev.dirac*.caspt2.out
+latest_passed.*

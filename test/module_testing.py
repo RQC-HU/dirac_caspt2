@@ -16,25 +16,10 @@ def is_binary_file_exist(binary_file: str) -> None:
         raise Exception(error_message)
 
 
-def create_test_command_for_caspt2(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool) -> str:
+def create_test_command_dcaspt2(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool, is_ivo: bool = False) -> str:
     options = ""
-    if save:
-        scratch_path = os.path.join(test_path, "scratch")
-        options += f" --save --scratch {scratch_path}"
-    if mpi_num_process > 1:
-        options += f" --mpi {mpi_num_process}"
-    if omp_num_threads is None:
-        omp = str(os.environ.get("OMP_NUM_THREADS", 1))
-    else:
-        omp = str(omp_num_threads) if omp_num_threads > 1 else "1"
-    options += f" --omp {omp}"
-
-    test_command = f"{dcaspt2} -i {input_file} -o {output_file} {options}"
-    return test_command
-
-
-def create_test_command_for_ivo(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool) -> str:
-    options = " --ivo --get \"DFPCMONEW\""
+    if is_ivo:
+        options = " --ivo --get \"DFPCMONEW\""
     if save:
         scratch_path = os.path.join(test_path, "scratch")
         options += f" --save --scratch {scratch_path}"
@@ -69,7 +54,7 @@ def create_test_command(mpi_num_process: int, binaries: "list[str]") -> str:
     return test_command
 
 
-def run_test_caspt2(test_command: str) -> None:
+def run_test_dcaspt2(test_command: str) -> None:
     process = subprocess.run(test_command, shell=True)
     process.check_returncode()
     return
