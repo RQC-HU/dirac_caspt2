@@ -41,7 +41,7 @@ contains
         integer, intent(in) :: root_rank
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -70,7 +70,7 @@ contains
         integer, intent(in) :: root_rank
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -90,13 +90,12 @@ contains
         ! Because of the limitation of the size of the array, the array is divided into several parts and reduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do i = ii, ie, max_i4
-                idx_end = min(i + max_i4 - 1, ie)
-                cnt = idx_end - i + 1
+                cnt = min(max_i4, ie - i + 1)
                 if (rank == root_rank) then
-                    call MPI_Reduce(MPI_IN_PLACE, mat(i:idx_end), &
+                    call MPI_Reduce(MPI_IN_PLACE, mat(i), &
                                     cnt, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
                 else
-                    call MPI_Reduce(mat(i:idx_end), mat(i:idx_end), &
+                    call MPI_Reduce(mat(i), mat(i), &
                                     cnt, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
                 end if
                 call check_ierr(ierr)
@@ -118,7 +117,7 @@ contains
         integer, intent(in) :: root_rank
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
-        integer :: i, j, idx_end, cnt
+        integer :: i, j, cnt, step
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -135,33 +134,36 @@ contains
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do j = ji, je
                 do i = ii, ie, max_i4
-                    idx_end = min(i + max_i4 - 1, ie)
-                    cnt = idx_end - i + 1
+                    cnt = min(max_i4, ie - i + 1)
                     if (rank == root_rank) then
-                        call MPI_Reduce(MPI_IN_PLACE, mat(i:idx_end, j), &
+                        call MPI_Reduce(MPI_IN_PLACE, mat(i, j), &
                                         cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
                     else
-                        call MPI_Reduce(mat(i:idx_end, j), mat(i:idx_end, j), &
+                        call MPI_Reduce(mat(i, j), mat(i, j), &
                                         cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
                     end if
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
-            do j = ji, je, max_i4
-                idx_end = min(j + max_i4 - 1, je)
-                cnt = (idx_end - j + 1)*size(mat, 1)
+            step = max_i4/size(mat, 1)
+            do j = ji, je, step
+                cnt = min(step, je - j + 1)*size(mat, 1)
                 if (rank == root_rank) then
-                    call MPI_Reduce(MPI_IN_PLACE, mat(:, j:idx_end), &
+                    call MPI_Reduce(MPI_IN_PLACE, mat(:, j), &
                                     cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
                 else
-                    call MPI_Reduce(mat(:, j:idx_end), mat(:, j:idx_end), &
+                    call MPI_Reduce(mat(:, j), mat(:, j), &
                                     cnt, MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
                 end if
                 call check_ierr(ierr)
             end do
         else ! no limit
-            call MPI_Allreduce(MPI_IN_PLACE, mat, size(mat), MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
+            if (rank == root_rank) then
+                call MPI_Reduce(MPI_IN_PLACE, mat, size(mat), MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+            else
+                call MPI_Reduce(mat, mat, size(mat), MPI_COMPLEX16, op, root_rank, MPI_COMM_WORLD, ierr)
+            end if
             call check_ierr(ierr)
         end if
 
@@ -173,7 +175,7 @@ contains
         integer, intent(inout) :: mat
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -198,7 +200,7 @@ contains
         integer, intent(inout) :: mat(:)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -218,9 +220,8 @@ contains
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do i = ii, ie, max_i4
-                idx_end = min(i + max_i4 - 1, ie)
-                cnt = idx_end - i + 1
-                call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end), &
+                cnt = min(max_i4, ie - i + 1)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(i), &
                                    cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -235,8 +236,8 @@ contains
         implicit none
         integer, intent(inout) :: mat(:, :)
         integer, optional, intent(in) :: optional_op
-        integer :: ii, ie, ji, je
-        integer :: i, j, idx_end, cnt
+        integer :: ii, ie, ji, je, step
+        integer :: i, j, cnt
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -257,18 +258,17 @@ contains
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do j = ji, je
                 do i = ii, ie, max_i4
-                    idx_end = min(i + max_i4 - 1, ie)
-                    cnt = idx_end - i + 1
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j), &
+                    cnt = min(max_i4, ie - i + 1)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(i, j), &
                                        cnt, datatype, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
-            do j = ji, je, max_i4
-                idx_end = min(j + max_i4 - 1, je)
-                cnt = (idx_end - j + 1)*size(mat, 1)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end), &
+            step = max_i4/size(mat, 1)
+            do j = ji, je, step
+                cnt = min(step, je - j + 1)*size(mat, 1)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, j), &
                                    cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -284,7 +284,7 @@ contains
         integer, intent(inout) :: mat(:, :, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke
-        integer :: i, j, k, idx_end, cnt
+        integer :: i, j, k, cnt, step
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -307,9 +307,8 @@ contains
             do k = ki, ke
                 do j = ji, je
                     do i = ii, ie, max_i4
-                        idx_end = min(i + max_i4 - 1, ie)
-                        cnt = idx_end - i + 1
-                        call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k), &
+                        cnt = min(max_i4, ie - i + 1)
+                        call MPI_Allreduce(MPI_IN_PLACE, mat(i, j, k), &
                                            cnt, datatype, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
@@ -317,19 +316,19 @@ contains
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
             do k = ki, ke
-                do j = ji, je, max_i4
-                    idx_end = min(j + max_i4 - 1, je)
-                    cnt = (idx_end - j + 1)*size(mat, 1)
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k), &
+                step = max_i4/size(mat, 1)
+                do j = ji, je, step
+                    cnt = min(step, je - j + 1)*size(mat, 1)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, j, k), &
                                        cnt, datatype, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)*size(mat, 3)) then ! 1st index * 2nd index * 3rd index is larger than the limit(max_i4)
-            do k = ki, ke, max_i4
-                idx_end = min(k + max_i4 - 1, ke)
-                cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end), &
+            step = max_i4/(size(mat, 1)*size(mat, 2))
+            do k = ki, ke, step
+                cnt = min(step, ke - k + 1)*size(mat, 1)*size(mat, 2)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k), &
                                    cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -345,7 +344,7 @@ contains
         integer, intent(inout) :: mat(:, :, :, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke, li, le
-        integer :: i, j, k, l, idx_end, cnt
+        integer :: i, j, k, l, cnt, step
         integer :: op = op_mpi_sum ! default operation
         integer :: datatype
 
@@ -370,9 +369,8 @@ contains
                 do k = ki, ke
                     do j = ji, je
                         do i = ii, ie, max_i4
-                            idx_end = min(i + max_i4 - 1, ie)
-                            cnt = idx_end - i + 1
-                            call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k, l), &
+                            cnt = min(max_i4, ie - i + 1)
+                            call MPI_Allreduce(MPI_IN_PLACE, mat(i, j, k, l), &
                                                cnt, datatype, op, MPI_COMM_WORLD, ierr)
                             call check_ierr(ierr)
                         end do
@@ -382,10 +380,10 @@ contains
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
             do l = li, le
                 do k = ki, ke
-                    do j = ji, je, max_i4
-                        idx_end = min(j + max_i4 - 1, je)
-                        cnt = (idx_end - j + 1)*size(mat, 1)
-                        call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k, l), &
+                    step = max_i4/size(mat, 1)
+                    do j = ji, je, step
+                        cnt = min(step, je - j + 1)*size(mat, 1)
+                        call MPI_Allreduce(MPI_IN_PLACE, mat(:, j, k, l), &
                                            cnt, datatype, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
@@ -393,19 +391,19 @@ contains
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)*size(mat, 3)) then ! 1st index * 2nd index * 3rd index is larger than the limit(max_i4)
             do l = li, le
-                do k = ki, ke, max_i4
-                    idx_end = min(k + max_i4 - 1, ke)
-                    cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end, l), &
+                step = max_i4/(size(mat, 1)*size(mat, 2))
+                do k = ki, ke, step
+                    cnt = min(step, ke - k + 1)*size(mat, 1)*size(mat, 2)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k, l), &
                                        cnt, datatype, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat)) then ! 1st index * 2nd index * 3rd index * 4th index is larger than the limit(max_i4)
-            do l = li, le, max_i4
-                idx_end = min(l + max_i4 - 1, le)
-                cnt = (idx_end - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l:idx_end), &
+            step = max_i4/(size(mat, 1)*size(mat, 2)*size(mat, 3))
+            do l = li, le, step
+                cnt = min(step, le - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l), &
                                    cnt, datatype, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -421,7 +419,7 @@ contains
         real(8), intent(inout) :: mat
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -440,7 +438,7 @@ contains
         real(8), intent(inout) :: mat(:)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -454,9 +452,8 @@ contains
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do i = ii, ie, max_i4
-                idx_end = min(i + max_i4 - 1, ie)
-                cnt = idx_end - i + 1
-                call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end), &
+                cnt = min(max_i4, ie - i + 1)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(i), &
                                    cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -472,7 +469,7 @@ contains
         real(8), intent(inout) :: mat(:, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
-        integer :: i, j, idx_end, cnt
+        integer :: i, j, cnt, step
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -488,18 +485,17 @@ contains
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do j = ji, je
                 do i = ii, ie, max_i4
-                    idx_end = min(i + max_i4 - 1, ie)
-                    cnt = idx_end - i + 1
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j), &
+                    cnt = min(max_i4, ie - i + 1)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(i, j), &
                                        cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
-            do j = ji, je, max_i4
-                idx_end = min(j + max_i4 - 1, je)
-                cnt = (idx_end - j + 1)*size(mat, 1)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end), &
+            step = max_i4/size(mat, 1)
+            do j = ji, je, step
+                cnt = min(step, je - j + 1)*size(mat, 1)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, j), &
                                    cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -515,7 +511,7 @@ contains
         real(8), intent(inout) :: mat(:, :, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke
-        integer :: i, j, k, idx_end, cnt
+        integer :: i, j, k, cnt, step
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -533,9 +529,8 @@ contains
             do k = ki, ke
                 do j = ji, je
                     do i = ii, ie, max_i4
-                        idx_end = min(i + max_i4 - 1, ie)
-                        cnt = idx_end - i + 1
-                        call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k), &
+                        cnt = min(max_i4, ie - i + 1)
+                        call MPI_Allreduce(MPI_IN_PLACE, mat(i, j, k), &
                                            cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
@@ -543,19 +538,19 @@ contains
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
             do k = ki, ke
-                do j = ji, je, max_i4
-                    idx_end = min(j + max_i4 - 1, je)
-                    cnt = (idx_end - j + 1)*size(mat, 1)
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k), &
+                step = max_i4/size(mat, 1)
+                do j = ji, je, step
+                    cnt = min(step, je - j + 1)*size(mat, 1)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, j, k), &
                                        cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)*size(mat, 3)) then ! 1st index * 2nd index * 3rd index is larger than the limit(max_i4)
-            do k = ki, ke, max_i4
-                idx_end = min(k + max_i4 - 1, ke)
-                cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end), &
+            step = max_i4/(size(mat, 1)*size(mat, 2))
+            do k = ki, ke, step
+                cnt = min(step, ke - k + 1)*size(mat, 1)*size(mat, 2)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k), &
                                    cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -571,7 +566,7 @@ contains
         real(8), intent(inout) :: mat(:, :, :, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke, li, le
-        integer :: i, j, k, l, idx_end, cnt
+        integer :: i, j, k, l, cnt, step
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -591,9 +586,8 @@ contains
                 do k = ki, ke
                     do j = ji, je
                         do i = ii, ie, max_i4
-                            idx_end = min(i + max_i4 - 1, ie)
-                            cnt = idx_end - i + 1
-                            call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k, l), &
+                            cnt = min(max_i4, ie - i + 1)
+                            call MPI_Allreduce(MPI_IN_PLACE, mat(i, j, k, l), &
                                                cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                             call check_ierr(ierr)
                         end do
@@ -603,10 +597,10 @@ contains
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
             do l = li, le
                 do k = ki, ke
-                    do j = ji, je, max_i4
-                        idx_end = min(j + max_i4 - 1, je)
-                        cnt = (idx_end - j + 1)*size(mat, 1)
-                        call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k, l), &
+                    step = max_i4/size(mat, 1)
+                    do j = ji, je, step
+                        cnt = min(step, je - j + 1)*size(mat, 1)
+                        call MPI_Allreduce(MPI_IN_PLACE, mat(:, j, k, l), &
                                            cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
@@ -614,19 +608,19 @@ contains
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)*size(mat, 3)) then ! 1st index * 2nd index * 3rd index is larger than the limit(max_i4)
             do l = li, le
-                do k = ki, ke, max_i4
-                    idx_end = min(k + max_i4 - 1, ke)
-                    cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end, l), &
+                step = max_i4/(size(mat, 1)*size(mat, 2))
+                do k = ki, ke, step
+                    cnt = min(step, ke - k + 1)*size(mat, 1)*size(mat, 2)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k, l), &
                                        cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat)) then ! 1st index * 2nd index * 3rd index * 4th index is larger than the limit(max_i4)
-            do l = li, le, max_i4
-                idx_end = min(l + max_i4 - 1, le)
-                cnt = (idx_end - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l:idx_end), &
+            step = max_i4/(size(mat, 1)*size(mat, 2)*size(mat, 3))
+            do l = li, le, step
+                cnt = min(step, le - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l), &
                                    cnt, MPI_REAL8, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -642,7 +636,7 @@ contains
         complex*16, intent(inout) :: mat
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -661,7 +655,7 @@ contains
         complex*16, intent(inout) :: mat(:)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
-        integer :: i, idx_end, cnt
+        integer :: i, cnt
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -675,9 +669,8 @@ contains
         ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do i = ii, ie, max_i4
-                idx_end = min(i + max_i4 - 1, ie)
-                cnt = idx_end - i + 1
-                call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end), &
+                cnt = min(max_i4, ie - i + 1)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(i), &
                                    cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -693,7 +686,7 @@ contains
         complex*16, intent(inout) :: mat(:, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
-        integer :: i, j, idx_end, cnt
+        integer :: i, j, cnt, step
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -709,18 +702,17 @@ contains
         if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
             do j = ji, je
                 do i = ii, ie, max_i4
-                    idx_end = min(i + max_i4 - 1, ie)
-                    cnt = idx_end - i + 1
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j), &
+                    cnt = min(max_i4, ie - i + 1)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(i, j), &
                                        cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
-            do j = ji, je, max_i4
-                idx_end = min(j + max_i4 - 1, je)
-                cnt = (idx_end - j + 1)*size(mat, 1)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end), &
+            step = max_i4/size(mat, 1)
+            do j = ji, je, step
+                cnt = min(step, je - j + 1)*size(mat, 1)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, j), &
                                    cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -736,7 +728,7 @@ contains
         complex*16, intent(inout) :: mat(:, :, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke
-        integer :: i, j, k, idx_end, cnt
+        integer :: i, j, k, cnt, step
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -754,9 +746,8 @@ contains
             do k = ki, ke
                 do j = ji, je
                     do i = ii, ie, max_i4
-                        idx_end = min(i + max_i4 - 1, ie)
-                        cnt = idx_end - i + 1
-                        call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k), &
+                        cnt = min(max_i4, ie - i + 1)
+                        call MPI_Allreduce(MPI_IN_PLACE, mat(i, j, k), &
                                            cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
@@ -764,19 +755,19 @@ contains
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
             do k = ki, ke
-                do j = ji, je, max_i4
-                    idx_end = min(j + max_i4 - 1, je)
-                    cnt = (idx_end - j + 1)*size(mat, 1)
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k), &
+                step = max_i4/size(mat, 1)
+                do j = ji, je, step
+                    cnt = min(step, je - j + 1)*size(mat, 1)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, j, k), &
                                        cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)*size(mat, 3)) then ! 1st index * 2nd index * 3rd index is larger than the limit(max_i4)
-            do k = ki, ke, max_i4
-                idx_end = min(k + max_i4 - 1, ke)
-                cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end), &
+            step = max_i4/(size(mat, 1)*size(mat, 2))
+            do k = ki, ke, step
+                cnt = min(step, ke - k + 1)*size(mat, 1)*size(mat, 2)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k), &
                                    cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
@@ -792,7 +783,7 @@ contains
         complex*16, intent(inout) :: mat(:, :, :, :)
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke, li, le
-        integer :: i, j, k, l, idx_end, cnt
+        integer :: i, j, k, l, cnt, step
         integer :: op = op_mpi_sum ! default operation
 
         if (present(optional_op)) then
@@ -812,9 +803,8 @@ contains
                 do k = ki, ke
                     do j = ji, je
                         do i = ii, ie, max_i4
-                            idx_end = min(i + max_i4 - 1, ie)
-                            cnt = idx_end - i + 1
-                            call MPI_Allreduce(MPI_IN_PLACE, mat(i:idx_end, j, k, l), &
+                            cnt = min(max_i4, ie - i + 1)
+                            call MPI_Allreduce(MPI_IN_PLACE, mat(i, j, k, l), &
                                                cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                             call check_ierr(ierr)
                         end do
@@ -824,10 +814,10 @@ contains
         else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
             do l = li, le
                 do k = ki, ke
-                    do j = ji, je, max_i4
-                        idx_end = min(j + max_i4 - 1, je)
-                        cnt = (idx_end - j + 1)*size(mat, 1)
-                        call MPI_Allreduce(MPI_IN_PLACE, mat(:, j:idx_end, k, l), &
+                    step = max_i4/size(mat, 1)
+                    do j = ji, je, step
+                        cnt = min(step, je - j + 1)*size(mat, 1)
+                        call MPI_Allreduce(MPI_IN_PLACE, mat(:, j, k, l), &
                                            cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                         call check_ierr(ierr)
                     end do
@@ -835,19 +825,19 @@ contains
             end do
         else if (max_i4 < size(mat, 1)*size(mat, 2)*size(mat, 3)) then ! 1st index * 2nd index * 3rd index is larger than the limit(max_i4)
             do l = li, le
-                do k = ki, ke, max_i4
-                    idx_end = min(k + max_i4 - 1, ke)
-                    cnt = (idx_end - k + 1)*size(mat, 1)*size(mat, 2)
-                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k:idx_end, l), &
+                step = max_i4/(size(mat, 1)*size(mat, 2))
+                do k = ki, ke, step
+                    cnt = min(step, ke - k + 1)*size(mat, 1)*size(mat, 2)
+                    call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, k, l), &
                                        cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                     call check_ierr(ierr)
                 end do
             end do
         else if (max_i4 < size(mat)) then ! 1st index * 2nd index * 3rd index * 4th index is larger than the limit(max_i4)
-            do l = li, le, max_i4
-                idx_end = min(l + max_i4 - 1, le)
-                cnt = (idx_end - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
-                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l:idx_end), &
+            step = max_i4/(size(mat, 1)*size(mat, 2)*size(mat, 3))
+            do l = li, le, step
+                cnt = min(step, le - l + 1)*size(mat, 1)*size(mat, 2)*size(mat, 3)
+                call MPI_Allreduce(MPI_IN_PLACE, mat(:, :, :, l), &
                                    cnt, MPI_COMPLEX16, op, MPI_COMM_WORLD, ierr)
                 call check_ierr(ierr)
             end do
