@@ -18,13 +18,13 @@ def test_ras3_bitcheck():
     os.chdir(test_path)
 
     # input/output/executable file names
-    ref_filename = "expected"
+    ref_output_file = "expected"
     result_filename = "result"
     move_filename = "result.prev"
     exe_filename = "ras3_bitcheck_exe"
 
     # Absolute path to input/output/executable files
-    ref_file_path = os.path.abspath(os.path.join(test_path, ref_filename))
+    ref_output_file_path = os.path.abspath(os.path.join(test_path, ref_output_file))
     result_file_path = os.path.abspath(os.path.join(test_path, result_filename))
     move_file_path = os.path.abspath(os.path.join(test_path, move_filename))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
@@ -34,7 +34,7 @@ def test_ras3_bitcheck():
 
     run_test(test_command)
 
-    string_ref = get_split_string_list_from_output_file(ref_file_path)
+    string_ref = get_split_string_list_from_output_file(ref_output_file_path)
     string_result = get_split_string_list_from_output_file(result_file_path)
 
     # Move result files to move_file_path
