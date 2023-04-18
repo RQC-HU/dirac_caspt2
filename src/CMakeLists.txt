@@ -19,6 +19,11 @@ ulambda_s_half.f90
 )
 target_link_libraries(caspt2_module dcaspt2_module)
 
+add_library(ivo_module STATIC
+  ivo_consistency_check.f90
+)
+target_link_libraries(ivo_module dcaspt2_module)
+
 add_executable(r4dcascicoexe
   calce0.f90
   casci.f90
@@ -87,7 +92,7 @@ add_executable(r4divocoexe
   read_mrconee.f90
 	timing.f90
 )
-target_link_libraries(r4divocoexe dcaspt2_module)
+target_link_libraries(r4divocoexe dcaspt2_module ivo_module)
 
 install(TARGETS r4divocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})

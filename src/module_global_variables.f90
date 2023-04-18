@@ -56,7 +56,6 @@ MODULE module_global_variables
     real(8), allocatable, target :: int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
     real(8), allocatable, target :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
 
-
     !! =================================================
     !! Variables of timer
     !! =================================================
