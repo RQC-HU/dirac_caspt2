@@ -135,13 +135,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     end if
     ! Read MO coefficient of DFPCMO
     write_itrfmo = .true.
-    Do I = 1, ngu, 6
-        Read (unit_dfpcmo, '(6F22.16)', iostat=iostat) BUF(I:I + 5)
-        if (iostat /= 0) then
-            write_itrfmo = .false.
-            exit
-        end if
-    End do
+    read(unit_dfpcmo, *, iostat=iostat) BUF
 
     if (rank == 0) print *, 'end reading MO coefficient'
     if (write_itrfmo) then
