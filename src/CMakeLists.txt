@@ -20,7 +20,7 @@ ulambda_s_half.f90
 target_link_libraries(caspt2_module dcaspt2_module)
 
 add_library(ivo_module STATIC
-  ivo_consistency_check.f90
+  module_ivo_consistency_check.f90
 )
 target_link_libraries(ivo_module dcaspt2_module)
 
