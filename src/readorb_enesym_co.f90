@@ -215,13 +215,13 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 !Iwamuro modify
 
     if (rank == 0) then
-        print '("irpmo ",20I2)', (irpmo(i0), i0=1, nmo)
+        print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
     end if
 
     irpmo(:) = irpamo(:)
 
     if (rank == 0) then
-        print '("irpamo ",20I2)', (irpamo(i0), i0=1, nmo)
+        print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
     end if
 
     caspt2_mo_energy = dirac_mo_energy
@@ -267,7 +267,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end do
 
     if (rank == 0) then
-        print '("irpamo ",20I2)', (irpamo(i0), i0=1, nmo)
+        print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
 
         print *, 'inactive'
         do i0 = 1, ninact
