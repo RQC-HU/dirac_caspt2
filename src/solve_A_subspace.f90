@@ -1,6 +1,17 @@
+! module module_solvA
+!     implicit none
+
+!     private
+!     interface solvA_ord_ty
+!         module procedure solvA_ord_ty_real
+!         module procedure solvA_ord_ty_complex
+!     end interface
+
+! contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+! SUBROUTINE solvA_ord_ty(e0, e2a, additional_arg)
 SUBROUTINE solvA_ord_ty(e0, e2a)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -12,6 +23,13 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
 
     real*8, intent(in) :: e0
     real*8, intent(out):: e2a
+    ! real(8), intent(in) :: additional_arg
+    ! complex*16, intent(in) :: additional_arg
+
+    ! realonly = true
+    ! real(8) :: additional_arg
+    ! realonly = false
+    ! complex(16) :: additional_arg
 
     integer :: dimn, dimm, dammy
 
@@ -24,11 +42,9 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :, :), vc(:), vc1(:)
 
-    logical :: cutoff
     integer :: i, j, syma, symb, isym, sym1
     integer :: ix, iy, iz, ii, dimi, ixyz
     integer :: jx, jy, jz, it
-    real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -62,9 +78,6 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
 !  +  <0|Evu|0>[h(ti) + SIGUMA_k:inact{(ti|kk) - (tk|ki)}]
 !
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
-
-    thresd = 1.0D-08
-    thres = 1.0D-08
 
     e2 = 0.0d+00
     e2a = 0.0d+00
@@ -164,16 +177,13 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         tsectmp1 = tsectmp0
         Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 
-        cutoff = .TRUE.
-!           thresd = 1.0d-15
-
         Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
         sc0 = sc
         if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
+        Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'after sc cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -221,7 +231,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
+        Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'OK ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -267,8 +277,6 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         deallocate (bc); Call memminus(KIND(bc), SIZE(bc), 2)
         deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
 
-        cutoff = .FALSE.
-
         Allocate (wb(dimm)); Call memplus(KIND(wb), SIZE(wb), 1)
 
         if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
@@ -280,7 +288,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
 
-        Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
+        Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'end cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

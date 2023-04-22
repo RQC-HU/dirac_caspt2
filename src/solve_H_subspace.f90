@@ -41,9 +41,6 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 !
 ! E2h = V(aibj)/e(a,b,i,j)
 
-!        thresd = 1.0D-08
-!        thres = 1.0D-08
-
     e2h = 0.0d+00
     e = 0.0d+00
 

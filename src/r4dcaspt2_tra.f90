@@ -26,8 +26,6 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 !        debug = .TRUE.
     debug = .FALSE.
-    thres = 1.0d-15
-!        thres = 0.0d+00
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !

@@ -6,7 +6,10 @@ MODULE four_caspt2_module
 
     Implicit NONE
 
-    real(8)      :: thres, tmem
+    real(8)      :: tmem
+    real(8)      :: smat_lin_dep_threshold = 1.0d-08  ! threshold for removing linear dependencies in S-matrix
+    real(8), parameter  :: bmat_no_cutoff = 0.0d+00   ! No threshold for B-matrix (all elements are used)
+    real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
     integer      :: norb, ndet, iroot ! ndet: the number of determinant
     !! =================================================
     !! Valiables of Input (active.inp)

@@ -23,6 +23,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     complex*16 :: cint2
     integer, allocatable :: indk(:, :), indl(:, :), kr(:)
     real*8, allocatable  :: rklr(:, :), rkli(:, :)
+    real(8) :: threshold = global_threshold ! Threshold for integrals to be stored
     logical :: continue_read, is_end_of_file
     integer :: idx, read_line_len, iostat
     read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"
@@ -165,7 +166,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                     INTTWI(KTR, LTR, J(idx), I(idx)) = -rkli(idx, inz)*SignKL
                     INTTWI(L, K, ITR, JTR) = -rkli(idx, inz)*SignIJ
                     INTTWI(KTR, LTR, ITR, JTR) = -rkli(idx, inz)*SignIJ*SignKL
-                    if (abs(rkli(idx, inz)) > thres) realc = .false.
+                    if (abs(rkli(idx, inz)) > threshold) realc = .false.
 
                 elseif (space_idx(i(idx)) == 3 .and. space_idx(j(idx)) == 3 .and. &
                         space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type

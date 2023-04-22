@@ -21,6 +21,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     integer, allocatable :: indk(:), indl(:), kr(:)
 
     real*8, allocatable :: rklr(:), rkli(:)
+    real(8) :: threshold = global_threshold ! Threshold for integrals to be stored
 
     !   Unit numbers for subspace files
     integer  :: unit_a1, unit_a2, unit_b, unit_c1, unit_c2, unit_c3, &
@@ -860,7 +861,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
                 end if
             end if
 
-            if (abs(rkli(inz)) > thres) realc = .false.
+            if (abs(rkli(inz)) > threshold) realc = .false.
         end do ! Next inz
     end do ! Continue to read 2-integrals
 

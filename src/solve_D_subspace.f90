@@ -24,11 +24,9 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
     integer, allocatable     :: ia0(:), ii0(:), iai(:, :)
     integer                  :: nai
-    logical :: cutoff
     integer :: j, i, syma, isym, i0
     integer :: ia, it, ii, iu
     integer :: ja, jt, ji, ju
-    real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -71,8 +69,6 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     datetmp1 = date0; datetmp0 = date0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
-    thresd = 1.0D-08
-    thres = 1.0D-08
 
     e2 = 0.0d+00
     e2d = 0.0d+00
@@ -168,9 +164,6 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         tsectmp1 = tsectmp0
         Allocate (ws(dimn))
         ws = 0.0d+00
-        cutoff = .TRUE.
-        thresd = 1.0d-08
-!           thresd = 1.0d-15
 
         Allocate (sc0(dimn, dimn))
         sc0 = sc
@@ -178,7 +171,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
+        Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'after s cdiag'
 
@@ -224,7 +217,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
+        Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'OK ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -270,8 +263,6 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         deallocate (bc)
         deallocate (bc0)
 
-        cutoff = .FALSE.
-
         Allocate (wb(dimm))
         wb = 0.0d+00
 
@@ -282,7 +273,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
+        Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'end cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

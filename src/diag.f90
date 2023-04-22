@@ -1,9 +1,10 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
+SUBROUTINE rdiag(sr, dimn, dimm, w, cutoff_threshold)
 ! diagonalization of real symmetric matrix
-!  and remove linear dependency for any S matrix
+! and remove linear dependency for any S matrix
+! (if cutoff_threshold = 0.0d+00, cutoff process is not performed.)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -13,8 +14,7 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
     Implicit NONE
 
     integer, intent(in) :: dimn
-    real*8, intent(in)  :: thresd
-    logical, intent(in) :: cutoff
+    real*8, intent(in)  :: cutoff_threshold
 
     real*8, intent(inout)  :: sr(dimn, dimn)
 
@@ -58,13 +58,12 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, thresd, cutoff)
         return
     end if
 
-    if (cutoff) then
-
-        if (rank == 0) print *, 'cut off threshold is ', thresd
-        dimm = count(w(1:dimn) >= thresd)
-
-    else
+    ! If cutoff_threshold == 0.0d+00, cutoff process is not performed.
+    if (cutoff_threshold == 0.0d+00) then
         dimm = dimn
+    else
+        if (rank == 0) print *, 'cut off threshold is ', cutoff_threshold
+        dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
 
 end subroutine rdiag
@@ -72,9 +71,10 @@ end subroutine rdiag
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
+SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
 ! diagonalization of complex symmetric matrix
-!  and remove linear dependency for any S matrix
+! and remove linear dependency for any S matrix
+! (if cutoff_threshold = 0.0d+00, cutoff process is not performed.)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -84,8 +84,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
     Implicit NONE
 
     integer, intent(in) :: dimn
-    real*8, intent(in)  :: thresd
-    logical, intent(in) :: cutoff
+    real*8, intent(in)  :: cutoff_threshold
 
     complex*16, intent(inout):: c(dimn, dimn)
 
@@ -198,11 +197,12 @@ SUBROUTINE cdiag(c, dimn, dimm, w, thresd, cutoff)
         return
     end if
 
-    if (cutoff) then
-        if (rank == 0) print *, 'cut off threshold is ', thresd
-        dimm = count(w(1:dimn) >= thresd)
-    else
+    ! If cutoff_threshold == 0.0d+00, cutoff process is not performed.
+    if (cutoff_threshold == 0.0d+00) then
         dimm = dimn
+    else
+        if (rank == 0) print *, 'cut off threshold is ', cutoff_threshold
+        dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
 
     if (rank == 0) print *, "end cdiag"
@@ -224,8 +224,8 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     real*8, intent(out)     ::  fa(n0:n1, n0:n1)
     real*8, intent(out)     ::  w(n0:n1)
 
-    logical                 ::  cutoff
-    integer                 ::  j, i, dimn, ncount(nsymrpa)
+    real(8)                 ::  cutoff_threshold
+    integer                 ::  j, i, dimn, dummy, ncount(nsymrpa)
     integer                 ::  sym, isym
     integer                 ::  ind(n, nsymrpa)
 
@@ -238,7 +238,6 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
     if (rank == 0) print *, 'rdiag0 start'
     w(:) = 0.0d+00
-    cutoff = .FALSE.
 
     fa(n0:n1, n0:n1) = 0.0d+00
 
@@ -264,7 +263,8 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
         Allocate (fasym(dimn, dimn))
         fasym(1:dimn, 1:dimn) = real(f(ind(1:dimn, sym), ind(1:dimn, sym)), kind=8)
 
-        Call rdiag(fasym, dimn, dimn, wsym, thres, cutoff)
+        cutoff_threshold = 0.0d+00 ! No cutoff
+        Call rdiag(fasym, dimn, dummy, wsym, cutoff_threshold)
 !      _________________________________________________________
 
         w(ind(1:dimn, sym)) = wsym(1:dimn)
@@ -323,8 +323,9 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     complex*16, intent(out) ::  fac(n0:n1, n0:n1)
     real*8, intent(out)     ::  wc(n0:n1)
 
-    logical                 ::  cutoff, fi
-    integer                 ::  j, i, dimn, ncount(nsymrpa)
+    real(8)                 ::  cutoff_threshold
+    logical                 ::  fi
+    integer                 ::  j, i, dimn, dummy, ncount(nsymrpa)
     integer                 ::  sym, isym
     integer                 ::  ind(n, nsymrpa)
 
@@ -341,7 +342,6 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     end if
 
     wc(:) = 0.0d+00
-    cutoff = .FALSE.
     if (count(abs(dimag(f(n0:n1, n0:n1))) > 1.0d-10) > 0) then
         fi = .TRUE.
     else
@@ -383,9 +383,9 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
         facsymo = facsym
         Allocate (wcsym(dimn))
         wcsym = 0.0d+00
-        cutoff = .FALSE.
 
-        Call cdiag(facsym, dimn, dimn, wcsym, thres, cutoff)
+        cutoff_threshold = 0.0d+00  ! No cutoff
+        Call cdiag(facsym, dimn, dummy, wcsym, cutoff_threshold)
 !      _________________________________________________________
 
         facsym = DCONJG(facsym)

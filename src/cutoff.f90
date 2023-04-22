@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE rcutoff(sr, w, dimn, dimm, ur, wnew)
+SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
 ! diagonalization of real symmetric matrix
 !  and remove linear dependency for any S matrix
 
@@ -14,6 +14,7 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, ur, wnew)
 
     integer, intent(in)  :: dimn, dimm
     real*8, intent(in)   :: sr(dimn, dimn), w(dimn)
+    real(8), intent(in)  :: threshold
     real*8, intent(out)  :: ur(dimn, dimm), wnew(dimm)
     integer :: j0, i0
 
@@ -21,7 +22,7 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, ur, wnew)
 
     j0 = 0
     do i0 = 1, dimn
-        if (w(i0) >= thres) then
+        if (w(i0) >= threshold) then
             j0 = j0 + 1
             ur(:, j0) = sr(:, i0)
             wnew(j0) = w(i0)
@@ -42,7 +43,7 @@ end subroutine rcutoff
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE ccutoff(sc, w, dimn, dimm, uc, wnew)
+SUBROUTINE ccutoff(sc, w, dimn, dimm, threshold, uc, wnew)
 
 !      Call ccutoff (sc, ws, dimn, dimm, thres, uc, wsnew)
 
@@ -58,6 +59,7 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, uc, wnew)
 
     integer, intent(in)      :: dimn, dimm
     real*8, intent(in)       :: w(dimn)
+    real(8), intent(in)      :: threshold
     real*8, intent(out)      :: wnew(dimm)
 
     complex*16, intent(in)   :: sc(dimn, dimn)
@@ -69,7 +71,7 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, uc, wnew)
 
     j0 = 0
     do i0 = 1, dimn
-        if (w(i0) >= thres) then
+        if (w(i0) >= threshold) then
             j0 = j0 + 1
             uc(:, j0) = sc(:, i0)
             wnew(j0) = w(i0)

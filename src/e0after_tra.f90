@@ -28,8 +28,6 @@ SUBROUTINE e0aftertra_ty
     energy(1:nroot, 1:4) = 0.0d+00
 
     debug = .FALSE.
-    thres = 1.0d-15
-!        thres = 0.0d+00
     if (rank == 0) then
         call open_unformatted_file(unit=unit_e0after, file='e0after', status='replace', optional_action='write')
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
@@ -355,7 +353,6 @@ SUBROUTINE e0aftertrac_ty
     energy(1:nroot, 1:4) = 0.0d+00
 
     debug = .FALSE.
-    thres = 1.0d-15
     if (rank == 0) print *, 'iroot = ', iroot
 
 !        Do iroot = 1, nroot
