@@ -119,6 +119,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
 
     # Create a temporary directory (e.g. /home/username/dcaspt2_scratch/input_2020-01-01_12-34-56_XXXXXX)
     scratch_dir = tempfile.mkdtemp(dir=root_scr_dir, prefix=prefix)
+    os.chmod(scratch_dir, 0o755)  # tempfile.mkdtemp creates a directory with 0o700 permission. So we change the permission to 0o755.
     return scratch_dir
 
 
