@@ -114,21 +114,21 @@ SUBROUTINE detsym_ty(ii, isym)
             if (mod(ielec, 2) == 1) then
                 isym1 = MULTB_DS(jsym, isym) ! isym will be double irrep: odd number of electron
                 isym = isym1
-                if (isym1 > nsymrp .and. rank == 0) print *, 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
+                if (isym1 > nsymrpa .and. rank == 0) print *, 'ielec, ii, isym, jsym, isym1', ielec, ii, isym, jsym + 1, isym1
             else
                 if (mod(jsym, 2) == 1) then
                     isym1 = MULTB_D(jsym + 1, isym) ! isym will be single irrep: even number of electron !MULTB_D is (fai*|fai)
                     isym = isym1
-                    if (isym1 > nsymrp .and. rank == 0) print *, 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
+                    if (isym1 > nsymrpa .and. rank == 0) print *, 'ielec, ii, isym, jsym+1, isym1', ielec, ii, isym, jsym + 1, isym1
                 else
                     isym1 = MULTB_D(jsym - 1, isym) ! isym will be single irrep: even number of electron
                     isym = isym1
-                    if (isym1 > nsymrp .and. rank == 0) print *, 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
+                    if (isym1 > nsymrpa .and. rank == 0) print *, 'ielec, ii, isym, jsym-1, isym1', ielec, ii, isym, jsym - 1, isym1
                 end if
             end if
 
         End if
     End do
-    If (mod(ielec, 2) == 0) isym = isym + nsymrp ! even number electronic system
+    If (mod(ielec, 2) == 0) isym = isym + nsymrpa ! even number electronic system
 
 end subroutine detsym_ty
