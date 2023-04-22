@@ -62,10 +62,10 @@ SUBROUTINE casci_ty
         filename = 'CIMAT'
         call open_unformatted_file(unit=cimat, file=filename, status='replace')
         write (cimat) ndet
-        write (cimat) idet(1:ndet)
+        write (cimat) cas_idx(1:ndet)
         write (cimat) ecas(1:ndet)
-        write (cimat) 2**nact - 1 ! idetrの配列の要素数
-        write (cimat) idetr(1:2**nact - 1)
+        write (cimat) 2**nact - 1 ! cas_idx_reverseの配列の要素数
+        write (cimat) cas_idx_reverse(1:2**nact - 1)
         close (cimat)
 
 ! Print out C1 matrix!
@@ -78,7 +78,7 @@ SUBROUTINE casci_ty
         filename = 'CIMAT1'
         call open_unformatted_file(unit=cimat, file=filename, status='replace')
         write (cimat) ndet
-        write (cimat) idet(1:ndet)
+        write (cimat) cas_idx(1:ndet)
         write (cimat) ecas(1:ndet)
         write (cimat) mat(1:ndet, 1:ndet)
         close (cimat)
@@ -116,7 +116,7 @@ SUBROUTINE casci_ty
             print '("Root = ",I4)', irec
             do j = 1, ndet
                 if ((ABS(mat(j, irec))**2) > 1.0d-02) then
-                    i0 = idet(j)
+                    i0 = cas_idx(j)
                     print *, (btest(i0, j0), j0=0, nact - 1)
                     print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
                     & j, mat(j, irec), &

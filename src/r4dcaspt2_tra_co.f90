@@ -19,7 +19,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)
     character*50            :: filename
-    integer                 :: idetr_array_len ! length of array = idetr(1:2**nact - 1)
+    integer                 :: cas_idx_reverse_array_len ! length of array = cas_idx_reverse(1:2**nact - 1)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -121,15 +121,15 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call open_unformatted_file(unit=new_unit, file="CIMAT", status='old', optional_action="read")
 
     read (new_unit) ndet
-    Allocate (idet(1:ndet)); Call memplus(KIND(idet), SIZE(idet), 1)
+    Allocate (cas_idx(1:ndet)); Call memplus(KIND(cas_idx), SIZE(cas_idx), 1)
     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
 
-    read (new_unit) idet(1:ndet)
+    read (new_unit) cas_idx(1:ndet)
     read (new_unit) ecas(1:ndet)
 
-    read (new_unit) idetr_array_len
-    allocate (idetr(1:idetr_array_len)); call memplus(kind(idet), size(idet), 1)
-    read (new_unit) idetr(1:idetr_array_len)
+    read (new_unit) cas_idx_reverse_array_len
+    allocate (cas_idx_reverse(1:cas_idx_reverse_array_len)); call memplus(kind(cas_idx), size(cas_idx), 1)
+    read (new_unit) cas_idx_reverse(1:cas_idx_reverse_array_len)
     close (new_unit)
 
     Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
@@ -401,8 +401,8 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
     if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
     if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
-    if (allocated(idet)) deallocate (idet); Call memminus(KIND(idet), SIZE(idet), 1)
-    if (allocated(idetr)) deallocate (idetr); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
+    if (allocated(cas_idx)) deallocate (cas_idx); Call memminus(KIND(cas_idx), SIZE(cas_idx), 1)
+    if (allocated(cas_idx_reverse)) deallocate (cas_idx_reverse); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
     if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)

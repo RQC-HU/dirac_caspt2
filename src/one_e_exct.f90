@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-subroutine one_e_exct(iidet, creat, anhi, newidet, phase)
+subroutine one_e_exct(icas_idx, creat, anhi, newcas_idx, phase)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -8,29 +8,29 @@ subroutine one_e_exct(iidet, creat, anhi, newidet, phase)
 
     Implicit NONE
 
-    integer, intent(in)  :: iidet, creat, anhi
-    integer, intent(out) :: newidet, phase
+    integer, intent(in)  :: icas_idx, creat, anhi
+    integer, intent(out) :: newcas_idx, phase
 
     integer :: ia, ib, indu, indv
 
     ia = 0
     ib = 0
     phase = 0
-    newidet = 0
+    newcas_idx = 0
 
 !     Index for only CASCI Active space
 
     indu = creat
     indv = anhi
 
-    if ((indv == indu) .and. (btest(iidet, indv - 1) .eqv. .true.)) then
+    if ((indv == indu) .and. (btest(icas_idx, indv - 1) .eqv. .true.)) then
 
-        newidet = iidet
+        newcas_idx = icas_idx
         phase = 0
 
-    elseif ((btest(iidet, indv - 1) .eqv. .true.) .and. (btest(iidet, indu - 1) .eqv. .false.)) then
+    elseif ((btest(icas_idx, indv - 1) .eqv. .true.) .and. (btest(icas_idx, indu - 1) .eqv. .false.)) then
 
-        newidet = iidet - 2**(indv - 1) + 2**(indu - 1)
+        newcas_idx = icas_idx - 2**(indv - 1) + 2**(indu - 1)
 !        calculation of phase
 
         if (indv < nact) then
@@ -39,7 +39,7 @@ subroutine one_e_exct(iidet, creat, anhi, newidet, phase)
         if (indu < nact) then
             ib = ib + 2**nact - 2**indu
         end if
-        phase = POPCNT(iand(iidet, ia)) + POPCNT(iand(iidet - 2**(indv - 1), ib))
+        phase = POPCNT(iand(icas_idx, ia)) + POPCNT(iand(icas_idx - 2**(indv - 1), ib))
         ! odd => (-), even => (+)
 
     end if
