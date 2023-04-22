@@ -288,17 +288,17 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
         print *, 'inactive'
         do i0 = 1, ninact
-            print '(2I4,2X,E20.10,2X,I4)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0), repna(irpamo(i0))
         end do
 
         print *, 'active'
         do i0 = ninact + 1, ninact + nact
-            print '(2I4,2X,E20.10,2X,I4)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0), repna(irpamo(i0))
         end do
 
         print *, 'secondary'
         do i0 = ninact + nact + 1, ninact + nact + nsec
-            print '(2I4,2X,E20.10,2X,I4)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0), repna(irpamo(i0))
         end do
     end if
 
