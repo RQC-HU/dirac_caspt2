@@ -17,7 +17,7 @@ endif()
 
 # Set default Install path if -DCMAKE_INSTALL_PREFIX is not specified
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "..." FORCE)
+  set(CMAKE_INSTALL_PREFIX "/usr/local/bin" CACHE PATH "..." FORCE)
 endif()
 
 if(MPI)
