@@ -228,7 +228,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     call heapSort(list=caspt2_mo_energy, is_reverse=.false.)
 ! RAS sort
-    if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) then
+    if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) then
         call sort_list_from_energy_order_to_ras_order(caspt2_mo_energy)
     end if
 
@@ -308,11 +308,11 @@ contains
         mo_energy_order = want_to_sort ! Save the original orbital energy order
         ! Fill ninact
         do while (idx_ras_order <= ninact)
-            if (is_ras1_configured .and. ras1_list(ras1_idx) == idx_energy_order) then
+            if (ras1_size /= 0 .and. ras1_list(ras1_idx) == idx_energy_order) then
                 if (ras1_size > ras1_idx) ras1_idx = ras1_idx + 1 ! Skip ras1_list(ras1_idx)
-            elseif (is_ras2_configured .and. ras2_list(ras2_idx) == idx_energy_order) then
+            elseif (ras2_size /= 0 .and. ras2_list(ras2_idx) == idx_energy_order) then
                 if (ras2_size > ras2_idx) ras2_idx = ras2_idx + 1 ! Skip ras2_list(ras2_idx)
-            elseif (is_ras3_configured .and. ras3_list(ras3_idx) == idx_energy_order) then
+            elseif (ras3_size /= 0 .and. ras3_list(ras3_idx) == idx_energy_order) then
                 if (ras3_size > ras3_idx) ras3_idx = ras3_idx + 1 ! Skip ras3_list(ras3_idx)
             else
                 want_to_sort(idx_ras_order) = mo_energy_order(idx_energy_order)

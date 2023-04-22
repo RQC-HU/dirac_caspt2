@@ -18,17 +18,17 @@ contains
     function ras3_det_check(i, upper_allowed_electron) result(is_det_allowed)
         ! function ras3_det_check(i,upper_allowed_electron) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
-        use four_caspt2_module, only: is_ras1_configured, is_ras2_configured, ras1_size, ras2_size
+        use four_caspt2_module, only: ras1_size, ras2_size
         integer, intent(in) :: i, upper_allowed_electron
         integer :: num_of_electron, ras3_bit, width_of_shift
         logical :: is_det_allowed
         ras3_bit = i
         width_of_shift = 0
-        if (is_ras1_configured) then
+        if (ras1_size /= 0) then
             ras3_bit = ishft(ras3_bit, -ras1_size)
             width_of_shift = width_of_shift + ras1_size
         end if
-        if (is_ras2_configured) then
+        if (ras2_size /= 0) then
             ras3_bit = ishft(ras3_bit, -ras2_size)
             width_of_shift = width_of_shift + ras2_size
         end if

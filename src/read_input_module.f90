@@ -18,7 +18,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: is_ras1_configured, is_ras2_configured, is_ras3_configured
+        use four_caspt2_module, only: ras1_size, ras2_size, ras3_size
         implicit none
         integer, intent(in) :: unit_num
         integer :: idx, iostat
@@ -29,7 +29,6 @@ contains
                    (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
 
-        is_ras1_configured = .false.; is_ras2_configured = .false.; is_ras3_configured = .false.
         do while (.not. is_end)
             read (unit_num, "(a)", iostat=iostat) string
             if (iostat < 0) then
@@ -54,7 +53,7 @@ contains
             if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
             call stop_with_errorcode(1)
         end if
-        if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) call check_ras_is_valid
+        if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
     end subroutine read_input
 
@@ -133,18 +132,15 @@ contains
             call ras_read(unit_num, ras1_list, 1)
             ras1_size = size(ras1_list, 1)
             call read_an_integer(unit_num, 0, ras1_size, ras1_max_hole)
-            is_ras1_configured = .true.
 
         case ("ras2")
             call ras_read(unit_num, ras2_list, 2)
-            is_ras2_configured = .true.
             ras2_size = size(ras2_list, 1)
 
         case ("ras3")
             call ras_read(unit_num, ras3_list, 3)
             ras3_size = size(ras3_list, 1)
             call read_an_integer(unit_num, 0, ras3_size, ras3_max_elec)
-            is_ras3_configured = .true.
 
         case ("calctype")
             call read_a_string(unit_num, calctype)
@@ -749,7 +745,7 @@ contains
         electron_filled(:) = .false.
 
         ! Check duplication of electrons (ras1, ras2, ras3)
-        if (is_ras1_configured) then
+        if (ras1_size /= 0) then
             do idx = 1, ras1_size ! ras1_size is the size of the list.
                 if (electron_filled(ras1_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
@@ -759,7 +755,7 @@ contains
                 electron_filled(ras1_list(idx)) = .true. ! Fill ras1_list(idx)
             end do
         end if
-        if (is_ras2_configured) then
+        if (ras2_size /= 0) then
             do idx = 1, ras2_size ! ras2_size is the size of the list.
                 if (electron_filled(ras2_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
@@ -769,7 +765,7 @@ contains
                 electron_filled(ras2_list(idx)) = .true. ! Fill ras2_list(idx)
             end do
         end if
-        if (is_ras3_configured) then
+        if (ras3_size /= 0) then
             do idx = 1, ras3_size ! ras3_size is the size of the list.
                 if (electron_filled(ras3_list(idx))) then
                     ! ERROR: The same number of the electron have been selected
