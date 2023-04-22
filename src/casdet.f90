@@ -40,12 +40,12 @@ SUBROUTINE casdet_ty
     Do i = 1, 2**nact - 1
         if (POPCNT(i) == nelec) then
             is_det_allow = .true.
-            if (is_ras1_configured) then
+            if (ras1_size /= 0) then
                 is_det_allow = ras1_det_check(i, ras1_max_hole)
                 if (.not. is_det_allow) cycle
             end if
 
-            if (is_ras3_configured) then
+            if (ras3_size /= 0) then
                 is_det_allow = ras3_det_check(i, ras3_max_elec)
                 if (.not. is_det_allow) cycle
             end if

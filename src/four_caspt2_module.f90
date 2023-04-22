@@ -28,9 +28,9 @@ MODULE four_caspt2_module
     real(8)         :: eshift
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
-    integer         :: ras1_start, ras1_size, ras2_start, ras2_size, ras3_start, ras3_size
+    integer         :: ras1_start, ras2_start, ras3_start
+    integer         :: ras1_size = 0, ras2_size = 0, ras3_size = 0
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
-    logical         :: is_ras1_configured, is_ras2_configured, is_ras3_configured
     logical         :: skip_mdcint = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: lscom, nhomo
