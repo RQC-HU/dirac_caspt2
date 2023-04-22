@@ -42,11 +42,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 !Iwamuro modify
     scfru = 1
 
-    allocate (IRPMO(1:NMO))
-    allocate (ORBMO(1:NMO))
-    Call memplus(size(IRPMO), kind(IRPMO), 1)
-    Call memplus(size(ORBMO), kind(ORBMO), 1)
-
     Read (unit_mrconee, iostat=iostat) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)                         ! IRs chars
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
     if (is_end_of_file) then
@@ -195,8 +190,10 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 
     if (allocated(SD)) Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
+    allocate (IRPMO(1:NMO)); call memplus(size(IRPMO), kind(IRPMO), 1)
     Allocate (irpamo(nmo)); Call memplus(KIND(irpamo), SIZE(irpamo), 1)
-    Allocate (orb(nmo)); Call memplus(KIND(orb), SIZE(orb), 1)
+    allocate (dirac_mo_energy(1:NMO)); call memplus(size(dirac_mo_energy), kind(dirac_mo_energy), 1)
+    allocate (caspt2_mo_energy(1:NMO)); call memplus(size(caspt2_mo_energy), kind(caspt2_mo_energy), 1)
     Allocate (indmo_cas_to_dirac(nmo)); Call memplus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
     Allocate (indmo_dirac_to_cas(nmo)); Call memplus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
     Allocate (dammo(nmo)); Call memplus(KIND(dammo), SIZE(dammo), 1)
@@ -205,11 +202,9 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     irpmo(:) = 0
     irpamo(:) = 0
 
-    orbmo(:) = 0.0d+00
-    orb(:) = 0.0d+00
     indmo_cas_to_dirac(:) = 0
 
-    Read (unit_mrconee, iostat=iostat) (IRPMO(IMO), IRPAMO(IMO), ORBMO(IMO), IMO=1, NMO)                             ! orbital energies <= used here
+    Read (unit_mrconee, iostat=iostat) (IRPMO(IMO), IRPAMO(IMO), dirac_mo_energy(IMO), IMO=1, NMO)                             ! orbital energies <= used here
     if (iostat .ne. 0) then
         print *, 'Error in reading orbital energies'
         print *, 'iostat = ', iostat
@@ -218,30 +213,30 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     CLOSE (unit_mrconee)
 
 !Iwamuro modify
+
+    if (rank == 0) then
+        print '("irpmo ",20I2)', (irpmo(i0), i0=1, nmo)
+    end if
+
     irpmo(:) = irpamo(:)
 
     if (rank == 0) then
         print '("irpamo ",20I2)', (irpamo(i0), i0=1, nmo)
     end if
 
-    orb = orbmo
+    caspt2_mo_energy = dirac_mo_energy
 
-! orb is lower order of orbmo
-    call heapSort(list=orb, is_reverse=.false.)
-    allocate (sort_orb(nmo)); Call memplus(KIND(sort_orb), SIZE(sort_orb), 1)
-    sort_orb = orb
+    call heapSort(list=caspt2_mo_energy, is_reverse=.false.)
 ! RAS sort
     if (is_ras1_configured .or. is_ras2_configured .or. is_ras3_configured) then
-        call sort_list_from_energy_order_to_ras_order(sort_orb, orb)
+        call sort_list_from_energy_order_to_ras_order(caspt2_mo_energy)
     end if
 
-!! orb_sort is lower order of orbmo
-
-    ! sort_orb(i0) and sort_orb(i0+1) should be same orbital energy (kramers pair)
+    ! caspt2_mo_energy(i0) and caspt2_mo_energy(i0+1) should be same orbital energy (kramers pair)
     do i0 = 1, nmo, 2
         m = 0
         do j0 = 1, nmo
-            if (orbmo(j0) == sort_orb(i0)) then  ! orbmo(j0) is i0 th MO
+            if (dirac_mo_energy(j0) == caspt2_mo_energy(i0)) then  ! dirac_mo_energy(j0) is i0 th MO
                 if (m == 0) then
                     indmo_cas_to_dirac(i0) = j0
                     m = m + 1
@@ -252,15 +247,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
         end do
     end do
 
-    if (rank == 0) then
-        print *, 'orb sort end'
-
-        print *, 'i0,orb(i0),sort_orb(i0)'
-        do i0 = 1, nmo
-            print *, i0, orb(i0), sort_orb(i0)
-        end do
-    end if
-
     do i0 = 1, nmo
         indmo_dirac_to_cas(indmo_cas_to_dirac(i0)) = i0  ! i0 is energetic order, indmo_cas_to_dirac(i0) is symmtric order (MRCONEE order)
     end do
@@ -270,7 +256,6 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
             print '("indmo_dirac_to_cas output",3I4)', indmo_dirac_to_cas(i0), indmo_cas_to_dirac(i0), i0
         end do
     end if
-    orbmo = sort_orb
 
     ! irpmo is in MRCONEE order (DIRAC order)
     dammo = irpmo
@@ -286,34 +271,32 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
         print *, 'inactive'
         do i0 = 1, ninact
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0), repna(irpamo(i0))
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpmo(i0), repna(irpamo(i0))
         end do
 
         print *, 'active'
         do i0 = ninact + 1, ninact + nact
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0), repna(irpamo(i0))
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpmo(i0), repna(irpamo(i0))
         end do
 
         print *, 'secondary'
         do i0 = ninact + nact + 1, ninact + nact + nsec
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0), repna(irpamo(i0))
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpmo(i0), repna(irpamo(i0))
         end do
     end if
 
     if (allocated(dammo)) deallocate (dammo); Call memminus(KIND(dammo), SIZE(dammo), 1)
-    if (allocated(orb)) deallocate (orb); Call memminus(KIND(orb), SIZE(orb), 1)
-    if (allocated(sort_orb)) deallocate (sort_orb); Call memminus(KIND(sort_orb), SIZE(sort_orb), 1)
 contains
 
-    subroutine sort_list_from_energy_order_to_ras_order(want_to_sort, original_orb_energy_order)
+    subroutine sort_list_from_energy_order_to_ras_order(want_to_sort)
         !===========================================================================================================================
         ! This subroutine sorts the want_to_sort list form orbital energy order
         ! to RAS order(ninact => ras1 => ras2 => ras3 => secondary).
         !===========================================================================================================================
         use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
         implicit none
-        real(8), intent(in) :: original_orb_energy_order(:)
         real(8), intent(inout) :: want_to_sort(:)
+        real(8), allocatable :: original_orb_energy_order(:)
         integer :: current_idx_energy_order, current_idx_ras_order, idx
         integer :: ras1_current_idx, ras2_current_idx, ras3_current_idx
         if (rank == 0) print *, 'sizeofras', ras1_size, ras2_size, ras3_size
@@ -321,6 +304,8 @@ contains
         ! Initialization
         current_idx_energy_order = 1; current_idx_ras_order = 1
         ras1_current_idx = 1; ras2_current_idx = 1; ras3_current_idx = 1
+        allocate (original_orb_energy_order(size(want_to_sort)))
+        original_orb_energy_order = want_to_sort ! Save the original orbital energy order
         ! Fill ninact
         do while (current_idx_ras_order <= ninact)
             if (is_ras1_configured .and. ras1_list(ras1_current_idx) == current_idx_energy_order) then

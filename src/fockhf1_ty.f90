@@ -84,7 +84,7 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         print *, '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
         &, 'Spinor Energy (HF)        ERROR'
         do i = 1, ninact + nact + nsec
-            print '(I4,4E20.10)', i, f(i, i), orbmo(i), orbmo(i) - dble(f(i, i))
+            print '(I4,4E20.10)', i, f(i, i), caspt2_mo_energy(i), caspt2_mo_energy(i) - dble(f(i, i))
         end do
 
         print *, 'fockhf end'
