@@ -10,7 +10,7 @@ SUBROUTINE casdet_ty
     Implicit NONE
 
     integer :: i, isym
-    integer, allocatable  :: idet0(:)
+    integer, allocatable  :: cas_idx0(:)
     integer :: upper_allowed_hole, allow_det_num
     logical :: is_det_allow
     upper_allowed_hole = 1 ! RAS1の許容されるホール数
@@ -31,10 +31,10 @@ SUBROUTINE casdet_ty
     ! ras1_bit = 2**2 - 1 ! RAS1のビット表現
     allow_det_num = 0
     if (rank == 0) print *, 'Enter casdet_ty'
-    Allocate (idet0(ndet))
-    Allocate (idetr(2**nact - 1)); call memplus(kind(idetr), size(idetr), 1)
-    idet0 = 0
-    idetr = 0
+    Allocate (cas_idx0(ndet))
+    Allocate (cas_idx_reverse(2**nact - 1)); call memplus(kind(cas_idx_reverse), size(cas_idx_reverse), 1)
+    cas_idx0 = 0
+    cas_idx_reverse = 0
     ndet = 0
     !    67108864* 8 / (1024^2) = 500MB, 26 spinor
     Do i = 1, 2**nact - 1
@@ -53,16 +53,16 @@ SUBROUTINE casdet_ty
             allow_det_num = allow_det_num + 1
             if (nsymrpa == 1) then
                 ndet = ndet + 1
-                idet0(ndet) = i
-                idetr(i) = ndet
+                cas_idx0(ndet) = i
+                cas_idx_reverse(i) = ndet
             else
                 Call detsym_ty(i, isym)
                 if (rank == 0) print '(a,i20,a,b50,a,i5)', "i:", i, "bit(i)", i, "isym:", isym
                 if (isym == totsym) then
                     !if (rank == 0) print '(a,L,a,i20,a,b50)', 'is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
                     ndet = ndet + 1
-                    idet0(ndet) = i
-                    idetr(i) = ndet
+                    cas_idx0(ndet) = i
+                    cas_idx_reverse(i) = ndet
                 end if
             End if
         End if
@@ -77,15 +77,15 @@ SUBROUTINE casdet_ty
         call stop_with_errorcode(1)
     end if
 
-    Allocate (idet(ndet))
-    idet(1:ndet) = idet0(1:ndet)
+    Allocate (cas_idx(ndet))
+    cas_idx(1:ndet) = cas_idx0(1:ndet)
     if (rank == 0) then
         print *, 'allow  = ', allow_det_num
         print *, 'totsym = ', totsym
         print *, 'ndet   = ', ndet
     end if
-!        print *,idet(1:ndet)
-    Deallocate (idet0)
+!        print *,cas_idx(1:ndet)
+    Deallocate (cas_idx0)
 
 end subroutine casdet_ty
 

@@ -14,7 +14,7 @@ SUBROUTINE casmat(mat)
 
     integer              :: occ, vir, indr, inds, inda, indb
     integer              :: ir, is, ia, ib, imo
-    integer              :: i0, j0, k0, l0, i, j, newidet1, newidet2
+    integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
     integer              :: phase, phase1, phase2
     real*8               :: i2r, i2i
     complex*16           :: cmplxint, mat0
@@ -34,7 +34,7 @@ SUBROUTINE casmat(mat)
         vi = 0
 
         Do imo = 1, nact
-            If (BTEST(idet(i), imo - 1)) then
+            If (BTEST(cas_idx(i), imo - 1)) then
                 occ = occ + 1
                 oc(occ) = imo
             Else
@@ -110,9 +110,9 @@ SUBROUTINE casmat(mat)
                 inda = vi(k0)
                 ia = inda + ninact
 
-                Call one_e_exct(idet(i), inda, indr, newidet1, phase1)
+                Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
 
-                j = idetr(newidet1)
+                j = cas_idx_reverse(newcas_idx1)
 
                 If (j > i) then
                     cmplxint = DCMPLX(oner(ir, ia), onei(ir, ia))
@@ -180,10 +180,10 @@ SUBROUTINE casmat(mat)
                         ia = inda + ninact
                         ib = indb + ninact
 
-                        Call one_e_exct(idet(i), inda, indr, newidet1, phase1)
-                        Call one_e_exct(newidet1, indb, inds, newidet2, phase2)
+                        Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+                        Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
 
-                        j = idetr(newidet2)
+                        j = cas_idx_reverse(newcas_idx2)
 
                         If (j > i) then
                             if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00

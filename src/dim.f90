@@ -13,7 +13,7 @@ subroutine dim1_density(creat1, anhi1, sr, si)
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
-    integer ::  newidet, phase, phasenew
+    integer ::  newcas_idx, phase, phasenew
 
 ! calculation of <0|Ec1a1|0>
 
@@ -22,14 +22,14 @@ subroutine dim1_density(creat1, anhi1, sr, si)
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet !励起演算子がかかった後の番号
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx !励起演算子がかかった後の番号
         phasenew = phase
 
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -65,16 +65,16 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
-    integer ::  newidet, phase, phasenew
+    integer ::  newcas_idx, phase, phasenew
 
     s = 0.0d+00
     do i0 = 1, ndet
-        i = idet(i0)
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        i = cas_idx(i0)
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -108,16 +108,16 @@ subroutine dim1_density_diag(creat1, anhi1, s)
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
-    integer ::  newidet, phase, phasenew
+    integer ::  newcas_idx, phase, phasenew
 
     s = 0.0d+00
     do i0 = 1, ndet
-        i = idet(i0)
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        i = cas_idx(i0)
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -147,7 +147,7 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
     real*8, intent(out) :: sr, si
-    integer :: newidet, phase, phasenew
+    integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
@@ -158,18 +158,18 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -203,7 +203,7 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
     real*8, intent(out) :: sr, si
-    integer :: newidet, phase, phasenew
+    integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
@@ -214,24 +214,24 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat3, anhi3, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
 
-        call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -263,7 +263,7 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
     real*8, intent(out) :: sr, si
-    integer :: newidet, phase, phasenew
+    integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
 
@@ -274,29 +274,29 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat4, anhi4, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat4, anhi4, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
 
-        call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat3, anhi3, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
 
         phasenew = phasenew + phase
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -330,7 +330,7 @@ subroutine dim1_density_R(creat1, anhi1, sr)
     real*8, intent(out) :: sr
     integer :: j0, i, i0
 
-    integer ::  newidet, phase, phasenew
+    integer ::  newcas_idx, phase, phasenew
 
 ! calculation of <0|Ec1a1|0> for REAL
 
@@ -338,14 +338,14 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
 
-        i = newidet
+        i = newcas_idx
         phasenew = phase
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -370,7 +370,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
     real*8, intent(out) :: sr
-    integer :: newidet, phase, phasenew
+    integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
 
 ! calculation of <0|Ec1a1Ec2a2|0>
@@ -379,19 +379,19 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -418,7 +418,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
     real*8, intent(out) :: sr
-    integer :: newidet, phase, phasenew
+    integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3|0>
@@ -427,24 +427,24 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat3, anhi3, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
 
-        call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
@@ -469,7 +469,7 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
     real*8, intent(out) :: sr
-    integer :: newidet, phase, phasenew
+    integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
 
 ! calculation of <0|Ec1a1Ec2a2Ec3a3Ec4a4|0>
@@ -478,29 +478,29 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
 
     do i0 = 1, ndet
 
-        i = idet(i0)
+        i = cas_idx(i0)
 
-        call one_e_exct(i, creat4, anhi4, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat4, anhi4, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phase
 
-        call one_e_exct(i, creat3, anhi3, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat3, anhi3, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        call one_e_exct(i, creat2, anhi2, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
         phasenew = phasenew + phase
 
-        call one_e_exct(i, creat1, anhi1, newidet, phase)
-        if (newidet == 0) cycle ! Next i0
-        i = newidet
+        call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
+        if (newcas_idx == 0) cycle ! Next i0
+        i = newcas_idx
 
         phasenew = phasenew + phase
-        j0 = idetr(i)
+        j0 = cas_idx_reverse(i)
 
         if (j0 == 0) cycle ! Next i0
 
