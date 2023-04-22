@@ -45,7 +45,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
     if (rank == 0) print *, 'enter building fock matrix for IVO'
 
     if (nhomo == 0) then
-        numh = count(ABS(orbmo(1:ninact + nact) - orbmo(nelec + ninact)) < 1.0d-01)
+        numh = count(ABS(caspt2_mo_energy(1:ninact + nact) - caspt2_mo_energy(nelec + ninact)) < 1.0d-01)
     else
         numh = nhomo
     end if
@@ -54,7 +54,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
     do i = 1, nsec
         i0 = i + ninact + nact
-        f(i, i) = orbmo(i0)
+        f(i, i) = caspt2_mo_energy(i0)
         do j = i, nsec
             j0 = j + ninact + nact
             do k = ninact + nact - numh + 1, ninact + nact

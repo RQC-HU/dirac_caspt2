@@ -97,8 +97,8 @@ MODULE four_caspt2_module
     integer, allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
     integer, allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor
     real*8, allocatable  :: oner(:, :), onei(:, :) ! one-electron integral (real,imaginal)
-    real*8, allocatable  :: orbmo(:), orb(:), sort_orb(:)
-    real*8, allocatable  :: orbmocas(:), orbcas(:)
+    real(8), allocatable :: dirac_mo_energy(:) ! MO energy (a.u.) (DIRAC order)
+    real(8), allocatable :: caspt2_mo_energy(:) ! MO energy (a.u.) (CASPT2 order) [old name]: orbmo
 
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart
     integer, allocatable ::MULTB_DF(:, :), MULTB_DB(:, :), MULTB_SB(:, :)
