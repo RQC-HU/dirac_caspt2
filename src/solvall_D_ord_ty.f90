@@ -506,7 +506,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     real*8                  :: dr, di
     complex*16              :: cint1, cint2, d
     complex*16              :: effh(nsec, ninact)
-    integer :: i, j, k, l, tai, iostat, twoint_unit
+    integer :: i, j, k, l, tai, iostat, unit_int2
     integer :: it, jt, ju, iu, ia, ii, ja, ji
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -518,7 +518,6 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     tsectmp1 = tsectmp0
     v = 0.0d+00
     effh = 0.0d+00
-    twoint_unit = default_unit
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(tai, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -558,9 +557,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    call open_unformatted_file(unit=twoint_unit, file=d1int, status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2, file=d1int, status='old', optional_action='read')
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         call check_iostat(iostat=iostat, file=d1int, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -590,7 +589,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         End do
 !$OMP end parallel do
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
     if (rank == 0) print *, 'reading D1int2 is over'
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -605,9 +604,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    call open_unformatted_file(unit=twoint_unit, file=d2int, status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2, file=d2int, status='old', optional_action='read')
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         call check_iostat(iostat=iostat, file=d2int, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -629,7 +628,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         End do
 !$OMP end parallel do
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
     if (rank == 0) then
         print *, 'reading D2int2 is over'
@@ -639,9 +638,9 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    call open_unformatted_file(unit=twoint_unit, file=d3int, status='old', optional_action='read') ! (ai|jk) is stored
+    call open_unformatted_file(unit=unit_int2, file=d3int, status='old', optional_action='read') ! (ai|jk) is stored
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         call check_iostat(iostat=iostat, file=d3int, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -657,7 +656,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 
         end if
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
     if (rank == 0) print *, 'reading D3int2 is over'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

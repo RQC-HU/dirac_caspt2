@@ -9,7 +9,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 
     Implicit NONE
 
-    integer :: mrconee, isp, nmom, iostat
+    integer :: unit_mrconee, isp, nmom, iostat
     character*50, intent(in) :: filename
     logical :: is_end_of_file
     integer :: j0, i0
@@ -18,22 +18,21 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     if (rank == 0) then
         print *, 'Enter read1mo_co'
     end if
-    mrconee = 10
 
     realc = .true.
 
     Allocate (roner(nmo, nmo, scfru)); Call memplus(KIND(roner), SIZE(roner), 1)
     Allocate (ronei(nmo, nmo, scfru)); Call memplus(KIND(ronei), SIZE(ronei), 1)
 
-    call open_unformatted_file(unit=mrconee, file=trim(filename), status="old", optional_action="read")
+    call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status="old", optional_action="read")
 
-    rewind (mrconee)
-    read (mrconee, iostat=iostat)
-    read (mrconee, iostat=iostat)
-    read (mrconee, iostat=iostat)
-    read (mrconee, iostat=iostat)
-    read (mrconee, iostat=iostat)
-    read (mrconee, iostat=iostat) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
+    rewind (unit_mrconee)
+    read (unit_mrconee, iostat=iostat)
+    read (unit_mrconee, iostat=iostat)
+    read (unit_mrconee, iostat=iostat)
+    read (unit_mrconee, iostat=iostat)
+    read (unit_mrconee, iostat=iostat)
+    read (unit_mrconee, iostat=iostat) (((roner(i0, j0, isp), ronei(i0, j0, isp), j0=1, nmo), i0=1, nmo), isp=1, scfru)
 
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
 
@@ -42,7 +41,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
         ronei(:, :, :) = -ronei(:, :, :)
     end if
 
-    close (mrconee)
+    close (unit_mrconee)
 
     nmom = ninact + nact + nsec
     Allocate (oner(nmom, nmom)); Call memplus(KIND(oner), SIZE(oner), 1)

@@ -13,7 +13,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     character  :: datex*10, timex*8
 
-    integer :: mdcint_unit, nkr, nmom, max1, max2, min1, min2
+    integer :: unit_newmdcint, nkr, nmom, max1, max2, min1, min2
     integer :: nz
     integer :: i0, i, j, k, l
     integer :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint
@@ -29,11 +29,6 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     integer :: a1_cnt, a2_cnt, b_cnt, c1_cnt, c2_cnt, c3_cnt, d1_cnt, d2_cnt, d3_cnt, e_cnt, f_cnt, g_cnt, h_cnt
 !Iwamuro modify
 !        integer :: ikr, jkr, kkr, lkr
-    !  Initialization of Unit numbers for subspace files
-    unit_a1 = default_unit; unit_a2 = default_unit; unit_b = default_unit
-    unit_c1 = default_unit; unit_c2 = default_unit; unit_c3 = default_unit
-    unit_d1 = default_unit; unit_d2 = default_unit; unit_d3 = default_unit
-    unit_e = default_unit; unit_f = default_unit; unit_g = default_unit; unit_h = default_unit
     a1_cnt = 0; a2_cnt = 0; b_cnt = 0; c1_cnt = 0; c2_cnt = 0; c3_cnt = 0
     d1_cnt = 0; d2_cnt = 0; d3_cnt = 0; e_cnt = 0; f_cnt = 0; g_cnt = 0; h_cnt = 0
     Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
@@ -68,10 +63,9 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     call open_unformatted_file(unit=unit_g, file=gint, status='replace', optional_action='write')
     call open_unformatted_file(unit=unit_h, file=hint, status='replace', optional_action='write')
 
-    mdcint_unit = default_unit
-    call open_unformatted_file(unit=mdcint_unit, file=trim(filename), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_newmdcint, file=trim(filename), status='old', optional_action='read')
 
-    Read (mdcint_unit, iostat=iostat) datex, timex, nkr, &
+    Read (unit_newmdcint, iostat=iostat) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
@@ -86,7 +80,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     ! Continue to read the file until the end of the file is reached
     do
-        read (mdcint_unit, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+        read (unit_newmdcint, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -870,7 +864,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
         end do ! Next inz
     end do ! Continue to read 2-integrals
 
-    close (mdcint_unit)
+    close (unit_newmdcint)
     close (unit_a1)
     close (unit_a2)
     close (unit_b)

@@ -554,7 +554,7 @@ SUBROUTINE vAmat_ord_ty(v)
     integer :: it, iu, iv, ii, ip
     integer :: jt, ju, jv, ji, jp
     integer :: i, j, k, l, dim(nsymrpa)
-    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, twoint_unit
+    integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, unit_int2
     integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
     integer, allocatable :: ind2u(:, :), ind2v(:, :)
     integer :: datetmp0, datetmp1
@@ -587,7 +587,6 @@ SUBROUTINE vAmat_ord_ty(v)
     dens1 = 0.0d+00
     effh = 0.0d+00
     dim = 0
-    twoint_unit = default_unit
 
     Allocate (indt(nact**3, nsymrpa)); Call memplus(KIND(indt), SIZE(indt), 1)
     Allocate (indu(nact**3, nsymrpa)); Call memplus(KIND(indu), SIZE(indu), 1)
@@ -671,10 +670,10 @@ SUBROUTINE vAmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=twoint_unit, file=a1int, status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2, file=a1int, status='old', optional_action='read')
     if (rank == 0) print *, 'open A1int'
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         call check_iostat(iostat=iostat, file=a1int, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -722,15 +721,15 @@ SUBROUTINE vAmat_ord_ty(v)
 
     end do
 
-    close (twoint_unit)
+    close (unit_int2)
 
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    call open_unformatted_file(unit=twoint_unit, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
+    call open_unformatted_file(unit=unit_int2, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
         call check_iostat(iostat=iostat, file=a2int, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -751,7 +750,7 @@ SUBROUTINE vAmat_ord_ty(v)
         end if
     end do
 
-    close (twoint_unit)
+    close (unit_int2)
     if (rank == 0) print *, 'reading A2int2 is over'
 
 #ifdef HAVE_MPI

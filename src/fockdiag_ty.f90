@@ -12,7 +12,7 @@ SUBROUTINE fockdiag_ty
     Implicit NONE
 
     integer                 ::  i, j
-    integer                 :: transfock_unit
+    integer                 :: unit_transfock
     integer                 :: i0, n, n0, n1, nspace(3, 3)
     real*8, allocatable :: fa(:, :)
     complex*16, allocatable :: fac(:, :)
@@ -22,7 +22,6 @@ SUBROUTINE fockdiag_ty
 
     if (rank == 0) print *, 'fockdiag start'
     REALF = .TRUE.
-    transfock_unit = default_unit
     Do i = 1, ninact + nact + nsec
         Do j = 1, ninact + nact + nsec
             If (ABS(DIMAG(f(i, j))) > 1.0d-12) then
@@ -117,10 +116,10 @@ SUBROUTINE fockdiag_ty
     end if
 
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=transfock_unit, file='TRANSFOCK', status='replace', optional_action='write')
-        write (transfock_unit) nmo
-        write (transfock_unit) f(1:nmo, 1:nmo)
-        close (transfock_unit)
+        call open_unformatted_file(unit=unit_transfock, file='TRANSFOCK', status='replace', optional_action='write')
+        write (unit_transfock) nmo
+        write (unit_transfock) f(1:nmo, 1:nmo)
+        close (unit_transfock)
     end if
 
     if (rank == 0) print *, 'fockdiag end'

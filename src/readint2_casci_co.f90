@@ -13,7 +13,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     character*50, intent(in) :: filename
 
     character  :: datex*10, timex*8
-    integer    :: mdcint, nkr, nuniq, nmom, nmoc
+    integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
     integer    :: j0, i0
     integer    :: k, l
     integer, allocatable    :: i(:), j(:), nz(:)
@@ -67,10 +67,9 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     int2i_f2 = 0.0d+00
 
     totalint = 0
-    mdcint = 11
-    call open_unformatted_file(unit=mdcint, file=trim(filename), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_mdcint, file=trim(filename), status='old', optional_action='read')
 
-    read (mdcint, iostat=iostat) datex, timex, nkr, &
+    read (unit_mdcint, iostat=iostat) datex, timex, nkr, &
         (kr(i0), kr(-1*i0), i0=1, nkr)
 
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
@@ -84,7 +83,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     end if
     do while (continue_read)
         do idx = 1, read_line_max
-            read (mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
+            read (unit_mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
                 (indk(idx, inz), indl(idx, inz), rklr(idx, inz), rkli(idx, inz), inz=1, nz(idx))
             call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
             if (is_end_of_file) then
@@ -365,7 +364,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     end do
     if (rank == 0) print *, 'end Read mdcint normal'
 
-    close (mdcint)
+    close (unit_mdcint)
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=nuniq, root_rank=0)
     call reduce_wrapper(mat=totalint, root_rank=0)
