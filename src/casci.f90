@@ -11,11 +11,10 @@ SUBROUTINE casci_ty
     include 'mpif.h'
 #endif
     integer :: comb, j0, j, i0, irec, unit_cimat
-    real*8 :: thresd
+    real*8 :: cutoff_threshold
 
     complex*16, allocatable :: mat(:, :)
     real*8, allocatable     :: ecas(:)
-    logical                 :: cutoff
     character*20            :: filename, chr_root
     real(8) :: expected_mem
     integer :: datetmp0, datetmp1
@@ -40,8 +39,6 @@ SUBROUTINE casci_ty
     Allocate (ecas(ndet))
     if (rank == 0) print *, 'allocate ecas(ndet)'
     ecas = 0.0d+00
-    thresd = 1.0d-15
-    cutoff = .FALSE.
     if (rank == 0) print *, 'Start mat cdiag'
     datetmp1 = date0; datetmp0 = date0
 
@@ -49,7 +46,8 @@ SUBROUTINE casci_ty
     tsectmp1 = tsectmp0
 
     if (rank == 0) print *, 'ndet before cdiag', ndet
-    Call cdiag(mat, ndet, ndet, ecas, thresd, cutoff)
+    cutoff_threshold = 0  ! No need to resolve linear dependence
+    Call cdiag(mat, ndet, ndet, ecas, cutoff_threshold)
 
     if (rank == 0) print *, 'End mat cdiag'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -105,7 +103,7 @@ SUBROUTINE casci_ty
         End do
     end if
     do j = 1, ndet
-        if (ABS(DIMAG(mat(j, selectroot))) > thres) then
+        if (ABS(DIMAG(mat(j, selectroot))) > global_threshold) then
             realcvec = .false.
         end if
     end do

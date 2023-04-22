@@ -21,14 +21,14 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
-    real*8                  :: thresd
+    real*8                  :: cutoff_threshold
     complex*16              :: cint2
 
     integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
     integer :: ii, ji, ki, li, ie, je, ke, le, iostat
     integer :: nmx, ini(3), end(3), isp, isym, imo
 
-    thresd = 1.0d-15
+    cutoff_threshold = 1.0d-15
     ini(1) = 1
     end(1) = ninact
     ini(2) = ninact + 1
@@ -110,7 +110,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
 
     traint2 = 0.0d+00
@@ -146,7 +146,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -181,7 +181,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -216,7 +216,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
@@ -249,7 +249,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
-    real*8                  :: thresd
+    real*8                  :: cutoff_threshold
     complex*16              :: cint2
 
     integer :: i, j, k, l
@@ -257,7 +257,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     integer :: ii, ji, ki, li, ie, je, ke, le
     integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
 
-    thresd = 1.0d-15
+    cutoff_threshold = 1.0d-15
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
@@ -381,7 +381,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -418,7 +418,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -454,7 +454,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -490,7 +490,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -522,7 +522,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
-    real*8                  :: thresd
+    real*8                  :: cutoff_threshold
     complex*16              :: cint2, initial_cint2
 
     integer :: i, j, k, l
@@ -531,7 +531,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer :: ii, ji, ki, li, ie, je, ke, le
     integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
-    thresd = 1.0d-15
+    cutoff_threshold = 1.0d-15
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl
@@ -651,7 +651,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -687,7 +687,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -723,7 +723,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
     traint2 = 0.0d+00
 
@@ -759,7 +759,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     close (unit_int2_subspace)
 
     if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
@@ -769,7 +769,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
 end subroutine intra_3
 
-subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     !==============================================================================================
     ! This is a writing subroutine for two-electron integrals
     ! after the fourth integral transformation.
@@ -784,7 +784,7 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
     implicit none
     integer                 :: n_cnt, i, j, k, l
     integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
-    real(8)                 :: thresd
+    real(8)                 :: cutoff_threshold
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
     integer                 :: i_tra, j_tra, k_tra, l_tra
     integer                 :: i_ini, i_end, j_ini, j_end, k_ini, k_end, l_ini, l_end
@@ -814,7 +814,7 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
                     ! so i + i_tra is needed to get the correct index. (The same applies to inactive and secondary.)
                     ! When nact is zero, it never pass through the do loop even once, so there is no problem.
                     !===================================================================================================
-                    if (ABS(traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)) > thresd) then
+                    if (ABS(traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)) > cutoff_threshold) then
                         if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
                             write (unit_int2_subspace) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)
                         end if
@@ -854,12 +854,12 @@ contains
     end subroutine where_subspace_is
 end subroutine write_traint2_to_disk_fourth
 
-subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
     use four_caspt2_module, only: nprocs, rank
     implicit none
     integer                 :: n_cnt, i, j, k, l
     integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
-    real(8)                 :: thresd
+    real(8)                 :: cutoff_threshold
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
     ! 4重ループを1重ループに変換する方法
     ! 元の記述 : do l=li,le;do k=ki,ke;do j=ji,je;do i=ii,ie;
@@ -877,11 +877,12 @@ subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd
         Do k = ki, ke
             Do j = ji, je
                 Do i = ii, ie
-                    if (ABS(traint2(i, j, k, l)) > thresd) then
+                    ! Very small integrals are not written to disk
+                    if (ABS(traint2(i, j, k, l)) > cutoff_threshold) then
                         if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
                             write (unit_int2_subspace) i, j, k, l, traint2(i, j, k, l)
                         end if
-                        ! if traint2(i,j,k,l)>thresd, all MPI process need to count up n_cnt!!!
+                        ! if traint2(i,j,k,l)>cutoff_threshold, all MPI process need to count up n_cnt!!!
                         n_cnt = n_cnt + 1
                     end if
                 End do

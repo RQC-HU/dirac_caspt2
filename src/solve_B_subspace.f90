@@ -33,7 +33,6 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     integer :: j, i, syma, isym, i0
     integer :: ij, it, ii, iu, jj, jt, ji, ju
 
-    real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -67,9 +66,6 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
 !
 !
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
-
-    thresd = 1.0D-08
-    thres = 1.0D-08
 
     e2 = 0.0d+00
     e2b = 0.0d+00
@@ -164,16 +160,13 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         tsectmp1 = tsectmp0
         Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 
-        cutoff = .TRUE.
-        thresd = 1.0d-08
-
         Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
         sc0 = sc
         if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
+        Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -219,7 +212,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
+        Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'OK ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -273,7 +266,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
+        Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'end cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)

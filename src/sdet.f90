@@ -37,7 +37,6 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
     Call zgetrf(nelec, nelec, sini, nelec, ipvt, info)   ! From lapack LU fatorization!
 
-    n = 0
     Do i = 1, nelec
         if (ipvt(i) /= i) n = n + 1
     End do

@@ -21,12 +21,10 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
     complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
-    logical :: cutoff
     integer :: j, i, syma, isym, i0
     integer :: ia, it, ib, iu, ja, jt, jb, ju
     integer, allocatable     :: ia0(:), ib0(:), iab(:, :)
     integer                  :: nab
-    real*8  :: thresd
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 
@@ -57,10 +55,6 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 !
 !  E2 = SIGUMA_iab,t:dimm |V1(t,ab)|^2|/{(alpha(ab) + wb(t)}
 !
-!        thresd = thres
-    thresd = 1.0D-08
-    thres = 1.0D-08
-
     e2 = 0.0d+00
     e2f = 0.0d+00
     dimn = 0
@@ -162,16 +156,13 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         tsectmp1 = tsectmp0
         Allocate (ws(dimn))
 
-        cutoff = .TRUE.
-!           thresd = 1.0d-15
-
         Allocate (sc0(dimn, dimn))
         sc0 = sc
         if (rank == 0) print *, 'before cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(sc, dimn, dimm, ws, thresd, cutoff)
+        Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -217,7 +208,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call ccutoff(sc, ws, dimn, dimm, uc, wsnew)
+        Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'OK ccutoff'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -262,8 +253,6 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         deallocate (bc)
         deallocate (bc0)
 
-        cutoff = .FALSE.
-
         Allocate (wb(dimm))
 
         if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
@@ -273,7 +262,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call cdiag(bc1, dimm, dammy, wb, thresd, cutoff)
+        Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (rank == 0) print *, 'end cdiag'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
