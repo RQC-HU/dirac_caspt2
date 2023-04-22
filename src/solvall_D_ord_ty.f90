@@ -122,7 +122,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             Do iu = 1, nact
                 ju = iu + ninact
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -143,7 +143,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             Do iu = 1, nact
                 ju = iu + ninact
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -304,7 +304,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
             ja = ia0(i0)
             ji = ii0(i0)
             if (nsymrpa /= 1) then
-                syma = MULTB_D(irpmo(ja), irpmo(ji))
+                syma = MULTB_D(irpamo(ja), irpamo(ji))
                 syma = MULTB_S(syma, isym)
             end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
@@ -387,7 +387,7 @@ SUBROUTINE sDmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
     sc = 0.0d+00
 
-    !$OMP parallel do schedule(dynamic,1) private(i,ix,iy,j,it,iu,a,b)
+!$OMP parallel do schedule(dynamic,1) private(i,ix,iy,j,it,iu,a,b)
     Do i = rank + 1, dimn, nprocs
 
         ix = indsym(1, i)
@@ -405,7 +405,7 @@ SUBROUTINE sDmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
         End do               !j
     End do                  !i
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=sc)
 #endif
@@ -440,7 +440,7 @@ SUBROUTINE bDmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
     bc(:, :) = 0.0d+00
 
     if (rank == 0) print *, 'F space Bmat iroot=', iroot
-    !$OMP parallel do schedule(dynamic,1) private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
+!$OMP parallel do schedule(dynamic,1) private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
 
         ix = indsym(1, i)
@@ -474,7 +474,7 @@ SUBROUTINE bDmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 
         End do               !i
     End do                  !j
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=bc, root_rank=0)
 #endif
@@ -527,7 +527,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !
-    !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,cint1)
+!$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,cint1)
     Do ia = rank + 1, nsec, nprocs
         ja = ia + ninact + nact
         Do ii = 1, ninact
@@ -536,7 +536,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
             effh(ia, ii) = cint1
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! V(a,i, jt, ju) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
 !
@@ -576,7 +576,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         ji = j
         tai = iai(ja, ji)
 
-        !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
+!$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
         Do it = 1, nact
             jt = it + ninact
             Do iu = 1, nact
@@ -588,7 +588,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 
             End do
         End do
-        !$OMP end parallel do
+!$OMP end parallel do
     end do
     close (twoint_unit)
 
@@ -616,7 +616,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         ja = i
         ji = l
         tai = iai(ja, ji)
-        !$OMP parallel do schedule(dynamic,1) private(it,ju,dr,di,d)
+!$OMP parallel do schedule(dynamic,1) private(it,ju,dr,di,d)
         Do it = 1, nact
             Do iu = 1, nact
 
@@ -627,7 +627,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 
             End do
         End do
-        !$OMP end parallel do
+!$OMP end parallel do
     end do
     close (twoint_unit)
 
@@ -672,7 +672,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
-    !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,tai,it,jt,iu,ju,dr,di,d)
+!$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,tai,it,jt,iu,ju,dr,di,d)
     Do ia = rank + 1, nsec, nprocs
         Do ii = 1, ninact
             tai = iai(ia, ii)
@@ -687,7 +687,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
 
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
 
     if (rank == 0) print *, 'vDmat_ord_ty is ended'
 #ifdef HAVE_MPI

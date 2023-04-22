@@ -252,7 +252,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     if (rank == 0) print *, 'nsymrpa', nsymrpa
 
     Do i = n0, n1
-        isym = irpmo(i)
+        isym = irpamo(i)
         ncount(isym) = ncount(isym) + 1
         ind(ncount(isym), isym) = i
     End do
@@ -361,7 +361,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     ind(:, :) = 0
 
     do i = n0, n1
-        isym = irpmo(i)
+        isym = irpamo(i)
         ncount(isym) = ncount(isym) + 1
         ind(ncount(isym), isym) = i
     end do

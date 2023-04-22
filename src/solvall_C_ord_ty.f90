@@ -101,8 +101,8 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     jy = iy + ninact
                     jz = iz + ninact
                     if (nsymrpa /= 1) then
-                        syma = MULTB_D(isym, irpmo(jx))
-                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_D(isym, irpamo(jx))
+                        symb = MULTB_D(irpamo(jy), irpamo(jz))
                         syma = MULTB_S(syma, symb)
                     end if
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
@@ -129,8 +129,8 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
                     jy = iy + ninact
                     jz = iz + ninact
                     if (nsymrpa /= 1) then
-                        syma = MULTB_D(isym, irpmo(jx))
-                        symb = MULTB_D(irpmo(jy), irpmo(jz))
+                        syma = MULTB_D(isym, irpamo(jx))
+                        symb = MULTB_D(irpamo(jy), irpamo(jz))
                         syma = MULTB_S(syma, symb)
                     end if
                     If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
@@ -298,7 +298,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
         Do ia = 1, nsec
             ja = ia + ninact + nact
 
-            if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. irpmo(ja) == isym)) then
+            if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. irpamo(ja) == isym)) then
 
                 Allocate (vc(dimn))
                 Do it = 1, dimn
@@ -582,8 +582,8 @@ SUBROUTINE vCmat_ord_ty(v)
 
                     !     EatEuv|0>
                     if (nsymrpa /= 1) then
-                        syma = MULTB_D(irpmo(ju), irpmo(jv))
-                        symb = MULTB_D(isym, irpmo(jt))
+                        syma = MULTB_D(irpamo(ju), irpamo(jv))
+                        symb = MULTB_D(isym, irpamo(jt))
                         symc = MULTB_S(syma, symb)
                     end if
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. symc == 1)) then
@@ -627,7 +627,7 @@ SUBROUTINE vCmat_ord_ty(v)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        isym = irpmo(i + ninact + nact)   ! i corresponds to a
+        isym = irpamo(i + ninact + nact)   ! i corresponds to a
 !$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
         Do i0 = 1, dim(isym)
             it = indt(i0, isym)
@@ -713,7 +713,7 @@ SUBROUTINE vCmat_ord_ty(v)
 !$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
     Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ja = ia + ninact + nact
-        isym = irpmo(ja)
+        isym = irpamo(ja)
 
         Do ip = 1, nact
 

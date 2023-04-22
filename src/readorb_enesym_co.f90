@@ -274,8 +274,10 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
     orbmo = sort_orb
 
+    ! irpmo is in MRCONEE order (DIRAC order)
     dammo = irpmo
 
+    ! Convert irpmo and irpamo into energy order (CAS order)
     do i0 = 1, nmo
         irpmo(i0) = dammo(indmo_cas_to_dirac(i0))
         irpamo(i0) = dammo(indmo_cas_to_dirac(i0))

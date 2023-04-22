@@ -116,7 +116,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(ju) - (-1)**(mod(irpamo(ju), 2)), irpamo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -137,7 +137,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(ju) - (-1)**(mod(irpamo(ju), 2)), irpamo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -298,7 +298,7 @@ SUBROUTINE solvF_ord_ty(e0, e2f)
 
 !     EatEbu|0>
             if (nsymrpa /= 1) then
-                syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                syma = MULTB_D(irpamo(ja), irpamo(jb) - (-1)**(mod(irpamo(jb), 2)))
                 syma = MULTB_S(syma, isym)
             end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
@@ -543,7 +543,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(ju) - (-1)**(mod(irpamo(ju), 2)), irpamo(jt))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     pattern_tu_count(isym) = pattern_tu_count(isym) + 1
@@ -610,7 +610,7 @@ contains
         !========================================================================================================
         ! This subroutine creates multb_s_reverse
         !
-        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpmo(ju) - (-1)**(mod(irpmo(ju), 2)), irpmo(jt))
+        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpamo(ju) - (-1)**(mod(irpamo(ju), 2)), irpamo(jt))
         !========================================================================================================
         implicit none
         integer :: ia, ib, ja, jb
@@ -622,7 +622,7 @@ contains
                 ja = ia + ninact + nact
                 do ib = 1, ia - 1
                     jb = ib + ninact + nact
-                    syma = MULTB_D(irpmo(ja), irpmo(jb) - (-1)**(mod(irpmo(jb), 2)))
+                    syma = MULTB_D(irpamo(ja), irpamo(jb) - (-1)**(mod(irpamo(jb), 2)))
                     do isym = 1, nsymrpa
                         if (MULTB_S(syma, isym) == 1) then
                             multb_s_reverse(ia, ib) = isym
