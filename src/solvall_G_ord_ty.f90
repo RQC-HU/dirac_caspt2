@@ -127,7 +127,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
         dimn = 0
         Do it = 1, nact
             jt = it + ninact
-            if (irpmo(jt) == isym) then
+            if (irpamo(jt) == isym) then
                 dimn = dimn + 1
                 indt(dimn) = it
             End if
@@ -290,8 +290,8 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
 
 !     EaiEbt|0>
             if (nsymrpa /= 1) then
-                syma = MULTB_D(irpmo(jb), isym)
-                symb = MULTB_D(irpmo(ja), irpmo(ji))
+                syma = MULTB_D(irpamo(jb), isym)
+                symb = MULTB_D(irpamo(ja), irpamo(ji))
                 syma = MULTB_S(syma, symb)
             end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then

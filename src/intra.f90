@@ -84,7 +84,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             exit
         end if
 
-        isym = irpmo(l)
+        isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
@@ -92,7 +92,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         End do
 
         Call takekr(i, j, k, l, cint2)
-        isym = irpmo(l)
+        isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
@@ -128,7 +128,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         if (is_end_of_file) then
             exit
         end if
-        isym = irpmo(k)
+        isym = irpamo(k)
 
         Do knew = 1, nsym(spk, isym)
             k1 = indsym(spk, isym, knew)
@@ -163,7 +163,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         if (is_end_of_file) then
             exit
         end if
-        isym = irpmo(j)
+        isym = irpamo(j)
 
         Do jnew = 1, nsym(spj, isym)
             j1 = indsym(spj, isym, jnew)
@@ -198,7 +198,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
         if (is_end_of_file) then
             exit
         end if
-        isym = irpmo(i)
+        isym = irpamo(i)
 
         Do inew = 1, nsym(spi, isym)
             i1 = indsym(spi, isym, inew)
@@ -316,7 +316,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
         if (is_end_of_file) then
             exit
         end if
-        isym = irpmo(l)
+        isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
@@ -337,7 +337,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             save = j
             j = l
             l = save
-            isym = irpmo(l)
+            isym = irpamo(l)
 
             Do lnew = 1, nsym(spl, isym)
                 l1 = indsym(spl, isym, lnew)
@@ -345,7 +345,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             End do
         end if
         Call takekr(i, j, k, l, cint2)
-        isym = irpmo(l)
+        isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
@@ -364,7 +364,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
         j = l
         l = save
 
-        isym = irpmo(l)
+        isym = irpamo(l)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
@@ -401,7 +401,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             exit
         end if
 
-        isym = irpmo(k)
+        isym = irpamo(k)
 
         Do knew = 1, nsym(spk, isym)
             k1 = indsym(spk, isym, knew)
@@ -437,7 +437,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             exit
         end if
 
-        isym = irpmo(j)
+        isym = irpamo(j)
 
         Do jnew = 1, nsym(spj, isym)
             j1 = indsym(spj, isym, jnew)
@@ -473,7 +473,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             exit
         end if
 
-        isym = irpmo(i)
+        isym = irpamo(i)
 
         Do inew = 1, nsym(spi, isym)
             i1 = indsym(spi, isym, inew)

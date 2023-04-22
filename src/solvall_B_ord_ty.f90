@@ -120,7 +120,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju) - (-1)**(mod(irpamo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -139,7 +139,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju) - (-1)**(mod(irpamo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     dimn = dimn + 1
@@ -296,7 +296,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
             ji = ii0(i0)
             jj = ij0(i0)
             if (nsymrpa /= 1) then
-                syma = MULTB_D(irpmo(ji) - (-1)**(mod(irpmo(ji), 2)), irpmo(jj))
+                syma = MULTB_D(irpamo(ji) - (-1)**(mod(irpamo(ji), 2)), irpamo(jj))
                 syma = MULTB_S(syma, isym)
             end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
@@ -383,7 +383,7 @@ SUBROUTINE sBmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
     sc = 0.0d+00
 
-    !$OMP parallel do schedule(dynamic,1) private(ix,iy,j,it,iu,a,b)
+!$OMP parallel do schedule(dynamic,1) private(ix,iy,j,it,iu,a,b)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
         ix = indsym(1, i)
@@ -422,7 +422,7 @@ SUBROUTINE sBmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
         End do               !j
     End do                  !i
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=sc)
 #endif
@@ -463,7 +463,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
 
     if (rank == 0) print *, 'B space Bmat iroot=', iroot
 
-    !$OMP parallel do schedule(dynamic,1) private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
+!$OMP parallel do schedule(dynamic,1) private(ix,iy,jx,jy,it,iu,jt,ju,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
         ix = indsym(1, i)
@@ -529,7 +529,7 @@ SUBROUTINE bBmat(e0, dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix 
 
         End do               !i
     End do                  !j
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=bc, root_rank=0)
 #endif
@@ -583,7 +583,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
             Do iu = 1, it - 1
                 ju = iu + ninact
 
-                if (nsymrpa /= 1) syma = MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+                if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju) - (-1)**(mod(irpamo(ju), 2)))
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                     pattern_tu_count(isym) = pattern_tu_count(isym) + 1
@@ -672,7 +672,7 @@ contains
         !========================================================================================================
         ! This subroutine creates multb_s_reverse
         !
-        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpmo(jt), irpmo(ju) - (-1)**(mod(irpmo(ju), 2)))
+        ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpamo(jt), irpamo(ju) - (-1)**(mod(irpamo(ju), 2)))
         !========================================================================================================
         implicit none
         integer :: ii, ij
@@ -682,7 +682,7 @@ contains
         else
             do ii = 1, ninact
                 do ij = 1, ii - 1
-                    syma = MULTB_D(irpmo(ii) - (-1)**(mod(irpmo(ii), 2)), irpmo(ij))
+                    syma = MULTB_D(irpamo(ii) - (-1)**(mod(irpamo(ii), 2)), irpamo(ij))
                     do isym = 1, nsymrpa
                         if (MULTB_S(syma, isym) == 1) then
                             multb_s_reverse(ii, ij) = isym

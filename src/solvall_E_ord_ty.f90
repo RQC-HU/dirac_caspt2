@@ -114,7 +114,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
         dimn = 0
         Do it = 1, nact
             jt = it + ninact
-            if (irpmo(jt) == isym) then
+            if (irpamo(jt) == isym) then
                 dimn = dimn + 1
                 indt(dimn) = it
             End if
@@ -274,8 +274,8 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
 !     EtiEaj|0>
 
             if (nsymrpa /= 1) then
-                syma = MULTB_D(irpmo(ja), irpmo(jj))
-                symb = MULTB_D(isym, irpmo(ji))
+                syma = MULTB_D(irpamo(ja), irpamo(jj))
+                symb = MULTB_D(isym, irpamo(ji))
                 syma = MULTB_S(symb, syma)
             end if
             If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
@@ -362,7 +362,7 @@ SUBROUTINE sEmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 
     sc = 0.0d+00
 
-    !$OMP parallel do schedule(dynamic,1) private(iu,j,it,a,b)
+!$OMP parallel do schedule(dynamic,1) private(iu,j,it,a,b)
     Do i = rank + 1, dimn, nprocs
         iu = indt(i)
 
@@ -383,7 +383,7 @@ SUBROUTINE sEmat(dimn, indt, sc) ! Assume C1 molecule, overlap matrix S in space
 
         End do               !j
     End do                  !i
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=sc)
 #endif
@@ -427,7 +427,7 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
 
     if (rank == 0) print *, 'E space Bmat iroot=', iroot
 
-    !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
+!$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
         iu = indt(i)
         ju = iu + ninact
@@ -455,7 +455,7 @@ SUBROUTINE bEmat(e0, dimn, sc, indt, bc) ! Assume C1 molecule, overlap matrix B 
 
         End do               !i
     End do                  !j
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=bc, root_rank=0)
 #endif
@@ -520,13 +520,13 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
 
         v(taij, k) = v(taij, k) - cint2
 
-        !$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
+!$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
         Do it = 1, nact
             Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
             dens = DCMPLX(dr, di)
             v(taij, it) = v(taij, it) + cint2*dens
         End do                  ! it
-        !$OMP end parallel do
+!$OMP end parallel do
 
         if (j < l) then
             cint2 = -1.0d+00*cint2          ! data cint2 becomes initial values!

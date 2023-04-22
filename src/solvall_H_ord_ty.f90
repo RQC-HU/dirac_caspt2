@@ -143,8 +143,8 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
         Do j0 = 1, nij
             ii = ii0(j0)
             ij = ij0(j0)
-            syma = MULTB_D(irpmo(ia), irpmo(ii))
-            symb = MULTB_D(irpmo(ib), irpmo(ij))
+            syma = MULTB_D(irpamo(ia), irpamo(ii))
+            symb = MULTB_D(irpamo(ib), irpamo(ij))
             syma = MULTB_S(syma, symb)
             if (syma == 1) then
 
