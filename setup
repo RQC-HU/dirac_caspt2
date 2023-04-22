@@ -26,13 +26,26 @@ def define_args():
 def preprocess(args, exec_path, root_path):
     def check_cmake_is_installed():
         print("Checking if CMake is installed...")
-        process = Popen("cmake --version", shell=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = process.communicate()
-        if process.returncode != 0 or "cmake version" not in stdout.decode("utf-8"):
-            sys.stderr.write("CMake is not installed!")
-            sys.stderr.write("Error message: " + stderr.decode("utf-8"))
-            exit(1)
-        print("CMake is installed!", stdout.decode("utf-8"))
+        try:
+            process = Popen("cmake --version", shell=True, stdout=PIPE, stderr=PIPE)
+            stdout, stderr = process.communicate()
+            cmake_version = stdout.decode("utf-8").split("\n")[0].split(" ")[2]  # (e.g.) 3.20.0-rc3
+            cmake_major_version = int(cmake_version.split(".")[0])  # (e.g.) 3
+            cmake_minor_version = int(cmake_version.split(".")[1])  # (e.g.) 20
+            print(f"Your CMake version is {cmake_version}")
+            if process.returncode != 0:
+                sys.stderr.write("CMake is not installed!")
+                sys.stderr.write(f"Error message : {stderr.decode('utf-8')}")
+                exit(1)
+            elif cmake_major_version < 3 or (cmake_major_version == 3 and cmake_minor_version < 14):
+                sys.stderr.write("Your CMake version is too old!")
+                sys.stderr.write("CMake version 3.14 or later is required.")
+                sys.stderr.write("Please install CMake 3.14 or later.")
+                exit(1)
+            print(f"CMake is set up correctly! {stdout.decode('utf-8')}")
+        except Exception as e:
+            sys.stderr.write("CMake is not installed!, Aborting...")
+            raise Exception(e)
 
     def clean_dir():
         print("Cleaning the build directory...")
