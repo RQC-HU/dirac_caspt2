@@ -36,7 +36,7 @@ def test_h2o(mpi_num_process: int, omp_num_threads: int, save: bool) -> None:
 
     # Check whether the output of test run
     # matches the reference to 7th decimal places.
-    assert test_energy == pytest.approx(ref_energy, abs=1e-7)
+    assert test_energy == pytest.approx(ref_energy, abs=1e-8)
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.

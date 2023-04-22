@@ -29,7 +29,15 @@ def test_c1_methane_dev(mpi_num_process: int, omp_num_threads: int, save: bool) 
     binary_dir = os.path.abspath(os.path.join(test_path, "../../../bin"))  # Set the Built binary directory
     dcaspt2 = os.path.abspath(os.path.join(binary_dir, "dcaspt2"))  # Set the dcaspt2 script path
 
-    test_command = create_test_command_dcaspt2(dcaspt2, mpi_num_process, omp_num_threads, input_file, output_file_path, test_path, save,)
+    test_command = create_test_command_dcaspt2(
+        dcaspt2,
+        mpi_num_process,
+        omp_num_threads,
+        input_file,
+        output_file_path,
+        test_path,
+        save,
+    )
     with open("execution_command.txt", "w") as f:
         print(f"TEST COMMAND: {test_command}", file=f)
     run_test_dcaspt2(test_command)
@@ -39,7 +47,7 @@ def test_c1_methane_dev(mpi_num_process: int, omp_num_threads: int, save: bool) 
 
     # Check whether the output of test run
     # matches the reference to 7th decimal places.
-    assert test_energy == pytest.approx(ref_energy, abs=1e-7)
+    assert test_energy == pytest.approx(ref_energy, abs=1e-8)
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
