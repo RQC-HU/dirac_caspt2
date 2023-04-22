@@ -32,12 +32,12 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
     f = 0.0d+00
 
     if (rank == 0) print *, 'enter building fock matrix'
-    !$OMP parallel private(i,j,k,l,dr,di,dens)
-    !$OMP do schedule(dynamic,2)
+!$OMP parallel private(i,j,k,l,dr,di,dens)
+!$OMP do schedule(dynamic,2)
     do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, ninact + nact
 
-            f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+            f(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact
                 f(i, j) = f(i, j) + DCMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k))
                 f(i, j) = f(i, j) - DCMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j))
@@ -62,12 +62,12 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
             f(j, i) = DCONJG(f(i, j))
         end do       ! j
     end do          ! i
-    !$OMP end do
+!$OMP end do
 
-    !$OMP do schedule(dynamic,2)
+!$OMP do schedule(dynamic,2)
     do i = ninact + nact + 1 + rank, ninact + nact + nsec, nprocs
         do j = i, ninact + nact + nsec
-            f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+            f(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact
                 f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
                 f(i, j) = f(i, j) - DCMPLX(int2r_f2(i, k, k, j), int2i_f2(i, k, k, j))
@@ -91,8 +91,8 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
             f(j, i) = DCONJG(f(i, j))
         end do       ! j
     end do          ! i
-    !$OMP end do
-    !$OMP end parallel
+!$OMP end do
+!$OMP end parallel
     if (rank == 0) print *, 'fockcasci before f allreduce'
     call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
     datetmp0 = datetmp1

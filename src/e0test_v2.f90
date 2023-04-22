@@ -46,7 +46,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
             !! because DIRAC's one-electron integral file (MRCONEE) is not
             !! devided even if DIRAC is executed in parallel (MPI).
             if (rank == 0) then
-                energy(iroot, 1) = energy(iroot, 1) + oner(ii, ii)
+                energy(iroot, 1) = energy(iroot, 1) + one_elec_int_r(ii, ii)
             end if
         end do
 
@@ -110,12 +110,12 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 if (realcvec) then
                     Call dim1_density_R(ii, jj, dr)
                     if (rank == 0) then
-                        energy(iroot, 3) = energy(iroot, 3) + (oner(ii, jj) + oneeff)*dr
+                        energy(iroot, 3) = energy(iroot, 3) + (one_elec_int_r(ii, jj) + oneeff)*dr
                     end if
                 else
                     Call dim1_density(ii, jj, dr, di)
                     if (rank == 0) then
-                        energy(iroot, 3) = energy(iroot, 3) + (oner(ii, jj) + oneeff)*DCMPLX(dr, di)
+                        energy(iroot, 3) = energy(iroot, 3) + (one_elec_int_r(ii, jj) + oneeff)*DCMPLX(dr, di)
                     end if
                 end if
             end do
@@ -204,7 +204,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         ii = 0
         do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
             cmplxint = 0.0d+00
-            cmplxint = DCMPLX(oner(i, i), onei(i, i))
+            cmplxint = DCMPLX(one_elec_int_r(i, i), one_elec_int_i(i, i))
             energyHF(1) = energyHF(1) + cmplxint
         end do
 
@@ -260,7 +260,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
         do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            cmplxint = DCMPLX(oner(i, i), onei(i, i))
+            cmplxint = DCMPLX(one_elec_int_r(i, i), one_elec_int_i(i, i))
             energy(iroot, 1) = energy(iroot, 1) + cmplxint
         end do
 
@@ -323,7 +323,7 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                     oneeff = oneeff - cmplxint
 
                 end do           ! kk
-                cmplxint = DCMPLX(oner(i, j), onei(i, j))
+                cmplxint = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
                 oneeff = oneeff + cmplxint
 
                 if (i == j) oneeff = oneeff*(0.5d+00)

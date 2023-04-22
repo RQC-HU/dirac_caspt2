@@ -18,7 +18,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     do i = 1, ninact
         do j = 1, ninact
             if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-10)) then
-                print '(2I4,3E20.10)', i, j, f(i, j), oner(i, j)
+                print '(2I4,3E20.10)', i, j, f(i, j), one_elec_int_r(i, j)
             end if
         end do
     end do
@@ -28,7 +28,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     do i = 1, ninact
         do j = ninact + 1, ninact + nact
             if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-10)) then
-                print '(2I4,3E20.10)', i, j, f(i, j), oner(i, j)
+                print '(2I4,3E20.10)', i, j, f(i, j), one_elec_int_r(i, j)
             end if
         end do
     end do
@@ -38,7 +38,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     do i = 1, ninact
         do j = ninact + nact + 1, ninact + nact + nsec
             if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-10)) then
-                print '(2I4,3E20.10)', i, j, f(i, j), oner(i, j)
+                print '(2I4,3E20.10)', i, j, f(i, j), one_elec_int_r(i, j)
             end if
         end do
     end do
@@ -48,7 +48,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     do i = ninact + 1, ninact + nact
         do j = ninact + 1, ninact + nact
             if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-10)) then
-                print '(2I4,3E20.10)', i, j, f(i, j), oner(i, j)
+                print '(2I4,3E20.10)', i, j, f(i, j), one_elec_int_r(i, j)
             end if
         end do
     end do
@@ -58,7 +58,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     do i = ninact + 1, ninact + nact
         do j = ninact + nact + 1, ninact + nact + nsec
             if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-10)) then
-                print '(2I4,3E20.10)', i, j, f(i, j), oner(i, j)
+                print '(2I4,3E20.10)', i, j, f(i, j), one_elec_int_r(i, j)
             end if
         end do
     end do
@@ -68,7 +68,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     do i = ninact + nact + 1, ninact + nact + nsec
         do j = ninact + nact + 1, ninact + nact + nsec
             if ((i /= j) .and. (ABS(f(i, j)) > 1.0d-10)) then
-                print '(2I4,3E20.10)', i, j, f(i, j), oner(i, j)
+                print '(2I4,3E20.10)', i, j, f(i, j), one_elec_int_r(i, j)
             end if
         end do
     end do

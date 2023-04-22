@@ -33,10 +33,10 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
     n = 0
     f = 0.0d+00
 
-    !$OMP parallel do private(j,k)
+!$OMP parallel do private(j,k)
     do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, ninact + nact
-            f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+            f(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact + nelec
 
                 f(i, j) = f(i, j) + DCMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k))
@@ -48,10 +48,10 @@ SUBROUTINE fockhf1_ty ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         End do       ! j
     End do          ! i
 
-    !$OMP parallel do private(j,k)
+!$OMP parallel do private(j,k)
     do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, ninact + nact + nsec
-            f(i, j) = DCMPLX(oner(i, j), onei(i, j))
+            f(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact + nelec
 
                 f(i, j) = f(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))

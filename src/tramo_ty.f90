@@ -40,7 +40,7 @@ SUBROUTINE tramo1_ty(i, j, int1)
             do idx_i0 = 1, count_n_list1
                 i0 = n_list_sym1(idx_i0)
                 j0 = n_list_sym2(idx_j0)
-                int1 = int1 + DCONJG(f(i0, i))*DCMPLX(oner(i0, j0), onei(i0, j0))*f(j0, j)
+                int1 = int1 + DCONJG(f(i0, i))*DCMPLX(one_elec_int_r(i0, j0), one_elec_int_i(i0, j0))*f(j0, j)
             end do
         end do
 
