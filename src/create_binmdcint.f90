@@ -22,10 +22,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     real(8) :: cutoff
     integer :: nnkr, iiit, jjjt, kkkt, lllt
     integer :: nkr, nz, file_idx, iostat
-    integer :: mdcint_unit, mdcintnew_unit
+    integer :: unit_mdcint, unit_mdcintnew
     logical :: is_file_exist, is_end_of_file
 
-    mdcint_unit = default_unit; mdcintnew_unit = default_unit
     Call timing(date1, tsec1, date0, tsec0)
     date1 = date0
     tsec1 = tsec0
@@ -33,9 +32,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     kr = 0
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
     if (rank == 0) then
-        call open_unformatted_file(unit=mdcint_unit, file="MDCINT", status="old", optional_action="read")
-        read (mdcint_unit) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-        close (mdcint_unit)
+        call open_unformatted_file(unit=unit_mdcint, file="MDCINT", status="old", optional_action="read")
+        read (unit_mdcint) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+        close (unit_mdcint)
     end if
     Allocate (indk(nmo**2))
     Allocate (indl(nmo**2))
@@ -81,28 +80,26 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     ! First, All process write header information to MDCINTNEWrank
     call get_mdcint_filename(file_idx)
-    call open_unformatted_file(unit=mdcintnew_unit, file=mdcintNew, status="replace", optional_action="write")
-    write (mdcintnew_unit) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-    print *, "File ", trim(mdcintNew), " is created."
+    call open_unformatted_file(unit=unit_mdcintnew, file=mdcintNew, status="replace", optional_action="write")
+    write (unit_mdcintnew) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 
     is_file_exist = .true.
     do while (is_file_exist) ! Continue reading 2-electron integrals until mdcint_filename doesn't exist.
 
         inquire (file=mdcint_filename, exist=is_file_exist) ! mdcint_filename exists?
         if (.not. is_file_exist) exit ! Exit do while loop if mdcint_filename doesn't exist.
-        call open_unformatted_file(unit=mdcint_unit, file=mdcint_filename, status="old", optional_action="read")
-        read (mdcint_unit)
-        print *, "Reading MDCINT file named: ", trim(mdcint_filename), ', rank = ', rank
+        call open_unformatted_file(unit=unit_mdcint, file=mdcint_filename, status="old", optional_action="read")
+        read (unit_mdcint)
 
-        read (mdcint_unit, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
+        read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
         if (iostat == 0) then ! 2-integral values are complex numbers if iostat == 0
             realonly = .false. ! Complex
         else ! 2-integral values are only real numbers if iostat /= 0
             realonly = .true.  ! Real
             if (rank == 0) print *, "realonly = ", realonly
         end if
-        rewind (mdcint_unit)
-        read (mdcint_unit)
+        rewind (unit_mdcint)
+        read (unit_mdcint)
         nnkr = nkr
         rkli = 0.0d+00
 
@@ -113,11 +110,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         ! Continue to read 2-electron integrals until mdcint_filename reaches the end of file.
         mdcint_file_read: do
             if (realonly) then
-                read (mdcint_unit, iostat=iostat) ikr, jkr, nz, &
+                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, &
                     (indk(inz), indl(inz), inz=1, nz), &
                     (rklr(inz), inz=1, nz)
             else
-                read (mdcint_unit, iostat=iostat) ikr, jkr, nz, &
+                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, &
                     (indk(inz), indl(inz), inz=1, nz), &
                     (rklr(inz), rkli(inz), inz=1, nz)
             end if
@@ -209,7 +206,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                             (ii <= jj .and. ll <= kk .and. (ii < ll .or. (ii == ll .and. jj <= kk)))) then
                             if (abs(rklr(inz)) > cutoff .or. &
                                 abs(rkli(inz)) > cutoff) then
-                                write (mdcintnew_unit) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
                             end if
                         end if
 
@@ -217,7 +214,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                         if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
                             if (abs(rklr(inz)) > cutoff .or. &
                                 abs(rkli(inz)) > cutoff) then
-                                write (mdcintnew_unit) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
                             end if
                         end if
 
@@ -225,7 +222,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                         if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
                             if (abs(rklr(inz)) > cutoff .or. &
                                 abs(rkli(inz)) > cutoff) then
-                                write (mdcintnew_unit) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
                             end if
                         end if
 
@@ -233,7 +230,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                         if (ii <= jj) then
                             if (abs(rklr(inz)) > cutoff .or. &
                                 abs(rkli(inz)) > cutoff) then
-                                write (mdcintnew_unit) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
+                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
                             end if
                         end if
                     End if
@@ -252,13 +249,13 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !              .or. (isp/=isq) ) then
 !-------------------------------------------------------------------------------------------------
 
-        close (mdcint_unit)
+        close (unit_mdcint)
         file_idx = file_idx + 1
         call get_mdcint_filename(file_idx) ! Get the next MDCINT filename
 
     end do
-    write (mdcintnew_unit) 0, 0, 0
-    close (mdcintnew_unit)
+    write (unit_mdcintnew) 0, 0, 0
+    close (unit_mdcintnew)
     Call timing(date1, tsec1, date0, tsec0)
     date1 = date0
     tsec1 = tsec0

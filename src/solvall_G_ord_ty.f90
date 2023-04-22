@@ -490,7 +490,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, tabi
-    integer :: it, iostat, twoint_unit
+    integer :: it, iostat, unit_int2
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
     logical :: is_end_of_file
@@ -500,13 +500,12 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
     v = 0.0d+00
-    twoint_unit = default_unit
 
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
 
-    call open_unformatted_file(unit=twoint_unit, file=gint, status='old', optional_action='read') !  (31|32) stored
+    call open_unformatted_file(unit=unit_int2, file=gint, status='old', optional_action='read') !  (31|32) stored
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=gint, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -526,7 +525,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
         End do                  ! it
 
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
     if (rank == 0) print *, 'vGmat_ord_ty is ended'
 #ifdef HAVE_MPI

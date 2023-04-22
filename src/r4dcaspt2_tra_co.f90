@@ -14,7 +14,7 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     include 'mpif.h'
     real(16)                :: time0, time1
 #endif
-    integer                 :: ieshift, input_unit = default_unit, new_unit = default_unit
+    integer                 :: ieshift, unit_input, unit_new
     real*8                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)
@@ -66,9 +66,9 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     eshift = 0.0d+00
     ieshift = 0
 
-    call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
-    call read_input(input_unit)
-    close (input_unit)
+    call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
+    call read_input(unit_input)
+    close (unit_input)
 
     if (rank == 0) then
         print *, 'ninact        =', ninact
@@ -118,19 +118,19 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     nmo = ninact + nact + nsec
     if (rank == 0) print *, 'nmo        =', nmo
 
-    call open_unformatted_file(unit=new_unit, file="CIMAT", status='old', optional_action="read")
+    call open_unformatted_file(unit=unit_new, file="CIMAT", status='old', optional_action="read")
 
-    read (new_unit) ndet
+    read (unit_new) ndet
     Allocate (cas_idx(1:ndet)); Call memplus(KIND(cas_idx), SIZE(cas_idx), 1)
     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
 
-    read (new_unit) cas_idx(1:ndet)
-    read (new_unit) ecas(1:ndet)
+    read (unit_new) cas_idx(1:ndet)
+    read (unit_new) ecas(1:ndet)
 
-    read (new_unit) cas_idx_reverse_array_len
+    read (unit_new) cas_idx_reverse_array_len
     allocate (cas_idx_reverse(1:cas_idx_reverse_array_len)); call memplus(kind(cas_idx), size(cas_idx), 1)
-    read (new_unit) cas_idx_reverse(1:cas_idx_reverse_array_len)
-    close (new_unit)
+    read (unit_new) cas_idx_reverse(1:cas_idx_reverse_array_len)
+    close (unit_new)
 
     Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
     eigen = 0.0d+00
@@ -145,11 +145,11 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Allocate (ci(1:ndet))
     ci = 0.0d+00
 
-    call open_unformatted_file(unit=new_unit, file="NEWCICOEFF", status='old', optional_action="read")
+    call open_unformatted_file(unit=unit_new, file="NEWCICOEFF", status='old', optional_action="read")
 
-    read (new_unit) ci(1:ndet)
+    read (unit_new) ci(1:ndet)
 
-    close (new_unit)
+    close (unit_new)
 
     Allocate (cir(1:ndet, selectroot:selectroot))
     Allocate (cii(1:ndet, selectroot:selectroot))
@@ -163,24 +163,24 @@ PROGRAM r4dcaspt2_tra_co   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    call open_unformatted_file(unit=new_unit, file="EPS", status='old', optional_action="read")
+    call open_unformatted_file(unit=unit_new, file="EPS", status='old', optional_action="read")
 
-    read (new_unit) nmo
+    read (unit_new) nmo
     Allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
     eps = 0.0d+00
-    read (new_unit) eps(1:nmo)
+    read (unit_new) eps(1:nmo)
 
-    close (new_unit)
+    close (unit_new)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    call open_unformatted_file(unit=new_unit, file="TRANSFOCK", status='old', optional_action="read")
+    call open_unformatted_file(unit=unit_new, file="TRANSFOCK", status='old', optional_action="read")
 
-    read (new_unit) nmo
+    read (unit_new) nmo
     Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
-    read (new_unit) f
+    read (unit_new) f
 
-    close (new_unit)
+    close (unit_new)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -517,7 +517,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, tab, i0
-    integer :: it, jt, iu, ju, iostat, twoint_unit, isym, syma
+    integer :: it, jt, iu, ju, iostat, unit_int2, isym, syma
     integer :: multb_s_reverse(nsec, nsec), pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -555,9 +555,9 @@ SUBROUTINE vFmat_ord(nab, iab, v)
     end do
 ! V(ab,t,u) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 
-    call open_unformatted_file(unit=twoint_unit, file=fint, status='old', optional_action='read')  !  (32|32) stored  a > b
+    call open_unformatted_file(unit=unit_int2, file=fint, status='old', optional_action='read')  !  (32|32) stored  a > b
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=fint, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -594,7 +594,7 @@ SUBROUTINE vFmat_ord(nab, iab, v)
 !$OMP end parallel
 
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
     if (rank == 0) print *, 'vFmat_ord is ended'
 

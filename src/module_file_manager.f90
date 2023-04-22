@@ -29,17 +29,17 @@ contains
         end if
     end subroutine check_iostat
 
-    subroutine search_unused_file_unit(file_unit_number)
+    subroutine search_unused_file_unit(unit_file_num)
         implicit none
-        integer, intent(inout) :: file_unit_number
+        integer, intent(inout) :: unit_file_num
         logical :: opened
-        ! file_unit_number must be >= 21
-        file_unit_number = 21
+        ! unit_file_num must be >= 21
+        unit_file_num = 21
         ! Search for unused file unit
         do
-            inquire (file_unit_number, opened=opened)
-            if (.not. opened) exit ! file_unit_number is unused, so we can use it
-            file_unit_number = file_unit_number + 1 ! Increment file_unit_number if the previous one is used
+            inquire (unit_file_num, opened=opened)
+            if (.not. opened) exit ! unit_file_num is unused, so we can use it
+            unit_file_num = unit_file_num + 1 ! Increment unit_file_num if the previous one is used
         end do
     end subroutine search_unused_file_unit
 

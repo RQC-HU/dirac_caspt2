@@ -10,7 +10,7 @@ SUBROUTINE casci_ty
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer :: comb, j0, j, i0, irec, cimat
+    integer :: comb, j0, j, i0, irec, unit_cimat
     real*8 :: thresd
 
     complex*16, allocatable :: mat(:, :)
@@ -58,15 +58,14 @@ SUBROUTINE casci_ty
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         print *, 'debug1'
-        cimat = default_unit
         filename = 'CIMAT'
-        call open_unformatted_file(unit=cimat, file=filename, status='replace')
-        write (cimat) ndet
-        write (cimat) cas_idx(1:ndet)
-        write (cimat) ecas(1:ndet)
-        write (cimat) 2**nact - 1 ! cas_idx_reverseの配列の要素数
-        write (cimat) cas_idx_reverse(1:2**nact - 1)
-        close (cimat)
+        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
+        write (unit_cimat) ndet
+        write (unit_cimat) cas_idx(1:ndet)
+        write (unit_cimat) ecas(1:ndet)
+        write (unit_cimat) 2**nact - 1 ! cas_idx_reverseの配列の要素数
+        write (unit_cimat) cas_idx_reverse(1:2**nact - 1)
+        close (unit_cimat)
 
 ! Print out C1 matrix!
 
@@ -74,14 +73,13 @@ SUBROUTINE casci_ty
 
         print *, 'debug2'
 
-        cimat = default_unit
         filename = 'CIMAT1'
-        call open_unformatted_file(unit=cimat, file=filename, status='replace')
-        write (cimat) ndet
-        write (cimat) cas_idx(1:ndet)
-        write (cimat) ecas(1:ndet)
-        write (cimat) mat(1:ndet, 1:ndet)
-        close (cimat)
+        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
+        write (unit_cimat) ndet
+        write (unit_cimat) cas_idx(1:ndet)
+        write (unit_cimat) ecas(1:ndet)
+        write (unit_cimat) mat(1:ndet, 1:ndet)
+        close (unit_cimat)
     end if
 ! Print out C1 matrix!
 

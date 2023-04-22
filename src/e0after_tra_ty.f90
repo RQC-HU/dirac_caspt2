@@ -13,7 +13,7 @@ SUBROUTINE e0aftertra_ty
 
     integer :: ii, jj, kk, ll
     integer :: j, i, k, l
-    integer :: e0after_unit
+    integer :: unit_e0after
 
     real*8 :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
@@ -29,10 +29,9 @@ SUBROUTINE e0aftertra_ty
 
     debug = .FALSE.
     thres = 1.0d-15
-    e0after_unit = default_unit
 !        thres = 0.0d+00
     if (rank == 0) then
-        call open_unformatted_file(unit=e0after_unit, file='e0after', status='replace', optional_action='write')
+        call open_unformatted_file(unit=unit_e0after, file='e0after', status='replace', optional_action='write')
 !        AT PRESENT, CODE OF COMPLEX TYPE EXISTS !
 
         print *, 'iroot = ', iroot
@@ -243,7 +242,7 @@ SUBROUTINE e0aftertra_ty
 
 !                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
                         ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
-                        if (iroot == 1 .and. rank == 0) write (e0after_unit) i, j, k, l, DBLE(cmplxint), DBLE(dens)
+                        if (iroot == 1 .and. rank == 0) write (unit_e0after) i, j, k, l, DBLE(cmplxint), DBLE(dens)
 
                         energy(iroot, 4) = energy(iroot, 4) &
                                            + (0.5d+00)*dens*cmplxint
@@ -321,7 +320,7 @@ SUBROUTINE e0aftertra_ty
 
 !!###   end do ! about type
     if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        close (e0after_unit)
+        close (unit_e0after)
     end if
     deallocate (energy)
     print *, 'e0aftertra end'

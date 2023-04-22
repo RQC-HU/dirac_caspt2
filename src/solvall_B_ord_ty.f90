@@ -563,13 +563,12 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     real*8                  :: dr, di
     complex*16              :: cint2, dens
     integer :: i, j, k, l, tij, i0
-    integer :: it, iu, iostat, twoint_unit
+    integer :: it, iu, iostat, unit_int2
     integer :: isym, syma, jt, ju
     integer :: multb_s_reverse(ninact, ninact), pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
     logical :: is_end_of_file
 
     v = 0.0d+00
-    twoint_unit = default_unit
     multb_s_reverse(:, :) = 0
     call create_multb_s_reverse
 
@@ -593,9 +592,9 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
             End do
         End do
     end do
-    call open_unformatted_file(unit=twoint_unit, file=bint, status='old', optional_action='read') !  (21|21) stored (ti|uj) i > j
+    call open_unformatted_file(unit=unit_int2, file=bint, status='old', optional_action='read') !  (21|21) stored (ti|uj) i > j
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2                    !  (ij|kl)
         call check_iostat(iostat=iostat, file=bint, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -661,7 +660,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
         !!$OMP end parallel
     end do
 
-    close (twoint_unit)
+    close (unit_int2)
     if (rank == 0) print *, 'vBmat_ord_ty is ended'
 
 #ifdef HAVE_MPI

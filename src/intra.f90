@@ -17,7 +17,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     character(50), intent(in)    :: fname
     logical :: is_end_of_file
 
-    integer                 :: unit
+    integer                 :: unit_int2_subspace
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
@@ -29,7 +29,6 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo
 
     thresd = 1.0d-15
-    unit = default_unit
     ini(1) = 1
     end(1) = ninact
     ini(2) = ninact + 1
@@ -76,9 +75,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -99,7 +98,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -110,9 +109,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
 
     traint2 = 0.0d+00
 
@@ -121,9 +120,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -135,7 +134,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -146,9 +145,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -156,9 +155,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -170,7 +169,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -181,9 +180,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -191,9 +190,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -205,7 +204,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -216,9 +215,9 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
 
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
@@ -246,7 +245,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     character(50), intent(in)    :: fname
     logical :: is_end_of_file
 
-    integer                 :: unit = 20
+    integer                 :: unit_int2_subspace
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
@@ -259,7 +258,6 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
 
     thresd = 1.0d-15
-    unit = default_unit
 
     if (.not. (spi == spk .and. spj == spl)) then
         print *, 'error intra_2', spi, spj, spk, spl
@@ -309,9 +307,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -371,7 +369,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -382,9 +380,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -392,10 +390,10 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
 
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -408,7 +406,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -419,9 +417,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -429,9 +427,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -444,7 +442,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -455,9 +453,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -465,9 +463,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -480,7 +478,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -491,9 +489,9 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
     deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
     deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
@@ -520,7 +518,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     character(50), intent(in)    :: fname
     logical :: is_end_of_file
 
-    integer                 :: unit = 20
+    integer                 :: unit_int2_subspace
     integer, allocatable    :: indsym(:, :, :), nsym(:, :)
     complex*16, allocatable :: traint2(:, :, :, :)
 
@@ -534,7 +532,6 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
     integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
     thresd = 1.0d-15
-    unit = default_unit
 
     if (.not. (spk == spl)) then
         print *, 'error intra_3', spi, spj, spk, spl
@@ -586,9 +583,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -642,7 +639,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -653,9 +650,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -663,9 +660,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -678,7 +675,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -689,9 +686,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -699,9 +696,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -714,7 +711,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -725,9 +722,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
     traint2 = 0.0d+00
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -735,9 +732,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !                                                 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='read')
     do
-        read (unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2_subspace, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=trim(fname), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -750,7 +747,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
             traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
         End do
     end do
-    close (unit)
+    close (unit_int2_subspace)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(traint2)
@@ -761,9 +758,9 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    call open_unformatted_file(unit=unit, file=trim(fname), status='old', optional_action='write')
-    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2(ii:ie, ji:je, ki:ke, li:le), thresd, unit)
-    close (unit)
+    call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
+    call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
+    close (unit_int2_subspace)
 
     if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
     deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
@@ -772,7 +769,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
 end subroutine intra_3
 
-subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit)
+subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
     !==============================================================================================
     ! This is a writing subroutine for two-electron integrals
     ! after the fourth integral transformation.
@@ -786,7 +783,7 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
     use four_caspt2_module, only: nprocs, rank
     implicit none
     integer                 :: n_cnt, i, j, k, l
-    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit
+    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
     real(8)                 :: thresd
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
     integer                 :: i_tra, j_tra, k_tra, l_tra
@@ -819,7 +816,7 @@ subroutine write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2,
                     !===================================================================================================
                     if (ABS(traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)) > thresd) then
                         if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
-                            write (unit) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)
+                            write (unit_int2_subspace) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)
                         end if
                         n_cnt = n_cnt + 1
                     end if
@@ -857,11 +854,11 @@ contains
     end subroutine where_subspace_is
 end subroutine write_traint2_to_disk_fourth
 
-subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit)
+subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd, unit_int2_subspace)
     use four_caspt2_module, only: nprocs, rank
     implicit none
     integer                 :: n_cnt, i, j, k, l
-    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit
+    integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
     real(8)                 :: thresd
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
     ! 4重ループを1重ループに変換する方法
@@ -882,7 +879,7 @@ subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, thresd
                 Do i = ii, ie
                     if (ABS(traint2(i, j, k, l)) > thresd) then
                         if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
-                            write (unit) i, j, k, l, traint2(i, j, k, l)
+                            write (unit_int2_subspace) i, j, k, l, traint2(i, j, k, l)
                         end if
                         ! if traint2(i,j,k,l)>thresd, all MPI process need to count up n_cnt!!!
                         n_cnt = n_cnt + 1

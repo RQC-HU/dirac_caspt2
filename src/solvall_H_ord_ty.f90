@@ -16,7 +16,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     real*8, intent(in) :: e0
     real*8, intent(out):: e2h
     Integer                 :: ia, ib, ii, ij, syma, symb, i, j, k, l
-    Integer                 :: i0, j0, tab, nab, tij, nij, iostat, twoint_unit
+    Integer                 :: i0, j0, tab, nab, tij, nij, iostat, unit_int2
     Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
     Complex*16              :: cint2
     Complex*16, allocatable :: v(:, :)
@@ -46,7 +46,6 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 
     e2h = 0.0d+00
     e = 0.0d+00
-    twoint_unit = default_unit
 
     i0 = 0
     Do ia = ninact + nact + 1, ninact + nact + nsec
@@ -100,9 +99,9 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     Allocate (v(nab, nij))
     v = 0.0d+00
 
-    call open_unformatted_file(unit=twoint_unit, file=hint, status='old', optional_action='read')
+    call open_unformatted_file(unit=unit_int2, file=hint, status='old', optional_action='read')
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=hint, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -127,7 +126,7 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
         end if
 
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=v)

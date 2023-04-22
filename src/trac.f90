@@ -208,7 +208,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
     integer :: i0, j0, i, info
-    integer :: ok, newcicoeff_unit
+    integer :: ok, unit_newcicoeff
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
@@ -282,9 +282,9 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=newcicoeff_unit, file="NEWCICOEFF", status='replace', optional_action='write')
-        write (newcicoeff_unit) ci(1:ndet)
-        close (newcicoeff_unit)
+        call open_unformatted_file(unit=unit_newcicoeff, file="NEWCICOEFF", status='replace', optional_action='write')
+        write (unit_newcicoeff) ci(1:ndet)
+        close (unit_newcicoeff)
     end if
 
     Deallocate (ci)

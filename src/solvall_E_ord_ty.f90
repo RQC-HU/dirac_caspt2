@@ -487,7 +487,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     complex*16              :: cint2, dens
 
     integer :: i, j, k, l, taij
-    integer :: it, ik, iostat, twoint_unit
+    integer :: it, ik, iostat, unit_int2
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
     logical :: is_end_of_file
@@ -497,13 +497,12 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
     v = 0.0d+00
-    twoint_unit = default_unit
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
 
-    call open_unformatted_file(unit=twoint_unit, file=eint, status='old', optional_action='read') !  (31|21) stored
+    call open_unformatted_file(unit=unit_int2, file=eint, status='old', optional_action='read') !  (31|21) stored
     do
-        read (twoint_unit, iostat=iostat) i, j, k, l, cint2
+        read (unit_int2, iostat=iostat) i, j, k, l, cint2
         call check_iostat(iostat=iostat, file=eint, end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit
@@ -533,7 +532,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
         end if
 
     end do
-    close (twoint_unit)
+    close (unit_int2)
 
     if (rank == 0) print *, 'vEmat_ord_ty is ended'
 
