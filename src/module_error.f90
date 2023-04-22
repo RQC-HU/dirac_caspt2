@@ -16,4 +16,3 @@ contains
         call exit(errorcode)
     end subroutine stop_with_errorcode
 end module module_error
-
