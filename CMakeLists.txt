@@ -28,7 +28,7 @@ endif()
 set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS "")
 if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -g -traceback -cpp -i8 -I$ENV{MKLROOT}/include -pad -mp1 -integer-size 64 -unroll -warn nounused -nogen-interface") # "-warn nounused" means "-warn all -warn nounused"
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check-debug extended -debug-parameters -warn")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check -debug extended -debug-parameters -warn")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   link_libraries(-i8)
   if(MKL)
