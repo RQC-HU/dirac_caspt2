@@ -3,9 +3,9 @@
 # SPDX-FileCopyrightText: 2022 Kohei Noda kohei-noda@hiroshima-u.ac.jp
 
 import argparse
+import logging
 import os
 import shutil
-import sys
 from subprocess import Popen, PIPE
 
 
@@ -32,34 +32,34 @@ def preprocess(args, exec_path, root_path):
             cmake_version = stdout.decode("utf-8").split("\n")[0].split(" ")[2]  # (e.g.) 3.20.0-rc3
             cmake_major_version = int(cmake_version.split(".")[0])  # (e.g.) 3
             cmake_minor_version = int(cmake_version.split(".")[1])  # (e.g.) 20
-            print(f"Your CMake version is {cmake_version}")
+            logging.info(f"Your CMake version is {cmake_version}")
             if process.returncode != 0:
-                sys.stderr.write("CMake is not installed!")
-                sys.stderr.write(f"Error message : {stderr.decode('utf-8')}")
+                logging.error("CMake is not installed!")
+                logging.error(f"Error message : {stderr.decode('utf-8')}")
                 exit(1)
             elif cmake_major_version < 3 or (cmake_major_version == 3 and cmake_minor_version < 14):
-                sys.stderr.write("Your CMake version is too old!")
-                sys.stderr.write("CMake version 3.14 or later is required.")
-                sys.stderr.write("Please install CMake 3.14 or later.")
+                logging.error("Your CMake version is too old!")
+                logging.error("CMake version 3.14 or later is required.")
+                logging.error("Please install CMake 3.14 or later.")
                 exit(1)
-            print(f"CMake is set up correctly! {stdout.decode('utf-8')}")
+            logging.info(f"CMake is set up correctly! {stdout.decode('utf-8')}")
         except Exception as e:
-            sys.stderr.write("CMake is not installed!, Aborting...")
+            logging.error("CMake is not installed!, Aborting...")
             raise Exception(e)
 
     def clean_dir():
-        print("Cleaning the build directory...")
+        logging.info("Cleaning the build directory...")
         remove_dirs = ["build", "bin"]
         for rmdir in remove_dirs:
             if os.path.exists(rmdir):
                 shutil.rmtree(rmdir)
-                print("Removed the directory: ", os.path.abspath(rmdir))
+                logging.info(f"Removed the directory {os.path.abspath(rmdir)}")
 
     check_cmake_is_installed()
     clean_dir()
 
     cmake_flags = ""
-    print("\nConfiguring cmake build flags...")
+    logging.info("Configuring cmake build flags...")
 
     if args.fc is not None:
         # CMAKE_<LANG>_COMPILER: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER.html#variable:CMAKE_%3CLANG%3E_COMPILER
@@ -72,15 +72,15 @@ def preprocess(args, exec_path, root_path):
         cmake_flags += " -DMKL=off"
 
     if args.build_type is None:  # If --build-type option is not specified, set it to release.
-        print("Build type: release")
+        logging.info('Build type is "release"')
         cmake_flags += " -DCMAKE_BUILD_TYPE=release"
     else:
         build_type = args.build_type.lower()
         if build_type == "release" or build_type == "debug":
-            print("Build type: ", build_type)
+            logging.info(f'Build type is "{build_type}"')
             cmake_flags += f" -DCMAKE_BUILD_TYPE={build_type}"
         else:
-            print('[ERROR]: Invalid build type. The build type should be "release" or "debug".')
+            logging.error('Invalid build type. The build type should be "release" or "debug".')
             exit(1)
     if args.mpi:
         if args.fc is None:
@@ -95,25 +95,26 @@ def preprocess(args, exec_path, root_path):
             prefix = os.path.abspath(args.prefix)
         else:  # Relative path
             prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
-        print("Installation directory: ", prefix)
+        logging.info(f"Installation directory is {prefix}")
         cmake_flags += f" -DCMAKE_INSTALL_PREFIX={prefix}"
     return cmake_flags
 
 
 def configure_source(cmake_flags):
-    print("CMake flags: ", cmake_flags)
+    logging.info(f"CMake flags are {cmake_flags}")
     if not os.path.exists("build"):
         os.mkdir("build")
     command = "cmake -B build" + cmake_flags
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
-    print("BUILD COMMAND: ", command, "\nBuild command is saved in cmake_build_command.log")
+    logging.info(f"BUILD COMMAND is {command}")
+    logging.info("Build command is saved in cmake_build_command.log")
     process = Popen(command, shell=True)
     process.wait()
     if process.returncode != 0:
-        sys.stderr.write("Failed to configure the source code!")
+        logging.error("Failed to configure the source code!")
         exit(1)
-    print("Successfully configured the source code.\n")
+    logging.info("Successfully configured the source code.")
 
 
 def build(args):
@@ -121,14 +122,14 @@ def build(args):
     process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
     process.wait()
     if process.returncode != 0:
-        sys.stderr.write("Failed to build the project!")
+        logging.error("Failed to build the project!")
         exit(1)
-    print("Successfully built the project.")
+    logging.info("Successfully built the project.")
 
 
 def main():
 
-    print("Start dirac_caspt2 setup script.")
+    logging.info("Start dirac_caspt2 setup script.")
     exec_path = os.getcwd()
     root_path = os.path.dirname(__file__)
     os.chdir(root_path)
@@ -142,14 +143,14 @@ def main():
     else:
         build(args)
         finish_message = "Finished the setup script.\n"
-    print(finish_message)
+    logging.info(finish_message)
 
     mpi_option_message = " --mpi=[number of MPI processes]" if args.mpi else ""
     omp_option_message = " --omp=[number of OpenMP threads per one process]" if args.omp else ""
     enable_or_disable_mpi = "set" if args.mpi else "do not set"
 
-    print(
-        f"Note:\n\
+    logging.info(
+        f"[Note]\n\
         About tests\n\
         We recommend you to run tests to check if the build is successful.\n\
         You {enable_or_disable_mpi} --mpi option. Therefore, you should run one of the following tests:\n\
@@ -157,9 +158,10 @@ def main():
         \tpytest --all{mpi_option_message}{omp_option_message}\n\
         - Run tests excluding the tests long time to run:\n\
         \tpytest{mpi_option_message}{omp_option_message}\n\
-        For more information, please read the README.md file."
+        For more logging.information, please read the README.md file."
     )
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(levelname)s : %(message)s", level=logging.INFO)
     main()
