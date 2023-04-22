@@ -21,7 +21,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
     integer, allocatable :: indsym(:, :)
 
     real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-    real*8               :: e2(nsymrp), alpha
+    real*8               :: e2(nsymrpa), alpha
 
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
@@ -372,7 +372,7 @@ SUBROUTINE sCmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
     sc = 0.0d+00
 
-    !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,it,iu,iv,a,b)
+!$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,it,iu,iv,a,b)
     Do i = rank + 1, dimn, nprocs
         ix = indsym(1, i)
         iy = indsym(2, i)
@@ -398,7 +398,7 @@ SUBROUTINE sCmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
             end if
         End do               !j
     End do                  !i
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=sc)
 #endif
@@ -445,7 +445,7 @@ SUBROUTINE bCmat(dimn, sc, indsym, bc)
     bc(:, :) = 0.0d+00
 
     if (rank == 0) print *, 'C space Bmat iroot=', iroot
-    !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
+!$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs
         ix = indsym(1, i)
         iy = indsym(2, i)
@@ -482,7 +482,7 @@ SUBROUTINE bCmat(dimn, sc, indsym, bc)
 
         End do               !i
     End do                  !j
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=bc, root_rank=0)
 #endif
@@ -571,7 +571,7 @@ SUBROUTINE vCmat_ord_ty(v)
     indu = 0
     indv = 0
     dim = 0
-    !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
+!$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
     Do isym = 1, nsymrpa
         Do it = 1, nact
             jt = it + ninact
@@ -596,12 +596,12 @@ SUBROUTINE vCmat_ord_ty(v)
             End do
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
     do isym = 1, nsymrpa
         if (rank == 0) print *, 'solvC: isym, dim(isym)', isym, dim(isym)
     end do
 
-    !$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
+!$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
     Do ia = rank + 1, nsec, nprocs
         ja = ia + ninact + nact
         Do it = 1, nact
@@ -614,7 +614,7 @@ SUBROUTINE vCmat_ord_ty(v)
 
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
     call open_unformatted_file(unit=twoint_unit, file=c1int, status='old', optional_action='read')
     do ! Read TYPE 1 integrals C1int until EOF
         read (twoint_unit, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
@@ -628,7 +628,7 @@ SUBROUTINE vCmat_ord_ty(v)
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         isym = irpmo(i + ninact + nact)   ! i corresponds to a
-        !$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
+!$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
         Do i0 = 1, dim(isym)
             it = indt(i0, isym)
             iu = indu(i0, isym)
@@ -639,7 +639,7 @@ SUBROUTINE vCmat_ord_ty(v)
             v(i, it, iu, iv) = v(i, it, iu, iv) + cint2*d
 
         End do
-        !$OMP end parallel do
+!$OMP end parallel do
 !  effh(a,p) =  hap + Siguma_k(is oqqupied)[(ap|kk)-(ak|kp)] - Siguma_w(aw|wp)
 !                                                           ~~~~~~~~~~~~~~~~~~~
         if (j == k) then
@@ -710,7 +710,7 @@ SUBROUTINE vCmat_ord_ty(v)
 #endif
 
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
-    !$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
+!$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
     Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ja = ia + ninact + nact
         isym = irpmo(ja)
@@ -737,7 +737,7 @@ SUBROUTINE vCmat_ord_ty(v)
 
         End do               !ip
     End do                  !ia
-    !$OMP end parallel do
+!$OMP end parallel do
 
     if (rank == 0) print *, 'vCmat_ord is ended'
 

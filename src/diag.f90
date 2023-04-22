@@ -225,9 +225,9 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     real*8, intent(out)     ::  w(n0:n1)
 
     logical                 ::  cutoff
-    integer                 ::  j, i, dimn, ncount(nsymrp)
+    integer                 ::  j, i, dimn, ncount(nsymrpa)
     integer                 ::  sym, isym
-    integer                 ::  ind(n, nsymrp)
+    integer                 ::  ind(n, nsymrpa)
 
     real*8, allocatable     ::  mat(:, :), fasym(:, :)
     real*8                  ::  wsym(n)
@@ -249,7 +249,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
     ncount(:) = 0
 
-    if (rank == 0) print *, 'nsymrp', nsymrp
+    if (rank == 0) print *, 'nsymrpa', nsymrpa
 
     Do i = n0, n1
         isym = irpmo(i)
@@ -257,8 +257,8 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
         ind(ncount(isym), isym) = i
     End do
 
-    if (rank == 0) print *, 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrp)
-    Do sym = 1, nsymrp
+    if (rank == 0) print *, 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrpa)
+    Do sym = 1, nsymrpa
 
         dimn = ncount(sym)
         Allocate (fasym(dimn, dimn))
@@ -339,7 +339,6 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
         print *, 'cdiag0 start'
         print *, 'nsymrpa', nsymrpa
     end if
-!         nsymrp = nsymrpa
 
     wc(:) = 0.0d+00
     cutoff = .FALSE.

@@ -107,11 +107,11 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) print *, "iwamuro modify"
     If (mod(nelec, 2) == 0) then
-        inisym = nsymrp + 1
-        endsym = 2*nsymrp
+        inisym = nsymrpa + 1
+        endsym = 2*nsymrpa
     Else
         inisym = 1
-        endsym = nsymrp
+        endsym = nsymrpa
     End if
 
     if (rank == 0) then

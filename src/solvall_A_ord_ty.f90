@@ -18,7 +18,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     integer, allocatable :: indsym(:, :)
 
     real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-    real*8               :: e2(2*nsymrp), alpha
+    real*8               :: e2(2*nsymrpa), alpha
 
     complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
     complex*16, allocatable  :: bc(:, :)
@@ -391,7 +391,7 @@ SUBROUTINE sAmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
     ! Initialization
     sc = 0.0d+00
 
-    !$OMP parallel do private(i,ix,iy,iz,j,it,iu,iv,a,b)
+!$OMP parallel do private(i,ix,iy,iz,j,it,iu,iv,a,b)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ix = indsym(1, i)
         iy = indsym(2, i)
@@ -425,7 +425,7 @@ SUBROUTINE sAmat(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in spa
 
         End do               !j
     End do                  !i
-    !$OMP end parallel do
+!$OMP end parallel do
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=sc)
 #endif
@@ -465,7 +465,7 @@ SUBROUTINE bAmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
     if (rank == 0) then
         print *, 'bAmat loop: dimn', dimn
     end if
-    !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
+!$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
     Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         ix = indsym(1, i)
         iy = indsym(2, i)
@@ -510,7 +510,7 @@ SUBROUTINE bAmat(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in
 
         End do               !i
     End do                  !j
-    !$OMP end parallel do
+!$OMP end parallel do
 
 #ifdef HAVE_MPI
     call reduce_wrapper(mat=bc, root_rank=0)
@@ -596,7 +596,7 @@ SUBROUTINE vAmat_ord_ty(v)
     indu = 0
     indv = 0
     dim = 0
-    !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
+!$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
     Do isym = 1, nsymrpa
         Do it = 1, nact
             jt = it + ninact
@@ -621,7 +621,7 @@ SUBROUTINE vAmat_ord_ty(v)
             End do
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
     do isym = 1, nsymrpa
         if (rank == 0) print *, 'solvA: isym, dim(isym)', isym, dim(isym)
     end do
@@ -630,7 +630,7 @@ SUBROUTINE vAmat_ord_ty(v)
     ind2u = 0.0d+00
     ind2v = 0.0d+00
     dim2 = 0
-    !$OMP parallel do schedule(static) private(iu,ju,iv,jv,syma)
+!$OMP parallel do schedule(static) private(iu,ju,iv,jv,syma)
     Do isym = 1, nsymrpa
         Do iu = 1, nact
             ju = iu + ninact
@@ -647,12 +647,12 @@ SUBROUTINE vAmat_ord_ty(v)
             End do
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
 
     Do isym = 1, nsymrpa
         if (rank == 0) print '(2I4)', dim2(isym), isym
     End do
-    !$OMP parallel do private(ji,it,jt,cint1)
+!$OMP parallel do private(ji,it,jt,cint1)
     Do ii = rank + 1, ninact, nprocs
         ji = ii
         Do it = 1, nact
@@ -661,7 +661,7 @@ SUBROUTINE vAmat_ord_ty(v)
             effh(it, ii) = cint1
         End do
     End do
-    !$OMP end parallel do
+!$OMP end parallel do
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ! Two types of integrals are stored
@@ -689,7 +689,7 @@ SUBROUTINE vAmat_ord_ty(v)
 !           write(*,'("TYPE 1  ",4I4,2E20.10)')i,j,k,l,cint2
 
         isym = irpmo(j)
-        !$OMP parallel do private(it,iu,iv,jt,ju,jv,dr,di,d)
+!$OMP parallel do private(it,iu,iv,jt,ju,jv,dr,di,d)
         Do i0 = 1, dim(isym)
             it = indt(i0, isym)
             iu = indu(i0, isym)
@@ -703,11 +703,11 @@ SUBROUTINE vAmat_ord_ty(v)
             v(j, it, iu, iv) = v(j, it, iu, iv) - cint2*d
 
         End do
-        !$OMP end parallel do
+!$OMP end parallel do
 
         isym = MULTB_D(irpmo(i + ninact), irpmo(j))           ! j coresponds to ii, i coresponds to it
 
-        !$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
+!$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
         Do i0 = 1, dim2(isym)
             iu = ind2u(i0, isym)
             iv = ind2v(i0, isym)
@@ -718,7 +718,7 @@ SUBROUTINE vAmat_ord_ty(v)
             d = DCMPLX(dr, di)
             v(j, i, iu, iv) = v(j, i, iu, iv) + cint2*d
         End do
-        !$OMP end parallel do
+!$OMP end parallel do
 
     end do
 
@@ -764,7 +764,7 @@ SUBROUTINE vAmat_ord_ty(v)
 
 !  - SIGUMA_p:act <0|EvuEpt|0>effh(pi)  +  <0|Evu|0>effh(ti)
 
-    !$OMP parallel do private(ji,isym,it,iu,iv,dr,di,d,ip,jp)
+!$OMP parallel do private(ji,isym,it,iu,iv,dr,di,d,ip,jp)
     Do ii = rank + 1, ninact, nprocs
         ji = ii
         isym = irpmo(ji)
@@ -789,7 +789,7 @@ SUBROUTINE vAmat_ord_ty(v)
             End do            ! ip
         End do               !i0
     End do                  !ii
-    !$OMP end parallel do
+!$OMP end parallel do
 
     if (rank == 0) print *, 'vAmat_ord_ty is ended'
 
