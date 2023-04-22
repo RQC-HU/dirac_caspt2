@@ -49,14 +49,14 @@ SUBROUTINE casmat(mat)
         !    cmplxint = 0.0d+00
         Do i0 = 1, ninact
             ir = i0
-            cmplxint = DCMPLX(oner(ir, ir), onei(ir, ir))
+            cmplxint = DCMPLX(one_elec_int_r(ir, ir), one_elec_int_i(ir, ir))
             mat(i, i) = mat(i, i) + cmplxint
         End do
 
         Do i0 = 1, nelec
             indr = oc(i0)
             ir = indr + ninact
-            cmplxint = DCMPLX(oner(ir, ir), onei(ir, ir))
+            cmplxint = DCMPLX(one_elec_int_r(ir, ir), one_elec_int_i(ir, ir))
             mat(i, i) = mat(i, i) + cmplxint
         End do
 
@@ -115,7 +115,7 @@ SUBROUTINE casmat(mat)
                 j = cas_idx_reverse(newcas_idx1)
 
                 If (j > i) then
-                    cmplxint = DCMPLX(oner(ir, ia), onei(ir, ia))
+                    cmplxint = DCMPLX(one_elec_int_r(ir, ia), one_elec_int_i(ir, ia))
                     mat(i, j) = mat(i, j) + cmplxint
                     Do l0 = 1, ninact
                         is = l0

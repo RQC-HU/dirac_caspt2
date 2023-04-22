@@ -44,15 +44,18 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     close (unit_mrconee)
 
     nmom = ninact + nact + nsec
-    Allocate (oner(nmom, nmom)); Call memplus(KIND(oner), SIZE(oner), 1)
-    Allocate (onei(nmom, nmom)); Call memplus(KIND(onei), SIZE(onei), 1)
+    Allocate (one_elec_int_r(nmom, nmom)); Call memplus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
+    Allocate (one_elec_int_i(nmom, nmom)); Call memplus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
 
 !Iwamuro modify
 
+    ! Store the one-electron integrals in energy order (CASPT2 order)
+    ! one_elec_int_[r,i] are CASPT2 order
+    ! roner, ronei are DIRAC order
     do i0 = 1, nmom
         do j0 = 1, nmom
-            oner(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = roner(i0, j0, 1) ! using alpha component for a while
-            onei(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = ronei(i0, j0, 1)
+            one_elec_int_r(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = roner(i0, j0, 1) ! using alpha component for a while
+            one_elec_int_i(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = ronei(i0, j0, 1)
         end do
     end do
 
