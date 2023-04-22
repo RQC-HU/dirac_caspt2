@@ -47,6 +47,7 @@ SUBROUTINE tramo1_ty(i, j, int1)
     End if
 contains
     subroutine get_mo_range(mo_idx, start_idx, end_idx)
+        use module_error
         implicit none
         integer, intent(in) :: mo_idx
         integer, intent(out) :: start_idx, end_idx
@@ -61,6 +62,7 @@ contains
             end_idx = ninact + nact + nsec
         else
             print *, "invalid mo_idx = ", mo_idx
+            call stop_with_errorcode(1)
         end if
 
     end subroutine get_mo_range
