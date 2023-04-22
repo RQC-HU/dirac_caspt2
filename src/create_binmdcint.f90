@@ -151,6 +151,10 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                     rklr(:) = rklr(:)
                     rkli(:) = rkli(:)
                 case (2)
+                    ! https://gitlab.com/dirac/dirac/-/blob/0a337b78c4a8ebfb392ecf23bdef5ff471016210/utils/dirac_mointegral_export.F90#L223-227
+                    ! Based on the above URL, the integral is amplified, but for some reason,
+                    ! if the signs of rklr and rkli are not reversed, the result is wrong.
+                    ! The cause is currently under investigation.
                     ikr = -ikr
                     jkr = -jkr
                     indk(:) = -indk(:)
@@ -161,23 +165,33 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
                 Do inz = 1, nz
 
+                    ! Convert Dirac(irrep order) index to CASPT2(energy order) index.
                     iii = indmo_dirac_to_cas(kr(ikr))
                     jjj = indmo_dirac_to_cas(kr(jkr))
                     kkk = indmo_dirac_to_cas(kr(indk(inz)))
                     lll = indmo_dirac_to_cas(kr(indl(inz)))
 
+                    ! Create variables for Type1-4 determination.
+                    ! The conversion is shown as the following example.
+                    ! Before conversion: 1  2 3  4 5  6 7  8 9 10 11 12 13 14 15 16
+                    ! After  conversion: 1 -1 2 -2 3 -3 4 -4 5 -5  6 -6  7 -7  8 -8
+                    ! (-1)**(mod(iii, 2) + 1) returns 1 if iii is odd (Kramers+), -1 if iii is even (Kramers-).
+                    ! (iii/2 + mod(iii, 2)) returns iii/2+1 if iii is odd, and iii/2 if iii is even.
+                    ! Thus, it returns iii/2+1 if iii is odd and -iii/2 if iii is even, giving the desired conversion.
                     iikr = (-1)**(mod(iii, 2) + 1)*(iii/2 + mod(iii, 2))
                     jjkr = (-1)**(mod(jjj, 2) + 1)*(jjj/2 + mod(jjj, 2))
                     kkkr = (-1)**(mod(kkk, 2) + 1)*(kkk/2 + mod(kkk, 2))
                     llkr = (-1)**(mod(lll, 2) + 1)*(lll/2 + mod(lll, 2))
 
+                    ! Since the signs of the indices of the integrals output by DIRAC and UTChem are different
+                    ! (UTCHEM TYPE1:(++++), DIRAC TYPE1:(----)),
+                    ! they are converted to the indices required for UTChem's two-electron integrals by taking Kramer pairs.
                     iiit = iii - (-1)**iii
                     jjjt = jjj - (-1)**jjj
                     kkkt = kkk - (-1)**kkk
                     lllt = lll - (-1)**lll
 
-!------------------------------------------------------------
-
+                    ! Create variables to determine the integrals which is required for UTChem type integrals.
                     ii = abs(iikr)
                     jj = abs(jjkr)
                     kk = abs(kkkr)
