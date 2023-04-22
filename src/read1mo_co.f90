@@ -52,10 +52,8 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 
     do i0 = 1, nmom
         do j0 = 1, nmom
-!           oner(i0,j0) = roner(i0,j0,1)
-!           onei(i0,j0) = ronei(i0,j0,1)
-            oner(indmor(i0), indmor(j0)) = roner(i0, j0, 1) ! using alpha component for a while
-            onei(indmor(i0), indmor(j0)) = ronei(i0, j0, 1)
+            oner(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = roner(i0, j0, 1) ! using alpha component for a while
+            onei(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = ronei(i0, j0, 1)
         end do
     end do
 

@@ -64,7 +64,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         print *, "kr broadcast"
         print *, "if ierr == 0, kr broadcast successed. ierr=", ierr
     end if
-    call MPI_Bcast(indmor(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+    call MPI_Bcast(indmo_dirac_to_cas(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
     if (rank == 0) then
         print *, "datex broadcast"
         print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
@@ -161,10 +161,10 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
                 Do inz = 1, nz
 
-                    iii = indmor(kr(ikr))
-                    jjj = indmor(kr(jkr))
-                    kkk = indmor(kr(indk(inz)))
-                    lll = indmor(kr(indl(inz)))
+                    iii = indmo_dirac_to_cas(kr(ikr))
+                    jjj = indmo_dirac_to_cas(kr(jkr))
+                    kkk = indmo_dirac_to_cas(kr(indk(inz)))
+                    lll = indmo_dirac_to_cas(kr(indl(inz)))
 
                     iikr = (-1)**(mod(iii, 2) + 1)*(iii/2 + mod(iii, 2))
                     jjkr = (-1)**(mod(jjj, 2) + 1)*(jjj/2 + mod(jjj, 2))
