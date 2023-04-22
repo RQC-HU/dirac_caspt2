@@ -166,11 +166,11 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
 !----------------------------------------------------------------------------------------
 
-    Allocate (sp(1:nmo)); Call memplus(KIND(sp), SIZE(sp), 1)
-    sp(1:ninact) = 1
-    sp(ninact + 1:ninact + nact) = 2
-    sp(ninact + nact + 1:ninact + nact + nsec) = 3
-    sp(ninact + nact + nsec + 1:nmo) = 4
+    Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
+    space_idx(1:ninact) = 1
+    space_idx(ninact + 1:ninact + nact) = 2
+    space_idx(ninact + nact + 1:ninact + nact + nsec) = 3
+    space_idx(ninact + nact + nsec + 1:nmo) = 4
 
     if (rank == 0) then
         print *, 'moint1 is closed.'

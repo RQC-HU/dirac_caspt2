@@ -37,7 +37,7 @@ MODULE four_caspt2_module
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: noccg, noccu, nvcutg, nvcutu
     character       :: date*8, time*10
-    integer, allocatable :: sp(:)
+    integer, allocatable :: space_idx(:) ! Given the spinor index, return which space it belongs to. (1: inactive, 2: active, 3: secondary) [old name]: sp
     integer, allocatable :: cas_idx(:) ! Given the number of CAS placement, returns an integer value representing the CAS placement. [old name]: idet
     integer, allocatable :: cas_idx_reverse(:) ! Given an integer representing the CAS placement, a variable that returns the position in the CAS placement ordering. [old name]: idetr
 

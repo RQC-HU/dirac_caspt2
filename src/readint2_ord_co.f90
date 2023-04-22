@@ -100,7 +100,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
         nmom = ninact + nact + nsec
 
-        If (sp(i) == 4 .or. sp(j) == 4) cycle ! Read the next 2-integral
+        If (space_idx(i) == 4 .or. space_idx(j) == 4) cycle ! Read the next 2-integral
         If (i > ninact + nact .and. j > ninact + nact) cycle ! Read the next 2-integral
 
         SignIJ = (-1)**(mod(i + j, 2))
@@ -112,16 +112,16 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             l = indl(inz)
             ltr = l + (-1)**(mod(l, 2) + 1)
 
-            If (sp(k) == 4 .or. sp(l) == 4) cycle ! Go to the next idz
+            If (space_idx(k) == 4 .or. space_idx(l) == 4) cycle ! Go to the next idz
             If (k > ninact + nact .and. l > ninact + nact) cycle ! Go to the next idz
             If (i == j .and. k > l) cycle ! Go to the next idz
 
             SignKL = (-1)**(mod(k + l, 2))
 
-            max1 = max(sp(i), sp(j))
-            min1 = min(sp(i), sp(j))
-            max2 = max(sp(k), sp(l))
-            min2 = min(sp(k), sp(l))
+            max1 = max(space_idx(i), space_idx(j))
+            min1 = min(space_idx(i), space_idx(j))
+            max2 = max(space_idx(k), space_idx(l))
+            min2 = min(space_idx(k), space_idx(l))
 
 !===============================================================
 ! Integrals for A space  (pi|qr)(21|22) (pi|jk)(21|11)  type

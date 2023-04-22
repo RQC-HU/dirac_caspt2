@@ -168,7 +168,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                     INTTWI(KTR, LTR, ITR, JTR) = -rkli(idx, inz)*SignIJ*SignKL
                     if (abs(rkli(idx, inz)) > thres) realc = .false.
 
-                elseif (sp(i(idx)) == 3 .and. sp(j(idx)) == 3 .and. sp(k) < 3 .and. sp(l) == sp(k)) then !(33|11) or (33|22) type
+                elseif (space_idx(i(idx)) == 3 .and. space_idx(j(idx)) == 3 .and. &
+                        space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
                     count = 0
                     do
                         if (mod(i(idx), 2) == 0) then
@@ -222,7 +223,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                             cycle loop_inz ! Go to the next inz
                         end if
                     end do
-                elseif (sp(k) == 3 .and. sp(l) == 3 .and. sp(i(idx)) < 3 .and. sp(i(idx)) == sp(j(idx))) then !(11|33) or (22|33) type
+                elseif (space_idx(k) == 3 .and. space_idx(l) == 3 .and. &
+                        space_idx(i(idx)) < 3 .and. space_idx(i(idx)) == space_idx(j(idx))) then !(11|33) or (22|33) type
                     count = 0
                     do
                         if (mod(i(idx), 2) == 0) then
@@ -276,8 +278,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
                         end if
                     end do
 
-                elseif (max(sp(i(idx)), sp(j(idx))) == 3 .and. max(sp(k), sp(l)) == 3 .and. &
-                      &  min(sp(i(idx)), sp(j(idx))) == min(sp(k), sp(l))) then                !(31|31) or (32|32) series
+                elseif (max(space_idx(i(idx)), space_idx(j(idx))) == 3 .and. max(space_idx(k), space_idx(l)) == 3 .and. &
+                      &  min(space_idx(i(idx)), space_idx(j(idx))) == min(space_idx(k), space_idx(l))) then                !(31|31) or (32|32) series
 
                     count = 0
 
