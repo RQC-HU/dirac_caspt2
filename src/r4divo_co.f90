@@ -92,7 +92,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call create_newmdcint
 
     call get_mdcint_filename(0)
-    call readint2_casci_co(mdcintnew,nuniq)
+    call readint2_casci_co(mdcintnew, nuniq)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     realcvec = .TRUE.
@@ -143,29 +143,33 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
         deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
     end if
-    if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
-    if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
-    if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
-    if (allocated(MULTB_DF)) deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
-    if (allocated(MULTB_DB)) deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
-    if (allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
-    if (allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
-    if (allocated(irpamo)) deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
-    if (allocated(indmo)) deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
-    if (allocated(indmor)) deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
-    if (allocated(onei)) deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
-    if (allocated(oner)) deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
-    if (allocated(int2r_f1)) deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-    if (allocated(int2i_f1)) deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
-    if (allocated(int2r_f2)) deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-    if (allocated(int2i_f2)) deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
 
-    if (rank == 0) then
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+    deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
+    deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
+    deallocate (indmo_cas_to_dirac); Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
+    deallocate (indmo_dirac_to_cas); Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
+    deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
+!      deallocate (int2i   );   Call memminus (KIND(int2i   ),SIZE(int2i   ),1)
+!      deallocate (indtwi  );   Call memminus (KIND(indtwi  ),SIZE(indtwi  ),1)
+    deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)
+!      deallocate (int2r   );   Call memminus (KIND(int2r   ),SIZE(int2r   ),1)
+!      deallocate (indtwr  );   Call memminus (KIND(indtwr  ),SIZE(indtwr  ),1)
+    deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
+    deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
+    deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
+    deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+    deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
+    deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
+    deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
+    deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
+    deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
+    deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
-        Call timing(val(3), totalsec, date0, tsec0)
-        print *, 'End r4divo_co part'
-    end if
+    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
+
+    Call timing(val(3), totalsec, date0, tsec0)
+    write (*, *) 'End r4divo_ty part'
+
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif

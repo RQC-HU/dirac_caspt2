@@ -236,8 +236,12 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
     if (allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     if (allocated(irpamo)) deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
-    if (allocated(indmo)) deallocate (indmo); Call memminus(KIND(indmo), SIZE(indmo), 1)
-    if (allocated(indmor)) deallocate (indmor); Call memminus(KIND(indmor), SIZE(indmor), 1)
+    if (allocated(indmo_cas_to_dirac)) then
+        deallocate (indmo_cas_to_dirac); Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
+    end if
+    if (allocated(indmo_dirac_to_cas)) then
+        deallocate (indmo_dirac_to_cas); Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
+    end if
     if (allocated(onei)) deallocate (onei); Call memminus(KIND(onei), SIZE(onei), 1)
     if (allocated(inttwi)) deallocate (inttwi); Call memminus(KIND(inttwi), SIZE(inttwi), 1)
     if (allocated(oner)) deallocate (oner); Call memminus(KIND(oner), SIZE(oner), 1)

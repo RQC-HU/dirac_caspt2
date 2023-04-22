@@ -199,8 +199,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     if (allocated(SD)) Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
     Allocate (irpamo(nmo)); Call memplus(KIND(irpamo), SIZE(irpamo), 1)
     Allocate (orb(nmo)); Call memplus(KIND(orb), SIZE(orb), 1)
-    Allocate (indmo(nmo)); Call memplus(KIND(indmo), SIZE(indmo), 1)
-    Allocate (indmor(nmo)); Call memplus(KIND(indmor), SIZE(indmor), 1)
+    Allocate (indmo_cas_to_dirac(nmo)); Call memplus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
+    Allocate (indmo_dirac_to_cas(nmo)); Call memplus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
     Allocate (dammo(nmo)); Call memplus(KIND(dammo), SIZE(dammo), 1)
 
 !Iwamuro modify
@@ -209,7 +209,7 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
     orbmo(:) = 0.0d+00
     orb(:) = 0.0d+00
-    indmo(:) = 0
+    indmo_cas_to_dirac(:) = 0
 
     Read (mrconee_unit, iostat=iostat) (IRPMO(IMO), IRPAMO(IMO), ORBMO(IMO), IMO=1, NMO)                             ! orbital energies <= used here
     if (iostat .ne. 0) then
@@ -245,10 +245,10 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
         do j0 = 1, nmo
             if (orbmo(j0) == sort_orb(i0)) then  ! orbmo(j0) is i0 th MO
                 if (m == 0) then
-                    indmo(i0) = j0
+                    indmo_cas_to_dirac(i0) = j0
                     m = m + 1
                 else
-                    indmo(i0 + 1) = j0
+                    indmo_cas_to_dirac(i0 + 1) = j0
                 end if
             end if
         end do
@@ -264,12 +264,12 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     end if
 
     do i0 = 1, nmo
-        indmor(indmo(i0)) = i0  ! i0 is energetic order, indmo(i0) is symmtric order (MRCONEE order)
+        indmo_dirac_to_cas(indmo_cas_to_dirac(i0)) = i0  ! i0 is energetic order, indmo_cas_to_dirac(i0) is symmtric order (MRCONEE order)
     end do
 
     if (rank == 0) then
         do i0 = 1, nmo
-            print '("indmor output",3I4)', indmor(i0), indmo(i0), i0
+            print '("indmo_dirac_to_cas output",3I4)', indmo_dirac_to_cas(i0), indmo_cas_to_dirac(i0), i0
         end do
     end if
     orbmo = sort_orb
@@ -277,8 +277,8 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
     dammo = irpmo
 
     do i0 = 1, nmo
-        irpmo(i0) = dammo(indmo(i0))
-        irpamo(i0) = dammo(indmo(i0))
+        irpmo(i0) = dammo(indmo_cas_to_dirac(i0))
+        irpamo(i0) = dammo(indmo_cas_to_dirac(i0))
     end do
 
     if (rank == 0) then
@@ -286,17 +286,17 @@ SUBROUTINE readorb_enesym_co(filename) ! orbital energies in r4dmoin1
 
         print *, 'inactive'
         do i0 = 1, ninact
-            print '(2I4,2X,E20.10,2X,I4)', i0, indmo(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0)
         end do
 
         print *, 'active'
         do i0 = ninact + 1, ninact + nact
-            print '(2I4,2X,E20.10,2X,I4)', i0, indmo(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0)
         end do
 
         print *, 'secondary'
         do i0 = ninact + nact + 1, ninact + nact + nsec
-            print '(2I4,2X,E20.10,2X,I4)', i0, indmo(i0), orbmo(i0), irpmo(i0)
+            print '(2I4,2X,E20.10,2X,I4)', i0, indmo_cas_to_dirac(i0), orbmo(i0), irpmo(i0)
         end do
     end if
 

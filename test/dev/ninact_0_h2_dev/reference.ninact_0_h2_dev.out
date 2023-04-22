@@ -393,18 +393,18 @@ Current Memory is       0.00MB
  31 32 29 30 27 28 25 26 23 24 21 22 19 20 17 18 15 16 13 14 11 12  9 10  7  8  5  6  3  4  1  2
  32 30 31 28 29 26 27 24 25 22 23 20 21 18 19 17 16 14 15 12 13 10 11  8  9  6  7  4  5  2  3  1
 irpamo  1 1 1 2 2 2171717181818
-indmor output   1   1   1
-indmor output   5   4   2
-indmor output  11   7   3
-indmor output   2  10   4
-indmor output   6   2   5
-indmor output  12   5   6
-indmor output   3   8   7
-indmor output   7  11   8
-indmor output   9   9   9
-indmor output   4  12  10
-indmor output   8   3  11
-indmor output  10   6  12
+indmo_dirac_to_cas output   1   1   1
+indmo_dirac_to_cas output   5   4   2
+indmo_dirac_to_cas output  11   7   3
+indmo_dirac_to_cas output   2  10   4
+indmo_dirac_to_cas output   6   2   5
+indmo_dirac_to_cas output  12   5   6
+indmo_dirac_to_cas output   3   8   7
+indmo_dirac_to_cas output   7  11   8
+indmo_dirac_to_cas output   9   9   9
+indmo_dirac_to_cas output   4  12  10
+indmo_dirac_to_cas output   8   3  11
+indmo_dirac_to_cas output  10   6  12
 irpamo  1 21718 1 217181718 1 2
  inactive
  active
@@ -1364,18 +1364,18 @@ computational time =   0day  0h   0min  0.000sec
  31 32 29 30 27 28 25 26 23 24 21 22 19 20 17 18 15 16 13 14 11 12  9 10  7  8  5  6  3  4  1  2
  32 30 31 28 29 26 27 24 25 22 23 20 21 18 19 17 16 14 15 12 13 10 11  8  9  6  7  4  5  2  3  1
 irpamo  1 1 1 2 2 2171717181818
-indmor output   1   1   1
-indmor output   5   4   2
-indmor output  11   7   3
-indmor output   2  10   4
-indmor output   6   2   5
-indmor output  12   5   6
-indmor output   3   8   7
-indmor output   7  11   8
-indmor output   9   9   9
-indmor output   4  12  10
-indmor output   8   3  11
-indmor output  10   6  12
+indmo_dirac_to_cas output   1   1   1
+indmo_dirac_to_cas output   5   4   2
+indmo_dirac_to_cas output  11   7   3
+indmo_dirac_to_cas output   2  10   4
+indmo_dirac_to_cas output   6   2   5
+indmo_dirac_to_cas output  12   5   6
+indmo_dirac_to_cas output   3   8   7
+indmo_dirac_to_cas output   7  11   8
+indmo_dirac_to_cas output   9   9   9
+indmo_dirac_to_cas output   4  12  10
+indmo_dirac_to_cas output   8   3  11
+indmo_dirac_to_cas output  10   6  12
 irpamo  1 21718 1 217181718 1 2
  inactive
  active
