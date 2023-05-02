@@ -18,7 +18,7 @@ add_executable(r4dcascicoexe
   diag.f90
   dim.f90
   e0after_tra.f90
-  e0test_v2.f90
+  e0test.f90
   fockcasci.f90
   fockdiag.f90
   fockhf1.f90
@@ -45,7 +45,7 @@ add_executable(r4dcaspt2ocoexe
   cutoff.f90
   diag.f90
   dim.f90
-  e0test_v2.f90
+  e0test.f90
   get_filename.f90
   intra.f90
   mem.f90
@@ -74,7 +74,7 @@ add_executable(r4divocoexe
   create_binmdcint.f90
 	diag.f90
 	dim.f90
-	e0test_v2.f90
+	e0test.f90
 	fockivo.f90
 	get_filename.f90
 	mem.f90

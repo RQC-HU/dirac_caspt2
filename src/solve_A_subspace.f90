@@ -1,18 +1,7 @@
-! module module_solvA
-!     implicit none
-
-!     private
-!     interface solvA_ord_ty
-!         module procedure solvA_ord_ty_real
-!         module procedure solvA_ord_ty_complex
-!     end interface
-
-! contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-! SUBROUTINE solvA_ord_ty(e0, e2a, additional_arg)
-SUBROUTINE solvA_ord_ty(e0, e2a)
+SUBROUTINE solve_A_subspace(e0, e2a)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -99,7 +88,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    Call vAmat_ord_ty(v)
+    Call vAmat_ord(v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -369,7 +358,7 @@ SUBROUTINE solvA_ord_ty(e0, e2a)
     Deallocate (v); Call memminus(KIND(v), SIZE(v), 2)
 
     continue
-    if (rank == 0) print *, 'end solvA_ord_ty'
+    if (rank == 0) print *, 'end solve_A_subspace'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -530,7 +519,7 @@ End subroutine bAmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
-SUBROUTINE vAmat_ord_ty(v)
+SUBROUTINE vAmat_ord(v)
 !
 ! Assume C1 molecule, V=<0|H|i> matrix in space A
 !
@@ -664,7 +653,7 @@ SUBROUTINE vAmat_ord_ty(v)
         ji = ii
         Do it = 1, nact
             jt = it + ninact
-            Call tramo1_ty(jt, ji, cint1)
+            Call tramo1(jt, ji, cint1)
             effh(it, ii) = cint1
         End do
     End do
@@ -798,7 +787,7 @@ SUBROUTINE vAmat_ord_ty(v)
     End do                  !ii
 !$OMP end parallel do
 
-    if (rank == 0) print *, 'vAmat_ord_ty is ended'
+    if (rank == 0) print *, 'vAmat_ord is ended'
 
     deallocate (indt); Call memminus(KIND(indt), SIZE(indt), 1)
     deallocate (indu); Call memminus(KIND(indu), SIZE(indu), 1)
@@ -813,4 +802,4 @@ SUBROUTINE vAmat_ord_ty(v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-end subroutine vAmat_ord_ty
+end subroutine vAmat_ord

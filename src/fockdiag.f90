@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE fockdiag_ty
+SUBROUTINE fockdiag
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -99,7 +99,7 @@ SUBROUTINE fockdiag_ty
 
         f(1:nmo, 1:nmo) = fa(1:nmo, 1:nmo)
 
-        Call e0aftertra_ty
+        Call e0aftertra
 
         deallocate (fa); Call memminus(KIND(fa), SIZE(fa), 1)
 
@@ -109,7 +109,7 @@ SUBROUTINE fockdiag_ty
 
         f(1:nmo, 1:nmo) = fac(1:nmo, 1:nmo)
 
-        Call e0aftertrac_ty
+        Call e0aftertrac
 
         deallocate (fac); Call memminus(KIND(fac), SIZE(fac), 2)
 
@@ -123,4 +123,4 @@ SUBROUTINE fockdiag_ty
     end if
 
     if (rank == 0) print *, 'fockdiag end'
-end subroutine fockdiag_ty
+end subroutine fockdiag

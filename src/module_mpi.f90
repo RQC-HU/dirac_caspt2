@@ -1,4 +1,9 @@
 module module_mpi
+    ! This module provides developers with a simple interface to MPI.
+    ! Currently, only reduce and allreduce are implemented.
+    ! 
+    ! Author: Kohei Noda
+
     use four_caspt2_module, only: rank, nprocs, ierr, max_i4
     implicit none
 #ifdef HAVE_MPI
@@ -16,6 +21,9 @@ module module_mpi
             allreduce_c, allreduce_c_1, allreduce_c_2, allreduce_c_3, allreduce_c_4
     end interface allreduce_wrapper
 
+    ! MPI operations are provided as public parameters.
+    ! If you want to use these parameters, you need to include this module.
+    ! (e.g.) use module_mpi, only: op_mpi_sum
     integer, parameter, public :: op_mpi_max = MPI_MAX          ! MPI_MAX      最大値
     integer, parameter, public :: op_mpi_min = MPI_MIN          ! MPI_MIN      最小値
     integer, parameter, public :: op_mpi_sum = MPI_SUM          ! MPI_SUM      和

@@ -22,8 +22,6 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
 !       Calculating determinant of S(k|k~)
 
-!       Set elements
-
     sini = 0.0d+00
     work = 0.0d+00
     det = 0.0d+00

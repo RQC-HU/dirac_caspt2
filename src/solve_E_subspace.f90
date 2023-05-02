@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE solvE_ord_ty(e0, e2e)
+SUBROUTINE solve_E_subspace(e0, e2e)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -98,7 +98,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    Call vEmat_ord_ty(naij, iaij, v)
+    Call vEmat_ord(naij, iaij, v)
     if (rank == 0) print *, 'come'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -322,7 +322,7 @@ SUBROUTINE solvE_ord_ty(e0, e2e)
     deallocate (v)
 
     continue
-    if (rank == 0) print *, 'end solveE_ord_ty'
+    if (rank == 0) print *, 'end solve_E_subspace'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -454,7 +454,7 @@ End subroutine bEmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE vEmat_ord_ty(naij, iaij, v)
+SUBROUTINE vEmat_ord(naij, iaij, v)
 !
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] + (aj|ti) - (ai|tj)
 !
@@ -523,7 +523,7 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     end do
     close (unit_int2)
 
-    if (rank == 0) print *, 'vEmat_ord_ty is ended'
+    if (rank == 0) print *, 'vEmat_ord is ended'
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=v)
@@ -532,4 +532,4 @@ SUBROUTINE vEmat_ord_ty(naij, iaij, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-end subroutine vEmat_ord_ty
+end subroutine vEmat_ord

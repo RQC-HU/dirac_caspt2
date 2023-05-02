@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casci_ty
+SUBROUTINE casci
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -22,7 +22,7 @@ SUBROUTINE casci_ty
 
     ndet = comb(nact, nelec)
     if (rank == 0) print *, 'ndet', ndet
-    Call casdet_ty
+    Call casdet
     if (rank == 0) then
         print *, "before allocate mat(ndet,ndet)"
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
@@ -31,31 +31,30 @@ SUBROUTINE casci_ty
         print *, 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
     end if
 
+    ! Create a matrix for CI
     Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
     if (rank == 0) print *, "end allocate mat(ndet,ndet)"
     Call casmat(mat)
-
-    if (rank == 0) print *, 'before allocate ecas(ndet)'
     Allocate (ecas(ndet))
-    if (rank == 0) print *, 'allocate ecas(ndet)'
     ecas = 0.0d+00
-    if (rank == 0) print *, 'Start mat cdiag'
     datetmp1 = date0; datetmp0 = date0
-
     Call timing(date0, tsec0, datetmp0, tsectmp0)
     tsectmp1 = tsectmp0
 
-    if (rank == 0) print *, 'ndet before cdiag', ndet
+    ! Diagonalize the CI matrix
+    if (rank == 0) then
+        print *, 'Start mat cdiag'
+        print *, 'ndet before cdiag', ndet
+    end if
     cutoff_threshold = 0  ! No need to resolve linear dependence
     Call cdiag(mat, ndet, ndet, ecas, cutoff_threshold)
-
     if (rank == 0) print *, 'End mat cdiag'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
+
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        print *, 'debug1'
         filename = 'CIMAT'
         call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
         write (unit_cimat) ndet
@@ -65,12 +64,6 @@ SUBROUTINE casci_ty
         write (unit_cimat) cas_idx_reverse(1:2**nact - 1)
         close (unit_cimat)
 
-! Print out C1 matrix!
-
-! Print out CI matrix!
-
-        print *, 'debug2'
-
         filename = 'CIMAT1'
         call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
         write (unit_cimat) ndet
@@ -79,13 +72,12 @@ SUBROUTINE casci_ty
         write (unit_cimat) mat(1:ndet, 1:ndet)
         close (unit_cimat)
     end if
-! Print out C1 matrix!
 
-    if (rank == 0) print *, 'debug3'
     Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
     Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
     Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
+    ! Print out the results
     eigen(:) = 0.0d+00
     cir(:, :) = 0.0d+00
     cii(:, :) = 0.0d+00
@@ -94,8 +86,6 @@ SUBROUTINE casci_ty
     cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
     Deallocate (ecas)
     if (rank == 0) then
-        print *, 'debug4'
-
         print '("CASCI ENERGY FOR ",I2," STATE")', totsym
         Do irec = 1, nroot
             write (chr_root, '(I4)') irec
@@ -122,7 +112,7 @@ SUBROUTINE casci_ty
         end do
     end if
     Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
-end subroutine casci_ty
+end subroutine casci
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE solvB_ord_ty(e0, e2b)
+SUBROUTINE solve_B_subspace(e0, e2b)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -101,7 +101,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    Call vBmat_ord_ty(nij, iij, v)
+    Call vBmat_ord(nij, iij, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -347,7 +347,7 @@ SUBROUTINE solvB_ord_ty(e0, e2b)
     deallocate (v); Call memminus(KIND(v), SIZE(v), 2)
 
     continue
-    if (rank == 0) print *, 'end solvB_ord_ty'
+    if (rank == 0) print *, 'end solve_B_subspace'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -532,7 +532,7 @@ End subroutine bBmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE vBmat_ord_ty(nij, iij, v)
+SUBROUTINE vBmat_ord(nij, iij, v)
 !
 !
 ! V(i,j) =  SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)
@@ -654,7 +654,7 @@ SUBROUTINE vBmat_ord_ty(nij, iij, v)
     end do
 
     close (unit_int2)
-    if (rank == 0) print *, 'vBmat_ord_ty is ended'
+    if (rank == 0) print *, 'vBmat_ord is ended'
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=v)
@@ -685,4 +685,4 @@ contains
             end do
         end if
     end subroutine create_multb_s_reverse
-end subroutine vBmat_ord_ty
+end subroutine vBmat_ord

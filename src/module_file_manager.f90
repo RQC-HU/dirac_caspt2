@@ -1,7 +1,7 @@
 module module_file_manager
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
 ! module_file_manager
-! Copyright (c) by the authors of rel-caspt2.
+! Copyright (c) by the authors of DIRAC-CASPT2.
 ! Author K.Noda
 !
 ! This is a utility module that manages the file unit number.

@@ -861,16 +861,6 @@ subroutine write_traint2_to_disk(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff
     integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
     real(8)                 :: cutoff_threshold
     complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
-    ! 4重ループを1重ループに変換する方法
-    ! 元の記述 : do l=li,le;do k=ki,ke;do j=ji,je;do i=ii,ie;
-    !-> newle=le-li+1;newke=ke-ki+1;newje=je-ji+1;newie=ie-ii+1
-    !-> ここまでの処理でdo li,leがdo 1,newleに変換済み
-    !-> i=mod(idx                      ,newie)+ii
-    !-> j=mod(idx/newie                ,newje)+ji
-    !-> k=mod(idx/(newie*newje)        ,newke)+ki
-    !-> l=mod(idx/(newie*newje*newke)  ,newle)+li
-    !-> これでwrite(1) i,j,k,l,traint2(i,j,k,l)の記述のまま同じ処理ができる
-    !-> ほとんど速くならなかったのでrevertした
 
     n_cnt = 0
     Do l = li, le

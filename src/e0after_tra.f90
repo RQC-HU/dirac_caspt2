@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE e0aftertra_ty
+SUBROUTINE e0aftertra
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -35,10 +35,6 @@ SUBROUTINE e0aftertra_ty
         print *, 'iroot = ', iroot
     end if
 
-!        Do iroot = 1, nroot
-
-!        Do iroot = 1, 1
-
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF1          !
 !"""""""""""""""""""""""""""""!
@@ -51,16 +47,11 @@ SUBROUTINE e0aftertra_ty
     energyHF(1) = 0.0d+00
 
     do i = 1, ninact + nelec
-
         cmplxint = 0.0d+00
 
-        Call tramo1_ty(i, i, cmplxint)
-!            write(*,'(I4,E20.10)')i,DBLE(cmplxint)
+        Call tramo1(i, i, cmplxint)
         energyHF(1) = energyHF(1) + cmplxint
-
     end do
-
-!         print *,'energyHF(1)',energyHF(1)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF2          !
@@ -76,11 +67,11 @@ SUBROUTINE e0aftertra_ty
     do i = 1, ninact + nelec
         do j = i, ninact + nelec
 
-            Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2(i, i, j, j, cmplxint)
 
             energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
 
-            Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2(i, j, j, i, cmplxint)
 
             energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
 
@@ -102,7 +93,7 @@ SUBROUTINE e0aftertra_ty
 !"""""""""""""""""""""""""""""
     do i = 1, ninact
 
-        Call tramo1_ty(i, i, cmplxint)
+        Call tramo1(i, i, cmplxint)
 
         energy(iroot, 1) = energy(iroot, 1) + cmplxint
 
@@ -120,11 +111,11 @@ SUBROUTINE e0aftertra_ty
     do i = 1, ninact
         do j = i, ninact
 
-            Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2(i, i, j, j, cmplxint)
 
             energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
 
-            Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2(i, j, j, i, cmplxint)
 
             energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
 
@@ -151,24 +142,21 @@ SUBROUTINE e0aftertra_ty
 
             do k = 1, ninact            ! kk is inactive spinor
 
-                Call tramo2_ty(i, j, k, k, cmplxint)
+                Call tramo2(i, j, k, k, cmplxint)
 
                 oneeff = oneeff + cmplxint
 
-                Call tramo2_ty(i, k, k, j, cmplxint)
+                Call tramo2(i, k, k, j, cmplxint)
 
                 oneeff = oneeff - cmplxint
 
-            end do           ! k
+            end do
 
-            Call tramo1_ty(i, j, cmplxint)
+            Call tramo1(i, j, cmplxint)
 
             oneeff = oneeff + cmplxint
 
-!___________________________________________________________!
-            !
-            if (i == j) oneeff = 0.5d+00*oneeff             !
-!___________________________________________________________!
+            if (i == j) oneeff = 0.5d+00*oneeff
 
             if (realcvec) then
 
@@ -184,7 +172,6 @@ SUBROUTINE e0aftertra_ty
                 Call dim1_density(ii, jj, dr, di)
 
                 dens = DCMPLX(dr, di)
-!                  write(*,'(2I4,2E20.10)') i, j,DBLE(oneeff), DBLE(dens)
                 energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
 
             end if
@@ -208,13 +195,7 @@ SUBROUTINE e0aftertra_ty
             do k = ninact + 1, ninact + nact
                 do l = i, ninact + nact
 
-!          if((i < ninact+3).and.(j < ninact+3).and.(k < ninact+3).and.(l < ninact+3)) then
-!             debug = .TRUE. ; print *, i,j,k,l
-!          else
-!             debug = .FALSE.
-!          endif
-
-                    Call tramo2_ty(i, j, k, l, cmplxint)
+                    Call tramo2(i, j, k, l, cmplxint)
 
                     If (i == l) cmplxint = cmplxint*(0.5d+00)
 
@@ -238,7 +219,6 @@ SUBROUTINE e0aftertra_ty
 
                         dens = DCMPLX(dr, di)
 
-!                  if(iroot==1) write(*,'(4I3,2E20.10)') i, j,k,l,DBLE(cmplxint), DBLE(dens)
                         ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
                         if (iroot == 1 .and. rank == 0) write (unit_e0after) i, j, k, l, DBLE(cmplxint), DBLE(dens)
 
@@ -274,16 +254,13 @@ SUBROUTINE e0aftertra_ty
 
                     end if
 
-                end do        ! l
-            end do    ! k
-        end do       ! j
-    end do          ! i
+                end do
+            end do
+        end do
+    end do
 
     energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
 
-!         if(ABS(eigen(iroot)-ecore &
-!         -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))) &
-!          > 1.0d-5 ) then
     if (rank == 0) then
         print *, 'energy 1 =', energy(iroot, 1)
         print *, 'energy 2 =', energy(iroot, 2)
@@ -301,33 +278,21 @@ SUBROUTINE e0aftertra_ty
         print *, 'C the error ', &
             eigen(iroot) - ecore &
             - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
-!         else
-!            print *,'C the error ', &
-!            eigen(iroot)-ecore &
-!            -(energy(iroot,1)+energy(iroot,2)+energy(iroot,3)+energy(iroot,4))
-!         end if
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!      end do                    ! iroot = 1, nroot
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
     end if
 
-!!###   end do ! about type
     if (rank == 0) then  ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         close (unit_e0after)
     end if
     deallocate (energy)
     print *, 'e0aftertra end'
-End subroutine e0aftertra_ty
+End subroutine e0aftertra
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE e0aftertrac_ty
+SUBROUTINE e0aftertrac
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -355,8 +320,6 @@ SUBROUTINE e0aftertrac_ty
     debug = .FALSE.
     if (rank == 0) print *, 'iroot = ', iroot
 
-!        Do iroot = 1, nroot
-
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF1          !
 !"""""""""""""""""""""""""""""!
@@ -372,7 +335,7 @@ SUBROUTINE e0aftertrac_ty
 
         cmplxint = 0.0d+00
 
-        Call tramo1_ty(i, i, cmplxint)
+        Call tramo1(i, i, cmplxint)
         energyHF(1) = energyHF(1) + cmplxint
 
     end do
@@ -395,11 +358,11 @@ SUBROUTINE e0aftertrac_ty
     do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, ninact + nelec
 
-            Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2(i, i, j, j, cmplxint)
 
             energyHF(2) = energyHF(2) + (0.5d+00)*cmplxint
 
-            Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2(i, j, j, i, cmplxint)
 
             energyHF(2) = energyHF(2) - (0.5d+00)*cmplxint
 
@@ -412,9 +375,6 @@ SUBROUTINE e0aftertrac_ty
 #endif
     if (rank == 0) print *, 'energyHF(2)', energyHF(2)
 
-!Iwamuro modify
-    if (rank == 0) print *, 'Iwamuro modify'
-
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
 !"""""""""""""""""""""""""""""!
@@ -426,7 +386,7 @@ SUBROUTINE e0aftertrac_ty
 !"""""""""""""""""""""""""""""
     do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
 
-        Call tramo1_ty(i, i, cmplxint)
+        Call tramo1(i, i, cmplxint)
 
         energy(iroot, 1) = energy(iroot, 1) + cmplxint
 
@@ -444,11 +404,11 @@ SUBROUTINE e0aftertrac_ty
     do i = rank + 1, ninact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, ninact
 
-            Call tramo2_ty(i, i, j, j, cmplxint)
+            Call tramo2(i, i, j, j, cmplxint)
 
             energy(iroot, 2) = energy(iroot, 2) + (0.5d+00)*cmplxint
 
-            Call tramo2_ty(i, j, j, i, cmplxint)
+            Call tramo2(i, j, j, i, cmplxint)
 
             energy(iroot, 2) = energy(iroot, 2) - (0.5d+00)*cmplxint
 
@@ -474,14 +434,14 @@ SUBROUTINE e0aftertrac_ty
             oneeff = 0.0d+00
 
             do k = 1, ninact            ! kk is inactive spinor
-                Call tramo2_ty(i, j, k, k, cmplxint)
+                Call tramo2(i, j, k, k, cmplxint)
                 oneeff = oneeff + cmplxint
 
-                Call tramo2_ty(i, k, k, j, cmplxint)
+                Call tramo2(i, k, k, j, cmplxint)
                 oneeff = oneeff - cmplxint
             end do           ! k
 
-            Call tramo1_ty(i, j, cmplxint)
+            Call tramo1(i, j, cmplxint)
             oneeff = oneeff + cmplxint
             if (i == j) oneeff = 0.5d+00*oneeff
 
@@ -522,7 +482,7 @@ SUBROUTINE e0aftertrac_ty
             do k = ninact + 1, ninact + nact
                 do l = i, ninact + nact
 
-                    Call tramo2_ty(i, j, k, l, cmplxint)
+                    Call tramo2(i, j, k, l, cmplxint)
 
                     If (i == l) cmplxint = cmplxint*(0.5d+00)
                     ii = i - ninact
@@ -568,10 +528,10 @@ SUBROUTINE e0aftertrac_ty
 
                     end if
 
-                end do        ! l
-            end do    ! k
-        end do       ! j
-    end do          ! i
+                end do
+            end do
+        end do
+    end do
 
     energy(iroot, 4) = energy(iroot, 4) + CONJG(energy(iroot, 4))
 
@@ -597,15 +557,9 @@ SUBROUTINE e0aftertrac_ty
             eigen(iroot) - ecore &
             - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!      end do                    ! iroot = 1, nroot
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         print *, 'CAUTION! HF energy may not be obtained correctly '
         print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
     end if
     deallocate (energy)
-    if (rank == 0) print *, 'e0aftertrac_ty end'
-End subroutine e0aftertrac_ty
+    if (rank == 0) print *, 'e0aftertrac end'
+End subroutine e0aftertrac

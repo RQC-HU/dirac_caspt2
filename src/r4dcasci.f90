@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
+PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -15,18 +15,12 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     include 'mpif.h'
 #endif
     integer                 :: i0, nuniq, inisym, endsym, unit_eps, unit_input
-    logical                 :: test
     character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-!        debug = .TRUE.
-    debug = .FALSE.
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!   MPI initialization and get the number of MPI processes (nprocs) and own process number.
+! MPI initialization and get the number of MPI processes (nprocs) and own process number.
 #ifdef HAVE_MPI
     call MPI_INIT(ierr)
     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
@@ -35,11 +29,12 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
-        print '(A,I8,A,I8)', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
+        print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DCASCI_TY PROGRAM written by M. Abe 2007.7.19'
+        print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
         print *, ''
     end if
+    debug = .FALSE.
     tmem = 0.0d+00
 
     if (rank == 0) then
@@ -78,31 +73,27 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         if (ras2_size /= 0) print *, "RAS2 =", ras2_list
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
     end if
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    filename = 'MRCONEE'
 
-    call readorb_enesym_co(filename)
-    call read1mo_co(filename)
+    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
+    filename = 'MRCONEE'
+    call readorb_enesym(filename)
+    call read1mo(filename)
 
     if (rank == 0) print *, 'realc', realc, ECORE, ninact, nact, nsec, nmo
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    !Iwamuro create new ikr for dirac
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
     else
+        ! Create UTChem type MDCINT file from Dirac MDCINT file
         call create_newmdcint
     end if
-    if (rank == 0) print '(a)', 'Before readint2_casci_co'
+    if (rank == 0) print '(a)', 'Before readint2_casci'
 
-    Call readint2_casci_co(mdcintnew, nuniq)
+    ! Read UTChem type MDCINT files and expands the 2-electron integral in memory
+    Call readint2_casci(mdcintnew, nuniq)
 
     if (rank == 0) print *, 'nmo        =', nmo
     nmo = ninact + nact + nsec
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     if (rank == 0) print *, "iwamuro modify"
     If (mod(nelec, 2) == 0) then
         inisym = nsymrpa + 1
@@ -112,6 +103,7 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         endsym = nsymrpa
     End if
 
+    ! Print the irreducible representation used to calculate CASCI energy.
     if (rank == 0) then
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
@@ -125,19 +117,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     end if
     realcvec = .TRUE.
 
-    Call casci_ty
+    ! Calculate 0th order energy (CASCI energy)
+    Call casci
 
-!    This is test for bug fix about realc part
-    if (rank == 0) then
-        print *, realc, 'realc'
-        print *, realcvec, 'realcvec'
-    end if
-    test = .true.
-
-    if (rank == 0) then
-        print *, realc, 'realc'
-        print *, realcvec, 'realcvec'
-    end if
     realc = .FALSE.      !!!      realc =.TRUE.
     realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
@@ -146,13 +128,9 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         print *, realc, 'realc'
         print *, realcvec, 'realcvec'
     end if
-!!=============================================!
-!                                              !
     iroot = selectroot
-!                                              !
-!!=============================================!
 
-    Call e0test_v2
+    Call e0test
 
     if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
@@ -163,20 +141,16 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
 
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
-
     Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
-
-!      debug = .FALSE.
     debug = .TRUE.
     If (debug) then
         f(:, :) = 0.0d+00
-        if (rank == 0) print *, 'fockhf1_ty start'
-        Call fockhf1_ty
+        if (rank == 0) print *, 'fockhf1 start'
+        Call fockhf1
     End if
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
-
     f(:, :) = 0.0d+00
     if (rank == 0) then
         print *, 'before building fock'
@@ -184,14 +158,13 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
     end if
-    Call fockcasci_ty
+    Call fockcasci
     if (rank == 0) then
         print *, 'end building fock'
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
     end if
-!      debug = .TRUE.
     debug = .FALSE.
     if (rank == 0) print *, debug, 'debug'
     if (debug) Call prtoutfock
@@ -199,22 +172,25 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
     Allocate (eps(nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
     eps = 0.0d+00
 
-    Call fockdiag_ty
+    ! Diagonalize the Fock matrix
+    Call fockdiag
 
+    ! Print orbital energies
     if (rank == 0) then
         Do i0 = 1, nmo
             print *, 'eps(', i0, ')=', eps(i0)
         End do
     end if
 
+    ! Store orbital energies in EPS file
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         call open_unformatted_file(unit=unit_eps, file="EPS", status="replace", optional_action="write")
         write (unit_eps) nmo
         write (unit_eps) eps(1:nmo)
         close (unit_eps)
     end if
-    ! end if
 
+    ! Deallocate the memory
     if (allocated(ras1_list)) deallocate (ras1_list); Call memminus(KIND(ras1_list), SIZE(ras1_list), 1)
     if (allocated(ras2_list)) deallocate (ras2_list); Call memminus(KIND(ras2_list), SIZE(ras2_list), 1)
     if (allocated(ras3_list)) deallocate (ras3_list); Call memminus(KIND(ras3_list), SIZE(ras3_list), 1)
@@ -252,10 +228,10 @@ PROGRAM r4dcasci_co   ! DO CASCI CALC IN THIS PROGRAM!
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
         Call timing(val(3), totalsec, date0, tsec0)
-        print *, 'End r4dcasci_ty part'
+        print *, 'End r4dcasci part'
     end if
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif
 
-END program r4dcasci_co
+END program r4dcasci

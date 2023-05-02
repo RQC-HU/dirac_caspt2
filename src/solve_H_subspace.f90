@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE solvH_ord_ty(e0, e2h)
+SUBROUTINE solve_H_subspace(e0, e2h)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -40,7 +40,10 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
 !  V(aibj)   = (ai|bj) - (aj|bi)
 !
 ! E2h = V(aibj)/e(a,b,i,j)
-
+    if (rank == 0) then
+        print *, ' ENTER solv G part'
+        print *, ' nsymrpa', nsymrpa
+    end if
     e2h = 0.0d+00
     e = 0.0d+00
 
@@ -168,5 +171,5 @@ SUBROUTINE solvH_ord_ty(e0, e2h)
     deallocate (ii0)
     deallocate (ij0)
 
-    if (rank == 0) print *, 'end solvH_ord_ty'
-End SUBROUTINE solvH_ord_ty
+    if (rank == 0) print *, 'end solve_H_subspace'
+End SUBROUTINE solve_H_subspace

@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
+SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -28,7 +28,6 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     debug = .TRUE.
 
     if (realc) then
-!~~~~~~~~~~~~~~~~~~~~~~
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 1            !
@@ -172,10 +171,10 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                         end if
 
-                    end do ! ll
-                end do    ! kk
-            end do       ! jj
-        end do          ! ii
+                    end do
+                end do
+            end do
+        end do
 
         if (rank == 0) then
             print *, 'energy 4 =', energy(iroot, 4)
@@ -436,10 +435,10 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                         end if
 
-                    end do        ! ll
-                end do    ! kk
-            end do       ! jj
-        end do          ! ii
+                    end do
+                end do
+            end do
+        end do
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=energy(iroot, 1:4))
@@ -467,4 +466,4 @@ SUBROUTINE e0test_v2 ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     end if
     deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
     if (rank == 0) print *, 'e0test end'
-End subroutine e0test_v2
+End subroutine e0test

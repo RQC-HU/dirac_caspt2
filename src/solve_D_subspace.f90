@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE solvD_ord_ty(e0, e2d)
+SUBROUTINE solve_D_subspace(e0, e2d)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -103,7 +103,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    Call vDmat_ord_ty(nai, iai, v)
+    Call vDmat_ord(nai, iai, v)
     if (rank == 0) print *, 'end after vDmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -351,7 +351,7 @@ SUBROUTINE solvD_ord_ty(e0, e2d)
     deallocate (ii0)
     deallocate (v)
 
-    if (rank == 0) print *, 'end solvD_ord_ty'
+    if (rank == 0) print *, 'end solve_D_subspace'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -475,7 +475,7 @@ End subroutine bDmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
-SUBROUTINE vDmat_ord_ty(nai, iai, v)
+SUBROUTINE vDmat_ord(nai, iai, v)
 !
 !
 ! V(a,i) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -522,7 +522,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
         ja = ia + ninact + nact
         Do ii = 1, ninact
             ji = ii
-            Call tramo1_ty(ja, ji, cint1)
+            Call tramo1(ja, ji, cint1)
             effh(ia, ii) = cint1
         End do
     End do
@@ -679,7 +679,7 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     End do
 !$OMP end parallel do
 
-    if (rank == 0) print *, 'vDmat_ord_ty is ended'
+    if (rank == 0) print *, 'vDmat_ord is ended'
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=v)
     if (rank == 0) print *, 'end Allreduce vDmat'
@@ -687,4 +687,4 @@ SUBROUTINE vDmat_ord_ty(nai, iai, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-end subroutine vDmat_ord_ty
+end subroutine vDmat_ord

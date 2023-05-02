@@ -20,13 +20,16 @@ SUBROUTINE casmat(mat)
     complex*16           :: cmplxint, mat0
     integer, allocatable :: oc(:), vi(:)
 
+! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     mat = 0.0d+00
 
     if (rank == 0) print *, 'Cas mat enter'
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
     if (rank == 0) print *, 'allocated oc and vi'
-    Do i = rank + 1, ndet, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+    ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+    Do i = rank + 1, ndet, nprocs
 
         occ = 0
         oc = 0
@@ -46,7 +49,6 @@ SUBROUTINE casmat(mat)
 !! IDENTICAL DETERMINANT => DIAGONAL TERM
         !   diagonal term is same as Hartree-Fock's expression
 
-        !    cmplxint = 0.0d+00
         Do i0 = 1, ninact
             ir = i0
             cmplxint = DCMPLX(one_elec_int_r(ir, ir), one_elec_int_i(ir, ir))
@@ -94,7 +96,6 @@ SUBROUTINE casmat(mat)
                 cmplxint = DCMPLX(i2r, i2i)
 
                 mat0 = mat0 - 0.5d+00*cmplxint
-
             End do
         End do
 
@@ -152,7 +153,7 @@ SUBROUTINE casmat(mat)
                         cmplxint = DCMPLX(i2r, i2i)
 
                         mat(i, j) = mat(i, j) - cmplxint
-                    End do      !l0
+                    End do
 
                     if (mod(phase1, 2) == 0) phase = 1.0d+00
                     if (mod(phase1, 2) == 1) phase = -1.0d+00
@@ -161,11 +162,9 @@ SUBROUTINE casmat(mat)
                     mat(j, i) = DCONJG(mat(i, j))
 
                 End if
-
-            End do            ! k0
-        End do               ! i0
+            End do
+        End do
 !! TWO ELECTRON DIFFERNT CASE
-
         Do i0 = 1, nelec
             Do j0 = i0 + 1, nelec
                 indr = oc(i0)
@@ -193,35 +192,28 @@ SUBROUTINE casmat(mat)
                             i2r = inttwr(ir, ia, is, ib)
                             i2i = inttwi(ir, ia, is, ib)
                             cmplxint = DCMPLX(i2r, i2i)
-
                             mat(i, j) = cmplxint
 
                             ! two electron integral : (ir, ib | is, ia)
                             i2r = inttwr(ir, ib, is, ia)
                             i2i = inttwi(ir, ib, is, ia)
                             cmplxint = DCMPLX(i2r, i2i)
-
                             mat(i, j) = mat(i, j) - cmplxint
 
                             mat(i, j) = phase*mat(i, j)
                             mat(j, i) = DCONJG(mat(i, j))
-
                         End if
-
-                    End do      ! l0
-                End do         ! k0
-            End do            ! j0
-        End do               ! i0
-
-    End do                  ! i
+                    End do
+                End do
+            End do
+        End do
+    End do
 
     Deallocate (oc)
     Deallocate (vi)
-    if (rank == 0) then
-        print *, 'end casmat'
-        print *, 'Reduce mat(:,:)'
-    end if
+    if (rank == 0) print *, 'end casmat'
 #ifdef HAVE_MPI
+    if (rank == 0) print *, 'Reduce mat(:,:)'
     call allreduce_wrapper(mat=mat)
     if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
