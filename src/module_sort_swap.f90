@@ -1,7 +1,7 @@
 module module_sort_swap
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
 ! module_sort_swap
-! Copyright (c) by the authors of rel-caspt2.
+! Copyright (c) by the authors of DIRAC-CASPT2.
 ! Author K.Noda
 !
 ! This is a utility module that supports you to sort list or swap values or swap values in list.

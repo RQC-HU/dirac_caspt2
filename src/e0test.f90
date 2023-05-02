@@ -3,6 +3,11 @@
 
 SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
+! Recalculates the CASCI energy(ecore+energy(iroot,1:4))
+! using 1,2 electron integrals and CI coefficients
+! and compare the eigenvalue(CASCI energy, eigen(iroot))
+! obtained by diagonalizing the CASCI matrix
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 

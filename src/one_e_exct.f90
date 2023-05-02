@@ -2,6 +2,9 @@
 
 subroutine one_e_exct(icas_idx, creat, anhi, newcas_idx, phase)
 
+! This subroutine is used to calculate the phase and
+! the new CAS index for the one-electron excitation
+
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module

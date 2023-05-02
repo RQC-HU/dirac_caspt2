@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE read1mo(filename) ! one-electron MO integrals in moint1
+SUBROUTINE read1mo(filename) ! one-electron MO integrals in MRCONEE
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

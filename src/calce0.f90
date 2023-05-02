@@ -3,6 +3,13 @@
 
 SUBROUTINE calce0(e0)
 
+! Calculates the eigenvalue e0 = <0|H_0|0> = Sum_w eps_w D_ww
+! where D_ww is the 1dim density matrix
+! (e0 is the equation 22, 2nd terms of the folloing paper.
+!  J. Phys. Chem. 1990, 94, 5483-5488, Kerstin. Andersson,
+!  Per Aake. Malmqvist, Bjoern O. Roos, Andrzej J. Sadlej, and Krzysztof. Wolinski
+!  https://pubs.acs.org/doi/pdf/10.1021/j100377a012)
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 

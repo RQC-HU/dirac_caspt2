@@ -1,7 +1,7 @@
 module read_input_module
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
 ! read_input_module
-! Copyright (c) by the authors of rel-caspt2.
+! Copyright (c) by the authors of DIRAC-CASPT2.
 ! Author K.Noda
 !
 ! This is a utility module that interpret and parse input strings.

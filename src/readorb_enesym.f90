@@ -1,6 +1,12 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE readorb_enesym(filename) ! orbital energies in r4dmoin1
+SUBROUTINE readorb_enesym(filename)
+
+! This subroutine reads the molecular orbitals energies, symmetry information
+! and NMO, BREIT, ECORE from MRCONEE file.
+! - MO energies are sorted in ascending order.
+! - The symmetry information is stored in the array IRPAMO.
+! - Creates the multiplication tables for the irreducible representations.
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
