@@ -2,10 +2,10 @@ module ras_det_check
     use four_caspt2_module, only: rank, ras1_list, ras2_list
     implicit none
     private
-    public ras1_det_check, ras3_det_check
+    public satisfy_ras1_condition, satisfy_ras3_condition
 contains
-    function ras1_det_check(i, upper_allowed_hole) result(is_det_allowed)
-        ! function ras1_det_check(i,upper_allowed_hole) result(is_det_allowed)
+    function satisfy_ras1_condition(i, upper_allowed_hole) result(is_det_allowed)
+        ! function satisfy_ras1_condition(i,upper_allowed_hole) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
         use four_caspt2_module, only: ras1_size, min_hole_ras1
         integer, intent(in) :: i, upper_allowed_hole
@@ -14,9 +14,9 @@ contains
         ras1_bit = 2**ras1_size - 1
         call conunt_num_of_elec(i, ras1_bit, num_of_electron)
         is_det_allowed = ras1_size - upper_allowed_hole <= num_of_electron .and. num_of_electron <= ras1_size - min_hole_ras1
-    end function ras1_det_check
-    function ras3_det_check(i, upper_allowed_electron) result(is_det_allowed)
-        ! function ras3_det_check(i,upper_allowed_electron) result(is_det_allowed)
+    end function satisfy_ras1_condition
+    function satisfy_ras3_condition(i, upper_allowed_electron) result(is_det_allowed)
+        ! function satisfy_ras3_condition(i,upper_allowed_electron) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
         use four_caspt2_module, only: ras1_size, ras2_size
         integer, intent(in) :: i, upper_allowed_electron
@@ -34,9 +34,8 @@ contains
         end if
         ras3_bit = ishft(ras3_bit, width_of_shift)
         call conunt_num_of_elec(i, ras3_bit, num_of_electron)
-        ! print *, 'res', i, num_of_electron
         is_det_allowed = num_of_electron <= upper_allowed_electron
-    end function ras3_det_check
+    end function satisfy_ras3_condition
 
     subroutine conunt_num_of_elec(i, bit, num_of_electron)
         implicit none
