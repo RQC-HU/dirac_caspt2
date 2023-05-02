@@ -126,7 +126,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     end if
 
     ! Deallocate memory
-    deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
     deallocate (indmo_cas_to_dirac); Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
     deallocate (indmo_dirac_to_cas); Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)

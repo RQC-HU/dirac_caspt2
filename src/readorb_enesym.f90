@@ -11,6 +11,9 @@ SUBROUTINE readorb_enesym(filename) ! orbital energies in r4dmoin1
     Implicit NONE
 
     integer :: unit_mrconee, IMO, IRP
+    integer :: nsymrp
+    character :: repn(64)*14
+    integer, allocatable :: irpmo(:)
     character*50, intent(in) :: filename
     integer :: i0, j0, k0, i, j, m, iostat
     integer, allocatable :: dammo(:)
@@ -167,10 +170,10 @@ SUBROUTINE readorb_enesym(filename) ! orbital energies in r4dmoin1
     if (rank == 0) then
         print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
     end if
+    if (allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     if (rank == 0) then
         print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
     end if
-    irpmo(:) = irpamo(:)
 
     ! Sort the orbital energies in ascending order.
     caspt2_mo_energy = dirac_mo_energy
@@ -206,12 +209,12 @@ SUBROUTINE readorb_enesym(filename) ! orbital energies in r4dmoin1
         end do
     end if
 
-    ! irpmo is in MRCONEE order (DIRAC order)
-    dammo = irpmo
+    ! irpamo is in MRCONEE order (DIRAC order)
+    dammo = irpamo
 
-    ! Convert irpmo and irpamo into energy order (CAS order)
+    ! Convert irpamo and irpamo into energy order (CAS order)
     do i0 = 1, nmo
-        irpmo(i0) = dammo(indmo_cas_to_dirac(i0))
+        irpamo(i0) = dammo(indmo_cas_to_dirac(i0))
         irpamo(i0) = dammo(indmo_cas_to_dirac(i0))
     end do
 
@@ -220,17 +223,17 @@ SUBROUTINE readorb_enesym(filename) ! orbital energies in r4dmoin1
 
         print *, 'inactive'
         do i0 = 1, ninact
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpmo(i0), repna(irpamo(i0))
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
 
         print *, 'active'
         do i0 = ninact + 1, ninact + nact
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpmo(i0), repna(irpamo(i0))
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
 
         print *, 'secondary'
         do i0 = ninact + nact + 1, ninact + nact + nsec
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpmo(i0), repna(irpamo(i0))
+            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
     end if
 
