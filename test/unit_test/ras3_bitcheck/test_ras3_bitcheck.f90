@@ -13,7 +13,7 @@ program ras3_bitcheck
 
     call open_formatted_file(unit=unit_new, file='result', status="replace", optional_action='write')
     do i = 1, 2**nact - 1
-        is_allow = ras3_det_check(i, ras3_max_elec)
+        is_allow = satisfy_ras3_condition(i, ras3_max_elec)
         if (is_allow) then
             print '(i4,b20)', i, i
             write (unit_new, '(i4,b20)') i, i
