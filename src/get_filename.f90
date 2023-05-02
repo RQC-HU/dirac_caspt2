@@ -1,4 +1,5 @@
 subroutine get_mdcint_filename(count)
+    ! This subroutine is to get the filename of MDCINT.
     use four_caspt2_module, only: rank, nprocs, mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
     use module_error, only: stop_with_errorcode
     implicit none
@@ -45,6 +46,7 @@ subroutine get_mdcint_filename(count)
     end if
 end subroutine get_mdcint_filename
 subroutine get_subspace_filename
+    ! This subroutine is to get the filename of [a-h]subspace 2-electron integrals.
     use four_caspt2_module, only: rank, a1int, a2int, bint, c1int, c2int, c3int, &
                                   d1int, d2int, d3int, eint, fint, gint, hint
     implicit none

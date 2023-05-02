@@ -1,4 +1,4 @@
-name: rel-CASPT2-CI-test
+name: DIRAC-CASPT2-CI-test
 
 on:
   push:

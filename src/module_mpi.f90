@@ -1,7 +1,6 @@
 module module_mpi
     ! This module provides developers with a simple interface to MPI.
     ! Currently, only reduce and allreduce are implemented.
-    ! 
     ! Author: Kohei Noda
 
     use four_caspt2_module, only: rank, nprocs, ierr, max_i4

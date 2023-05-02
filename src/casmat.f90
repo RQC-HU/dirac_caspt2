@@ -2,6 +2,8 @@
 
 SUBROUTINE casmat(mat)
 
+! Creates CASCI matrix(mat)
+
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module

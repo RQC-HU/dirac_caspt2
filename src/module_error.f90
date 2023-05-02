@@ -1,4 +1,5 @@
 module module_error
+    ! This module contains a subroutine to stop the program with a given error code.
     use four_caspt2_module, only: ierr
     implicit none
 #ifdef HAVE_MPI

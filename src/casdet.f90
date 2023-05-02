@@ -2,6 +2,9 @@
 
 SUBROUTINE casdet
 
+! Find the CASCI determinant and store the index of the CASCI determinant in cas_idx
+! Also, store the reverse index of the CASCI determinant in cas_idx_reverse.
+
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module

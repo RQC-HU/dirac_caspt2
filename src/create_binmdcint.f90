@@ -2,6 +2,9 @@
 
 Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
+! This subroutine creates UTChem type MDCINTNEW files from DIRAC type MDCINT files.
+! MDCINTNEW files are used in this program as 2-electron integrals.
+
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use module_file_manager

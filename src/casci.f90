@@ -2,6 +2,8 @@
 
 SUBROUTINE casci
 
+! CASCI calculation
+
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use module_file_manager

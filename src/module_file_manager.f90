@@ -10,9 +10,16 @@ module module_file_manager
     use read_input_module, only: lowercase
     implicit none
 
+    private
+    public check_iostat, open_unformatted_file, open_formatted_file
+
 contains
 
     subroutine check_iostat(iostat, file, end_of_file_reached)
+        ! Check the value of iostat.
+        ! If iostat < 0, then the end of file is reached.
+        ! If iostat == 0, then the end of file is not reached.
+        ! If iostat > 0, then an error occured.
         implicit none
         integer, intent(in) :: iostat
         character(len=*), intent(in) :: file
