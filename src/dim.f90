@@ -4,6 +4,7 @@ subroutine dim1_density(creat1, anhi1, sr, si)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use four_caspt2_module
 
     Implicit NONE
@@ -29,9 +30,11 @@ subroutine dim1_density(creat1, anhi1, sr, si)
         i = newcas_idx !励起演算子がかかった後の番号
         phasenew = phase
 
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
         cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
@@ -74,9 +77,11 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
         if (newcas_idx == 0) cycle ! Next i0
         i = newcas_idx
         phasenew = phase
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
         cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
@@ -117,9 +122,11 @@ subroutine dim1_density_diag(creat1, anhi1, s)
         if (newcas_idx == 0) cycle ! Next i0
         i = newcas_idx
         phasenew = phase
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
         cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
@@ -169,9 +176,11 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
         if (newcas_idx == 0) cycle ! Next i0
         i = newcas_idx
         phasenew = phasenew + phase
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
 
@@ -230,10 +239,11 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
         if (newcas_idx == 0) cycle ! Next i0
         i = newcas_idx
         phasenew = phasenew + phase
-
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
         cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
@@ -296,9 +306,11 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
         i = newcas_idx
 
         phasenew = phasenew + phase
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         cmplxcii = DCMPLX(cir(i0, iroot), cii(i0, iroot))
         cmplxcij = DCMPLX(cir(j0, iroot), cii(j0, iroot))
@@ -345,9 +357,11 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
         i = newcas_idx
         phasenew = phase
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
@@ -391,9 +405,11 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
         i = newcas_idx
         phasenew = phasenew + phase
 
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
 !       Caluculation of C(i,iroot)*conjugate(C(j,iroot))
 
@@ -444,9 +460,11 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
         i = newcas_idx
         phasenew = phasenew + phase
 
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)
@@ -500,9 +518,11 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
         i = newcas_idx
 
         phasenew = phasenew + phase
-        j0 = cas_idx_reverse(i)
-
-        if (j0 == 0) cycle ! Next i0
+        if (exists(dict_cas_idx_reverse, i)) then
+            j0 = get_val(dict_cas_idx_reverse, i)
+        else
+            cycle ! Next i0 (Because j0 is not in CAS space)
+        end if
 
         if (mod(phasenew, 2) == 0) then
             sr = sr + cir(i0, iroot)*cir(j0, iroot)

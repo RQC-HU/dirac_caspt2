@@ -201,7 +201,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(f)) deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
     if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
     if (allocated(cas_idx)) deallocate (cas_idx); Call memminus(KIND(cas_idx), SIZE(cas_idx), 1)
-    if (allocated(cas_idx_reverse)) deallocate (cas_idx_reverse); Call memminus(KIND(cas_idx_reverse), SIZE(cas_idx_reverse), 1)
     if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
     if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)

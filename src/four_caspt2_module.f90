@@ -3,7 +3,7 @@
 MODULE four_caspt2_module
 
 ! *+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@
-
+    use module_dict
     Implicit NONE
 
     real(8)      :: tmem
@@ -42,7 +42,7 @@ MODULE four_caspt2_module
     character       :: date*8, time*10
     integer, allocatable :: space_idx(:) ! Given the spinor index, return which space it belongs to. (1: inactive, 2: active, 3: secondary) [old name]: sp
     integer, allocatable :: cas_idx(:) ! Given the number of CAS placement, returns an integer value representing the CAS placement. [old name]: idet
-    integer, allocatable :: cas_idx_reverse(:) ! Given an integer representing the CAS placement, a variable that returns the position in the CAS placement ordering. [old name]: idetr
+    type(dict) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
 
     !! =================================================
     !! Valiables of CI

@@ -1,5 +1,6 @@
 add_library(dcaspt2_module STATIC
   four_caspt2_module.f90
+  module_dict.f90
   module_error.f90
   module_file_manager.f90
   module_mpi.f90

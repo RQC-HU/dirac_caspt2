@@ -1,6 +1,5 @@
 module module_error
     ! This module contains a subroutine to stop the program with a given error code.
-    use four_caspt2_module, only: ierr
     implicit none
 #ifdef HAVE_MPI
     include 'mpif.h'
@@ -11,6 +10,7 @@ contains
     subroutine stop_with_errorcode(errorcode)
         implicit none
         integer, intent(in) :: errorcode
+        integer :: ierr
 #ifdef HAVE_MPI
         call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif

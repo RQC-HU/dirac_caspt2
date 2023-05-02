@@ -8,6 +8,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     use four_caspt2_module
     use module_file_manager
+    use module_dict, only: add
     use read_input_module, only: read_input
     Implicit NONE
 #ifdef HAVE_MPI
@@ -19,7 +20,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     complex*16, allocatable :: ci(:)
     real*8, allocatable     :: ecas(:)
     character*50            :: filename
-    integer                 :: cas_idx_reverse_array_len ! length of array = cas_idx_reverse(1:2**nact - 1)
+    integer                 :: dict_size ! The number of CAS configurations
+    integer                 :: idx, dict_key, dict_val
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -117,9 +119,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
     read (unit_new) cas_idx(1:ndet)
     read (unit_new) ecas(1:ndet)
-    read (unit_new) cas_idx_reverse_array_len
-    allocate (cas_idx_reverse(1:cas_idx_reverse_array_len)); call memplus(kind(cas_idx), size(cas_idx), 1)
-    read (unit_new) cas_idx_reverse(1:cas_idx_reverse_array_len)
+    read (unit_new) dict_size ! The number of CAS configurations
+    do idx = 1, dict_size
+        read (unit_new) dict_key, dict_val
+        call add(dict_cas_idx_reverse, dict_key, dict_val)
+    end do
     close (unit_new)
 
     ! Read CASCI energy
@@ -362,7 +366,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
     if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
     if (allocated(cas_idx)) deallocate (cas_idx); Call memminus(KIND(cas_idx), SIZE(cas_idx), 1)
-    if (allocated(cas_idx_reverse)) deallocate (cas_idx_reverse); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
     if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
