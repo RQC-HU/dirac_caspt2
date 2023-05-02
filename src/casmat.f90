@@ -7,6 +7,7 @@ SUBROUTINE casmat(mat)
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
+    use module_dict, only: exists, get_val
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -115,7 +116,11 @@ SUBROUTINE casmat(mat)
 
                 Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
 
-                j = cas_idx_reverse(newcas_idx1)
+                if (exists(dict_cas_idx_reverse, newcas_idx1)) then
+                    j = get_val(dict_cas_idx_reverse, newcas_idx1)
+                Else
+                    cycle ! Next k0 (Because newcas_idx1 is not in dict_cas_idx_reverse)
+                End if
 
                 If (j > i) then
                     cmplxint = DCMPLX(one_elec_int_r(ir, ia), one_elec_int_i(ir, ia))
@@ -184,7 +189,11 @@ SUBROUTINE casmat(mat)
                         Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
                         Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
 
-                        j = cas_idx_reverse(newcas_idx2)
+                        if (exists(dict_cas_idx_reverse, newcas_idx2)) then
+                            j = get_val(dict_cas_idx_reverse, newcas_idx2)
+                        Else
+                            cycle ! Next k0 (Because newcas_idx2 is not in dict_cas_idx_reverse)
+                        End if
 
                         If (j > i) then
                             if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00

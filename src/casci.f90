@@ -8,6 +8,7 @@ SUBROUTINE casci
 
     use module_file_manager
     use four_caspt2_module
+    use module_dict, only: get_keys_vals, get_size
     Implicit NONE
 #ifdef HAVE_MPI
     include 'mpif.h'
@@ -19,7 +20,8 @@ SUBROUTINE casci
     real*8, allocatable     :: ecas(:)
     character*20            :: filename, chr_root
     real(8) :: expected_mem
-    integer :: datetmp0, datetmp1
+    integer :: datetmp0, datetmp1, dict_size, idx
+    integer, allocatable :: keys(:), vals(:)
     real(8) :: tsectmp0, tsectmp1
 
     ndet = comb(nact, nelec)
@@ -55,6 +57,9 @@ SUBROUTINE casci
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
+    dict_size = get_size(dict_cas_idx_reverse)
+    allocate (keys(dict_size), vals(dict_size))
+    call get_keys_vals(dict_cas_idx_reverse, keys, vals, dict_size)
 ! Print out CI matrix!
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         filename = 'CIMAT'
@@ -62,8 +67,10 @@ SUBROUTINE casci
         write (unit_cimat) ndet
         write (unit_cimat) cas_idx(1:ndet)
         write (unit_cimat) ecas(1:ndet)
-        write (unit_cimat) 2**nact - 1 ! cas_idx_reverseの配列の要素数
-        write (unit_cimat) cas_idx_reverse(1:2**nact - 1)
+        write (unit_cimat) dict_size ! The number of elements in dict_cas_idx_reverse
+        do idx = 1, dict_size
+            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx_reverse to the file
+        end do
         close (unit_cimat)
 
         filename = 'CIMAT1'
@@ -114,6 +121,7 @@ SUBROUTINE casci
         end do
     end if
     Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
+    deallocate(keys, vals)
 end subroutine casci
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

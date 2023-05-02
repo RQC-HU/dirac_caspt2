@@ -3,12 +3,13 @@
 SUBROUTINE casdet
 
 ! Find the CASCI determinant and store the index of the CASCI determinant in cas_idx
-! Also, store the reverse index of the CASCI determinant in cas_idx_reverse.
+! Also, store the reverse index of the CASCI determinant in dict_cas_idx_reverse.
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use four_caspt2_module
     use module_error, only: stop_with_errorcode
+    use module_dict, only: add
     Implicit NONE
 
     integer :: t, isym, allow_det_num, current_det
@@ -16,17 +17,15 @@ SUBROUTINE casdet
 
     if (rank == 0) print *, 'Enter casdet'
     Allocate (cas_idx0(ndet))
-    Allocate (cas_idx_reverse(2**nact - 1)); call memplus(kind(cas_idx_reverse), size(cas_idx_reverse), 1)
     cas_idx0(:) = 0
-    cas_idx_reverse(:) = 0
     allow_det_num = 0
     ndet = 0
 
-    ! ===============================================
+    ! ====================================================================================
     ! Find the CASCI determinant and store the index of the CASCI determinant in cas_idx0.
-    ! Also, store the reverse index of the CASCI determinant in cas_idx_reverse.
+    ! Also, store the reverse index of the CASCI determinant in dict_cas_idx_reverse.
     ! Loop over only the nelec electron determinants
-    ! ===============================================
+    ! ====================================================================================
     current_det = 2**nelec - 1 ! First determinant that is the number of electrons are nact. (e.g. 1111 for 4 electrons)
     do while (current_det < 2**nact)
 
@@ -44,7 +43,7 @@ SUBROUTINE casdet
         if (is_cas_determinant()) then
             ndet = ndet + 1
             cas_idx0(ndet) = current_det
-            cas_idx_reverse(current_det) = ndet
+            call add(dict_cas_idx_reverse, current_det, ndet)
         end if
 
         current_det = find_next_determinant()
