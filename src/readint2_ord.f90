@@ -28,8 +28,9 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
                 unit_d1, unit_d2, unit_d3, unit_e, unit_f, unit_g, unit_h
     integer :: ioerr, iostat
     integer :: a1_cnt, a2_cnt, b_cnt, c1_cnt, c2_cnt, c3_cnt, d1_cnt, d2_cnt, d3_cnt, e_cnt, f_cnt, g_cnt, h_cnt
-!Iwamuro modify
-!        integer :: ikr, jkr, kkr, lkr
+
+! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     a1_cnt = 0; a2_cnt = 0; b_cnt = 0; c1_cnt = 0; c2_cnt = 0; c3_cnt = 0
     d1_cnt = 0; d2_cnt = 0; d3_cnt = 0; e_cnt = 0; f_cnt = 0; g_cnt = 0; h_cnt = 0
     Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
@@ -126,95 +127,33 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
                 if (k > l) then ! (22|21) => (21|22)
                     write (unit_a1) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a1', ioerr, 'rank', rank
-                    else
-
-                        a1_cnt = a1_cnt + 1
-                    end if
-
                 else    ! (22|12) => (22|21)* => (21|22)*
-
                     write (unit_a1, IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a1', ioerr, 'rank', rank
-                    else
-
-                        a1_cnt = a1_cnt + 1
-                    end if
                 end if
 
             elseif (max1 == 2 .and. min1 == 1 .and. max2 == 2 .and. min2 == 2) then ! (21|22) => (21|22)
 
                 if (i > j) then ! (21|22) => (21|22)
-
                     write (unit_a1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a1', ioerr, 'rank', rank
-                    else
-
-                        a1_cnt = a1_cnt + 1
-                    end if!                           write(*,'("A1int3",4I4,2E20.10)')i  ,j  ,k  ,l  ,  rklr(inz),         rkli(inz)
-
                 else    ! (12|22) => (21|22)*
-
                     write (unit_a1, IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a1', ioerr, 'rank', rank
-                    else
-
-                        a1_cnt = a1_cnt + 1
-                    end if!                           write(*,'("A1int4",4I4,2E20.10)')j  ,i  ,l  ,k  ,  rklr(inz),-1.0d+00*rkli(inz)
-
                 end if
 
             elseif (max1 == 2 .and. min1 == 1 .and. max2 == 1 .and. min2 == 1) then  ! (21|11)=>(21|11)
 
                 if (i > j) then ! (21|11) => (21|11)
-
                     write (unit_a2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a2', ioerr, 'rank', rank
-                    else
-
-                        a2_cnt = a2_cnt + 1
-                    end if!                           write(*,'("A2int1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
-
                 else    ! (12|11) => (21|11)* => (21|11)*
-
                     write (unit_a2, IOSTAT=ioerr) j, i, l, k, rklr(inz), -1.0d+00*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a2', ioerr, 'rank', rank
-                    else
-
-                        a2_cnt = a2_cnt + 1
-                    end if!                           write(*,'("A2int2",4I4,2E20.10)')j  ,i  ,l  ,k  ,         rklr(inz), -1.0d+00*rkli(inz)
                 end if
 
             elseif (max1 == 1 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then  ! (11|21)=>(21|11)
 
                 if (k > l) then   ! (11|21) => (21|11)
-
                     write (unit_a2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a2', ioerr, 'rank', rank
-                    else
-
-                        a2_cnt = a2_cnt + 1
-                    end if!                           write(*,'("A2int3",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
-
                 else    ! (11|12) => (11|21)* => (21|11)*
-
                     write (unit_a2, IOSTAT=ioerr) l, k, j, i, rklr(inz), -1.0d+00*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_a2', ioerr, 'rank', rank
-                    else
-
-                        a2_cnt = a2_cnt + 1
-                    end if!                           write(*,'("A2int4",4I4,2E20.10)')l  ,k  ,j  ,i  ,         rklr(inz), -1.0d+00*rkli(inz)
-
                 end if
-                ! end if
 
 !=============================================
 ! Integrals for B space  (pi|qj) (21|21) type
@@ -223,41 +162,13 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 2 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then  ! (21|21)=>(21|21)
 
                 if (i > j .and. k > l) then   ! (21|21) => (21|21)
-
                     write (unit_b, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_b', ioerr, 'rank', rank
-                    else
-
-                        b_cnt = b_cnt + 1
-                    end if
                 elseif (i < j .and. k > l) then ! (12|21) => (21|21)
-
                     write (unit_b, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_b', ioerr, 'rank', rank
-                    else
-
-                        b_cnt = b_cnt + 1
-                    end if
                 elseif (i > j .and. k < l) then ! (21|12) => (21|21)
-
                     write (unit_b, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_b', ioerr, 'rank', rank
-                    else
-
-                        b_cnt = b_cnt + 1
-                    end if
                 elseif (i < j .and. k < l) then ! (12|12) => (21|21)*
-
                     write (unit_b, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_b', ioerr, 'rank', rank
-                    else
-
-                        b_cnt = b_cnt + 1
-                    end if
                 end if
 
 !============================================================================
@@ -267,46 +178,17 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 2 .and. max2 == 2 .and. min2 == 2) then ! (32|22)=>(32|22)
 
                 if (i > j) then ! (32|22)=>(32|22)
-
                     write (unit_c1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c1', ioerr, 'rank', rank
-                    else
-
-                        c1_cnt = c1_cnt + 1
-                    end if!Iwamuro modify
-
                 else    ! (23|22)=>(32|22)
-
                     write (unit_c1, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c1', ioerr, 'rank', rank
-                    else
-
-                        c1_cnt = c1_cnt + 1
-                    end if!Iwamuro modify
                 end if
 
             elseif (max1 == 2 .and. min1 == 2 .and. max2 == 3 .and. min2 == 2) then ! (22|32)=>(32|22)
 
                 if (k > l) then ! (22|32)=>(32|22)
-
                     write (unit_c1, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c1', ioerr, 'rank', rank
-                    else
-
-                        c1_cnt = c1_cnt + 1
-                    end if!Iwamuro modify
                 else    ! (22|23)=>(32|22)
-
                     write (unit_c1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c1', ioerr, 'rank', rank
-                    else
-
-                        c1_cnt = c1_cnt + 1
-                    end if!Iwamuro modify
                 end if
 
 !============================================================================
@@ -316,45 +198,17 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 2 .and. max2 == 1 .and. min2 == 1) then   ! (32|11)=>(32|11)
 
                 if (i > j) then ! (32|11)=>(32|11)
-
                     write (unit_c2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c2', ioerr, 'rank', rank
-                    else
-
-                        c2_cnt = c2_cnt + 1
-                    end if
                 else    ! (23|11)=>(32|11)
-
                     write (unit_c2, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c2', ioerr, 'rank', rank
-                    else
-
-                        c2_cnt = c2_cnt + 1
-                    end if
                 end if
 
             elseif (max1 == 1 .and. min1 == 1 .and. max2 == 3 .and. min2 == 2) then   ! (32|11)=>(32|11)
 
                 if (k > l) then ! (11|32)=>(32|11)
-
                     write (unit_c2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c2', ioerr, 'rank', rank
-                    else
-
-                        c2_cnt = c2_cnt + 1
-                    end if
                 else    ! (11|23)=>(32|11)
-
                     write (unit_c2, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c2', ioerr, 'rank', rank
-                    else
-
-                        c2_cnt = c2_cnt + 1
-                    end if
                 end if
 
 !============================================================================
@@ -364,137 +218,33 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 1 .and. max2 == 2 .and. min2 == 1) then ! (31|21)=>(31|12)
 
                 if (i > j .and. l > k) then ! (31|12)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 elseif (j > i .and. l > k) then ! (13|12)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 elseif (i > j .and. k > l) then ! (31|21)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 elseif (i < j .and. k > l) then ! (13|21)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 end if
 
             elseif (max1 == 2 .and. min1 == 1 .and. max2 == 3 .and. min2 == 1) then ! (21|31)=>(31|12)
 
                 if (i > j .and. l > k) then ! (21|13)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 elseif (j > i .and. l > k) then ! (12|13)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 elseif (i > j .and. k > l) then ! (21|31)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 elseif (i < j .and. k > l) then ! (12|31)=>(31|21) For E
-
                     write (unit_e, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_e', ioerr, 'rank', rank
-                    else
-
-                        e_cnt = e_cnt + 1
-                    end if
                     write (unit_c3, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_c3', ioerr, 'rank', rank
-                    else
-
-                        c3_cnt = c3_cnt + 1
-                    end if
                 end if
 
 !============================================================================
@@ -504,45 +254,17 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 1 .and. max2 == 2 .and. min2 == 2) then ! (31|22)=>(31|22)
 
                 if (i > j) then ! (31|22)=>(31|22)
-
                     write (unit_d1, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then !ioerr /= 0
-                        print *, 'error write unit_d1', ioerr, 'rank', rank
-                    else
-
-                        d1_cnt = d1_cnt + 1
-                    end if
                 else    ! (13|22)=>(31|22)
-
                     write (unit_d1, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d1', ioerr, 'rank', rank
-                    else
-
-                        d1_cnt = d1_cnt + 1
-                    end if
                 end if
 
             elseif (max1 == 2 .and. min1 == 2 .and. max2 == 3 .and. min2 == 1) then ! (22|31)=>(31|22)
 
                 if (k > l) then ! (22|31)=>(31|22)
-
                     write (unit_d1, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d1', ioerr, 'rank', rank
-                    else
-
-                        d1_cnt = d1_cnt + 1
-                    end if
                 else    ! (22|13)=>(31|22)
-
                     write (unit_d1, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d1', ioerr, 'rank', rank
-                    else
-
-                        d1_cnt = d1_cnt + 1
-                    end if
                 end if
 
 !============================================================================
@@ -552,81 +274,25 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 2 .and. max2 == 2 .and. min2 == 1) then ! (32|21)=>(32|21)
 
                 if (i > j .and. k > l) then ! (32|21)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 elseif (i < j .and. k > l) then ! (23|21)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 elseif (i > j .and. k < l) then ! (32|12)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 elseif (i < j .and. k < l) then ! (23|12)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 end if
 
             elseif (max1 == 2 .and. min1 == 1 .and. max2 == 3 .and. min2 == 2) then ! (21|32)=>(32|21)
 
                 if (i > j .and. k > l) then ! (21|32)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 elseif (i < j .and. k > l) then ! (12|32)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 elseif (i > j .and. k < l) then ! (21|23)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 elseif (i < j .and. k < l) then ! (12|23)=>(32|21)
-
                     write (unit_d2, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d2', ioerr, 'rank', rank
-                    else
-
-                        d2_cnt = d2_cnt + 1
-                    end if
                 end if
 
 !============================================================================
@@ -636,45 +302,17 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 1 .and. max2 == 1 .and. min2 == 1) then   ! (31|11)=>(31|11)
 
                 if (i > j) then ! (ai|jk) (31|11)=>(31|11)
-
                     write (unit_d3, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d3', ioerr, 'rank', rank
-                    else
-
-                        d3_cnt = d3_cnt + 1
-                    end if
                 else    ! (i~a~|kk) (13|11)=>(31|11)
-
                     write (unit_d3, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d3', ioerr, 'rank', rank
-                    else
-
-                        d3_cnt = d3_cnt + 1
-                    end if
                 end if
 
             elseif (max1 == 1 .and. min1 == 1 .and. max2 == 3 .and. min2 == 1) then  ! (11|31)=>(31|11)
 
                 if (k > l) then ! (jk|ai) (31|11)=>(31|11)
-
                     write (unit_d3, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d3', ioerr, 'rank', rank
-                    else
-
-                        d3_cnt = d3_cnt + 1
-                    end if
                 else  ! (jk|i~a~)=>( ai|kk) (11|13)=>(31|11)
-
                     write (unit_d3, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_d3', ioerr, 'rank', rank
-                    else
-
-                        d3_cnt = d3_cnt + 1
-                    end if
                 end if
 
 !=============================================
@@ -684,41 +322,13 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 2 .and. max2 == 3 .and. min2 == 2) then  ! (32|32)=>(32|32)
 
                 if (i > j .and. k > l) then   ! (32|32) => (32|32)
-
                     write (unit_f, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_f', ioerr, 'rank', rank
-                    else
-
-                        f_cnt = f_cnt + 1
-                    end if
                 elseif (i < j .and. k > l) then ! (23|32) => (32|32)
-
                     write (unit_f, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_f', ioerr, 'rank', rank
-                    else
-
-                        f_cnt = f_cnt + 1
-                    end if
                 elseif (i > j .and. k < l) then ! (32|23) => (32|32)
-
                     write (unit_f, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_f', ioerr, 'rank', rank
-                    else
-
-                        f_cnt = f_cnt + 1
-                    end if
                 elseif (i < j .and. k < l) then ! (23|23) => (32|32)
-
                     write (unit_f, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_f', ioerr, 'rank', rank
-                    else
-
-                        f_cnt = f_cnt + 1
-                    end if
                 end if
 
 !============================================================================
@@ -728,89 +338,25 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 1 .and. max2 == 3 .and. min2 == 2) then ! (31|32)=>(31|32)
 
                 if (i > j .and. l > k) then ! (31|23)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint1",4I4,2E20.10)')i  ,j  ,ltr,ktr,   SignKL*rklr(inz),  SignKL*rkli(inz)
-
                 elseif (j > i .and. l > k) then ! (13|23)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint2",4I4,2E20.10)')jtr,itr,ltr,ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-
                 elseif (i > j .and. k > l) then ! (31|32)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint3",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
-
                 elseif (i < j .and. k > l) then ! (13|32)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint4",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz), SignIJ*rkli(inz)
-
                 end if
 
             elseif (max1 == 3 .and. min1 == 2 .and. max2 == 3 .and. min2 == 1) then ! (32|31)=>(31|32)
 
                 if (i > j .and. l > k) then ! (32|13)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) ltr, ktr, i, j, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint5",4I4,2E20.10)')ltr,ktr,i  ,j  ,        SignKL*rklr(inz),        SignKL*rkli(inz)
-
                 elseif (j > i .and. l > k) then ! (23|13)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if                   !    print '("Gint6",4I4,2E20.10)', ltr, ktr, jtr, itr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-
                 elseif (i > j .and. k > l) then ! (32|31)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) k, l, i, j, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint7",4I4,2E20.10)')k  ,l  ,i  ,j  ,         rklr(inz),         rkli(inz)
-
                 elseif (i < j .and. k > l) then ! (23|31)=>(31|32)
-
                     write (unit_g, IOSTAT=ioerr) k, l, jtr, itr, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_g', ioerr, 'rank', rank
-                    else
-
-                        g_cnt = g_cnt + 1
-                    end if!                           write(*,'("Gint8",4I4,2E20.10)')k  ,l  ,jtr,itr,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
-
                 end if
 
 !=============================================
@@ -820,44 +366,13 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
             elseif (max1 == 3 .and. min1 == 1 .and. max2 == 3 .and. min2 == 1) then  ! (31|31)=>(31|31)
 
                 if (i > j .and. k > l) then   ! (31|31) => (31|31)
-
                     write (unit_h, IOSTAT=ioerr) i, j, k, l, rklr(inz), rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_h', ioerr, 'rank', rank
-                    else
-
-                        h_cnt = h_cnt + 1
-                    end if!                           write(*,'("Hint1",4I4,2E20.10)')i  ,j  ,k  ,l  ,         rklr(inz),         rkli(inz)
-
                 elseif (i < j .and. k > l) then ! (13|31) => (31|31)
-
                     write (unit_h, IOSTAT=ioerr) jtr, itr, k, l, SignIJ*rklr(inz), SignIJ*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_h', ioerr, 'rank', rank
-                    else
-
-                        h_cnt = h_cnt + 1
-                    end if!                           write(*,'("Hint2",4I4,2E20.10)')jtr,itr,k  ,l  ,  SignIJ*rklr(inz),  SignIJ*rkli(inz)
-
                 elseif (i > j .and. k < l) then ! (31|13) => (31|31)
-
                     write (unit_h, IOSTAT=ioerr) i, j, ltr, ktr, SignKL*rklr(inz), SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_h', ioerr, 'rank', rank
-                    else
-
-                        h_cnt = h_cnt + 1
-                    end if!                           write(*,'("Hint3",4I4,2E20.10)')i  ,j  ,ltr,ktr,  SignKL*rklr(inz),  SignKL*rkli(inz)
-
                 elseif (i < j .and. k < l) then ! (13|13) => (31|31)
-
                     write (unit_h, IOSTAT=ioerr) jtr, itr, ltr, ktr, SignIJ*SignKL*rklr(inz), SignIJ*SignKL*rkli(inz)
-                    if (ioerr .ne. 0) then
-                        print *, 'error write unit_h', ioerr, 'rank', rank
-                    else
-
-                        h_cnt = h_cnt + 1
-                    end if!                           write(*,'("Hint4",4I4,2E20.10)')jtr,itr,ltr,ktr,SignIJ*SignKL*rklr(inz),SignIJ*SignKL*rkli(inz)
                 end if
             end if
 

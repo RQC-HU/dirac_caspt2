@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
+SUBROUTINE read1mo(filename) ! one-electron MO integrals in moint1
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -16,11 +16,12 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
     if (rank == 0) then
-        print *, 'Enter read1mo_co'
+        print *, 'Enter read1mo'
     end if
 
     realc = .true.
 
+    scfru = 1
     Allocate (roner(nmo, nmo, scfru)); Call memplus(KIND(roner), SIZE(roner), 1)
     Allocate (ronei(nmo, nmo, scfru)); Call memplus(KIND(ronei), SIZE(ronei), 1)
 
@@ -36,7 +37,7 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
 
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
 
-! Reverse the sign of ronei if DIRAC version is larger or equal to 21.
+    ! Reverse the sign of ronei if DIRAC version is larger or equal to 21.
     if (dirac_version >= 21) then
         ronei(:, :, :) = -ronei(:, :, :)
     end if
@@ -46,8 +47,6 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     nmom = ninact + nact + nsec
     Allocate (one_elec_int_r(nmom, nmom)); Call memplus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
     Allocate (one_elec_int_i(nmom, nmom)); Call memplus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
-
-!Iwamuro modify
 
     ! Store the one-electron integrals in energy order (CASPT2 order)
     ! one_elec_int_[r,i] are CASPT2 order
@@ -65,4 +64,4 @@ SUBROUTINE read1mo_co(filename) ! one-electron MO integrals in moint1
     if (rank == 0) then
         print *, realc, 'realc'
     end if
-end subroutine read1mo_co
+end subroutine read1mo

@@ -29,7 +29,7 @@ contains
                    (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
 
-        do while (.not. is_end)
+        do while (.not. is_end) ! Read the input file until the "end" is found
             read (unit_num, "(a)", iostat=iostat) string
             if (iostat < 0) then
                 if (rank == 0) print *, "ERROR: YOU NEED TO ADD 'end' AT THE END OF YOUR INPUT FILE."
@@ -42,8 +42,9 @@ contains
             if (is_comment) cycle ! Read the next line
             call check_input_type(unit_num, string, is_variable_filled)
         end do
+        ! Check if the input is sufficient
         is_config_sufficient = .true.
-        do idx = 1, size(is_variable_filled, 1)
+        do idx = 1, size(is_variable_filled)
             if (.not. is_variable_filled(idx)) then
                 if (rank == 0) print *, "ERROR: You must specify a variable ", trim(essential_variable_names(idx)), " before end."
                 is_config_sufficient = .false.
@@ -53,6 +54,7 @@ contains
             if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
             call stop_with_errorcode(1)
         end if
+        ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
     end subroutine read_input

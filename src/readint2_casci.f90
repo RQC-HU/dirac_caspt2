@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by typart in utchem
+SUBROUTINE readint2_casci(filename, nuniq)  ! 2 electorn integrals created by typart in utchem
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -32,7 +32,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     continue_read = .true.
     nmoc = ninact + nact
     nmom = ninact + nact + nsec
-    if (rank == 0) print *, "Enter readint2_casci_co"
+    if (rank == 0) print *, "Enter readint2_casci"
 
     Allocate (i(read_line_max)); call memplus(kind(i), size(i), 1)
     Allocate (j(read_line_max)); call memplus(kind(j), size(j), 1)
@@ -96,8 +96,8 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
         ! The length of read line is equal to min(read_line_max, idx)
         read_line_len = min(read_line_max, idx)
 
-        !$OMP parallel do private(idx,itr,jtr,i0,itr0,j0,jtr0,inz,k,ktr,l,ltr,SIGNIJ,SIGNKL,cint2,save,count) &
-        !$OMP & reduction(+:totalint,nuniq)
+!$OMP parallel do private(idx,itr,jtr,i0,itr0,j0,jtr0,inz,k,ktr,l,ltr,SIGNIJ,SIGNKL,cint2,save,count) &
+!$OMP & reduction(+:totalint,nuniq)
         do idx = 1, read_line_len
             if (i(idx) == 0) cycle ! Go to next idx
 
@@ -357,7 +357,7 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
 
             End do loop_inz
         end do
-        !$OMP end parallel do
+!$OMP end parallel do
 
         ! Initialize i and continue to read
         i(:) = 0
@@ -391,4 +391,4 @@ SUBROUTINE readint2_casci_co(filename, nuniq)  ! 2 electorn integrals created by
     call allreduce_wrapper(mat=int2i_f2)
     if (rank == 0) print *, 'End MPI_Allreduce inttwr, inttwi, int2r_f1, int2i_f1, int2r_f2, int2i_f2'
 #endif
-end subroutine readint2_casci_co
+end subroutine readint2_casci

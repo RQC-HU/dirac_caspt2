@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
+SUBROUTINE fockcasci ! TO MAKE FOCK MATRIX for CASCI state
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -101,4 +101,4 @@ SUBROUTINE fockcasci_ty ! TO MAKE FOCK MATRIX for CASCI state
     call allreduce_wrapper(mat=f(1:nmo, 1:nmo))
 #endif
     if (rank == 0) print *, 'fockcasci end'
-end subroutine fockcasci_ty
+end subroutine fockcasci

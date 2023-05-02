@@ -43,7 +43,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     if (rank == 0) then
         print '(A,I8,A,I8)', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DIVO PROGRAM written by M. Abe test17_ty version 2007/7/20'
+        print *, ' ENTER R4DIVO PROGRAM written by M. Abe 2007/7/20'
         print *, ''
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
@@ -75,24 +75,21 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'nvcutu     =', nvcutu
         print *, 'diracver   =', dirac_version
     end if
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     filename = 'MRCONEE'
+    call readorb_enesym(filename)
+    call read1mo(filename)
 
-    call readorb_enesym_co(filename)
 
-    call read1mo_co(filename)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!Iwamuro create new ikr for dirac
+    ! Create UTChem type MDCINT file from Dirac MDCINT file
     if (rank == 0) print *, "Create_newmdcint"
     call create_newmdcint
 
     call get_mdcint_filename(0)
-    call readint2_casci_co(mdcintnew, nuniq)
+    ! Read UTChem type MDCINT files and expands the 2-electron integral in memory
+    call readint2_casci(mdcintnew, nuniq)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     realcvec = .TRUE.
     test = .true.
     realc = .FALSE.      !!!      realc =.TRUE.
@@ -113,45 +110,28 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, realc, 'realc'
         print *, realcvec, 'realcvec'
     end if
-
-!!=============================================!
-!                                              !
     iroot = selectroot
-!                                              !
-!!=============================================!
 
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
-!            BUILDING  FOCK MATRIX               !
-!  fij = hij + SIGUMA[<0|Ekl|0>{(ij|kl)-(il|kj)} !
-!                 kl                             !
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
-
-!! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
-!! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
     if (rank == 0) then
         Allocate (f(nsec, nsec)); Call memplus(KIND(f), SIZE(f), 2)
 
         f(:, :) = 0.0d+00
 
-!! NOW MAKE FOCK MATRIX FOR IVO (only virtual spinors
-
+!! NOW MAKE FOCK MATRIX FOR IVO (only virtual spinors)
 !! fij = hij + SIGUMA_a(ij|aa)-(ia|aj)}
 
-        Call fockivo_co
+        Call fockivo
 
         deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
     end if
 
+    ! Deallocate memory
     deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
     deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
     deallocate (indmo_cas_to_dirac); Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
     deallocate (indmo_dirac_to_cas); Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
     deallocate (one_elec_int_i); Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
-!      deallocate (int2i   );   Call memminus (KIND(int2i   ),SIZE(int2i   ),1)
-!      deallocate (indtwi  );   Call memminus (KIND(indtwi  ),SIZE(indtwi  ),1)
     deallocate (one_elec_int_r); Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
-!      deallocate (int2r   );   Call memminus (KIND(int2r   ),SIZE(int2r   ),1)
-!      deallocate (indtwr  );   Call memminus (KIND(indtwr  ),SIZE(indtwr  ),1)
     deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
     deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
@@ -163,11 +143,11 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
     deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
 
-    write (*, '("Current Memory is ",F10.2,"MB")') tmem/1024/1024
-
-    Call timing(val(3), totalsec, date0, tsec0)
-    write (*, *) 'End r4divo_ty part'
-
+    if (rank == 0) then
+        print *, '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        Call timing(val(3), totalsec, date0, tsec0)
+        print *, 'End r4divo part'
+    end if
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif

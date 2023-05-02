@@ -13,7 +13,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
     integer :: i0, j0, i, info
-    integer :: ii, ok
+    integer :: ok
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
@@ -53,49 +53,6 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
         End do
     End do
 
-! for a while !        write(*,'(/,"REAL")')
-! for a while !        Do i0 = 1, ndet
-! for a while !           write(*,'(5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5  &
-! for a while !           & )') (DBLE(ds(i0,j0)),j0 = 1,ndet)
-! for a while !!!!           write(*,'(5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!!!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!!!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!!!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!!!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5  &
-! for a while !!!!           & )') (DBLE(ds(i0,j0)),j0 = 1,ndet)
-! for a while !!!!!           write(*,'(5E13.5,/,5E13.5,/,5E13.5,/)') (DBLE(ds(i0,j0)),j0 = 1,ndet)
-! for a while !        End do
-
-! for a while !        write(*,'(/,"REAL")')
-! for a while !        Do i0 = 1, ndet
-! for a while !        Do j0 = 1, ndet
-! for a while !           if(ABS(DBLE(ds(i0,j0)))> 1.0d-10) &
-! for a while !           write(*,'("ds",2I4,E13.5)') i0, j0, DBLE(ds(i0,j0))
-! for a while !        End do
-! for a while !        End do
-! for a while !
-! for a while !        write(*,'(/,"REAL")')
-! for a while !        Do i0 = 1, ndet
-! for a while !        Do j0 = i0, ndet
-! for a while !           if(DBLE(ds(i0,j0))> 1.0d-10) then
-! for a while !              if( ABS(ds(i0,j0)-ds(j0,i0)) < 1.0d-5 ) then
-! for a while !                 write(*,'(2I4,2E13.5)') i0, j0, DBLE(ds(i0,j0)),DBLE(ds(j0,i0))
-! for a while !              End if
-! for a while !           End if
-! for a while !        End do
-! for a while !        End do
-! for a while !
-! for a while !        write(*,'(/,"IMAG")')
-! for a while !        Do i0 = 1, ndet
-! for a while !        Do j0 = 1, ndet
-! for a while !           if(ABS(DIMAG(ds(i0,j0)))> 1.0d-10) &
-! for a while !           write(*,'(E13.5)') DIMAG(ds(i0,j0))
-! for a while !        End do
-! for a while !        End do
 
     if (rank == 0) print *, 'Obtain inverse of ds matrix'
 
@@ -104,38 +61,13 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 
     dsold = ds
 
-    Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)!      SUBROUTINE ZGETRF( M, N, A, LDA, IPIV, INFO )
+    Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
     if (rank == 0) print *, 'info', info
 
     Allocate (work(ndet))
 
     Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
     if (rank == 0) print *, 'info', info
-
-! for a while !      write(*,'(/,"REAL")')
-! for a while !        Do i0 = 1, ndet
-! for a while !!           write(*,'(5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5, &
-! for a while !!           & /,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5,/,5F13.5  &
-! for a while !!           & )') (DBLE(ds(i0,j0)),j0 = 1,ndet)
-! for a while !
-! for a while !           write(*,'(5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5, &
-! for a while !           & /,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5,/,5E13.5  &
-! for a while !           & )') (DBLE(ds(i0,j0)),j0 = 1,ndet)
-! for a while !!           write(*,'(5E13.5,/,5E13.5,/,5E13.5,/)') (DBLE(ds(i0,j0)),j0 = 1,ndet)
-! for a while !        End do
-! for a while !        write(*,'(/,"IMAG")')
-! for a while !        Do i0 = 1, ndet
-! for a while !        Do j0 = 1, ndet
-! for a while !           if(ABS(DIMAG(ds(i0,j0)))> 1.0d-10) &
-! for a while !           write(*,'(E13.5)') DIMAG(ds(i0,j0))
-! for a while !        End do
-! for a while !        End do
 
     Deallocate (work)
     Deallocate (IPIV)
@@ -162,19 +94,6 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     Deallocate (dsold)
 
 !        Now ds is inverse matrix!
-
-!        Allocate (ci(ndet))
-!
-!        Do i0 = 1, nroot
-!           ci = 0.0d+00
-!           ci = DCMPLX(cir(1:ndet,i0), cii(1:ndet,i0))
-!           ci = MATMUL ( ds, ci)
-!           cir(1:ndet,i0) = DBLE(ci)
-!           cii(1:ndet,i0) = DIMAG(ci)
-!        End do
-!
-!
-!        Deallocate (ci)
 
     Allocate (ci(ndet))
 
@@ -212,7 +131,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
-    complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:)
+    complex*16, Allocatable  :: ds(:, :), ci(:)
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -260,7 +179,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    ! if (rank == 0) print *, 'Obtain inverse of ds matrix'
     Allocate (IPIV(ndet))
     Allocate (ci(ndet))
     ci = DCMPLX(cir(1:ndet, selectroot), cii(1:ndet, selectroot))

@@ -2,7 +2,8 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
-! diagonalization of real symmetric matrix
+
+!  diagonalization of real symmetric matrix
 !  and remove linear dependency for any S matrix
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -29,13 +30,10 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
         end if
     end do
 
-!test
-
     print *, 'Eigenvalue and eigen vector becomes'
     do i0 = 1, dimm
         print *, i0, 'th state'
         print *, wnew(i0)
-!           print *, ur(:,i0)
     end do
 
 end subroutine rcutoff
@@ -45,9 +43,7 @@ end subroutine rcutoff
 
 SUBROUTINE ccutoff(sc, w, dimn, dimm, threshold, uc, wnew)
 
-!      Call ccutoff (sc, ws, dimn, dimm, thres, uc, wsnew)
-
-! diagonalization of real symmetric matrix
+!  diagonalization of real symmetric matrix
 !  and remove linear dependency for any S matrix
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
+SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -52,6 +52,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
 
     if (rank == 0) print *, 'number of degeneracy of HOMO is', numh, DBLE(numh), 1.0d+00/DBLE(numh)
 
+    ! Create Fock matrix (only virtual)
     do i = 1, nsec
         i0 = i + ninact + nact
         f(i, i) = caspt2_mo_energy(i0)
@@ -70,7 +71,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
             end do
         end do
     end do
-
+    ! Take conjugate
     do i = 1, nsec
         do j = i, nsec
             f(j, i) = DCONJG(f(i, j))
@@ -188,12 +189,9 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         close (unit_buf)
     end if
 
-! IVO calculation
-
-! gerade
-
+! IVO calculation (Only supports with inversion symmetry)
     Do isym = 1, nsymrpa, 2
-        nv = count(irpmo(ninact + nact + 1:ninact + nact + nsec) == isym)
+        nv = count(irpamo(ninact + nact + 1:ninact + nact + nsec) == isym)
 
         Allocate (mosym(nv))
         Allocate (fsym(nv, nv))
@@ -202,8 +200,7 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         nv = 0
         Do i = 1, nsec
             i0 = i + ninact + nact
-            if (irpmo(i0) == isym) then
-!                 if(irpamo(i0)==isym) then
+            if (irpamo(i0) == isym) then
                 nv = nv + 1
                 mosym(nv) = i
             end if
@@ -218,7 +215,6 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
             nv0 = 0
             Do i0 = npg + noccg + 1, npg + neg - nvcutg
                 if (ABS(syminfo(i0)) == isym) then
-!                 if(irpamo(i0)==isym) then
                     nv0 = nv0 + 1
                     dmosym(nv0) = i0
                 end if
@@ -233,7 +229,6 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
             nv0 = 0
             Do i0 = npg + neg + npu + noccu + 1, npg + neg + npu + neu - nvcutu
                 if (ABS(syminfo(i0)) + nsymrpa/2 == isym) then
-!                 if(irpamo(i0)==isym) then
                     nv0 = nv0 + 1
                     dmosym(nv0) = i0
                 end if
@@ -246,7 +241,6 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
                 j0 = mosym(j)
                 fsym(i, j) = f(i0, j0)
                 fsym(j, i) = DCONJG(f(i0, j0))
-!                    write(*,*)fsym(i,j)
             end do
         end do
 
@@ -361,8 +355,8 @@ SUBROUTINE fockivo_co ! TO MAKE FOCK MATRIX for IVO
         write (unit_dfpcmo, '(66(X,I0))') (syminfo(i), i=1, nsum)
         close (unit_dfpcmo)
     end if
-    if (rank == 0) print *, 'fockivo_co end'
+    if (rank == 0) print *, 'fockivo end'
     deallocate (itrfmog, itrfmou)
     deallocate (BUF)
     deallocate (eval, syminfo)
-end subroutine fockivo_co
+end subroutine fockivo

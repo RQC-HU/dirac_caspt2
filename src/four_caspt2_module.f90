@@ -52,7 +52,6 @@ MODULE four_caspt2_module
     ! eigen : Eigen values
     real(8), allocatable :: cir(:, :), cii(:, :), eigen(:)
 
-    ! integer, allocatable :: indtwr(:, :, :, :), indtwi(:, :, :, :)
     !! =================================================
     !! Valiables of two electron integrals
     !! =================================================
@@ -95,7 +94,7 @@ MODULE four_caspt2_module
     real*8 :: enuc
     double precision :: ecore ! core energy
     integer :: nsymrp, nsymrpa, multb(128, 128), multb2(128, 128), nmo, scfru
-    character :: repn(64)*14, repna(64)*4, repn_ty(64)*6
+    character :: repn(64)*14, repna(64)*4
     integer, allocatable :: irpmo(:), irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
     integer, allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor

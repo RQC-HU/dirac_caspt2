@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE solvC_ord_ty(e0, e2c)
+SUBROUTINE solve_C_subspace(e0, e2c)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -76,7 +76,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    Call vCmat_ord_ty(v)
+    Call vCmat_ord(v)
     if (rank == 0) print *, 'come'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -335,7 +335,7 @@ SUBROUTINE solvC_ord_ty(e0, e2c)
     sumc2 = sumc2 + sumc2local
 
     continue
-    if (rank == 0) print *, 'end solvC_ord_ty'
+    if (rank == 0) print *, 'end solve_C_subspace'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -483,7 +483,7 @@ End subroutine bCmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE vCmat_ord_ty(v)
+SUBROUTINE vCmat_ord(v)
 
 ! Assume C1 molecule, V=<0|H|i> matrix in space C
 !
@@ -597,7 +597,7 @@ SUBROUTINE vCmat_ord_ty(v)
         Do it = 1, nact
             jt = it + ninact
 
-            Call tramo1_ty(ja, jt, cint1)
+            Call tramo1(ja, jt, cint1)
 
             effh(ia, it) = cint1
             !              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
@@ -742,4 +742,4 @@ SUBROUTINE vCmat_ord_ty(v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-end subroutine vCmat_ord_ty
+end subroutine vCmat_ord

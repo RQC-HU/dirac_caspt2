@@ -103,10 +103,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         nnkr = nkr
         rkli = 0.0d+00
 
-!Iwamuro debug
-        ! print *, "new_ikr1", datex, timex, nkr, (kr(i0),kr(-1*i0),i0=1,nkr)
-        ! print *, Filename
-
         ! Continue to read 2-electron integrals until mdcint_filename reaches the end of file.
         mdcint_file_read: do
             if (realonly) then

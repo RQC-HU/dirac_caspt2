@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE solvG_ord_ty(e0, e2g)
+SUBROUTINE solve_G_subspace(e0, e2g)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -112,7 +112,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-    Call vGmat_ord_ty(nabi, iabi, v)
+    Call vGmat_ord(nabi, iabi, v)
     if (rank == 0) print *, 'end after vGmat'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -339,7 +339,7 @@ SUBROUTINE solvG_ord_ty(e0, e2g)
     deallocate (v)
 
     continue
-    if (rank == 0) print *, 'end solvG_ord_ty'
+    if (rank == 0) print *, 'end solve_G_subspace'
 end
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -458,7 +458,7 @@ End subroutine bGmat
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
+SUBROUTINE vGmat_ord(nabi, iabi, v)
 !
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
 !
@@ -517,7 +517,7 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     end do
     close (unit_int2)
 
-    if (rank == 0) print *, 'vGmat_ord_ty is ended'
+    if (rank == 0) print *, 'vGmat_ord is ended'
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=v)
     if (rank == 0) print *, 'end allreduce vGmat'
@@ -525,4 +525,4 @@ SUBROUTINE vGmat_ord_ty(nabi, iabi, v)
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
-end subroutine vGmat_ord_ty
+end subroutine vGmat_ord
