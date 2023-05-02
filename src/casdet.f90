@@ -12,7 +12,7 @@ SUBROUTINE casdet
     use ras_det_check
     Implicit NONE
 
-    integer :: i, isym, allow_det_num
+    integer :: t, isym, allow_det_num, current_det
     integer, allocatable  :: cas_idx0(:)
     logical :: is_det_allow
 
@@ -23,39 +23,46 @@ SUBROUTINE casdet
     cas_idx0 = 0
     cas_idx_reverse = 0
     ndet = 0
-    !    67108864* 8 / (1024^2) = 500MB, 26 spinor
+
+    ! ===============================================
     ! Find the CASCI determinant and store the index of the CASCI determinant in cas_idx0.
     ! Also, store the reverse index of the CASCI determinant in cas_idx_reverse.
-    Do i = 1, 2**nact - 1
-        if (POPCNT(i) == nelec) then
-            is_det_allow = .true.
-            if (ras1_size /= 0) then
-                is_det_allow = ras1_det_check(i, ras1_max_hole)
-                if (.not. is_det_allow) cycle
-            end if
+    ! Loop over only the nelec electron determinants
+    ! ===============================================
+    current_det = 2**nelec - 1 ! First determinant that is the number of electrons are nact. (e.g. 1111 for 4 electrons)
+    do while (current_det < 2**nact)
+        if (ras1_size /= 0) then
+            is_det_allow = ras1_det_check(current_det, ras1_max_hole)
+            if (.not. is_det_allow) cycle
+        end if
 
-            if (ras3_size /= 0) then
-                is_det_allow = ras3_det_check(i, ras3_max_elec)
-                if (.not. is_det_allow) cycle
-            end if
+        if (ras3_size /= 0) then
+            is_det_allow = ras3_det_check(current_det, ras3_max_elec)
+            if (.not. is_det_allow) cycle
+        end if
 
-            allow_det_num = allow_det_num + 1
-            if (nsymrpa == 1) then
+        allow_det_num = allow_det_num + 1
+        if (nsymrpa == 1) then
+            ndet = ndet + 1
+            cas_idx0(ndet) = current_det
+            cas_idx_reverse(current_det) = ndet
+        else
+            Call detsym(current_det, isym)
+            if (rank == 0) print '(a,i20,a,b50,a,i5)', "i:", current_det, "bit(i)", current_det, "isym:", isym
+            if (isym == totsym) then
                 ndet = ndet + 1
-                cas_idx0(ndet) = i
-                cas_idx_reverse(i) = ndet
-            else
-                Call detsym(i, isym)
-                if (rank == 0) print '(a,i20,a,b50,a,i5)', "i:", i, "bit(i)", i, "isym:", isym
-                if (isym == totsym) then
-                    !if (rank == 0) print '(a,L,a,i20,a,b50)', 'is_det_allow', is_det_allow, ",i:", i, "bit(i)", i
-                    ndet = ndet + 1
-                    cas_idx0(ndet) = i
-                    cas_idx_reverse(i) = ndet
-                end if
-            End if
+                cas_idx0(ndet) = current_det
+                cas_idx_reverse(current_det) = ndet
+            end if
         End if
+
+        ! http://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
+        ! is the reference implementation of the following code (public domain)
+        ! Thanks to Dario Sneidermanis of Argentina, who provided this on November 28, 2009.
+        t = or(current_det, current_det - 1) + 1
+        current_det = or(t, ishft(and(t,-t)/and(current_det, -current_det), -1) - 1)  ! current_det changed to the next permutation
     End do
+
     ! Stop the program if ndet == 0 because ndet == 0 means the number of CASCI determinant.
     if (ndet == 0) then
         if (rank == 0) then
