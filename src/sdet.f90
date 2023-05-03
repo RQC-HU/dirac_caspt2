@@ -35,9 +35,10 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
     Call zgetrf(nelec, nelec, sini, nelec, ipvt, info)   ! From lapack LU fatorization!
 
-    Do i = 1, nelec
-        if (ipvt(i) /= i) n = n + 1
-    End do
+    n = count(ipvt /= [(i, i = 1, nelec)])
+    ! Do i = 1, nelec
+    !     if (ipvt(i) /= i) n = n + 1
+    ! End do
 
     If (mod(n, 2) == 0) then
         phase = 1.0d+00

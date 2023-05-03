@@ -8,6 +8,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     use four_caspt2_module
     use module_file_manager
+    use module_2integrals
+    use module_realonly
     use read_input_module
 
     Implicit NONE
@@ -81,6 +83,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) print *, 'realc', realc, ECORE, ninact, nact, nsec, nmo
 
+    call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
     else
@@ -141,24 +144,37 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
-    Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
-    debug = .TRUE.
-    If (debug) then
-        f(:, :) = 0.0d+00
-        if (rank == 0) print *, 'fockhf1 start'
-        Call fockhf1
+    if (realonly%is_realonly()) then
+        allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        fock_real(:, :) = 0.0d+00
+        call fockhf1_real
+    else
+        Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        fock_cmplx(:, :) = 0.0d+00
+        call fockhf1
     End if
+    ! debug = .TRUE.
+    ! If (debug) then
+    !     if (rank == 0) print *, 'fockhf1 start'
+    !     Call fockhf1
+    ! End if
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
-    f(:, :) = 0.0d+00
     if (rank == 0) then
         print *, 'before building fock'
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
     end if
-    Call fockcasci
+    if (realonly%is_realonly()) then
+        fock_real(:, :) = 0.0d+00
+        Call fockcasci_real
+    else
+        fock_cmplx(:, :) = 0.0d+00
+        Call fockcasci
+    end if
+
     if (rank == 0) then
         print *, 'end building fock'
         date1 = date0
@@ -198,7 +214,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(cir)) deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
     if (allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
     if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
-    if (allocated(f)) deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
+    if (allocated(fock_real)) deallocate (fock_real); Call memminus(KIND(fock_real), SIZE(fock_real), 1)
+    if (allocated(fock_cmplx)) deallocate (fock_cmplx); Call memminus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
     if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
     if (allocated(cas_idx)) deallocate (cas_idx); Call memminus(KIND(cas_idx), SIZE(cas_idx), 1)
     if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)

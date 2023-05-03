@@ -18,7 +18,7 @@ SUBROUTINE e0aftertra
     integer :: unit_e0after
 
     real*8 :: dr, di
-    complex*16 :: oneeff, cmplxint, dens, energyHF(2)
+    complex*16 :: oneeff, cmplxint, energyHF(2)
     complex*16, allocatable :: energy(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -160,23 +160,12 @@ SUBROUTINE e0aftertra
 
             if (i == j) oneeff = 0.5d+00*oneeff
 
-            if (realcvec) then
+            ii = i - ninact
+            jj = j - ninact
+            Call dim1_density_R(ii, jj, dr)
 
-                ii = i - ninact
-                jj = j - ninact
-                Call dim1_density_R(ii, jj, dr)
+            energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
 
-                energy(iroot, 3) = energy(iroot, 3) + oneeff*dr
-
-            else
-                ii = i - ninact
-                jj = j - ninact
-                Call dim1_density(ii, jj, dr, di)
-
-                dens = DCMPLX(dr, di)
-                energy(iroot, 3) = energy(iroot, 3) + oneeff*dens
-
-            end if
         end do
     end do
 
@@ -201,58 +190,28 @@ SUBROUTINE e0aftertra
 
                     If (i == l) cmplxint = cmplxint*(0.5d+00)
 
-                    if (realcvec) then
-                        ii = i - ninact
-                        jj = j - ninact
-                        kk = k - ninact
-                        ll = l - ninact
+                    ii = i - ninact
+                    jj = j - ninact
+                    kk = k - ninact
+                    ll = l - ninact
 
-                        Call dim2_density_R(ii, jj, kk, ll, dr)
+                    Call dim2_density_R(ii, jj, kk, ll, dr)
 
-                        energy(iroot, 4) = energy(iroot, 4) &
-                                           + (0.5d+00)*dr*cmplxint
-                    else
-                        ii = i - ninact
-                        jj = j - ninact
-                        kk = k - ninact
-                        ll = l - ninact
-
-                        Call dim2_density(ii, jj, kk, ll, dr, di)
-
-                        dens = DCMPLX(dr, di)
-
-                        ! Only master rank are allowed to create files used by CASPT2 except for MDCINTNEW.
-                        if (iroot == 1 .and. rank == 0) write (unit_e0after) i, j, k, l, DBLE(cmplxint), DBLE(dens)
-
-                        energy(iroot, 4) = energy(iroot, 4) &
-                                           + (0.5d+00)*dens*cmplxint
-                    end if
+                    energy(iroot, 4) = energy(iroot, 4) &
+                                       + (0.5d+00)*dr*cmplxint
 
                     if (j == k) then
 
                         dr = 0.0d+00
                         di = 0.0d+00
 
-                        if (realcvec) then
+                        ii = i - ninact
+                        ll = l - ninact
 
-                            ii = i - ninact
-                            ll = l - ninact
+                        Call dim1_density_R(ii, ll, dr)
 
-                            Call dim1_density_R(ii, ll, dr)
-
-                            energy(iroot, 4) = energy(iroot, 4) &
-                                               - (0.5d+00)*dr*cmplxint
-                        else
-
-                            ii = i - ninact
-                            ll = l - ninact
-
-                            Call dim1_density(ii, ll, dr, di)
-
-                            dens = DCMPLX(dr, di)
-                            energy(iroot, 4) = energy(iroot, 4) &
-                                               - (0.5d+00)*dens*cmplxint
-                        end if
+                        energy(iroot, 4) = energy(iroot, 4) &
+                                           - (0.5d+00)*dr*cmplxint
 
                     end if
 

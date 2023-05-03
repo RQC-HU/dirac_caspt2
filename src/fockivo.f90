@@ -8,6 +8,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     use four_caspt2_module
     use module_file_manager
+    use module_realonly, only: realonly
 
     Implicit NONE
 
@@ -40,7 +41,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 !! NOW MAKE FOCK MATRIX FOR IVO
 !! fij = hij + SIGUMA_k (ij|kk)-(ik|kj)} i, j run over virtual spinors k runs occupied spinors except HOMO
 
-    f = 0.0d+00
+    fock_cmplx = 0.0d+00
 
     if (rank == 0) print *, 'enter building fock matrix for IVO'
 
@@ -52,31 +53,45 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     if (rank == 0) print *, 'number of degeneracy of HOMO is', numh, DBLE(numh), 1.0d+00/DBLE(numh)
 
-    ! Create Fock matrix (only virtual)
-    do i = 1, nsec
-        i0 = i + ninact + nact
-        f(i, i) = caspt2_mo_energy(i0)
-        do j = i, nsec
-            j0 = j + ninact + nact
-            do k = ninact + nact - numh + 1, ninact + nact
+    if (realonly%is_realonly()) then
 
-                if (k > ninact + nact - 2 .and. mod(nelec, 2) == 1) then
-                    f(i, j) = f(i, j) - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                    f(i, j) = f(i, j) + 0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
-                else
-                    f(i, j) = f(i, j) - DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                    f(i, j) = f(i, j) + DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
-                end if
+    else
+        ! Create Fock matrix (only virtual)
+        do i = 1, nsec
+            i0 = i + ninact + nact
+            fock_cmplx(i, i) = caspt2_mo_energy(i0)
+            do j = i, nsec
+                j0 = j + ninact + nact
+                do k = ninact + nact - numh + 1, ninact + nact
 
+                    if (k > ninact + nact - 2 .and. mod(nelec, 2) == 1) then
+                        if (realonly%is_realonly()) then
+                            fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*int2r_f1(i0, j0, k, k)/DBLE(numh)
+                            fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*int2r_f2(i0, k, k, j0)/DBLE(numh)
+                        else
+                            fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                            fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
+                        end if
+                    else
+                        if (realonly%is_realonly()) then
+                            fock_cmplx(i, j) = fock_cmplx(i, j) + int2r_f2(i0, k, k, j0)/DBLE(numh)
+                            fock_cmplx(i, j) = fock_cmplx(i, j) - int2r_f1(i0, j0, k, k)/DBLE(numh)
+                        else
+                            fock_cmplx(i, j) = fock_cmplx(i, j) - DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                            fock_cmplx(i, j) = fock_cmplx(i, j) + DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
+                        end if
+                    end if
+
+                end do
             end do
         end do
-    end do
-    ! Take conjugate
-    do i = 1, nsec
-        do j = i, nsec
-            f(j, i) = DCONJG(f(i, j))
+        ! Take conjugate
+        do i = 1, nsec
+            do j = i, nsec
+                fock_cmplx(j, i) = DCONJG(fock_cmplx(i, j))
+            end do
         end do
-    end do
+    end if
 
     IMAX = nbas*lscom
     call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
@@ -239,8 +254,8 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             i0 = mosym(i)
             Do j = i, nv
                 j0 = mosym(j)
-                fsym(i, j) = f(i0, j0)
-                fsym(j, i) = DCONJG(f(i0, j0))
+                fsym(i, j) = fock_cmplx(i0, j0)
+                fsym(j, i) = DCONJG(fock_cmplx(i0, j0))
             end do
         end do
 
