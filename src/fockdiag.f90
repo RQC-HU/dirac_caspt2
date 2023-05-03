@@ -93,7 +93,7 @@ SUBROUTINE fockdiag
 
         Call e0aftertra
 
-        deallocate (fa); Call memminus(KIND(fa), SIZE(fa), 1)
+        Call memminus(KIND(fa), SIZE(fa), 1);deallocate (fa)
 
     else
 
@@ -103,7 +103,7 @@ SUBROUTINE fockdiag
 
         Call e0aftertrac
 
-        deallocate (fac); Call memminus(KIND(fac), SIZE(fac), 2)
+        Call memminus(KIND(fac), SIZE(fac), 2);deallocate (fac)
 
     end if
 

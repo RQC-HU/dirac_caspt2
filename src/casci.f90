@@ -139,7 +139,7 @@ SUBROUTINE casci
                 end do
             end do
         end if
-        Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
+        Call memminus(KIND(mat), SIZE(mat), 2); Deallocate (mat)
     end if
     Deallocate (ecas)
     deallocate (keys, vals)

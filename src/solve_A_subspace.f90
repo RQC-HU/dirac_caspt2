@@ -180,10 +180,10 @@ SUBROUTINE solve_A_subspace(e0, e2a)
         tsectmp1 = tsectmp0
 
         If (dimm == 0) then
-            deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-            deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
-            deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
-            deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
+            Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+            Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
+            Call memminus(KIND(sc), SIZE(sc), 2); deallocate (sc)
+            Call memminus(KIND(ws), SIZE(ws), 1); deallocate (ws)
             cycle ! Go to the next isym.
         End if
 
@@ -209,7 +209,7 @@ SUBROUTINE solve_A_subspace(e0, e2a)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        deallocate (sc0); Call memminus(KIND(sc0), SIZE(sc0), 2)
+        Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
 
         Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
         Allocate (wsnew(dimm)); Call memplus(KIND(wsnew), SIZE(wsnew), 1)     ! wnew M
@@ -226,8 +226,8 @@ SUBROUTINE solve_A_subspace(e0, e2a)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        deallocate (sc); Call memminus(KIND(sc), SIZE(sc), 2)
-        deallocate (ws); Call memminus(KIND(ws), SIZE(ws), 1)
+        Call memminus(KIND(sc), SIZE(sc), 2); deallocate (sc)
+        Call memminus(KIND(ws), SIZE(ws), 1); deallocate (ws)
 
         if (rank == 0) print *, 'before ucramda_s_half'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -235,7 +235,7 @@ SUBROUTINE solve_A_subspace(e0, e2a)
         tsectmp1 = tsectmp0
         Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        deallocate (wsnew); Call memminus(KIND(wsnew), SIZE(wsnew), 1)
+        Call memminus(KIND(wsnew), SIZE(wsnew), 1); deallocate (wsnew)
 
         if (rank == 0) print *, 'ucrams half OK'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -263,8 +263,8 @@ SUBROUTINE solve_A_subspace(e0, e2a)
             end if
         End if
 
-        deallocate (bc); Call memminus(KIND(bc), SIZE(bc), 2)
-        deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
+        Call memminus(KIND(bc), SIZE(bc), 2); deallocate (bc)
+        Call memminus(KIND(bc0), SIZE(bc0), 2); deallocate (bc0)
 
         Allocate (wb(dimm)); Call memplus(KIND(wb), SIZE(wb), 1)
 
@@ -299,7 +299,7 @@ SUBROUTINE solve_A_subspace(e0, e2a)
             tsectmp1 = tsectmp0
 
         End if
-        deallocate (bc0); Call memminus(KIND(bc0), SIZE(bc0), 2)
+        Call memminus(KIND(bc0), SIZE(bc0), 2); deallocate (bc0)
 
         if (rank == 0) print *, 'bC1 matrix is diagonalized!'
 
@@ -319,7 +319,7 @@ SUBROUTINE solve_A_subspace(e0, e2a)
                 Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
                 vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(uc(1:dimn, 1:dimm))), vc(1:dimn))
 
-                Deallocate (vc); Call memminus(KIND(vc), SIZE(vc), 2)
+                Call memminus(KIND(vc), SIZE(vc), 2); Deallocate (vc)
 
                 alpha = -eps(ii) - e0 + eshift   ! For Level Shift (2007/2/9)
 
@@ -329,17 +329,17 @@ SUBROUTINE solve_A_subspace(e0, e2a)
                     sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                     e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                 End do
-                Deallocate (vc1); Call memminus(KIND(vc1), SIZE(vc1), 2)
+                Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
 
             End if
 
         End do
         if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
 
-        Deallocate (bc1); Call memminus(KIND(bc1), SIZE(bc1), 2)
-        Deallocate (uc); Call memminus(KIND(uc), SIZE(uc), 2)
-        Deallocate (wb); Call memminus(KIND(wb), SIZE(wb), 1)
-        Deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 2)
+        Call memminus(KIND(bc1), SIZE(bc1), 2); Deallocate (bc1)
+        Call memminus(KIND(uc), SIZE(uc), 2); Deallocate (uc)
+        Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
+        Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
         e2a = e2a + e2(isym)
         if (rank == 0) print *, 'End e2(isym) add'
@@ -355,7 +355,7 @@ SUBROUTINE solve_A_subspace(e0, e2a)
     end if
     sumc2 = sumc2 + sumc2local
 
-    Deallocate (v); Call memminus(KIND(v), SIZE(v), 2)
+    Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 
     continue
     if (rank == 0) print *, 'end solve_A_subspace'
@@ -789,11 +789,11 @@ SUBROUTINE vAmat_ord(v)
 
     if (rank == 0) print *, 'vAmat_ord is ended'
 
-    deallocate (indt); Call memminus(KIND(indt), SIZE(indt), 1)
-    deallocate (indu); Call memminus(KIND(indu), SIZE(indu), 1)
-    deallocate (indv); Call memminus(KIND(indv), SIZE(indv), 1)
-    deallocate (ind2u); Call memminus(KIND(ind2u), SIZE(ind2u), 1)
-    deallocate (ind2v); Call memminus(KIND(ind2v), SIZE(ind2v), 1)
+    Call memminus(KIND(indt), SIZE(indt), 1); deallocate (indt)
+    Call memminus(KIND(indu), SIZE(indu), 1); deallocate (indu)
+    Call memminus(KIND(indv), SIZE(indv), 1); deallocate (indv)
+    Call memminus(KIND(ind2u), SIZE(ind2u), 1); deallocate (ind2u)
+    Call memminus(KIND(ind2v), SIZE(ind2v), 1); deallocate (ind2v)
 
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=v)

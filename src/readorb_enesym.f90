@@ -136,14 +136,16 @@ SUBROUTINE readorb_enesym(filename)
         End do
     end if
     MULTB_DS = transpose(SD)
+    if(rank == 0) print *, "before deallocate SD"
     if (rank == 0) then
         print *, 'MULTB_DS'
         Do i = 1, nsymrpa
             print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
         End do
     end if
-    if (allocated(SD)) Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
-
+    if(rank == 0) print *, "before deallocate SD"
+    Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
+    if(rank == 0) print *, "deallocate SD"
     ! Define the space index for each molecular orbital.
     Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
     space_idx(1:ninact) = 1 ! inactive = 1
@@ -176,7 +178,7 @@ SUBROUTINE readorb_enesym(filename)
     if (rank == 0) then
         print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
     end if
-    if (allocated(irpmo)) deallocate (irpmo); Call memminus(KIND(irpmo), SIZE(irpmo), 1)
+    if (allocated(irpmo))Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
     if (rank == 0) then
         print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
     end if
@@ -243,7 +245,7 @@ SUBROUTINE readorb_enesym(filename)
         end do
     end if
 
-    if (allocated(dammo)) deallocate (dammo); Call memminus(KIND(dammo), SIZE(dammo), 1)
+    if (allocated(dammo)) Call memminus(KIND(dammo), SIZE(dammo), 1);deallocate (dammo)
 contains
 
     subroutine sort_list_from_energy_order_to_ras_order(want_to_sort)

@@ -130,12 +130,13 @@ contains
         do while (continue_read)
             do idx = 1, read_line_max
                 read (unit_mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
-                    (indk(idx, inz), indl(idx, inz), rklr(idx, inz), inz=1, nz(idx))
+                    (indk(idx, inz), indl(idx, inz), inz=1,nz(idx)), (rklr(idx, inz), inz=1,nz(idx))
                 call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
                 if (is_end_of_file) then
                     continue_read = .false.
                     exit
                 end if
+                if (i(idx) == 0) exit
             end do
 
             ! The length of read line is equal to min(read_line_max, idx)
@@ -387,13 +388,13 @@ contains
             print *, nuniq, totalint
         end if
 
-        if (allocated(indk)) deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
-        if (allocated(indl)) deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
-        if (allocated(rklr)) deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
-        if (allocated(kr)) deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
-        if (allocated(i)) deallocate (i); Call memminus(KIND(i), SIZE(i), 1)
-        if (allocated(j)) deallocate (j); Call memminus(KIND(j), SIZE(j), 1)
-        if (allocated(nz)) deallocate (nz); call memminus(kind(nz), size(nz), 1)
+        if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1);deallocate (indk)
+        if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1);deallocate (indl)
+        if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1);deallocate (rklr)
+        if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1);deallocate (kr)
+        if (allocated(i)) Call memminus(KIND(i), SIZE(i), 1);deallocate (i)
+        if (allocated(j)) Call memminus(KIND(j), SIZE(j), 1);deallocate (j)
+        if (allocated(nz)) call memminus(kind(nz), size(nz), 1);deallocate (nz)
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=inttwr)
         call allreduce_wrapper(mat=int2r_f1)
@@ -488,6 +489,7 @@ contains
                     continue_read = .false.
                     exit
                 end if
+                if (i(idx) == 0) exit
             end do
 
             ! The length of read line is equal to min(read_line_max, idx)
@@ -770,14 +772,14 @@ contains
             print *, nuniq, totalint
         end if
 
-        if (allocated(indk)) deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
-        if (allocated(indl)) deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
-        if (allocated(rklr)) deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
-        if (allocated(rkli)) deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
-        if (allocated(kr)) deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
-        if (allocated(i)) deallocate (i); Call memminus(KIND(i), SIZE(i), 1)
-        if (allocated(j)) deallocate (j); Call memminus(KIND(j), SIZE(j), 1)
-        if (allocated(nz)) deallocate (nz); call memminus(kind(nz), size(nz), 1)
+        if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1);deallocate (indk)
+        if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1);deallocate (indl)
+        if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1);deallocate (rklr)
+        if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1);deallocate (rkli)
+        if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1);deallocate (kr)
+        if (allocated(i)) Call memminus(KIND(i), SIZE(i), 1);deallocate (i)
+        if (allocated(j)) Call memminus(KIND(j), SIZE(j), 1);deallocate (j)
+        if (allocated(nz)) call memminus(kind(nz), size(nz), 1);deallocate (nz)
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=inttwr)
         call allreduce_wrapper(mat=inttwi)

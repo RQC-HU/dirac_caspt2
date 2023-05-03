@@ -400,11 +400,11 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     close (unit_f)
     close (unit_g)
     close (unit_h)
-    if (allocated(indk)) deallocate (indk); Call memminus(KIND(indk), SIZE(indk), 1)
-    if (allocated(indl)) deallocate (indl); Call memminus(KIND(indl), SIZE(indl), 1)
-    if (allocated(rklr)) deallocate (rklr); Call memminus(KIND(rklr), SIZE(rklr), 1)
-    if (allocated(rkli)) deallocate (rkli); Call memminus(KIND(rkli), SIZE(rkli), 1)
-    if (allocated(kr)) deallocate (kr); Call memminus(KIND(kr), SIZE(kr), 1)
+    if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1); deallocate (indk)
+    if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1); deallocate (indl)
+    if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1); deallocate (rklr)
+    if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1); deallocate (rkli)
+    if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1); deallocate (kr)
     if (rank == 0) print *, "end readint2_ord_co"
 
 end subroutine readint2_ord_co
