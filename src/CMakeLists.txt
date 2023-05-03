@@ -2,8 +2,10 @@ add_library(dcaspt2_module STATIC
   four_caspt2_module.f90
   module_dict.f90
   module_error.f90
+  module_2integrals.f90
   module_file_manager.f90
   module_mpi.f90
+  module_realonly.f90
   module_sort_swap.f90
   ras_det_check.f90
   read_input_module.f90
@@ -30,7 +32,6 @@ add_executable(r4dcascicoexe
   r4dcasci.f90
   read1mo.f90
   readorb_enesym.f90
-  readint2_casci.f90
   sdet.f90
   takekr.f90
   timing.f90
@@ -82,7 +83,6 @@ add_executable(r4divocoexe
 	one_e_exct.f90
 	r4divo.f90
 	read1mo.f90
-	readint2_casci.f90
 	readorb_enesym.f90
 	takekr.f90
 	timing.f90

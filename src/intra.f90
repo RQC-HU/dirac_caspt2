@@ -87,7 +87,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
 
         Call takekr(i, j, k, l, cint2)
@@ -95,7 +95,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
     end do
     close (unit_int2_subspace)
@@ -131,7 +131,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
         Do knew = 1, nsym(spk, isym)
             k1 = indsym(spk, isym, knew)
-            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
+            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(fock_cmplx(k, k1))
         End do
     end do
     close (unit_int2_subspace)
@@ -166,7 +166,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
         Do jnew = 1, nsym(spj, isym)
             j1 = indsym(spj, isym, jnew)
-            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
+            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*fock_cmplx(j, j1)
         End do
     end do
     close (unit_int2_subspace)
@@ -201,7 +201,7 @@ SUBROUTINE intra_1(spi, spj, spk, spl, fname)
 
         Do inew = 1, nsym(spi, isym)
             i1 = indsym(spi, isym, inew)
-            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
+            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(fock_cmplx(i, i1))
         End do
     end do
     close (unit_int2_subspace)
@@ -318,7 +318,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
 
         if (i == k .and. j == l) then
@@ -339,7 +339,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
             Do lnew = 1, nsym(spl, isym)
                 l1 = indsym(spl, isym, lnew)
-                traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+                traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
             End do
         end if
         Call takekr(i, j, k, l, cint2)
@@ -347,7 +347,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
 
         if (i == k .and. j == l) cycle ! Continue to read 2-integrals
@@ -366,7 +366,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
     end do
     close (unit_int2_subspace)
@@ -403,7 +403,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         Do knew = 1, nsym(spk, isym)
             k1 = indsym(spk, isym, knew)
-            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
+            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(fock_cmplx(k, k1))
         End do
     end do
     close (unit_int2_subspace)
@@ -439,7 +439,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         Do jnew = 1, nsym(spj, isym)
             j1 = indsym(spj, isym, jnew)
-            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
+            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*fock_cmplx(j, j1)
         End do
     end do
     close (unit_int2_subspace)
@@ -475,7 +475,7 @@ SUBROUTINE intra_2(spi, spj, spk, spl, fname)
 
         Do inew = 1, nsym(spi, isym)
             i1 = indsym(spi, isym, inew)
-            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
+            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(fock_cmplx(i, i1))
         End do
     end do
     close (unit_int2_subspace)
@@ -602,7 +602,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
 
         Call takekr(i, j, k, l, cint2)
@@ -612,7 +612,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
 
         if (ABS(k - l) == 1 .and. ABS(k/2 - l/2) == 1) cycle ! Continue to read 2-integrals
@@ -628,7 +628,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
 
         Call takekr(i, j, k, l, cint2)
@@ -636,7 +636,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do lnew = 1, nsym(spl, isym)
             l1 = indsym(spl, isym, lnew)
-            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*f(l, l1)
+            traint2(i, j, k, l1) = traint2(i, j, k, l1) + cint2*fock_cmplx(l, l1)
         End do
     end do
     close (unit_int2_subspace)
@@ -672,7 +672,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do knew = 1, nsym(spk, isym)
             k1 = indsym(spk, isym, knew)
-            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(f(k, k1))
+            traint2(i, j, k1, l) = traint2(i, j, k1, l) + cint2*DCONJG(fock_cmplx(k, k1))
         End do
     end do
     close (unit_int2_subspace)
@@ -708,7 +708,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do jnew = 1, nsym(spj, isym)
             j1 = indsym(spj, isym, jnew)
-            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*f(j, j1)
+            traint2(i, j1, k, l) = traint2(i, j1, k, l) + cint2*fock_cmplx(j, j1)
         End do
     end do
     close (unit_int2_subspace)
@@ -744,7 +744,7 @@ SUBROUTINE intra_3(spi, spj, spk, spl, fname)
 
         Do inew = 1, nsym(spi, isym)
             i1 = indsym(spi, isym, inew)
-            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(f(i, i1))
+            traint2(i1, j, k, l) = traint2(i1, j, k, l) + cint2*DCONJG(fock_cmplx(i, i1))
         End do
     end do
     close (unit_int2_subspace)

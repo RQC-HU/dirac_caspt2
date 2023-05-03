@@ -9,6 +9,7 @@ SUBROUTINE casci
     use module_file_manager
     use four_caspt2_module
     use module_dict, only: get_keys_vals, get_size
+    use module_realonly, only: realonly
     Implicit NONE
 #ifdef HAVE_MPI
     include 'mpif.h'
@@ -16,7 +17,8 @@ SUBROUTINE casci
     integer :: comb, j0, j, i0, irec, unit_cimat
     real*8 :: cutoff_threshold
 
-    complex*16, allocatable :: mat(:, :)
+    complex*16, allocatable :: mat(:, :) ! For complex
+    real(8), allocatable :: mat_real(:, :) ! For realonly
     real*8, allocatable     :: ecas(:)
     character*20            :: filename, chr_root
     real(8) :: expected_mem
@@ -36,9 +38,15 @@ SUBROUTINE casci
     end if
 
     ! Create a matrix for CI
-    Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
-    if (rank == 0) print *, "end allocate mat(ndet,ndet)"
-    Call casmat(mat)
+    if (realonly%is_realonly()) then
+        allocate (mat_real(ndet, ndet)); Call memplus(KIND(mat_real), SIZE(mat_real), 1)
+        if (rank == 0) print *, "end allocate mat_real(ndet,ndet)"
+        Call casmat_real(mat_real)
+    else
+        Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
+        if (rank == 0) print *, "end allocate mat(ndet,ndet)"
+        Call casmat(mat)
+    end if
     Allocate (ecas(ndet))
     ecas = 0.0d+00
     datetmp1 = date0; datetmp0 = date0
@@ -51,7 +59,11 @@ SUBROUTINE casci
         print *, 'ndet before cdiag', ndet
     end if
     cutoff_threshold = 0  ! No need to resolve linear dependence
-    Call cdiag(mat, ndet, ndet, ecas, cutoff_threshold)
+    if (realonly%is_realonly()) then
+        Call rdiag(mat_real, ndet, ndet, ecas, cutoff_threshold)
+    else
+        Call cdiag(mat, ndet, ndet, ecas, cutoff_threshold)
+    end if
     if (rank == 0) print *, 'End mat cdiag'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
@@ -72,28 +84,13 @@ SUBROUTINE casci
             write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx_reverse to the file
         end do
         close (unit_cimat)
-
-        filename = 'CIMAT1'
-        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
-        write (unit_cimat) ndet
-        write (unit_cimat) cas_idx(1:ndet)
-        write (unit_cimat) ecas(1:ndet)
-        write (unit_cimat) mat(1:ndet, 1:ndet)
-        close (unit_cimat)
     end if
-
     Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
-    Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
     Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
-    ! Print out the results
-    eigen(:) = 0.0d+00
     cir(:, :) = 0.0d+00
-    cii(:, :) = 0.0d+00
+    eigen(:) = 0.0d+00
     eigen(1:nroot) = ecas(1:nroot) + ecore
-    cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
-    cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
-    Deallocate (ecas)
     if (rank == 0) then
         print '("CASCI ENERGY FOR ",I2," STATE")', totsym
         Do irec = 1, nroot
@@ -101,27 +98,51 @@ SUBROUTINE casci
             print '("CASCI Total Energy ROOT",a,F30.15," a.u.")', trim(adjustl(chr_root)), eigen(irec)
         End do
     end if
-    do j = 1, ndet
-        if (ABS(DIMAG(mat(j, selectroot))) > global_threshold) then
-            realcvec = .false.
-        end if
-    end do
-    if (rank == 0) then
-        do irec = 1, nroot
-            print '("Root = ",I4)', irec
-            do j = 1, ndet
-                if ((ABS(mat(j, irec))**2) > 1.0d-02) then
-                    i0 = cas_idx(j)
-                    print *, (btest(i0, j0), j0=0, nact - 1)
-                    print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
-                    & j, mat(j, irec), &
-                    & ABS(mat(j, irec))**2
-                end if
+    if (realonly%is_realonly()) then
+        cir(1:ndet, selectroot) = mat_real(1:ndet, selectroot)
+        if (rank == 0) then
+            do irec = 1, nroot
+                print '("Root = ",I4)', irec
+                do j = 1, ndet
+                    if ((ABS(mat_real(j, irec))**2) > 1.0d-02) then
+                        i0 = cas_idx(j)
+                        print *, (btest(i0, j0), j0=0, nact - 1)
+                        print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
+                        & j, mat_real(j, irec), &
+                        & ABS(mat_real(j, irec))**2
+                    end if
+                end do
             end do
+        end if
+    else
+        Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
+        ! Print out the results
+        cii(:, :) = 0.0d+00
+        cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
+        cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
+        do j = 1, ndet
+            if (ABS(DIMAG(mat(j, selectroot))) > global_threshold) then
+                realcvec = .false.
+            end if
         end do
+        if (rank == 0) then
+            do irec = 1, nroot
+                print '("Root = ",I4)', irec
+                do j = 1, ndet
+                    if ((ABS(mat(j, irec))**2) > 1.0d-02) then
+                        i0 = cas_idx(j)
+                        print *, (btest(i0, j0), j0=0, nact - 1)
+                        print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
+                        & j, mat(j, irec), &
+                        & ABS(mat(j, irec))**2
+                    end if
+                end do
+            end do
+        end if
+        Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
     end if
-    Deallocate (mat); Call memminus(KIND(mat), SIZE(mat), 2)
-    deallocate(keys, vals)
+    Deallocate (ecas)
+    deallocate (keys, vals)
 end subroutine casci
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

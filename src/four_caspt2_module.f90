@@ -61,9 +61,9 @@ MODULE four_caspt2_module
     ! int2r_f2
     ! int2i_f1
     ! int2i_f2
-    real(8), allocatable :: inttwr(:, :, :, :), inttwi(:, :, :, :)
-    real(8), allocatable :: int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
-    real(8), allocatable :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
+    real(8), allocatable, target :: inttwr(:, :, :, :), inttwi(:, :, :, :)
+    real(8), allocatable, target :: int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
+    real(8), allocatable, target :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
 
     logical :: realc, realcvec, debug, realf, evenelec
 
@@ -108,11 +108,13 @@ MODULE four_caspt2_module
 
     real*8, allocatable :: eps(:)
 
-    complex*16, allocatable :: f(:, :), itrfmo(:, :, :) ! f: fock matrix
+    complex*16, allocatable :: itrfmo(:, :, :)
+    complex*16, allocatable :: fock_cmplx(:, :)
+    real(8), allocatable :: fock_real(:, :)
 
 ! Iwamuro modify
     integer :: nelecd(64), nfsym, nz1, norbt
-    logical :: spfr, sfform, realonly ! realonly : If it is true, only real numbers are written in MDCINT.
+    logical :: spfr, sfform
 
 ! Old Dirac
 !       Write(UT_sys_ftmp) NMO,BREIT,ETOTAL

@@ -12,7 +12,7 @@ SUBROUTINE casdet
     use module_dict, only: add
     Implicit NONE
 
-    integer :: t, isym, allow_det_num, current_det
+    integer :: t, allow_det_num, current_det
     integer, allocatable  :: cas_idx0(:)
 
     if (rank == 0) print *, 'Enter casdet'
@@ -37,7 +37,6 @@ SUBROUTINE casdet
 
         ! RAS conditions are satisfied
         allow_det_num = allow_det_num + 1
-        if (rank == 0) print '(a,i20,a,b50,a,i5)', "i:", current_det, "bit(i)", current_det, "isym:", isym
 
         ! Check if the determinant is CASCI determinant
         if (is_cas_determinant()) then
@@ -103,7 +102,7 @@ contains
     logical function is_cas_determinant()
         use four_caspt2_module
         implicit none
-        integer :: i, j, jsym, ielec, isym1
+        integer :: i, j, jsym, ielec, isym, isym1
 
         is_cas_determinant = .false. ! Default value
         if (nsymrpa == 1) then
@@ -134,6 +133,8 @@ contains
             End do
             If (mod(ielec, 2) == 0) isym = isym + nsymrpa ! even number electronic system
 
+            if (rank == 0) print '(a,i20,a,b50,a,i5)', &
+                "current_det:", current_det, "bit(current_det)", current_det, "isym:", isym
             ! Check if the determinant is allowed
             if (isym == totsym) then
                 is_cas_determinant = .true.

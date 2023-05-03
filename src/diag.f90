@@ -261,7 +261,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
         dimn = ncount(sym)
         Allocate (fasym(dimn, dimn))
-        fasym(1:dimn, 1:dimn) = real(f(ind(1:dimn, sym), ind(1:dimn, sym)), kind=8)
+        fasym(1:dimn, 1:dimn) = fock_real(ind(1:dimn, sym), ind(1:dimn, sym))
 
         cutoff_threshold = 0.0d+00 ! No cutoff
         Call rdiag(fasym, dimn, dummy, wsym, cutoff_threshold)
@@ -280,17 +280,17 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
 ! NOW FA BECOMES TRANSFORM MATRIX   CONJG(Fa) Fbc Fa = W <= diagonal form!
 
-    Allocate (mat(n, n))
+    Allocate (mat(n0:n1, n0:n1))
     mat = 0.0d+00
 
     mat = TRANSPOSE(fa)
-    mat = MATMUL(mat, real(f))
+    mat = MATMUL(mat, fock_real(n0:n1, n0:n1))
     mat = MATMUL(mat, fa)
 
     if (rank == 0) then
         print *, 'OFF DIAGONAL TERM OF U*FU'
-        do j = 1, n
-            do i = 1, n
+        do j = n0, n1
+            do i = n0, n1
                 if (i /= j .and. (ABS(mat(i, j)) > 1.0d-10)) then
                     print '(2E13.5,2I3)', mat(i, j), i, j
                 end if
@@ -298,7 +298,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
         end do
 
         print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
-        do i = 1, n
+        do i = n0, n1
             print '(4E13.5)', mat(i, i), w(i), ABS(mat(i, i) - w(i))
         end do
     end if
@@ -342,7 +342,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     end if
 
     wc(:) = 0.0d+00
-    if (count(abs(dimag(f(n0:n1, n0:n1))) > 1.0d-10) > 0) then
+    if (count(abs(dimag(fock_cmplx(n0:n1, n0:n1))) > 1.0d-10) > 0) then
         fi = .TRUE.
     else
         fi = .FALSE.
@@ -374,7 +374,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
         Do j = 1, dimn
             Do i = j, dimn
-                facsym(i, j) = f(ind(i, sym), ind(j, sym))
+                facsym(i, j) = fock_cmplx(ind(i, sym), ind(j, sym))
                 facsym(j, i) = DCONJG(facsym(i, j)) ! HERMITE
             End do
         End do
@@ -430,7 +430,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
     fac = DCONJG(fac)
     matc = TRANSPOSE(fac)
-    matc = MATMUL(matc(n0:n1, n0:n1), f(n0:n1, n0:n1))
+    matc = MATMUL(matc(n0:n1, n0:n1), fock_cmplx(n0:n1, n0:n1))
     fac = DCONJG(fac)
     matc = MATMUL(matc, fac)
 

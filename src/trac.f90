@@ -8,12 +8,13 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_file_manager, only: open_unformatted_file
 
     Implicit NONE
     real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
     integer :: i0, j0, i, info
-    integer :: ok
+    integer :: ok, unit_newcicoeff
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
@@ -52,7 +53,6 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 
         End do
     End do
-
 
     if (rank == 0) print *, 'Obtain inverse of ds matrix'
 
@@ -98,10 +98,14 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     Allocate (ci(ndet))
 
     ci = 0.0d+00
-    ci = DCMPLX(cir(1:ndet, selectroot), cii(1:ndet, selectroot))
+    ci = DCMPLX(cir(1:ndet, selectroot), [(0.0d+00, i=1, nelec)])
     ci = MATMUL(ds, ci)
     cir(1:ndet, selectroot) = DBLE(ci)
-    cii(1:ndet, selectroot) = DIMAG(ci)
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        call open_unformatted_file(unit=unit_newcicoeff, file="NEWCICOEFF", status='replace', optional_action='write')
+        write (unit_newcicoeff) ci(1:ndet)
+        close (unit_newcicoeff)
+    end if
 
     Deallocate (ci)
 

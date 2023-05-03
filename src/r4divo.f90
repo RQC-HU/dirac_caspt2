@@ -8,6 +8,8 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
     use four_caspt2_module
     use module_file_manager
+    use module_2integrals
+    use module_realonly, only: check_realonly, realonly
     use read_input_module
 
     Implicit NONE
@@ -81,7 +83,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call readorb_enesym(filename)
     call read1mo(filename)
 
-
+    call check_realonly
     ! Create UTChem type MDCINT file from Dirac MDCINT file
     if (rank == 0) print *, "Create_newmdcint"
     call create_newmdcint
@@ -113,16 +115,16 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     iroot = selectroot
 
     if (rank == 0) then
-        Allocate (f(nsec, nsec)); Call memplus(KIND(f), SIZE(f), 2)
+        Allocate (fock_cmplx(nsec, nsec)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
 
-        f(:, :) = 0.0d+00
+        fock_cmplx(:, :) = 0.0d+00
 
 !! NOW MAKE FOCK MATRIX FOR IVO (only virtual spinors)
 !! fij = hij + SIGUMA_a(ij|aa)-(ia|aj)}
 
         Call fockivo
 
-        deallocate (f); Call memminus(KIND(f), SIZE(f), 2)
+        deallocate (fock_cmplx); Call memminus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
     end if
 
     ! Deallocate memory
@@ -132,9 +134,11 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     deallocate (one_elec_int_i); Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
     deallocate (one_elec_int_r); Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
     deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-    deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
     deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-    deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+    if (.not. realonly%is_realonly()) then
+        deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
+        deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+    end if
     deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
     deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
     deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)

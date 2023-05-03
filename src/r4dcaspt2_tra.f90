@@ -7,8 +7,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
-    use module_file_manager
     use module_dict, only: add
+    use module_file_manager
+    use module_realonly, only: check_realonly, realonly
     use read_input_module, only: read_input
     Implicit NONE
 #ifdef HAVE_MPI
@@ -95,6 +96,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     filename = 'MRCONEE'
     call readorb_enesym(filename)
     call read1mo(filename)
+    call check_realonly()
 
     if (rank == 0) then
         print *, ' EXIT READ MRCONEE'
@@ -156,8 +158,17 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read the transformed Fock matrix
     call open_unformatted_file(unit=unit_new, file="TRANSFOCK", status='old', optional_action="read")
     read (unit_new) nmo
-    Allocate (f(nmo, nmo)); Call memplus(KIND(f), SIZE(f), 2)
-    read (unit_new) f
+    if (realonly%is_realonly()) then
+        allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        read (unit_new) fock_real
+        allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        fock_cmplx = 0.0d+00
+        fock_cmplx = fock_real
+    else
+        Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        read (unit_new) fock_cmplx
+    end if
+
     close (unit_new)
 
     ! Print the irreducible representation that calculates energy

@@ -7,6 +7,7 @@ SUBROUTINE tramo1(i, j, int1)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_realonly, only: realonly
 
     Implicit NONE
     integer, intent(in)  :: i, j
@@ -40,7 +41,11 @@ SUBROUTINE tramo1(i, j, int1)
             do idx_i0 = 1, count_n_list1
                 i0 = n_list_sym1(idx_i0)
                 j0 = n_list_sym2(idx_j0)
-                int1 = int1 + DCONJG(f(i0, i))*DCMPLX(one_elec_int_r(i0, j0), one_elec_int_i(i0, j0))*f(j0, j)
+                if (realonly%is_realonly()) then
+                    int1 = int1 + fock_real(i0, i)*one_elec_int_r(i0, j0)*fock_real(j0, j)
+                else
+                    int1 = int1 + DCONJG(fock_cmplx(i0, i))*DCMPLX(one_elec_int_r(i0, j0), one_elec_int_i(i0, j0))*fock_cmplx(j0, j)
+                end if
             end do
         end do
 
@@ -91,6 +96,7 @@ SUBROUTINE tramo2(i, j, k, l, int2)
 
     use four_caspt2_module
     use module_error, only: stop_with_errorcode
+    use module_realonly, only: realonly
 
     Implicit NONE
     integer, intent(in) :: i, j, k, l
@@ -146,12 +152,18 @@ SUBROUTINE tramo2(i, j, k, l, int2)
                     do idx_i0 = 1, count_sym1_i
                         i0 = list_sym1_i(idx_i0); j0 = list_sym2_j(idx_j0); k0 = list_sym3_k(idx_k0); l0 = list_sym4_l(idx_l0)
 
-                        i2r = inttwr(i0, j0, k0, l0)
-                        i2i = inttwi(i0, j0, k0, l0)
-                        cmplxint = DCMPLX(i2r, i2i)
+                        if (realonly%is_realonly()) then
+                            i2r = inttwr(i0, j0, k0, l0)
+                            cmplxint = DCMPLX(i2r, 0.0d+00)
+                            int2 = int2 + fock_real(i0, i)*fock_real(k0, k)*fock_real(j0, j)*fock_real(l0, l)*cmplxint
+                        else
+                            i2r = inttwr(i0, j0, k0, l0)
+                            i2i = inttwi(i0, j0, k0, l0)
+                            cmplxint = DCMPLX(i2r, i2i)
 
-                        int2 = int2 + DCONJG(f(i0, i))*DCONJG(f(k0, k))*f(j0, j)*f(l0, l)*cmplxint
-
+                            int2 = int2 + DCONJG(fock_cmplx(i0, i))*DCONJG(fock_cmplx(k0, k))* &
+                                   fock_cmplx(j0, j)*fock_cmplx(l0, l)*cmplxint
+                        end if
                     end do
                 end do
             end do

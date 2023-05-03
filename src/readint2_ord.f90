@@ -6,6 +6,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     use four_caspt2_module
     use module_file_manager
+    use module_realonly, only: realonly
 
     Implicit NONE
     character*50, intent(in) :: filename
@@ -82,7 +83,12 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     ! Continue to read the file until the end of the file is reached
     do
-        read (unit_newmdcint, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+        if (realonly%is_realonly()) then
+            read (unit_newmdcint, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), inz=1, nz)
+            rkli(1:nz) = 0.0d+00
+        else
+            read (unit_newmdcint, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+        end if
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             exit

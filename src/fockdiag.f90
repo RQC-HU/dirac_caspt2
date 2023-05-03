@@ -9,6 +9,7 @@ SUBROUTINE fockdiag
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_file_manager
+    use module_realonly, only: realonly
     use four_caspt2_module
 
     Implicit NONE
@@ -23,19 +24,8 @@ SUBROUTINE fockdiag
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     if (rank == 0) print *, 'fockdiag start'
-    REALF = .TRUE.
-    Do i = 1, ninact + nact + nsec
-        Do j = 1, ninact + nact + nsec
-            If (ABS(DIMAG(f(i, j))) > 1.0d-12) then
-                REALF = .FALSE.
-            End if
-        End do
-    End do
 
-    REALF = .FALSE.
-    if (rank == 0) print *, 'REALF', REALF
-
-    If (REALF) then          ! real*8
+    If (realonly%is_realonly()) then          ! real*8
         Allocate (fa(nmo, nmo)); Call memplus(KIND(fa), SIZE(fa), 1)
         eps = 0.0d+00
         fa = 0.0d+00
@@ -68,12 +58,12 @@ SUBROUTINE fockdiag
             if (i0 == 2) print *, 'FOR ACTIVE-ACTIVE ROTATION !'
             if (i0 == 3) print *, 'FOR SECONDARY-SECONDARY ROTATION !'
         end if
-        if (REALF) then
+        if (realonly%is_realonly()) then
 
             Call rdiag0(n, n0, n1, fa(n0:n1, n0:n1), eps(n0:n1))
 
-            write (5) n0, n1, n
-            write (5) fa(n0:n1, n0:n1)
+            ! write (5) n0, n1, n
+            ! write (5) fa(n0:n1, n0:n1)
             if (rank == 0) then
                 print *, n0, n1, n
 
@@ -83,9 +73,9 @@ SUBROUTINE fockdiag
                     print '(30E13.5)', (fa(i, j), j=n0, n1)
                 end do
 
-                print *, 'f '
+                print *, 'fock_real'
                 do i = n0, n1
-                    print '(30E13.5)', (DBLE(f(i, j)), j=n0, n1)
+                    print '(30E13.5)', (fock_real(i, j), j=n0, n1)
                 end do
             end if
         else
@@ -95,11 +85,11 @@ SUBROUTINE fockdiag
 
     End do ! i0
 
-    if (REALF) then
+    if (realonly%is_realonly()) then
 
         Call traci(fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact))
 
-        f(1:nmo, 1:nmo) = fa(1:nmo, 1:nmo)
+        fock_real(1:nmo, 1:nmo) = fa(1:nmo, 1:nmo)
 
         Call e0aftertra
 
@@ -109,7 +99,7 @@ SUBROUTINE fockdiag
 
         Call tracic(fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact))
 
-        f(1:nmo, 1:nmo) = fac(1:nmo, 1:nmo)
+        fock_cmplx(1:nmo, 1:nmo) = fac(1:nmo, 1:nmo)
 
         Call e0aftertrac
 
@@ -120,7 +110,11 @@ SUBROUTINE fockdiag
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         call open_unformatted_file(unit=unit_transfock, file='TRANSFOCK', status='replace', optional_action='write')
         write (unit_transfock) nmo
-        write (unit_transfock) f(1:nmo, 1:nmo)
+        if (realonly%is_realonly()) then
+            write (unit_transfock) fock_real(1:nmo, 1:nmo)
+        else
+            write (unit_transfock) fock_cmplx(1:nmo, 1:nmo)
+        end if
         close (unit_transfock)
     end if
 

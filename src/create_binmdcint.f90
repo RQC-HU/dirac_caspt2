@@ -8,6 +8,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use module_file_manager
+    use module_realonly, only: realonly
     Use four_caspt2_module
     ! use omp_lib
     Implicit None
@@ -23,7 +24,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     double precision, allocatable  :: rklr(:), rkli(:)
     ! Iwamuro modify
     real(8) :: cutoff
-    integer :: nnkr, iiit, jjjt, kkkt, lllt
+    integer :: iiit, jjjt, kkkt, lllt
     integer :: nkr, nz, file_idx, iostat
     integer :: unit_mdcint, unit_mdcintnew
     logical :: is_file_exist, is_end_of_file
@@ -42,7 +43,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     Allocate (indk(nmo**2))
     Allocate (indl(nmo**2))
     Allocate (rklr(nmo**2))
-    Allocate (rkli(nmo**2))
+    if (.not. realonly%is_realonly()) Allocate (rkli(nmo**2))
 
 #ifdef HAVE_MPI
     ! Broadcast kr and other data that are not included in the MDCINXXX files
@@ -72,9 +73,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
 #endif
-    nnkr = 0
 
-    realonly = .false.
     cutoff = 0.25D-12
     nnz = 1
 
@@ -92,29 +91,16 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         inquire (file=mdcint_filename, exist=is_file_exist) ! mdcint_filename exists?
         if (.not. is_file_exist) exit ! Exit do while loop if mdcint_filename doesn't exist.
         call open_unformatted_file(unit=unit_mdcint, file=mdcint_filename, status="old", optional_action="read")
-        read (unit_mdcint)
-
-        read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), rklr(inz), rkli(inz), inz=1, nz)
-        if (iostat == 0) then ! 2-integral values are complex numbers if iostat == 0
-            realonly = .false. ! Complex
-        else ! 2-integral values are only real numbers if iostat /= 0
-            realonly = .true.  ! Real
-            if (rank == 0) print *, "realonly = ", realonly
-        end if
         rewind (unit_mdcint)
         read (unit_mdcint)
-        nnkr = nkr
-        rkli = 0.0d+00
 
         ! Continue to read 2-electron integrals until mdcint_filename reaches the end of file.
         mdcint_file_read: do
-            if (realonly) then
-                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, &
-                    (indk(inz), indl(inz), inz=1, nz), &
+            if (realonly%is_realonly()) then
+                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), inz=1, nz), &
                     (rklr(inz), inz=1, nz)
             else
-                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, &
-                    (indk(inz), indl(inz), inz=1, nz), &
+                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), inz=1, nz), &
                     (rklr(inz), rkli(inz), inz=1, nz)
             end if
 
@@ -138,15 +124,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
             end if
 
             do n = 1, 2
-                select case (n)
-                case (1)
-                    ikr = ikr
-                    jkr = jkr
-                    indk(:) = indk(:)
-                    indl(:) = indl(:)
-                    rklr(:) = rklr(:)
-                    rkli(:) = rkli(:)
-                case (2)
+                if (n == 2) then ! Amplify the integral
                     ! https://gitlab.com/dirac/dirac/-/blob/0a337b78c4a8ebfb392ecf23bdef5ff471016210/utils/dirac_mointegral_export.F90#L223-227
                     ! Based on the above URL, the integral is amplified, but for some reason,
                     ! if the signs of rklr and rkli are not reversed, the result is wrong.
@@ -156,8 +134,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                     indk(:) = -indk(:)
                     indl(:) = -indl(:)
                     rklr(:) = -rklr(:)*sign(1, ikr*jkr*indk(:)*indl(:))
-                    rkli(:) = rkli(:)*sign(1, ikr*jkr*indk(:)*indl(:))
-                end select
+                    if (.not. realonly%is_realonly()) rkli(:) = rkli(:)*sign(1, ikr*jkr*indk(:)*indl(:))
+                end if
                 !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
                 Do inz = 1, nz
 
@@ -200,39 +178,13 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                     ! TYPE4 (+---) = (ij~|k~l~)
                     !---------------------------
 
-                    If (iikr > 0 .and. jjkr > 0 .and. kkkr > 0 .and. llkr > 0) then  !TYPE1
-                        if ((ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) .or. &
-                            (ii <= jj .and. ll <= kk .and. (ii < ll .or. (ii == ll .and. jj <= kk)))) then
-                            if (abs(rklr(inz)) > cutoff .or. &
-                                abs(rkli(inz)) > cutoff) then
-                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
-                            end if
+                    if (should_write_2int_to_disk()) then
+                        if (realonly%is_realonly()) then
+                            write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz)
+                        else
+                            write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
                         end if
-
-                    Else if (iikr > 0 .and. jjkr < 0 .and. kkkr > 0 .and. llkr < 0) then  !TYPE2
-                        if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
-                            if (abs(rklr(inz)) > cutoff .or. &
-                                abs(rkli(inz)) > cutoff) then
-                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
-                            end if
-                        end if
-
-                    Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr > 0) then  !TYPE3
-                        if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
-                            if (abs(rklr(inz)) > cutoff .or. &
-                                abs(rkli(inz)) > cutoff) then
-                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
-                            end if
-                        end if
-
-                    Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr < 0) then  !TYPE4
-                        if (ii <= jj) then
-                            if (abs(rklr(inz)) > cutoff .or. &
-                                abs(rkli(inz)) > cutoff) then
-                                write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, rklr(inz), -(rkli(inz))
-                            end if
-                        end if
-                    End if
+                    end if
                 End do
             end do
         end do mdcint_file_read
@@ -261,8 +213,45 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     deallocate (indk)
     deallocate (indl)
     deallocate (rklr)
-    deallocate (rkli)
+    if (allocated(rkli)) deallocate (rkli)
 
     if (rank == 0) print *, 'end create_binmdcint.'
     deallocate (kr)
+contains
+    logical function should_write_2int_to_disk()
+        implicit none
+        should_write_2int_to_disk = .false. ! Do not write to disk by default
+
+        ! If the integral is nearly zero, do not write to disk.
+        if (realonly%is_realonly()) then
+            if (abs(rklr(inz)) <= cutoff) then
+                should_write_2int_to_disk = .false.
+                return
+            end if
+        else
+            if (abs(rklr(inz)) <= cutoff .and. abs(rkli(inz)) <= cutoff) then
+                should_write_2int_to_disk = .false.
+                return
+            end if
+        end if
+
+        If (iikr > 0 .and. jjkr > 0 .and. kkkr > 0 .and. llkr > 0) then  !TYPE1
+            if ((ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) .or. &
+                (ii <= jj .and. ll <= kk .and. (ii < ll .or. (ii == ll .and. jj <= kk)))) then
+                should_write_2int_to_disk = .true.
+            end if
+        Else if (iikr > 0 .and. jjkr < 0 .and. kkkr > 0 .and. llkr < 0) then  !TYPE2
+            if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
+                should_write_2int_to_disk = .true.
+            end if
+        Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr > 0) then  !TYPE3
+            if (ii <= jj .and. kk <= ll .and. (ii < kk .or. (ii == kk .and. jj <= ll))) then
+                should_write_2int_to_disk = .true.
+            end if
+        Else if (iikr > 0 .and. jjkr < 0 .and. kkkr < 0 .and. llkr < 0) then  !TYPE4
+            if (ii <= jj) then
+                should_write_2int_to_disk = .true.
+            end if
+        End if
+    end function should_write_2int_to_disk
 end Subroutine create_newmdcint

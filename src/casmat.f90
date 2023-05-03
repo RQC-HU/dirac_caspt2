@@ -229,3 +229,208 @@ SUBROUTINE casmat(mat)
     if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
 end subroutine casmat
+! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+SUBROUTINE casmat_real(mat)
+
+    ! Creates CASCI matrix(mat)
+
+    ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    use four_caspt2_module
+    use module_dict, only: exists, get_val
+#ifdef HAVE_MPI
+    use module_mpi
+#endif
+    Implicit NONE
+
+    real(8), intent(out) :: mat(ndet, ndet)
+
+    integer              :: occ, vir, indr, inds, inda, indb
+    integer              :: ir, is, ia, ib, imo
+    integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
+    integer              :: phase, phase1, phase2
+    real(8)              :: mat0, i2r
+    integer, allocatable :: oc(:), vi(:)
+
+    ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    mat = 0.0d+00
+
+    if (rank == 0) print *, 'Cas mat enter'
+    Allocate (oc(nelec))
+    Allocate (vi(nact - nelec))
+    if (rank == 0) print *, 'allocated oc and vi'
+    ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+    Do i = rank + 1, ndet, nprocs
+
+        occ = 0
+        oc = 0
+        vir = 0
+        vi = 0
+
+        Do imo = 1, nact
+            If (BTEST(cas_idx(i), imo - 1)) then
+                occ = occ + 1
+                oc(occ) = imo
+            Else
+                vir = vir + 1
+                vi(vir) = imo
+            End if
+        End do
+
+    !! IDENTICAL DETERMINANT => DIAGONAL TERM
+        !   diagonal term is same as Hartree-Fock's expression
+
+        Do i0 = 1, ninact
+            ir = i0
+            mat(i, i) = mat(i, i) + one_elec_int_r(ir, ir)
+        End do
+
+        Do i0 = 1, nelec
+            indr = oc(i0)
+            ir = indr + ninact
+            mat(i, i) = mat(i, i) + one_elec_int_r(ir, ir)
+        End do
+
+        mat0 = 0.0d+00
+
+        Do i0 = 1, ninact + nelec
+
+            if (i0 <= ninact) then
+                ir = i0
+            Else
+                indr = i0 - ninact
+                indr = oc(indr)
+                ir = indr + ninact
+            End if
+            Do j0 = i0 + 1, ninact + nelec
+
+                if (j0 <= ninact) then
+                    is = j0
+                Else
+                    inds = j0 - ninact
+                    inds = oc(inds)
+                    is = inds + ninact
+                End if
+
+                ! two electron integral : (ir, ir | is, is)
+                i2r = inttwr(ir, ir, is, is)
+                mat0 = mat0 + 0.5d+00*i2r
+
+                ! two electron integral : (ir, is | is, ir)
+                i2r = inttwr(ir, is, is, ir)
+                mat0 = mat0 - 0.5d+00*i2r
+            End do
+        End do
+
+        mat(i, i) = mat(i, i) + 2*mat0
+
+    !! ONE SPINOR DIFFERENCE
+
+        Do i0 = 1, nelec
+            indr = oc(i0)
+            ir = indr + ninact
+
+            Do k0 = 1, nact - nelec
+                inda = vi(k0)
+                ia = inda + ninact
+
+                Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+
+                if (exists(dict_cas_idx_reverse, newcas_idx1)) then
+                    j = get_val(dict_cas_idx_reverse, newcas_idx1)
+                Else
+                    cycle ! Next k0 (Because newcas_idx1 is not in dict_cas_idx_reverse)
+                End if
+
+                If (j > i) then
+                    mat(i, j) = mat(i, j) + one_elec_int_r(ir, ia)
+                    Do l0 = 1, ninact
+                        is = l0
+
+                        ! two electron integral : (ir, ia | is, is)
+                        i2r = inttwr(ir, ia, is, is)
+                        mat(i, j) = mat(i, j) + i2r
+
+                        ! two electron integral : (ir, is | is, ia)
+                        i2r = inttwr(ir, is, is, ia)
+                        mat(i, j) = mat(i, j) - i2r
+                    End do      !l0
+
+                    Do l0 = 1, nelec
+                        inds = oc(l0)
+                        is = inds + ninact
+
+                        ! two electron integral : (ir, ia | is, is)
+                        i2r = inttwr(ir, ia, is, is)
+                        mat(i, j) = mat(i, j) + i2r
+
+                        ! two electron integral : (ir, is | is, ia)
+                        i2r = inttwr(ir, is, is, ia)
+                        mat(i, j) = mat(i, j) - i2r
+                    End do
+
+                    if (mod(phase1, 2) == 0) phase = 1.0d+00
+                    if (mod(phase1, 2) == 1) phase = -1.0d+00
+
+                    mat(i, j) = phase*mat(i, j)
+                    mat(j, i) = mat(i, j)
+
+                End if
+            End do
+        End do
+    !! TWO ELECTRON DIFFERNT CASE
+        Do i0 = 1, nelec
+            Do j0 = i0 + 1, nelec
+                indr = oc(i0)
+                inds = oc(j0)
+                ir = indr + ninact
+                is = inds + ninact
+
+                Do k0 = 1, nact - nelec
+                    Do l0 = k0 + 1, nact - nelec
+                        inda = vi(k0)
+                        indb = vi(l0)
+                        ia = inda + ninact
+                        ib = indb + ninact
+
+                        Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+                        Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
+
+                        if (exists(dict_cas_idx_reverse, newcas_idx2)) then
+                            j = get_val(dict_cas_idx_reverse, newcas_idx2)
+                        Else
+                            cycle ! Next k0 (Because newcas_idx2 is not in dict_cas_idx_reverse)
+                        End if
+
+                        If (j > i) then
+                            if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
+                            if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
+
+                            ! two electron integral : (ir, ia | is, ib)
+                            i2r = inttwr(ir, ia, is, ib)
+                            mat(i, j) = i2r
+
+                            ! two electron integral : (ir, ib | is, ia)
+                            i2r = inttwr(ir, ib, is, ia)
+                            mat(i, j) = mat(i, j) - i2r
+
+                            mat(i, j) = phase*mat(i, j)
+                            mat(j, i) = mat(i, j)
+                        End if
+                    End do
+                End do
+            End do
+        End do
+    End do
+
+    Deallocate (oc)
+    Deallocate (vi)
+    if (rank == 0) print *, 'end casmat_real'
+#ifdef HAVE_MPI
+    if (rank == 0) print *, 'Reduce mat(:,:)'
+    call allreduce_wrapper(mat=mat)
+    if (rank == 0) print *, 'end allreduce mat(:,:)'
+#endif
+end subroutine casmat_real

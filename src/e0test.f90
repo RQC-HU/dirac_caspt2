@@ -12,6 +12,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use four_caspt2_module
+    use module_realonly
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -32,7 +33,47 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     energy(:, :) = 0.0d+00
     debug = .TRUE.
 
-    if (realc) then
+    if (realonly%is_realonly()) then
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
+!         energy HF1          !
+!"""""""""""""""""""""""""""""!
+!   One-electron sumation     !
+!                             !
+!   Inactive (core) part      !
+!                             !
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
+!"""""""""""""""""""""""""""""
+        energyHF(1) = 0.0d+00
+        ii = 0
+        do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+            energyHF(1) = energyHF(1) + one_elec_int_r(i, i)
+        end do
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
+!         energy HF2          !
+!"""""""""""""""""""""""""""""!   1/2*[(rr|tt)-(rt|tr)}
+!   Two-electron sumation     !
+!                             !    for inactive r and t
+!   Inactive (core) part      !
+!                             !
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
+!"""""""""""""""""""""""""""""
+        energyHF(2) = 0.0d+00
+
+        do i = rank + 1, ninact + nelec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+            do j = i, ninact + nelec
+
+                i2r = inttwr(i, i, j, j)
+                energyHF(2) = energyHF(2) + (0.5d+00)*i2r
+
+                i2r = inttwr(i, j, j, i)
+                energyHF(2) = energyHF(2) - (0.5d+00)*i2r
+
+            end do
+        end do
+
+        energyHF(2) = 2*energyHF(2)
 
 !RRRRRRRRRRRRRRRRRRRRRRRRRRRRR!
 !         energy 1            !
@@ -111,7 +152,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                 end do ! kk
 
-                if (realcvec) then
+                if (realonly%is_realonly()) then
                     Call dim1_density_R(ii, jj, dr)
                     if (rank == 0) then
                         energy(iroot, 3) = energy(iroot, 3) + (one_elec_int_r(ii, jj) + oneeff)*dr
@@ -153,7 +194,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                         i2r = inttwr(ii, jj, kk, ll)
 
-                        if (realcvec) then
+                        if (realonly%is_realonly()) then
                             Call dim2_density_R(ii, jj, kk, ll, dr)
                             energy(iroot, 4) = energy(iroot, 4) + (0.5d+00)*dr*i2r
                         else
@@ -166,7 +207,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                             dr = 0.0d+00
                             di = 0.0d+00
 
-                            if (realcvec) then
+                            if (realonly%is_realonly()) then
                                 Call dim1_density_R(ii, ll, dr)
                                 energy(iroot, 4) = energy(iroot, 4) - (0.5d+00)*dr*i2r
                             else
@@ -192,6 +233,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
             print *, 'R the error ', eigen(iroot) - ecore &
                 - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
+            print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
         end if
     else
 
@@ -332,7 +374,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                 if (i == j) oneeff = oneeff*(0.5d+00)
 
-                if (realcvec) then
+                if (realonly%is_realonly()) then
                     ii = i - ninact
                     jj = j - ninact
                     Call dim1_density_R(ii, jj, dr)
@@ -379,7 +421,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 
                         cmplxint = DCMPLX(i2r, i2i)
 
-                        if (realcvec) then
+                        if (realonly%is_realonly()) then
                             ii = i - ninact
                             jj = j - ninact
                             kk = k - ninact
@@ -410,7 +452,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                             dr = 0.0d+00
                             di = 0.0d+00
 
-                            if (realcvec) then
+                            if (realonly%is_realonly()) then
 
                                 ii = i - ninact
                                 ll = l - ninact
@@ -466,8 +508,8 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                 eigen(iroot) - ecore &
                 - (energy(iroot, 1) + energy(iroot, 2) + energy(iroot, 3) + energy(iroot, 4))
 
+            print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
         end if
-        if (rank == 0) print *, 'energy HF  =', energyHF(1) + energyHF(2) + ecore
     end if
     deallocate (energy); Call memminus(KIND(energy), SIZE(energy), 1)
     if (rank == 0) print *, 'e0test end'
