@@ -207,38 +207,90 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 
     ! Deallocate the memory
-    if (allocated(ras1_list)) deallocate (ras1_list); Call memminus(KIND(ras1_list), SIZE(ras1_list), 1)
-    if (allocated(ras2_list)) deallocate (ras2_list); Call memminus(KIND(ras2_list), SIZE(ras2_list), 1)
-    if (allocated(ras3_list)) deallocate (ras3_list); Call memminus(KIND(ras3_list), SIZE(ras3_list), 1)
-    if (allocated(space_idx)) deallocate (space_idx); Call memminus(KIND(space_idx), SIZE(space_idx), 1)
-    if (allocated(cir)) deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
-    if (allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
-    if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
-    if (allocated(fock_real)) deallocate (fock_real); Call memminus(KIND(fock_real), SIZE(fock_real), 1)
-    if (allocated(fock_cmplx)) deallocate (fock_cmplx); Call memminus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
-    if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
-    if (allocated(cas_idx)) deallocate (cas_idx); Call memminus(KIND(cas_idx), SIZE(cas_idx), 1)
-    if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
-    if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
-    if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
-    if (allocated(MULTB_DF)) deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
-    if (allocated(MULTB_DB)) deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
-    if (allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
-    if (allocated(irpamo)) deallocate (irpamo); Call memminus(KIND(irpamo), SIZE(irpamo), 1)
+    if (allocated(ras1_list)) then
+        Call memminus(KIND(ras1_list), SIZE(ras1_list), 1); deallocate (ras1_list)
+    end if
+    if (allocated(ras2_list)) then
+        Call memminus(KIND(ras2_list), SIZE(ras2_list), 1); deallocate (ras2_list)
+    end if
+    if (allocated(ras3_list)) then
+        Call memminus(KIND(ras3_list), SIZE(ras3_list), 1); deallocate (ras3_list)
+    end if
+    if (allocated(space_idx)) then
+        Call memminus(KIND(space_idx), SIZE(space_idx), 1); deallocate (space_idx)
+    end if
+    if (allocated(cir)) then
+        Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
+    end if
+    if (allocated(cii)) then
+        Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
+    end if
+    if (allocated(eigen)) then
+        Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
+    end if
+    if (allocated(fock_real)) then
+        Call memminus(KIND(fock_real), SIZE(fock_real), 1); deallocate (fock_real)
+    end if
+    if (allocated(fock_cmplx)) then
+        Call memminus(KIND(fock_cmplx), SIZE(fock_cmplx), 2); deallocate (fock_cmplx)
+    end if
+    if (allocated(eps)) then
+        Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
+    end if
+    if (allocated(cas_idx)) then
+        Call memminus(KIND(cas_idx), SIZE(cas_idx), 1); deallocate (cas_idx)
+    end if
+    if (allocated(MULTB_S)) then
+        Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
+    end if
+    if (allocated(MULTB_D)) then
+        Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
+    end if
+    if (allocated(MULTB_DS)) then
+        Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
+    end if
+    if (allocated(MULTB_DF)) then
+        Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1); deallocate (MULTB_DF)
+    end if
+    if (allocated(MULTB_DB)) then
+        Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1); deallocate (MULTB_DB)
+    end if
+    if (allocated(MULTB_SB)) then
+        Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1); deallocate (MULTB_SB)
+    end if
+    if (allocated(irpamo)) then
+        Call memminus(KIND(irpamo), SIZE(irpamo), 1); deallocate (irpamo)
+    end if
     if (allocated(indmo_cas_to_dirac)) then
-        deallocate (indmo_cas_to_dirac); Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
+        Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1); deallocate (indmo_cas_to_dirac)
     end if
     if (allocated(indmo_dirac_to_cas)) then
-        deallocate (indmo_dirac_to_cas); Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
+        Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1); deallocate (indmo_dirac_to_cas)
     end if
-    if (allocated(one_elec_int_i)) deallocate (one_elec_int_i); Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
-    if (allocated(inttwi)) deallocate (inttwi); Call memminus(KIND(inttwi), SIZE(inttwi), 1)
-    if (allocated(one_elec_int_r)) deallocate (one_elec_int_r); Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
-    if (allocated(inttwr)) deallocate (inttwr); Call memminus(KIND(inttwr), SIZE(inttwr), 1)
-    if (allocated(int2r_f1)) deallocate (int2r_f1); Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-    if (allocated(int2i_f1)) deallocate (int2i_f1); Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1)
-    if (allocated(int2r_f2)) deallocate (int2r_f2); Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-    if (allocated(int2i_f2)) deallocate (int2i_f2); Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+    if (allocated(one_elec_int_i)) then
+         Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1); deallocate (one_elec_int_i)
+    end if
+    if (allocated(inttwi)) then
+         Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
+    end if
+    if (allocated(one_elec_int_r)) then
+         Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1); deallocate (one_elec_int_r)
+    end if
+    if (allocated(inttwr)) then
+         Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
+    end if
+    if (allocated(int2r_f1)) then
+         Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
+    end if
+    if (allocated(int2i_f1)) then
+         Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
+    end if
+    if (allocated(int2r_f2)) then
+         Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
+    end if
+    if (allocated(int2i_f2)) then
+         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
+    end if
     if (rank == 0) then
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 

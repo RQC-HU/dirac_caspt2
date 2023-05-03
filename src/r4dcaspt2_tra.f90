@@ -372,17 +372,17 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 
     ! Deallocate the memory
-    if (allocated(cir)) deallocate (cir); Call memminus(KIND(cir), SIZE(cir), 1)
-    if (allocated(cii)) deallocate (cii); Call memminus(KIND(cii), SIZE(cii), 1)
-    if (allocated(eigen)) deallocate (eigen); Call memminus(KIND(eigen), SIZE(eigen), 1)
-    if (allocated(eps)) deallocate (eps); Call memminus(KIND(eps), SIZE(eps), 1)
-    if (allocated(cas_idx)) deallocate (cas_idx); Call memminus(KIND(cas_idx), SIZE(cas_idx), 1)
-    if (allocated(MULTB_S)) deallocate (MULTB_S); Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1)
-    if (allocated(MULTB_D)) deallocate (MULTB_D); Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1)
-    if (allocated(MULTB_DS)) deallocate (MULTB_DS); Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1)
-    if (allocated(MULTB_DF)) deallocate (MULTB_DF); Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1)
-    if (allocated(MULTB_DB)) deallocate (MULTB_DB); Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1)
-    if (allocated(MULTB_SB)) deallocate (MULTB_SB); Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1)
+    if (allocated(cir)) Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
+    if (allocated(cii)) Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
+    if (allocated(eigen)) Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
+    if (allocated(eps)) Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
+    if (allocated(cas_idx)) Call memminus(KIND(cas_idx), SIZE(cas_idx), 1); deallocate (cas_idx)
+    if (allocated(MULTB_S)) Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
+    if (allocated(MULTB_D)) Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
+    if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
+    if (allocated(MULTB_DF)) Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1); deallocate (MULTB_DF)
+    if (allocated(MULTB_DB)) Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1); deallocate (MULTB_DB)
+    if (allocated(MULTB_SB)) Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1); deallocate (MULTB_SB)
 
     ! Print out the total time
     Call timing(val(3), totalsec, date0, tsec0)

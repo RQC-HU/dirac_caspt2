@@ -69,8 +69,10 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
                             fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*int2r_f1(i0, j0, k, k)/DBLE(numh)
                             fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*int2r_f2(i0, k, k, j0)/DBLE(numh)
                         else
-                            fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                            fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
+                            fock_cmplx(i, j) = fock_cmplx(i, j) - &
+                                               0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                            fock_cmplx(i, j) = fock_cmplx(i, j) + &
+                                               0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
                         end if
                     else
                         if (realonly%is_realonly()) then

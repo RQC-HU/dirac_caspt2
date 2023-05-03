@@ -58,8 +58,8 @@ SUBROUTINE read1mo(filename) ! one-electron MO integrals in MRCONEE
         end do
     end do
 
-    deallocate (roner); Call memminus(KIND(roner), SIZE(roner), 1)
-    deallocate (ronei); Call memminus(KIND(ronei), SIZE(ronei), 1)
+    Call memminus(KIND(roner), SIZE(roner), 1); deallocate (roner)
+    Call memminus(KIND(ronei), SIZE(ronei), 1); deallocate (ronei)
 
     if (rank == 0) then
         print *, realc, 'realc'
