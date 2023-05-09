@@ -45,17 +45,17 @@ contains
         if (iostat == 0) then ! Complex
             call set_is_realonly(realonly, .false.)
         else ! Realonly or Error
-            rewind (unit_mdcint)
+            rewind (unit_mdcint) ! Go back to the beginning of the file
             read (unit_mdcint) ! Skip header
-            read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), rklr(inz), inz=1, nz)
+            read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), inz=1, nz), (rklr(inz), inz=1, nz)
             if (iostat == 0) then ! Realonly
                 call set_is_realonly(realonly, .true.)
             else ! Error
                 if (rank == 0) print *, "Format of MDCINT is different from the one expected by this program."
-                call stop_with_errorcode(1)
+                call stop_with_errorcode(iostat)
             end if
         end if
-        if (rank == 0) print *, "MDCINT is realonly = ", realonly%is_realonly()
+        if (rank == 0) print *, "MDCINT realonly = ", realonly%is_realonly()
         deallocate (k, l, rklr, rkli)
     end subroutine check_realonly
 

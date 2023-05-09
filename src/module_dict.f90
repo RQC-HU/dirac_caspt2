@@ -65,6 +65,7 @@ contains
     end function exists
 
     subroutine add(t, key, val)
+        ! Add a new key-value pair to the dictionary.
         implicit none
         type(dict), intent(inout) :: t
         integer, intent(in) :: key
