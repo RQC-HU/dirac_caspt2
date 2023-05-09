@@ -10,7 +10,7 @@ module module_mpi
     private
     public reduce_wrapper, allreduce_wrapper
     interface reduce_wrapper
-        module procedure reduce_i, reduce_i_1, reduce_c_2
+        module procedure reduce_i, reduce_i_1, reduce_r_2, reduce_c_2
     end interface reduce_wrapper
 
     interface allreduce_wrapper
@@ -116,6 +116,65 @@ contains
             call check_ierr(ierr)
         end if
     end subroutine reduce_i_1
+
+    subroutine reduce_r_2(mat, root_rank, optional_op)
+        ! Reduce for 2 dimensional real(8) array
+        implicit none
+        real(8), intent(inout) :: mat(:, :)
+        integer, intent(in) :: root_rank
+        integer, optional, intent(in) :: optional_op
+        integer :: ii, ie, ji, je
+        integer :: i, j, cnt, step
+        integer :: op = op_mpi_sum ! default operation
+        integer :: datatype
+
+        if (present(optional_op)) then
+            call check_operation(optional_op)
+            op = optional_op
+        end if
+
+        ! Set the first and last index of the array for each dimension.
+        ii = lbound(mat, 1); ie = ubound(mat, 1)
+        ji = lbound(mat, 2); je = ubound(mat, 2)
+
+        ! Because of the limitation of the size of the array, the array is divided into several parts and allreduce is performed.
+        if (max_i4 < size(mat, 1)) then ! 1st index is larger than the limit(max_i4)
+            do j = ji, je
+                do i = ii, ie, max_i4
+                    cnt = min(max_i4, ie - i + 1)
+                    if (rank == root_rank) then
+                        call MPI_Reduce(MPI_IN_PLACE, mat(i, j), &
+                                        cnt, MPI_REAL8, op, root_rank, MPI_COMM_WORLD, ierr)
+                    else
+                        call MPI_Reduce(mat(i, j), mat(i, j), &
+                                        cnt, MPI_REAL8, op, root_rank, MPI_COMM_WORLD, ierr)
+                    end if
+                    call check_ierr(ierr)
+                end do
+            end do
+        else if (max_i4 < size(mat, 1)*size(mat, 2)) then ! 1st index * 2nd index is larger than the limit(max_i4)
+            step = max_i4/size(mat, 1)
+            do j = ji, je, step
+                cnt = min(step, je - j + 1)*size(mat, 1)
+                if (rank == root_rank) then
+                    call MPI_Reduce(MPI_IN_PLACE, mat(:, j), &
+                                    cnt, MPI_REAL8, op, root_rank, MPI_COMM_WORLD, ierr)
+                else
+                    call MPI_Reduce(mat(:, j), mat(:, j), &
+                                    cnt, MPI_REAL8, op, root_rank, MPI_COMM_WORLD, ierr)
+                end if
+                call check_ierr(ierr)
+            end do
+        else ! no limit
+            if (rank == root_rank) then
+                call MPI_Reduce(MPI_IN_PLACE, mat, size(mat), MPI_REAL8, op, root_rank, MPI_COMM_WORLD, ierr)
+            else
+                call MPI_Reduce(mat, mat, size(mat), MPI_REAL8, op, root_rank, MPI_COMM_WORLD, ierr)
+            end if
+            call check_ierr(ierr)
+        end if
+
+    end subroutine reduce_r_2
 
     subroutine reduce_c_2(mat, root_rank, optional_op)
         ! Reduce for 2 dimensional complex*16 array
