@@ -1,5 +1,6 @@
 module module_intra
 ! 2 electron integrals transformation module
+    use module_takekr
     implicit none
     private
     public intra_1, intra_2, intra_3
