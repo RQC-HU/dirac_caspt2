@@ -63,6 +63,7 @@ contains
 
         use four_caspt2_module
         use module_file_manager
+        use module_sort_swap, only: swap
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -74,30 +75,26 @@ contains
         integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
         integer    :: j0, i0
         integer    :: k, l
-        integer, allocatable    :: i(:), j(:), nz(:)
+        integer    :: i, j, nz
         integer    :: inz
         integer    :: jtr0, itr0
-        integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, save, count
+        integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, count
         complex*16 :: cint2
-        integer, allocatable :: indk(:, :), indl(:, :), kr(:)
-        real*8, allocatable  :: rklr(:, :)
+        integer, allocatable :: indk(:), indl(:), kr(:)
+        real*8, allocatable  :: rklr(:)
         logical :: continue_read, is_end_of_file
-        integer :: idx, read_line_len, iostat
-        read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"
+        integer :: iostat
         continue_read = .true.
         nmoc = ninact + nact
         nmom = ninact + nact + nsec
         if (rank == 0) print *, "Enter readint2_casci subroutine (realonly)"
 
-        Allocate (i(read_line_max)); call memplus(kind(i), size(i), 1)
-        Allocate (j(read_line_max)); call memplus(kind(j), size(j), 1)
-        Allocate (nz(read_line_max)); call memplus(kind(nz), size(nz), 1)
         Allocate (int2r_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
         Allocate (int2r_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
         Allocate (inttwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwr), SIZE(inttwr), 1)
-        Allocate (indk(read_line_max, nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
-        Allocate (indl(read_line_max, nmo**2)); Call memplus(KIND(indl), SIZE(indl), 1)
-        Allocate (rklr(read_line_max, nmo**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
+        Allocate (indk(nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
+        Allocate (indl(nmo**2)); Call memplus(KIND(indl), SIZE(indl), 1)
+        Allocate (rklr(nmo**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
         !Iwamuro modify
         Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
@@ -105,11 +102,11 @@ contains
 
         ! Initialize variables
         nuniq = 0
-        i(:) = 0
-        j(:) = 0
-        indk(:, :) = 0
-        indl(:, :) = 0
-        rklr(:, :) = 0.0d+00
+        i = 0
+        j = 0
+        indk(:) = 0
+        indl(:) = 0
+        rklr(:) = 0.0d+00
         inttwr = 0.0d+00
         int2r_f1 = 0.0d+00
         int2r_f2 = 0.0d+00
@@ -127,254 +124,233 @@ contains
             print *, datex, timex
             print *, 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
         end if
-        do while (continue_read)
-            do idx = 1, read_line_max
-                read (unit_mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
-                    (indk(idx, inz), indl(idx, inz), inz=1,nz(idx)), (rklr(idx, inz), inz=1,nz(idx))
-                call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
-                if (is_end_of_file) then
-                    continue_read = .false.
-                    exit
+        do
+            read (unit_mdcint, iostat=iostat) i, j, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), inz=1, nz)
+            call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
+            if (is_end_of_file) then
+                exit
+            end if
+            if (i == 0) exit ! Last line of the file
+
+            totalint = totalint + nz
+
+            itr = i + (-1)**(mod(i, 2) + 1)
+            jtr = j + (-1)**(mod(j, 2) + 1)
+
+            i0 = i
+            itr0 = itr
+            j0 = j
+            jtr0 = jtr
+
+            loop_inz: Do inz = 1, nz
+
+                i = i0
+                itr = itr0
+                j = j0
+                jtr = jtr0
+
+                k = indk(inz)
+                ktr = k + (-1)**(mod(k, 2) + 1)
+                l = indl(inz)
+                ltr = l + (-1)**(mod(l, 2) + 1)
+
+                If (i > nmoc .and. j > nmoc .and. k > nmoc .and. l > nmoc) cycle loop_inz ! (33|33) is ignored
+                If (i == j .and. k > l) cycle loop_inz
+
+                If (i <= nmoc .and. j <= nmoc .and. k <= nmoc .and. l <= nmoc) then
+                    SignIJ = (-1)**(mod(i, 2) + mod(j, 2))
+                    SignKL = (-1)**(mod(k, 2) + mod(l, 2))
+                    nuniq = nuniq + 1
+                    !=-> Original integral plus time-reversed partners
+                    INTTWR(I, J, K, L) = rklr(inz)
+                    INTTWR(JTR, ITR, K, L) = rklr(inz)*SignIJ
+                    INTTWR(I, J, LTR, KTR) = rklr(inz)*SignKL
+                    INTTWR(JTR, ITR, LTR, KTR) = rklr(inz)*SignIJ*SignKL
+                    !=-> Complex conjugate plus time-reversed partners
+                    INTTWR(J, I, L, K) = rklr(inz)
+                    INTTWR(ITR, JTR, L, K) = rklr(inz)*SignIJ
+                    INTTWR(J, I, KTR, LTR) = rklr(inz)*SignKL
+                    INTTWR(ITR, JTR, KTR, LTR) = rklr(inz)*SignIJ*SignKL
+                    !=-> Particle interchanged plus time-reversed partners
+                    INTTWR(K, L, I, J) = rklr(inz)
+                    INTTWR(LTR, KTR, I, J) = rklr(inz)*SignKL
+                    INTTWR(K, L, JTR, ITR) = rklr(inz)*SignIJ
+                    INTTWR(LTR, KTR, JTR, ITR) = rklr(inz)*SignIJ*SignKL
+                    !=-> Particle interchanged and complex conjugated plus time-reversed partners
+                    INTTWR(L, K, J, I) = rklr(inz)
+                    INTTWR(KTR, LTR, J, I) = rklr(inz)*SignKL
+                    INTTWR(L, K, ITR, JTR) = rklr(inz)*SignIJ
+                    INTTWR(KTR, LTR, ITR, JTR) = rklr(inz)*SignIJ*SignKL
+
+                elseif (space_idx(i) == 3 .and. space_idx(j) == 3 .and. &
+                        space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
+                    count = 0
+                    do
+                        if (mod(i, 2) == 0) then
+                            itr = i - 1
+                        else
+                            itr = i + 1
+                        end if
+
+                        if (mod(j, 2) == 0) then
+                            jtr = j - 1
+                        else
+                            jtr = j + 1
+                        end if
+
+                        if (mod(k, 2) == 0) then
+                            ktr = k - 1
+                        else
+                            ktr = k + 1
+                        end if
+
+                        if (mod(l, 2) == 0) then
+                            ltr = l - 1
+                        else
+                            ltr = l + 1
+                        end if
+
+                        SignIJ = (-1)**mod(i + j, 2)
+                        SignKL = (-1)**mod(k + l, 2)
+
+                        int2r_f1(i, j, k, l) = rklr(inz)
+
+                        int2r_f1(jtr, itr, k, l) = SignIJ*rklr(inz)
+
+                        int2r_f1(i, j, ltr, ktr) = SignKL*rklr(inz)
+
+                        int2r_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rklr(inz)
+
+                        count = count + 1
+                        cint2 = DCMPLX(rklr(inz), 0.0d+00)
+
+                        if (count == 1) then
+                            Call takekr(i, j, k, l, cint2)              ! Consider Kramers pair
+                            rklr(inz) = DBLE(cint2)
+                            cycle ! Go to the next count loop
+                        else
+                            cycle loop_inz ! Go to the next inz
+                        end if
+                    end do
+                elseif (space_idx(k) == 3 .and. space_idx(l) == 3 .and. &
+                        space_idx(i) < 3 .and. space_idx(i) == space_idx(j)) then !(11|33) or (22|33) type
+                    count = 0
+                    do
+                        if (mod(i, 2) == 0) then
+                            itr = i - 1
+                        else
+                            itr = i + 1
+                        end if
+
+                        if (mod(j, 2) == 0) then
+                            jtr = j - 1
+                        else
+                            jtr = j + 1
+                        end if
+
+                        if (mod(k, 2) == 0) then
+                            ktr = k - 1
+                        else
+                            ktr = k + 1
+                        end if
+
+                        if (mod(l, 2) == 0) then
+                            ltr = l - 1
+                        else
+                            ltr = l + 1
+                        end if
+
+                        SignIJ = (-1)**mod(i + j, 2)
+                        SignKL = (-1)**mod(k + l, 2)
+
+                        int2r_f1(k, l, i, j) = rklr(inz)
+
+                        int2r_f1(k, l, jtr, itr) = SignIJ*rklr(inz)
+
+                        int2r_f1(ltr, ktr, i, j) = SignKL*rklr(inz)
+
+                        int2r_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rklr(inz)
+
+                        count = count + 1
+                        cint2 = DCMPLX(rklr(inz), 0.0d+00)
+                        if (count == 1) then
+                            Call takekr(i, j, k, l, cint2)              ! Consider Kramers pair
+                            rklr(inz) = DBLE(cint2)
+                            cycle ! Go to the next count loop
+                        else
+                            cycle loop_inz ! Go to the next inz
+                        end if
+                    end do
+
+                elseif (max(space_idx(i), space_idx(j)) == 3 .and. max(space_idx(k), space_idx(l)) == 3 .and. &
+                      &  min(space_idx(i), space_idx(j)) == min(space_idx(k), space_idx(l))) then                !(31|31) or (32|32) series
+
+                    count = 0
+
+                    do
+                        if (mod(i, 2) == 0) then
+                            itr = i - 1
+                        else
+                            itr = i + 1
+                        end if
+
+                        if (mod(j, 2) == 0) then
+                            jtr = j - 1
+                        else
+                            jtr = j + 1
+                        end if
+
+                        if (mod(k, 2) == 0) then
+                            ktr = k - 1
+                        else
+                            ktr = k + 1
+                        end if
+
+                        if (mod(l, 2) == 0) then
+                            ltr = l - 1
+                        else
+                            ltr = l + 1
+                        end if
+
+                        SignIJ = (-1)**mod(i + j, 2)
+                        SignKL = (-1)**mod(k + l, 2)
+
+                        if (i > j .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
+
+                            int2r_f2(i, j, ltr, ktr) = signKL*rklr(inz)
+
+                        elseif (i > j .and. k < l) then ! (31|13) or (32|23) ==> (31|13) or (32|23)
+
+                            int2r_f2(i, j, k, l) = rklr(inz)
+
+                        elseif (i < j .and. k < l) then ! (13|13) or (23|23) ==> (31|13) or (32|23)
+
+                            int2r_f2(jtr, itr, k, l) = signIJ*rklr(inz)
+
+                        elseif (i < j .and. k > l) then ! (13|31) or (23|32) ==> (31|13) or (32|23)
+
+                            int2r_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rklr(inz)
+
+                        end if
+
+                        count = count + 1
+                        cint2 = DCMPLX(rklr(inz), 0.0d+00)
+                        if (count == 1 .or. count == 3) then
+                            Call takekr(i, j, k, l, cint2)              ! Consider Kramers pair
+                            rklr(inz) = DBLE(cint2)
+                            cycle ! Go to the next count loop
+                        elseif (count == 2) then           ! variables exchange (AA|BB) => (BB|AA)
+                            call swap(i, k)
+                            call swap(j, l)
+                            cycle ! Go to the next count loop
+                        else
+                            cycle loop_inz ! Go to the next inz
+                        end if
+                    end do
+                else
                 end if
-                if (i(idx) == 0) exit
-            end do
 
-            ! The length of read line is equal to min(read_line_max, idx)
-            read_line_len = min(read_line_max, idx)
-
-!$OMP parallel do private(idx,itr,jtr,i0,itr0,j0,jtr0,inz,k,ktr,l,ltr,SIGNIJ,SIGNKL,cint2,save,count) &
-!$OMP & reduction(+:totalint,nuniq)
-            do idx = 1, read_line_len
-                if (i(idx) == 0) cycle ! Go to next idx
-
-                totalint = totalint + nz(idx)
-
-                itr = i(idx) + (-1)**(mod(i(idx), 2) + 1)
-                jtr = j(idx) + (-1)**(mod(j(idx), 2) + 1)
-
-                i0 = i(idx)
-                itr0 = itr
-                j0 = j(idx)
-                jtr0 = jtr
-
-                loop_inz: Do inz = 1, nz(idx)
-
-                    i(idx) = i0
-                    itr = itr0
-                    j(idx) = j0
-                    jtr = jtr0
-
-                    k = indk(idx, inz)
-                    ktr = k + (-1)**(mod(k, 2) + 1)
-                    l = indl(idx, inz)
-                    ltr = l + (-1)**(mod(l, 2) + 1)
-
-                    If (i(idx) > nmoc .and. j(idx) > nmoc .and. k > nmoc .and. l > nmoc) cycle loop_inz ! (33|33) is ignored
-                    If (i(idx) == j(idx) .and. k > l) cycle loop_inz
-
-                    If (i(idx) <= nmoc .and. j(idx) <= nmoc .and. k <= nmoc .and. l <= nmoc) then
-                        SignIJ = (-1)**(mod(i(idx), 2) + mod(j(idx), 2))
-                        SignKL = (-1)**(mod(k, 2) + mod(l, 2))
-                        nuniq = nuniq + 1
-                        !=-> Original integral plus time-reversed partners
-                        INTTWR(I(idx), J(idx), K, L) = rklr(idx, inz)
-                        INTTWR(JTR, ITR, K, L) = rklr(idx, inz)*SignIJ
-                        INTTWR(I(idx), J(idx), LTR, KTR) = rklr(idx, inz)*SignKL
-                        INTTWR(JTR, ITR, LTR, KTR) = rklr(idx, inz)*SignIJ*SignKL
-                        !=-> Complex conjugate plus time-reversed partners
-                        INTTWR(J(idx), I(idx), L, K) = rklr(idx, inz)
-                        INTTWR(ITR, JTR, L, K) = rklr(idx, inz)*SignIJ
-                        INTTWR(J(idx), I(idx), KTR, LTR) = rklr(idx, inz)*SignKL
-                        INTTWR(ITR, JTR, KTR, LTR) = rklr(idx, inz)*SignIJ*SignKL
-                        !=-> Particle interchanged plus time-reversed partners
-                        INTTWR(K, L, I(idx), J(idx)) = rklr(idx, inz)
-                        INTTWR(LTR, KTR, I(idx), J(idx)) = rklr(idx, inz)*SignKL
-                        INTTWR(K, L, JTR, ITR) = rklr(idx, inz)*SignIJ
-                        INTTWR(LTR, KTR, JTR, ITR) = rklr(idx, inz)*SignIJ*SignKL
-                        !=-> Particle interchanged and complex conjugated plus time-reversed partners
-                        INTTWR(L, K, J(idx), I(idx)) = rklr(idx, inz)
-                        INTTWR(KTR, LTR, J(idx), I(idx)) = rklr(idx, inz)*SignKL
-                        INTTWR(L, K, ITR, JTR) = rklr(idx, inz)*SignIJ
-                        INTTWR(KTR, LTR, ITR, JTR) = rklr(idx, inz)*SignIJ*SignKL
-
-                    elseif (space_idx(i(idx)) == 3 .and. space_idx(j(idx)) == 3 .and. &
-                            space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
-                        count = 0
-                        do
-                            if (mod(i(idx), 2) == 0) then
-                                itr = i(idx) - 1
-                            else
-                                itr = i(idx) + 1
-                            end if
-
-                            if (mod(j(idx), 2) == 0) then
-                                jtr = j(idx) - 1
-                            else
-                                jtr = j(idx) + 1
-                            end if
-
-                            if (mod(k, 2) == 0) then
-                                ktr = k - 1
-                            else
-                                ktr = k + 1
-                            end if
-
-                            if (mod(l, 2) == 0) then
-                                ltr = l - 1
-                            else
-                                ltr = l + 1
-                            end if
-
-                            SignIJ = (-1)**mod(i(idx) + j(idx), 2)
-                            SignKL = (-1)**mod(k + l, 2)
-
-                            int2r_f1(i(idx), j(idx), k, l) = rklr(idx, inz)
-
-                            int2r_f1(jtr, itr, k, l) = SignIJ*rklr(idx, inz)
-
-                            int2r_f1(i(idx), j(idx), ltr, ktr) = SignKL*rklr(idx, inz)
-
-                            int2r_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rklr(idx, inz)
-
-                            count = count + 1
-                            cint2 = DCMPLX(rklr(idx, inz), 0.0d+00)
-
-                            if (count == 1) then
-                                Call takekr(i(idx), j(idx), k, l, cint2)              ! Consider Kramers pair
-                                rklr(idx, inz) = DBLE(cint2)
-                                cycle ! Go to the next count loop
-                            else
-                                cycle loop_inz ! Go to the next inz
-                            end if
-                        end do
-                    elseif (space_idx(k) == 3 .and. space_idx(l) == 3 .and. &
-                            space_idx(i(idx)) < 3 .and. space_idx(i(idx)) == space_idx(j(idx))) then !(11|33) or (22|33) type
-                        count = 0
-                        do
-                            if (mod(i(idx), 2) == 0) then
-                                itr = i(idx) - 1
-                            else
-                                itr = i(idx) + 1
-                            end if
-
-                            if (mod(j(idx), 2) == 0) then
-                                jtr = j(idx) - 1
-                            else
-                                jtr = j(idx) + 1
-                            end if
-
-                            if (mod(k, 2) == 0) then
-                                ktr = k - 1
-                            else
-                                ktr = k + 1
-                            end if
-
-                            if (mod(l, 2) == 0) then
-                                ltr = l - 1
-                            else
-                                ltr = l + 1
-                            end if
-
-                            SignIJ = (-1)**mod(i(idx) + j(idx), 2)
-                            SignKL = (-1)**mod(k + l, 2)
-
-                            int2r_f1(k, l, i(idx), j(idx)) = rklr(idx, inz)
-
-                            int2r_f1(k, l, jtr, itr) = SignIJ*rklr(idx, inz)
-
-                            int2r_f1(ltr, ktr, i(idx), j(idx)) = SignKL*rklr(idx, inz)
-
-                            int2r_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rklr(idx, inz)
-
-                            count = count + 1
-                            cint2 = DCMPLX(rklr(idx, inz), 0.0d+00)
-                            if (count == 1) then
-                                Call takekr(i(idx), j(idx), k, l, cint2)              ! Consider Kramers pair
-                                rklr(idx, inz) = DBLE(cint2)
-                                cycle ! Go to the next count loop
-                            else
-                                cycle loop_inz ! Go to the next inz
-                            end if
-                        end do
-
-                    elseif (max(space_idx(i(idx)), space_idx(j(idx))) == 3 .and. max(space_idx(k), space_idx(l)) == 3 .and. &
-                          &  min(space_idx(i(idx)), space_idx(j(idx))) == min(space_idx(k), space_idx(l))) then                !(31|31) or (32|32) series
-
-                        count = 0
-
-                        do
-                            if (mod(i(idx), 2) == 0) then
-                                itr = i(idx) - 1
-                            else
-                                itr = i(idx) + 1
-                            end if
-
-                            if (mod(j(idx), 2) == 0) then
-                                jtr = j(idx) - 1
-                            else
-                                jtr = j(idx) + 1
-                            end if
-
-                            if (mod(k, 2) == 0) then
-                                ktr = k - 1
-                            else
-                                ktr = k + 1
-                            end if
-
-                            if (mod(l, 2) == 0) then
-                                ltr = l - 1
-                            else
-                                ltr = l + 1
-                            end if
-
-                            SignIJ = (-1)**mod(i(idx) + j(idx), 2)
-                            SignKL = (-1)**mod(k + l, 2)
-
-                            if (i(idx) > j(idx) .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
-
-                                int2r_f2(i(idx), j(idx), ltr, ktr) = signKL*rklr(idx, inz)
-
-                            elseif (i(idx) > j(idx) .and. k < l) then ! (31|13) or (32|23) ==> (31|13) or (32|23)
-
-                                int2r_f2(i(idx), j(idx), k, l) = rklr(idx, inz)
-
-                            elseif (i(idx) < j(idx) .and. k < l) then ! (13|13) or (23|23) ==> (31|13) or (32|23)
-
-                                int2r_f2(jtr, itr, k, l) = signIJ*rklr(idx, inz)
-
-                            elseif (i(idx) < j(idx) .and. k > l) then ! (13|31) or (23|32) ==> (31|13) or (32|23)
-
-                                int2r_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rklr(idx, inz)
-
-                            end if
-
-                            count = count + 1
-                            cint2 = DCMPLX(rklr(idx, inz), 0.0d+00)
-                            if (count == 1 .or. count == 3) then
-                                Call takekr(i(idx), j(idx), k, l, cint2)              ! Consider Kramers pair
-                                rklr(idx, inz) = DBLE(cint2)
-                                cycle ! Go to the next count loop
-                            elseif (count == 2) then           ! variables exchange (AA|BB) => (BB|AA)
-                                save = i(idx)
-                                i(idx) = k
-                                k = save
-                                save = j(idx)
-                                j(idx) = l
-                                l = save
-                                cycle ! Go to the next count loop
-                            else
-                                cycle loop_inz ! Go to the next inz
-                            end if
-                        end do
-                    else
-                    end if
-
-                End do loop_inz
-            end do
-!$OMP end parallel do
-
-            ! Initialize i and continue to read
-            i(:) = 0
+            End do loop_inz
 
         end do
         if (rank == 0) print *, 'end Read mdcint normal'
@@ -388,13 +364,11 @@ contains
             print *, nuniq, totalint
         end if
 
-        if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1);deallocate (indk)
-        if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1);deallocate (indl)
-        if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1);deallocate (rklr)
-        if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1);deallocate (kr)
-        if (allocated(i)) Call memminus(KIND(i), SIZE(i), 1);deallocate (i)
-        if (allocated(j)) Call memminus(KIND(j), SIZE(j), 1);deallocate (j)
-        if (allocated(nz)) call memminus(kind(nz), size(nz), 1);deallocate (nz)
+        if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1); deallocate (indk)
+        if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1); deallocate (indl)
+        if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1); deallocate (rklr)
+        if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1); deallocate (kr)
+
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=inttwr)
         call allreduce_wrapper(mat=int2r_f1)
@@ -407,6 +381,7 @@ contains
 
         use four_caspt2_module
         use module_file_manager
+        use module_sort_swap, only: swap
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -418,34 +393,31 @@ contains
         integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
         integer    :: j0, i0
         integer    :: k, l
-        integer, allocatable    :: i(:), j(:), nz(:)
+        integer    :: i, j, nz
         integer    :: inz
         integer    :: jtr0, itr0
-        integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, save, count
+        integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, count
         complex*16 :: cint2
-        integer, allocatable :: indk(:, :), indl(:, :), kr(:)
-        real*8, allocatable  :: rklr(:, :), rkli(:, :)
+        integer, allocatable :: indk(:), indl(:), kr(:)
+        real*8, allocatable  :: rklr(:), rkli(:)
         logical :: continue_read, is_end_of_file
-        integer :: idx, read_line_len, iostat
+        integer :: read_line_len, iostat
         read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"
         continue_read = .true.
         nmoc = ninact + nact
         nmom = ninact + nact + nsec
         if (rank == 0) print *, "Enter readint2_casci"
 
-        Allocate (i(read_line_max)); call memplus(kind(i), size(i), 1)
-        Allocate (j(read_line_max)); call memplus(kind(j), size(j), 1)
-        Allocate (nz(read_line_max)); call memplus(kind(nz), size(nz), 1)
         Allocate (int2r_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
         Allocate (int2i_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2i_f1), SIZE(int2i_f1), 1)
         Allocate (int2r_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
         Allocate (int2i_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2i_f2), SIZE(int2i_f2), 1)
         Allocate (inttwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwr), SIZE(inttwr), 1)
         Allocate (inttwi(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwi), SIZE(inttwi), 1)
-        Allocate (indk(read_line_max, nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
-        Allocate (indl(read_line_max, nmo**2)); Call memplus(KIND(indl), SIZE(indl), 1)
-        Allocate (rklr(read_line_max, nmo**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
-        Allocate (rkli(read_line_max, nmo**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
+        Allocate (indk(nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
+        Allocate (indl(nmo**2)); Call memplus(KIND(indl), SIZE(indl), 1)
+        Allocate (rklr(nmo**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
+        Allocate (rkli(nmo**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
         !Iwamuro modify
         Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
@@ -453,12 +425,12 @@ contains
 
         ! Initialize variables
         nuniq = 0
-        i(:) = 0
-        j(:) = 0
-        indk(:, :) = 0
-        indl(:, :) = 0
-        rklr(:, :) = 0.0d+00
-        rkli(:, :) = 0.0d+00
+        i = 0
+        j = 0
+        indk(:) = 0
+        indl(:) = 0
+        rklr(:) = 0.0d+00
+        rkli(:) = 0.0d+00
         inttwr = 0.0d+00
         inttwi = 0.0d+00
         int2r_f1 = 0.0d+00
@@ -481,285 +453,264 @@ contains
             print *, 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
         end if
         do while (continue_read)
-            do idx = 1, read_line_max
-                read (unit_mdcint, iostat=iostat) i(idx), j(idx), nz(idx), &
-                    (indk(idx, inz), indl(idx, inz), rklr(idx, inz), rkli(idx, inz), inz=1, nz(idx))
-                call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
-                if (is_end_of_file) then
-                    continue_read = .false.
-                    exit
+            read (unit_mdcint, iostat=iostat) i, j, nz, &
+                (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+            call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
+            if (is_end_of_file) then
+                exit
+            end if
+            if (i == 0) exit ! End of file
+
+            totalint = totalint + nz
+
+            itr = i + (-1)**(mod(i, 2) + 1)
+            jtr = j + (-1)**(mod(j, 2) + 1)
+
+            i0 = i
+            itr0 = itr
+            j0 = j
+            jtr0 = jtr
+
+            loop_inz: Do inz = 1, nz
+
+                i = i0
+                itr = itr0
+                j = j0
+                jtr = jtr0
+
+                k = indk(inz)
+                ktr = k + (-1)**(mod(k, 2) + 1)
+                l = indl(inz)
+                ltr = l + (-1)**(mod(l, 2) + 1)
+
+                If (i > nmoc .and. j > nmoc .and. k > nmoc .and. l > nmoc) cycle loop_inz ! (33|33) is ignored
+                If (i == j .and. k > l) cycle loop_inz
+
+                If (i <= nmoc .and. j <= nmoc .and. k <= nmoc .and. l <= nmoc) then
+                    SignIJ = (-1)**(mod(i, 2) + mod(j, 2))
+                    SignKL = (-1)**(mod(k, 2) + mod(l, 2))
+                    nuniq = nuniq + 1
+                    !=-> Original integral plus time-reversed partners
+                    INTTWR(I, J, K, L) = rklr(inz)
+                    INTTWR(JTR, ITR, K, L) = rklr(inz)*SignIJ
+                    INTTWR(I, J, LTR, KTR) = rklr(inz)*SignKL
+                    INTTWR(JTR, ITR, LTR, KTR) = rklr(inz)*SignIJ*SignKL
+                    INTTWI(I, J, K, L) = rkli(inz)
+                    INTTWI(JTR, ITR, K, L) = rkli(inz)*SignIJ
+                    INTTWI(I, J, LTR, KTR) = rkli(inz)*SignKL
+                    INTTWI(JTR, ITR, LTR, KTR) = rkli(inz)*SignIJ*SignKL
+                    !=-> Complex conjugate plus time-reversed partners
+                    INTTWR(J, I, L, K) = rklr(inz)
+                    INTTWR(ITR, JTR, L, K) = rklr(inz)*SignIJ
+                    INTTWR(J, I, KTR, LTR) = rklr(inz)*SignKL
+                    INTTWR(ITR, JTR, KTR, LTR) = rklr(inz)*SignIJ*SignKL
+                    INTTWI(J, I, L, K) = -rkli(inz)
+                    INTTWI(ITR, JTR, L, K) = -rkli(inz)*SignIJ
+                    INTTWI(J, I, KTR, LTR) = -rkli(inz)*SignKL
+                    INTTWI(ITR, JTR, KTR, LTR) = -rkli(inz)*SignIJ*SignKL
+                    !=-> Particle interchanged plus time-reversed partners
+                    INTTWR(K, L, I, J) = rklr(inz)
+                    INTTWR(LTR, KTR, I, J) = rklr(inz)*SignKL
+                    INTTWR(K, L, JTR, ITR) = rklr(inz)*SignIJ
+                    INTTWR(LTR, KTR, JTR, ITR) = rklr(inz)*SignIJ*SignKL
+                    INTTWI(K, L, I, J) = rkli(inz)
+                    INTTWI(LTR, KTR, I, J) = rkli(inz)*SignKL
+                    INTTWI(K, L, JTR, ITR) = rkli(inz)*SignIJ
+                    INTTWI(LTR, KTR, JTR, ITR) = rkli(inz)*SignIJ*SignKL
+                    !=-> Particle interchanged and complex conjugated plus time-reversed partners
+                    INTTWR(L, K, J, I) = rklr(inz)
+                    INTTWR(KTR, LTR, J, I) = rklr(inz)*SignKL
+                    INTTWR(L, K, ITR, JTR) = rklr(inz)*SignIJ
+                    INTTWR(KTR, LTR, ITR, JTR) = rklr(inz)*SignIJ*SignKL
+                    INTTWI(L, K, J, I) = -rkli(inz)
+                    INTTWI(KTR, LTR, J, I) = -rkli(inz)*SignKL
+                    INTTWI(L, K, ITR, JTR) = -rkli(inz)*SignIJ
+                    INTTWI(KTR, LTR, ITR, JTR) = -rkli(inz)*SignIJ*SignKL
+
+                elseif (space_idx(i) == 3 .and. space_idx(j) == 3 .and. &
+                        space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
+                    count = 0
+                    do
+                        if (mod(i, 2) == 0) then
+                            itr = i - 1
+                        else
+                            itr = i + 1
+                        end if
+
+                        if (mod(j, 2) == 0) then
+                            jtr = j - 1
+                        else
+                            jtr = j + 1
+                        end if
+
+                        if (mod(k, 2) == 0) then
+                            ktr = k - 1
+                        else
+                            ktr = k + 1
+                        end if
+
+                        if (mod(l, 2) == 0) then
+                            ltr = l - 1
+                        else
+                            ltr = l + 1
+                        end if
+
+                        SignIJ = (-1)**mod(i + j, 2)
+                        SignKL = (-1)**mod(k + l, 2)
+
+                        int2r_f1(i, j, k, l) = rklr(inz)
+                        int2i_f1(i, j, k, l) = rkli(inz)
+
+                        int2r_f1(jtr, itr, k, l) = SignIJ*rklr(inz)
+                        int2i_f1(jtr, itr, k, l) = SignIJ*rkli(inz)
+
+                        int2r_f1(i, j, ltr, ktr) = SignKL*rklr(inz)
+                        int2i_f1(i, j, ltr, ktr) = SignKL*rkli(inz)
+
+                        int2r_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rklr(inz)
+                        int2i_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rkli(inz)
+
+                        count = count + 1
+                        cint2 = DCMPLX(rklr(inz), rkli(inz))
+
+                        if (count == 1) then
+                            Call takekr(i, j, k, l, cint2)              ! Consider Kramers pair
+                            rklr(inz) = DBLE(cint2)
+                            rkli(inz) = DIMAG(cint2)
+                            cycle ! Go to the next count loop
+                        else
+                            cycle loop_inz ! Go to the next inz
+                        end if
+                    end do
+                elseif (space_idx(k) == 3 .and. space_idx(l) == 3 .and. &
+                        space_idx(i) < 3 .and. space_idx(i) == space_idx(j)) then !(11|33) or (22|33) type
+                    count = 0
+                    do
+                        if (mod(i, 2) == 0) then
+                            itr = i - 1
+                        else
+                            itr = i + 1
+                        end if
+
+                        if (mod(j, 2) == 0) then
+                            jtr = j - 1
+                        else
+                            jtr = j + 1
+                        end if
+
+                        if (mod(k, 2) == 0) then
+                            ktr = k - 1
+                        else
+                            ktr = k + 1
+                        end if
+
+                        if (mod(l, 2) == 0) then
+                            ltr = l - 1
+                        else
+                            ltr = l + 1
+                        end if
+
+                        SignIJ = (-1)**mod(i + j, 2)
+                        SignKL = (-1)**mod(k + l, 2)
+
+                        int2r_f1(k, l, i, j) = rklr(inz)
+                        int2i_f1(k, l, i, j) = rkli(inz)
+
+                        int2r_f1(k, l, jtr, itr) = SignIJ*rklr(inz)
+                        int2i_f1(k, l, jtr, itr) = SignIJ*rkli(inz)
+
+                        int2r_f1(ltr, ktr, i, j) = SignKL*rklr(inz)
+                        int2i_f1(ltr, ktr, i, j) = SignKL*rkli(inz)
+
+                        int2r_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rklr(inz)
+                        int2i_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rkli(inz)
+
+                        count = count + 1
+                        cint2 = DCMPLX(rklr(inz), rkli(inz))
+                        if (count == 1) then
+                            Call takekr(i, j, k, l, cint2)              ! Consider Kramers pair
+                            rklr(inz) = DBLE(cint2)
+                            rkli(inz) = DIMAG(cint2)
+                            cycle ! Go to the next count loop
+                        else
+                            cycle loop_inz ! Go to the next inz
+                        end if
+                    end do
+
+                elseif (max(space_idx(i), space_idx(j)) == 3 .and. max(space_idx(k), space_idx(l)) == 3 .and. &
+                      &  min(space_idx(i), space_idx(j)) == min(space_idx(k), space_idx(l))) then                !(31|31) or (32|32) series
+
+                    count = 0
+
+                    do
+                        if (mod(i, 2) == 0) then
+                            itr = i - 1
+                        else
+                            itr = i + 1
+                        end if
+
+                        if (mod(j, 2) == 0) then
+                            jtr = j - 1
+                        else
+                            jtr = j + 1
+                        end if
+
+                        if (mod(k, 2) == 0) then
+                            ktr = k - 1
+                        else
+                            ktr = k + 1
+                        end if
+
+                        if (mod(l, 2) == 0) then
+                            ltr = l - 1
+                        else
+                            ltr = l + 1
+                        end if
+
+                        SignIJ = (-1)**mod(i + j, 2)
+                        SignKL = (-1)**mod(k + l, 2)
+
+                        if (i > j .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
+
+                            int2r_f2(i, j, ltr, ktr) = signKL*rklr(inz)
+                            int2i_f2(i, j, ltr, ktr) = signKL*rkli(inz)
+
+                        elseif (i > j .and. k < l) then ! (31|13) or (32|23) ==> (31|13) or (32|23)
+
+                            int2r_f2(i, j, k, l) = rklr(inz)
+                            int2i_f2(i, j, k, l) = rkli(inz)
+
+                        elseif (i < j .and. k < l) then ! (13|13) or (23|23) ==> (31|13) or (32|23)
+
+                            int2r_f2(jtr, itr, k, l) = signIJ*rklr(inz)
+                            int2i_f2(jtr, itr, k, l) = signIJ*rkli(inz)
+
+                        elseif (i < j .and. k > l) then ! (13|31) or (23|32) ==> (31|13) or (32|23)
+
+                            int2r_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rklr(inz)
+                            int2i_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rkli(inz)
+
+                        end if
+
+                        count = count + 1
+                        cint2 = DCMPLX(rklr(inz), rkli(inz))
+                        if (count == 1 .or. count == 3) then
+                            Call takekr(i, j, k, l, cint2)              ! Consider Kramers pair
+                            rklr(inz) = DBLE(cint2)
+                            rkli(inz) = DIMAG(cint2)
+                            cycle ! Go to the next count loop
+                        elseif (count == 2) then           ! variables exchange (AA|BB) => (BB|AA)
+                            call swap(i, k)
+                            call swap(j, l)
+                            cycle ! Go to the next count loop
+                        else
+                            cycle loop_inz ! Go to the next inz
+                        end if
+                    end do
+                else
                 end if
-                if (i(idx) == 0) exit
-            end do
 
-            ! The length of read line is equal to min(read_line_max, idx)
-            read_line_len = min(read_line_max, idx)
-
-!$OMP parallel do private(idx,itr,jtr,i0,itr0,j0,jtr0,inz,k,ktr,l,ltr,SIGNIJ,SIGNKL,cint2,save,count) &
-!$OMP & reduction(+:totalint,nuniq)
-            do idx = 1, read_line_len
-                if (i(idx) == 0) cycle ! Go to next idx
-
-                totalint = totalint + nz(idx)
-
-                itr = i(idx) + (-1)**(mod(i(idx), 2) + 1)
-                jtr = j(idx) + (-1)**(mod(j(idx), 2) + 1)
-
-                i0 = i(idx)
-                itr0 = itr
-                j0 = j(idx)
-                jtr0 = jtr
-
-                loop_inz: Do inz = 1, nz(idx)
-
-                    i(idx) = i0
-                    itr = itr0
-                    j(idx) = j0
-                    jtr = jtr0
-
-                    k = indk(idx, inz)
-                    ktr = k + (-1)**(mod(k, 2) + 1)
-                    l = indl(idx, inz)
-                    ltr = l + (-1)**(mod(l, 2) + 1)
-
-                    If (i(idx) > nmoc .and. j(idx) > nmoc .and. k > nmoc .and. l > nmoc) cycle loop_inz ! (33|33) is ignored
-                    If (i(idx) == j(idx) .and. k > l) cycle loop_inz
-
-                    If (i(idx) <= nmoc .and. j(idx) <= nmoc .and. k <= nmoc .and. l <= nmoc) then
-                        SignIJ = (-1)**(mod(i(idx), 2) + mod(j(idx), 2))
-                        SignKL = (-1)**(mod(k, 2) + mod(l, 2))
-                        nuniq = nuniq + 1
-                        !=-> Original integral plus time-reversed partners
-                        INTTWR(I(idx), J(idx), K, L) = rklr(idx, inz)
-                        INTTWR(JTR, ITR, K, L) = rklr(idx, inz)*SignIJ
-                        INTTWR(I(idx), J(idx), LTR, KTR) = rklr(idx, inz)*SignKL
-                        INTTWR(JTR, ITR, LTR, KTR) = rklr(idx, inz)*SignIJ*SignKL
-                        INTTWI(I(idx), J(idx), K, L) = rkli(idx, inz)
-                        INTTWI(JTR, ITR, K, L) = rkli(idx, inz)*SignIJ
-                        INTTWI(I(idx), J(idx), LTR, KTR) = rkli(idx, inz)*SignKL
-                        INTTWI(JTR, ITR, LTR, KTR) = rkli(idx, inz)*SignIJ*SignKL
-                        !=-> Complex conjugate plus time-reversed partners
-                        INTTWR(J(idx), I(idx), L, K) = rklr(idx, inz)
-                        INTTWR(ITR, JTR, L, K) = rklr(idx, inz)*SignIJ
-                        INTTWR(J(idx), I(idx), KTR, LTR) = rklr(idx, inz)*SignKL
-                        INTTWR(ITR, JTR, KTR, LTR) = rklr(idx, inz)*SignIJ*SignKL
-                        INTTWI(J(idx), I(idx), L, K) = -rkli(idx, inz)
-                        INTTWI(ITR, JTR, L, K) = -rkli(idx, inz)*SignIJ
-                        INTTWI(J(idx), I(idx), KTR, LTR) = -rkli(idx, inz)*SignKL
-                        INTTWI(ITR, JTR, KTR, LTR) = -rkli(idx, inz)*SignIJ*SignKL
-                        !=-> Particle interchanged plus time-reversed partners
-                        INTTWR(K, L, I(idx), J(idx)) = rklr(idx, inz)
-                        INTTWR(LTR, KTR, I(idx), J(idx)) = rklr(idx, inz)*SignKL
-                        INTTWR(K, L, JTR, ITR) = rklr(idx, inz)*SignIJ
-                        INTTWR(LTR, KTR, JTR, ITR) = rklr(idx, inz)*SignIJ*SignKL
-                        INTTWI(K, L, I(idx), J(idx)) = rkli(idx, inz)
-                        INTTWI(LTR, KTR, I(idx), J(idx)) = rkli(idx, inz)*SignKL
-                        INTTWI(K, L, JTR, ITR) = rkli(idx, inz)*SignIJ
-                        INTTWI(LTR, KTR, JTR, ITR) = rkli(idx, inz)*SignIJ*SignKL
-                        !=-> Particle interchanged and complex conjugated plus time-reversed partners
-                        INTTWR(L, K, J(idx), I(idx)) = rklr(idx, inz)
-                        INTTWR(KTR, LTR, J(idx), I(idx)) = rklr(idx, inz)*SignKL
-                        INTTWR(L, K, ITR, JTR) = rklr(idx, inz)*SignIJ
-                        INTTWR(KTR, LTR, ITR, JTR) = rklr(idx, inz)*SignIJ*SignKL
-                        INTTWI(L, K, J(idx), I(idx)) = -rkli(idx, inz)
-                        INTTWI(KTR, LTR, J(idx), I(idx)) = -rkli(idx, inz)*SignKL
-                        INTTWI(L, K, ITR, JTR) = -rkli(idx, inz)*SignIJ
-                        INTTWI(KTR, LTR, ITR, JTR) = -rkli(idx, inz)*SignIJ*SignKL
-
-                    elseif (space_idx(i(idx)) == 3 .and. space_idx(j(idx)) == 3 .and. &
-                            space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
-                        count = 0
-                        do
-                            if (mod(i(idx), 2) == 0) then
-                                itr = i(idx) - 1
-                            else
-                                itr = i(idx) + 1
-                            end if
-
-                            if (mod(j(idx), 2) == 0) then
-                                jtr = j(idx) - 1
-                            else
-                                jtr = j(idx) + 1
-                            end if
-
-                            if (mod(k, 2) == 0) then
-                                ktr = k - 1
-                            else
-                                ktr = k + 1
-                            end if
-
-                            if (mod(l, 2) == 0) then
-                                ltr = l - 1
-                            else
-                                ltr = l + 1
-                            end if
-
-                            SignIJ = (-1)**mod(i(idx) + j(idx), 2)
-                            SignKL = (-1)**mod(k + l, 2)
-
-                            int2r_f1(i(idx), j(idx), k, l) = rklr(idx, inz)
-                            int2i_f1(i(idx), j(idx), k, l) = rkli(idx, inz)
-
-                            int2r_f1(jtr, itr, k, l) = SignIJ*rklr(idx, inz)
-                            int2i_f1(jtr, itr, k, l) = SignIJ*rkli(idx, inz)
-
-                            int2r_f1(i(idx), j(idx), ltr, ktr) = SignKL*rklr(idx, inz)
-                            int2i_f1(i(idx), j(idx), ltr, ktr) = SignKL*rkli(idx, inz)
-
-                            int2r_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rklr(idx, inz)
-                            int2i_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rkli(idx, inz)
-
-                            count = count + 1
-                            cint2 = DCMPLX(rklr(idx, inz), rkli(idx, inz))
-
-                            if (count == 1) then
-                                Call takekr(i(idx), j(idx), k, l, cint2)              ! Consider Kramers pair
-                                rklr(idx, inz) = DBLE(cint2)
-                                rkli(idx, inz) = DIMAG(cint2)
-                                cycle ! Go to the next count loop
-                            else
-                                cycle loop_inz ! Go to the next inz
-                            end if
-                        end do
-                    elseif (space_idx(k) == 3 .and. space_idx(l) == 3 .and. &
-                            space_idx(i(idx)) < 3 .and. space_idx(i(idx)) == space_idx(j(idx))) then !(11|33) or (22|33) type
-                        count = 0
-                        do
-                            if (mod(i(idx), 2) == 0) then
-                                itr = i(idx) - 1
-                            else
-                                itr = i(idx) + 1
-                            end if
-
-                            if (mod(j(idx), 2) == 0) then
-                                jtr = j(idx) - 1
-                            else
-                                jtr = j(idx) + 1
-                            end if
-
-                            if (mod(k, 2) == 0) then
-                                ktr = k - 1
-                            else
-                                ktr = k + 1
-                            end if
-
-                            if (mod(l, 2) == 0) then
-                                ltr = l - 1
-                            else
-                                ltr = l + 1
-                            end if
-
-                            SignIJ = (-1)**mod(i(idx) + j(idx), 2)
-                            SignKL = (-1)**mod(k + l, 2)
-
-                            int2r_f1(k, l, i(idx), j(idx)) = rklr(idx, inz)
-                            int2i_f1(k, l, i(idx), j(idx)) = rkli(idx, inz)
-
-                            int2r_f1(k, l, jtr, itr) = SignIJ*rklr(idx, inz)
-                            int2i_f1(k, l, jtr, itr) = SignIJ*rkli(idx, inz)
-
-                            int2r_f1(ltr, ktr, i(idx), j(idx)) = SignKL*rklr(idx, inz)
-                            int2i_f1(ltr, ktr, i(idx), j(idx)) = SignKL*rkli(idx, inz)
-
-                            int2r_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rklr(idx, inz)
-                            int2i_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rkli(idx, inz)
-
-                            count = count + 1
-                            cint2 = DCMPLX(rklr(idx, inz), rkli(idx, inz))
-                            if (count == 1) then
-                                Call takekr(i(idx), j(idx), k, l, cint2)              ! Consider Kramers pair
-                                rklr(idx, inz) = DBLE(cint2)
-                                rkli(idx, inz) = DIMAG(cint2)
-                                cycle ! Go to the next count loop
-                            else
-                                cycle loop_inz ! Go to the next inz
-                            end if
-                        end do
-
-                    elseif (max(space_idx(i(idx)), space_idx(j(idx))) == 3 .and. max(space_idx(k), space_idx(l)) == 3 .and. &
-                          &  min(space_idx(i(idx)), space_idx(j(idx))) == min(space_idx(k), space_idx(l))) then                !(31|31) or (32|32) series
-
-                        count = 0
-
-                        do
-                            if (mod(i(idx), 2) == 0) then
-                                itr = i(idx) - 1
-                            else
-                                itr = i(idx) + 1
-                            end if
-
-                            if (mod(j(idx), 2) == 0) then
-                                jtr = j(idx) - 1
-                            else
-                                jtr = j(idx) + 1
-                            end if
-
-                            if (mod(k, 2) == 0) then
-                                ktr = k - 1
-                            else
-                                ktr = k + 1
-                            end if
-
-                            if (mod(l, 2) == 0) then
-                                ltr = l - 1
-                            else
-                                ltr = l + 1
-                            end if
-
-                            SignIJ = (-1)**mod(i(idx) + j(idx), 2)
-                            SignKL = (-1)**mod(k + l, 2)
-
-                            if (i(idx) > j(idx) .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
-
-                                int2r_f2(i(idx), j(idx), ltr, ktr) = signKL*rklr(idx, inz)
-                                int2i_f2(i(idx), j(idx), ltr, ktr) = signKL*rkli(idx, inz)
-
-                            elseif (i(idx) > j(idx) .and. k < l) then ! (31|13) or (32|23) ==> (31|13) or (32|23)
-
-                                int2r_f2(i(idx), j(idx), k, l) = rklr(idx, inz)
-                                int2i_f2(i(idx), j(idx), k, l) = rkli(idx, inz)
-
-                            elseif (i(idx) < j(idx) .and. k < l) then ! (13|13) or (23|23) ==> (31|13) or (32|23)
-
-                                int2r_f2(jtr, itr, k, l) = signIJ*rklr(idx, inz)
-                                int2i_f2(jtr, itr, k, l) = signIJ*rkli(idx, inz)
-
-                            elseif (i(idx) < j(idx) .and. k > l) then ! (13|31) or (23|32) ==> (31|13) or (32|23)
-
-                                int2r_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rklr(idx, inz)
-                                int2i_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rkli(idx, inz)
-
-                            end if
-
-                            count = count + 1
-                            cint2 = DCMPLX(rklr(idx, inz), rkli(idx, inz))
-                            if (count == 1 .or. count == 3) then
-                                Call takekr(i(idx), j(idx), k, l, cint2)              ! Consider Kramers pair
-                                rklr(idx, inz) = DBLE(cint2)
-                                rkli(idx, inz) = DIMAG(cint2)
-                                cycle ! Go to the next count loop
-                            elseif (count == 2) then           ! variables exchange (AA|BB) => (BB|AA)
-                                save = i(idx)
-                                i(idx) = k
-                                k = save
-                                save = j(idx)
-                                j(idx) = l
-                                l = save
-                                cycle ! Go to the next count loop
-                            else
-                                cycle loop_inz ! Go to the next inz
-                            end if
-                        end do
-                    else
-                    end if
-
-                End do loop_inz
-            end do
-!$OMP end parallel do
-
-            ! Initialize i and continue to read
-            i(:) = 0
-
+            End do loop_inz
         end do
         if (rank == 0) print *, 'end Read mdcint normal'
 
@@ -772,14 +723,11 @@ contains
             print *, nuniq, totalint
         end if
 
-        if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1);deallocate (indk)
-        if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1);deallocate (indl)
-        if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1);deallocate (rklr)
-        if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1);deallocate (rkli)
-        if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1);deallocate (kr)
-        if (allocated(i)) Call memminus(KIND(i), SIZE(i), 1);deallocate (i)
-        if (allocated(j)) Call memminus(KIND(j), SIZE(j), 1);deallocate (j)
-        if (allocated(nz)) call memminus(kind(nz), size(nz), 1);deallocate (nz)
+        if (allocated(indk)) Call memminus(KIND(indk), SIZE(indk), 1); deallocate (indk)
+        if (allocated(indl)) Call memminus(KIND(indl), SIZE(indl), 1); deallocate (indl)
+        if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1); deallocate (rklr)
+        if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1); deallocate (rkli)
+        if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1); deallocate (kr)
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=inttwr)
         call allreduce_wrapper(mat=inttwi)
