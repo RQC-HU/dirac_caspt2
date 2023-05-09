@@ -4,6 +4,7 @@ add_library(dcaspt2_module STATIC
   module_error.f90
   module_2integrals.f90
   module_file_manager.f90
+  module_intra.f90
   module_mpi.f90
   module_realonly.f90
   module_sort_swap.f90
@@ -49,7 +50,6 @@ add_executable(r4dcaspt2ocoexe
   dim.f90
   e0test.f90
   get_filename.f90
-  intra.f90
   mem.f90
   one_e_exct.f90
   r4dcaspt2_tra.f90
