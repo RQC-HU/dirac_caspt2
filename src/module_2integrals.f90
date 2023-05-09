@@ -1,4 +1,5 @@
 module module_2integrals
+    use module_takekr
     implicit none
     private
     public readint2_casci, get_2_elec_integral

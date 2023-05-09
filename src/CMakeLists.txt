@@ -10,6 +10,7 @@ add_library(dcaspt2_module STATIC
   module_sort_swap.f90
   ras_det_check.f90
   read_input_module.f90
+  takekr.f90
 )
 add_executable(r4dcascicoexe
   calce0.f90
@@ -34,7 +35,6 @@ add_executable(r4dcascicoexe
   read1mo.f90
   readorb_enesym.f90
   sdet.f90
-  takekr.f90
   timing.f90
   trac.f90
   tramo.f90
@@ -65,7 +65,6 @@ add_executable(r4dcaspt2ocoexe
   solve_F_subspace.f90
   solve_G_subspace.f90
   solve_H_subspace.f90
-  takekr.f90
   timing.f90
   tramo.f90
   uramda_s_half.f90
@@ -84,7 +83,6 @@ add_executable(r4divocoexe
 	r4divo.f90
 	read1mo.f90
 	readorb_enesym.f90
-	takekr.f90
 	timing.f90
 	uramda_s_half.f90
 )
