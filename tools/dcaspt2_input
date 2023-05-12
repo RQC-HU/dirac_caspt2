@@ -138,12 +138,13 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
         shutil.copy(input_file_path, scratch_dir)
     os.rename(os.path.join(scratch_dir, os.path.basename(input_file_path)), os.path.join(scratch_dir, "active.inp"))  # Rename the input file to "active.inp"
     if integrals_dir != scratch_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
-        shutil.copy(os.path.join(integrals_dir, "MDCINT"), scratch_dir)
-        shutil.copy(os.path.join(integrals_dir, "MRCONEE"), scratch_dir)
+        # Create a symbolic link to the 1-2 integrals file
+        os.symlink(os.path.join(integrals_dir, "MDCINT"), os.path.join(scratch_dir, "MDCINT"))
+        os.symlink(os.path.join(integrals_dir, "MRCONEE"), os.path.join(scratch_dir, "MRCONEE"))
         if args.ivo:
             shutil.copy(os.path.join(integrals_dir, "DFPCMO"), scratch_dir)
         for file in glob.glob(os.path.join(integrals_dir, "MDCINX*")):
-            shutil.copy(file, scratch_dir)
+            os.symlink(file, os.path.join(scratch_dir, os.path.basename(file)))
         print("log : Copied 1-2 integral files to the scratch directory")
     return None
 
