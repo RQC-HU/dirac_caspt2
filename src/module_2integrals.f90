@@ -114,6 +114,7 @@ contains
 
         totalint = 0
         call open_unformatted_file(unit=unit_mdcint, file=trim(filename), status='old', optional_action='read')
+        rewind(unit_mdcint)
 
         read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
@@ -441,6 +442,7 @@ contains
 
         totalint = 0
         call open_unformatted_file(unit=unit_mdcint, file=trim(filename), status='old', optional_action='read')
+        rewind(unit_mdcint)
 
         read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 
