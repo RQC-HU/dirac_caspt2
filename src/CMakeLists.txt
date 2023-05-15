@@ -1,3 +1,4 @@
+
 add_library(dcaspt2_module STATIC
   four_caspt2_module.f90
   module_dict.f90
@@ -12,6 +13,13 @@ add_library(dcaspt2_module STATIC
   read_input_module.f90
   takekr.f90
 )
+
+add_library(caspt2_module STATIC
+ulamda_s_half.f90
+)
+target_link_libraries(caspt2_module dcaspt2_module)
+
+
 add_executable(r4dcascicoexe
   calce0.f90
   casci.f90
@@ -38,7 +46,6 @@ add_executable(r4dcascicoexe
   timing.f90
   trac.f90
   tramo.f90
-  uramda_s_half.f90
 )
 target_link_libraries(r4dcascicoexe dcaspt2_module)
 
@@ -67,9 +74,8 @@ add_executable(r4dcaspt2ocoexe
   solve_H_subspace.f90
   timing.f90
   tramo.f90
-  uramda_s_half.f90
 )
-target_link_libraries(r4dcaspt2ocoexe dcaspt2_module)
+target_link_libraries(r4dcaspt2ocoexe dcaspt2_module caspt2_module)
 
 add_executable(r4divocoexe
   create_binmdcint.f90
@@ -84,7 +90,6 @@ add_executable(r4divocoexe
 	read1mo.f90
 	readorb_enesym.f90
 	timing.f90
-	uramda_s_half.f90
 )
 target_link_libraries(r4divocoexe dcaspt2_module)
 

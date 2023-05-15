@@ -1,5 +1,6 @@
 SUBROUTINE solve_C_subspace(e0, e2c)
 
+    use module_ulambda_s_half, only: ulambda_s_half
     use four_caspt2_module
     use module_realonly, only: realonly
     implicit none
@@ -235,11 +236,11 @@ contains
             tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ucramda_s_half'
+            if (rank == 0) print *, 'before ulambda_s_half'
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
+            Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
@@ -519,8 +520,9 @@ contains
         Implicit NONE
 
         complex*16, intent(out) :: v(nsec, nact, nact, nact)
-        real*8                  :: dr, di
-        complex*16              :: cint1, cint2, d
+        real(8)                  :: dr, di
+        complex*16               :: cint1
+        complex*16              :: cint2, d
         complex*16              :: effh(nsec, nact)
         integer :: i, j, k, l, dim(nsymrpa)
         integer :: isym, syma, symb, symc
@@ -967,11 +969,11 @@ contains
             tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ucramda_s_half'
+            if (rank == 0) print *, 'before ulambda_s_half'
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            Call uramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
+            Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
@@ -1244,8 +1246,9 @@ contains
         Implicit NONE
 
         real(8), intent(out) :: v(nsec, nact, nact, nact)
-        real*8                  :: dr, di
-        real(8)              :: cint1, cint2, d
+        real(8)                  :: dr, di
+        complex*16               :: cint1
+        real(8)              :: cint2, d
         real(8)              :: effh(nsec, nact)
         integer :: i, j, k, l, dim(nsymrpa)
         integer :: isym, syma, symb, symc
@@ -1335,7 +1338,7 @@ contains
 
                 Call tramo1(ja, jt, cint1)
 
-                effh(ia, it) = cint1
+                effh(ia, it) = real(cint1, kind=KIND(effh))
 !              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
 
             End do

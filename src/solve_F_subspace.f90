@@ -1,5 +1,6 @@
 SUBROUTINE solve_F_subspace(e0, e2f)
 
+    use module_ulambda_s_half, only: ulambda_s_half
     use four_caspt2_module
     use module_realonly, only: realonly
     implicit none
@@ -229,11 +230,11 @@ contains
             tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ucramda_s_half'
+            if (rank == 0) print *, 'before ulambda_s_half'
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            Call ucramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
+            Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
@@ -817,11 +818,11 @@ contains
             tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ucramda_s_half'
+            if (rank == 0) print *, 'before ulambda_s_half'
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            Call uramda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
+            Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
