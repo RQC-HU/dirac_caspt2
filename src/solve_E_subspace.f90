@@ -29,8 +29,8 @@ contains
         include 'mpif.h'
 #endif
         integer :: dimn, dimm, dammy
-        real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-        real*8               :: e2(2*nsymrpa), alpha, e
+        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+        real(8)               :: e2(2*nsymrpa), alpha, e
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
         complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :), vc(:), vc1(:)
@@ -358,7 +358,7 @@ contains
         integer, intent(in)      :: dimn, indt(dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
 
-        real*8  ::a, b
+        real(8)  ::a, b
 
         integer :: it, iu
         integer :: i, j
@@ -422,7 +422,7 @@ contains
         complex*16, intent(in)  :: sc(dimn, dimn)
         complex*16, intent(out) :: bc(dimn, dimn)
 
-        real*8              :: denr, deni
+        real(8)              :: denr, deni
         complex*16          :: den
 
         bc(:, :) = 0.0d+00
@@ -485,7 +485,7 @@ contains
 
         complex*16, intent(out) :: v(naij, nact)
 
-        real*8                  :: dr, di
+        real(8)                  :: dr, di
         complex*16              :: cint2, dens
 
         integer :: i, j, k, l, taij
@@ -562,8 +562,8 @@ contains
         include 'mpif.h'
 #endif
         integer :: dimn, dimm, dammy
-        real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-        real*8               :: e2(2*nsymrpa), alpha, e
+        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+        real(8)               :: e2(2*nsymrpa), alpha, e
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
         real(8), allocatable  :: bc0(:, :), bc1(:, :), v(:, :), vc(:), vc1(:)
@@ -877,7 +877,7 @@ contains
         integer, intent(in)      :: dimn, indt(dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
 
-        real*8  ::a, b
+        real(8)  ::a, b
 
         integer :: it, iu
         integer :: i, j
@@ -941,7 +941,7 @@ contains
         real(8), intent(in)  :: sc(dimn, dimn)
         real(8), intent(out) :: bc(dimn, dimn)
 
-        real*8              :: denr, deni
+        real(8)              :: denr, deni
         real(8)          :: den
 
         bc(:, :) = 0.0d+00
@@ -1004,7 +1004,7 @@ contains
 
         real(8), intent(out) :: v(naij, nact)
 
-        real*8                  :: dr, di
+        real(8)                  :: dr, di
         real(8)              :: cint2, dens
 
         integer :: i, j, k, l, taij

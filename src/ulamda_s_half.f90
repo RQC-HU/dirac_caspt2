@@ -25,10 +25,10 @@ contains
         Implicit NONE
 
         integer, intent(in)    :: dimn, dimm           ! dimn >= dimm reduced dimension
-        real*8, intent(inout)  :: ur(dimn, dimm)
-        real*8, intent(in)     :: wnew(dimm)
+        real(8), intent(inout)  :: ur(dimn, dimm)
+        real(8), intent(in)     :: wnew(dimm)
 
-        real*8              :: ramdah(dimm, dimm)                  ! ramdaS^(-1/2)  dimm*dimm matrix
+        real(8)              :: ramdah(dimm, dimm)                  ! ramdaS^(-1/2)  dimm*dimm matrix
         integer             :: i0
 
         ramdah(:, :) = 0.0d+00
@@ -59,9 +59,9 @@ contains
 
         integer, intent(in)        :: dimn, dimm           ! dimn >= dimm reduced dimension
         complex*16, intent(inout)  :: uc(dimn, dimm)
-        real*8, intent(in)         :: wnew(dimm)
+        real(8), intent(in)         :: wnew(dimm)
 
-        real*8              :: ramdah(dimm, dimm)                  ! ramdaS^(-1/2)  dimm*dimm matrix
+        real(8)              :: ramdah(dimm, dimm)                  ! ramdaS^(-1/2)  dimm*dimm matrix
         integer             :: i0
 
         ramdah(:, :) = 0.0d+00

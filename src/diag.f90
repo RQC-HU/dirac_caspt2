@@ -14,16 +14,16 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, cutoff_threshold)
     Implicit NONE
 
     integer, intent(in) :: dimn
-    real*8, intent(in)  :: cutoff_threshold
+    real(8), intent(in)  :: cutoff_threshold
 
-    real*8, intent(inout)  :: sr(dimn, dimn)
+    real(8), intent(inout)  :: sr(dimn, dimn)
 
     integer, intent(out) :: dimm
-    real*8, intent(out)  ::  w(dimn)
+    real(8), intent(out)  ::  w(dimn)
 
     integer :: info, lda, lwork
     character :: jobz*1, uplo*1
-    real*8, allocatable  ::  work(:)
+    real(8), allocatable  ::  work(:)
 
     w(:) = 0.0d+00
     jobz = 'V' ! calculate eigenvectors
@@ -84,18 +84,18 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
     Implicit NONE
 
     integer, intent(in) :: dimn
-    real*8, intent(in)  :: cutoff_threshold
+    real(8), intent(in)  :: cutoff_threshold
 
     complex*16, intent(inout):: c(dimn, dimn)
 
     integer, intent(out) :: dimm
-    real*8, intent(out)  :: w(dimn)
+    real(8), intent(out)  :: w(dimn)
 
     integer :: info, lda, lwork
     character :: jobz*1, uplo*1
 
     complex*16, allocatable  ::  work(:)
-    real*8, allocatable      ::  rwork(:)
+    real(8), allocatable      ::  rwork(:)
 
     if (rank == 0) print *, 'Enter cdiagonal part'
     w(:) = 0.0d+00
@@ -221,16 +221,16 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     Implicit NONE
     integer, intent(in)     ::  n, n0, n1
 
-    real*8, intent(out)     ::  fa(n0:n1, n0:n1)
-    real*8, intent(out)     ::  w(n0:n1)
+    real(8), intent(out)     ::  fa(n0:n1, n0:n1)
+    real(8), intent(out)     ::  w(n0:n1)
 
     real(8)                 ::  cutoff_threshold
     integer                 ::  j, i, dimn, dummy, ncount(nsymrpa)
     integer                 ::  sym, isym
     integer                 ::  ind(n, nsymrpa)
 
-    real*8, allocatable     ::  mat(:, :), fasym(:, :)
-    real*8                  ::  wsym(n)
+    real(8), allocatable     ::  mat(:, :), fasym(:, :)
+    real(8)                  ::  wsym(n)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -321,7 +321,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     integer, intent(in)     ::  n, n0, n1
 
     complex*16, intent(out) ::  fac(n0:n1, n0:n1)
-    real*8, intent(out)     ::  wc(n0:n1)
+    real(8), intent(out)     ::  wc(n0:n1)
 
     real(8)                 ::  cutoff_threshold
     logical                 ::  fi
@@ -330,7 +330,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     integer                 ::  ind(n, nsymrpa)
 
     complex*16, allocatable ::  matc(:, :), facsym(:, :), facsymo(:, :)
-    real*8, allocatable      ::  wcsym(:)
+    real(8), allocatable      ::  wcsym(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

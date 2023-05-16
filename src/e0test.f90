@@ -22,7 +22,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     integer :: j, i, k, l
     integer :: nint
 
-    real*8 :: i2r, i2i, dr, di, nsign
+    real(8) :: i2r, i2i, dr, di, nsign
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
     complex*16, allocatable :: energy(:, :)
 

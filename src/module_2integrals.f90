@@ -82,7 +82,7 @@ contains
         integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, count
         complex*16 :: cint2
         integer, allocatable :: indk(:), indl(:), kr(:)
-        real*8, allocatable  :: rklr(:)
+        real(8), allocatable  :: rklr(:)
         logical :: continue_read, is_end_of_file
         integer :: iostat
         continue_read = .true.
@@ -401,7 +401,7 @@ contains
         integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, count
         complex*16 :: cint2
         integer, allocatable :: indk(:), indl(:), kr(:)
-        real*8, allocatable  :: rklr(:), rkli(:)
+        real(8), allocatable  :: rklr(:), rkli(:)
         logical :: continue_read, is_end_of_file
         integer :: read_line_len, iostat
         read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"

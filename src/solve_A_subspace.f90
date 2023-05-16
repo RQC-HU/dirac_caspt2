@@ -31,8 +31,8 @@ contains
 
         integer, allocatable :: indsym(:, :)
 
-        real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-        real*8               :: e2(2*nsymrpa), alpha
+        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+        real(8)               :: e2(2*nsymrpa), alpha
 
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
@@ -388,7 +388,7 @@ contains
 
         integer, intent(in)      :: dimn, indsym(3, dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
-        real*8  ::a, b
+        real(8)  ::a, b
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
@@ -462,7 +462,7 @@ contains
         complex*16, intent(in)  :: sc(dimn, dimn)
         complex*16, intent(out) :: bc(dimn, dimn)
 
-        real*8               :: e, denr, deni
+        real(8)               :: e, denr, deni
         complex*16           :: den
 
         bc(:, :) = 0.0d+00
@@ -550,7 +550,7 @@ contains
         Implicit NONE
 
         complex*16, intent(out) :: v(ninact, nact, nact, nact)
-        real*8                  :: dr, di
+        real(8)                  :: dr, di
         complex*16              :: cint2, d, dens1(nact, nact), effh(nact, ninact)
         complex*16              :: cint1
         logical                 :: is_end_of_file
@@ -826,8 +826,8 @@ contains
 
         integer, allocatable :: indsym(:, :)
 
-        real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-        real*8               :: e2(2*nsymrpa), alpha
+        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+        real(8)               :: e2(2*nsymrpa), alpha
 
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
@@ -1160,7 +1160,7 @@ contains
 
         integer, intent(in)      :: dimn, indsym(3, dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
-        real*8  ::a, b
+        real(8)  ::a, b
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
@@ -1234,7 +1234,7 @@ contains
         real(8), intent(in)  :: sc(dimn, dimn)
         real(8), intent(out) :: bc(dimn, dimn)
 
-        real*8               :: e, denr, deni
+        real(8)               :: e, denr, deni
         real(8)           :: den
 
         bc(:, :) = 0.0d+00
@@ -1322,7 +1322,7 @@ contains
         Implicit NONE
 
         real(8), intent(out) :: v(ninact, nact, nact, nact)
-        real*8                  :: dr, di
+        real(8)                  :: dr, di
         real(8)              :: cint2, d, dens1(nact, nact), effh(nact, ninact)
         complex*16              :: cint1
         logical                 :: is_end_of_file

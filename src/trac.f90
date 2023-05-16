@@ -11,7 +11,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     use module_file_manager, only: open_unformatted_file
 
     Implicit NONE
-    real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    real(8), intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
 
     integer :: i0, j0, i, info
     integer :: ok, unit_newcicoeff

@@ -17,7 +17,7 @@ SUBROUTINE fockdiag
     integer                 ::  i, j
     integer                 :: unit_transfock
     integer                 :: i0, n, n0, n1, nspace(3, 3)
-    real*8, allocatable :: fa(:, :)
+    real(8), allocatable :: fa(:, :)
     complex*16, allocatable :: fac(:, :)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -25,7 +25,7 @@ SUBROUTINE fockdiag
 
     if (rank == 0) print *, 'fockdiag start'
 
-    If (realonly%is_realonly()) then          ! real*8
+    If (realonly%is_realonly()) then          ! real(8)
         Allocate (fa(nmo, nmo)); Call memplus(KIND(fa), SIZE(fa), 1)
         eps = 0.0d+00
         fa = 0.0d+00

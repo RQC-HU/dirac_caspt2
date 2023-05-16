@@ -87,11 +87,11 @@ MODULE module_global_variables
     ! sumc2     : Second pertubation energy(total) / a.u.
     ! sumclocal : Second pertubation energy(each subspace) / a.u.
     ! coeff1    : The coefficient for solvH (sumclocal = sumclocal + abs(coeff1)^2)
-    real*8      ::  sumc2, sumc2local
+    real(8)      ::  sumc2, sumc2local
     complex*16  ::  coeff1
 ! from MORCONEE
 
-    real*8 :: enuc
+    real(8) :: enuc
     double precision :: ecore ! core energy
     integer :: nsymrpa, multb(128, 128), multb2(128, 128), nmo, scfru
     character :: repna(64)*4
@@ -106,7 +106,7 @@ MODULE module_global_variables
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart
     integer, allocatable ::MULTB_DF(:, :), MULTB_DB(:, :), MULTB_SB(:, :)
 
-    real*8, allocatable :: eps(:)
+    real(8), allocatable :: eps(:)
 
     complex*16, allocatable :: itrfmo(:, :, :)
     complex*16, allocatable :: fock_cmplx(:, :)

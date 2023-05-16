@@ -33,7 +33,7 @@ contains
         Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
         complex*16              :: cint2
         complex*16, allocatable :: v(:, :)
-        Real*8                  :: e
+        real(8)                  :: e
         logical                 :: is_end_of_file
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -207,7 +207,7 @@ contains
         Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
         real(8)              :: cint2
         real(8), allocatable :: v(:, :)
-        Real*8                  :: e
+        real(8)                  :: e
         logical                 :: is_end_of_file
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

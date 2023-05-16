@@ -16,12 +16,12 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     integer      :: isym, nv, numh
     integer      :: imo, iao, IMAX, iostat
     integer      :: unit_dfpcmo, unit_itrfmog, unit_itrfmou, unit_buf
-    real*8       :: thresd
+    real(8)       :: thresd
     logical      :: cutoff
     complex*16, allocatable  :: fsym(:, :) ! Symmetrized fock_ivo_matrix for particular irrep
     complex*16, allocatable  :: coeff(:, :)
-    real*8, allocatable      :: BUF(:)  ! One dimensional array representing MO coeff. read from DFPCMO
-    real*8, allocatable      :: wsym(:), eval(:)
+    real(8), allocatable      :: BUF(:)  ! One dimensional array representing MO coeff. read from DFPCMO
+    real(8), allocatable      :: wsym(:), eval(:)
     integer, allocatable     :: mosym(:)
     character*150 :: line0, line1, line2, line3, line4, line5
 

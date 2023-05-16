@@ -107,7 +107,7 @@ SUBROUTINE tramo2(i, j, k, l, int2)
     integer     :: idx_i0, idx_j0, idx_k0, idx_l0, count_sym1_i, count_sym2_j, count_sym3_k, count_sym4_l
     integer     :: start_idx_i, start_idx_j, start_idx_k, start_idx_l, end_idx_i, end_idx_j, end_idx_k, end_idx_l
     integer, allocatable    :: list_sym1_i(:), list_sym2_j(:), list_sym3_k(:), list_sym4_l(:)
-    real*8      :: i2r, i2i
+    real(8)      :: i2r, i2i
     complex*16  :: cmplxint
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

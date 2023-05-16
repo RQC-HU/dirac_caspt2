@@ -18,9 +18,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     real(16)                :: time0, time1
 #endif
     integer                 :: ieshift, unit_input, unit_new
-    real*8                  :: e0, e2, e2all, weight0
+    real(8)                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
-    real*8, allocatable     :: ecas(:)
+    real(8), allocatable     :: ecas(:)
     character*50            :: filename
     integer                 :: dict_size ! The number of CAS configurations
     integer                 :: idx, dict_key, dict_val

@@ -73,7 +73,7 @@ contains
         complex*16, allocatable :: traint2(:, :, :, :)
         complex*16 :: readint2
 
-        real*8                  :: cutoff_threshold
+        real(8)                  :: cutoff_threshold
         complex*16              :: cint2
 
         integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
@@ -302,7 +302,7 @@ contains
         real(8), allocatable :: traint2(:, :, :, :)
         complex*16 :: readint2
 
-        real*8                  :: cutoff_threshold
+        real(8)                  :: cutoff_threshold
         real(8)              :: cint2
 
         integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
@@ -531,7 +531,7 @@ contains
         integer, allocatable    :: indsym(:, :, :), nsym(:, :)
         complex*16, allocatable :: traint2(:, :, :, :)
 
-        real*8                  :: cutoff_threshold
+        real(8)                  :: cutoff_threshold
         complex*16              :: cint2
         complex*16              :: readint2
 
@@ -809,7 +809,7 @@ contains
         integer, allocatable    :: indsym(:, :, :), nsym(:, :)
         real(8), allocatable :: traint2(:, :, :, :)
 
-        real*8                  :: cutoff_threshold
+        real(8)                  :: cutoff_threshold
         real(8)              :: cint2
         complex*16              :: readint2
 
@@ -1088,7 +1088,7 @@ contains
         complex*16, allocatable :: traint2(:, :, :, :)
         complex*16              :: readint2
 
-        real*8                  :: cutoff_threshold
+        real(8)                  :: cutoff_threshold
         complex*16              :: cint2, initial_cint2
 
         integer :: i, j, k, l
@@ -1364,7 +1364,7 @@ contains
         real(8), allocatable :: traint2(:, :, :, :)
         complex*16              :: readint2
 
-        real*8                  :: cutoff_threshold
+        real(8)                  :: cutoff_threshold
         real(8)              :: cint2, initial_cint2
 
         integer :: i, j, k, l

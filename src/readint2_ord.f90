@@ -21,7 +21,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
     integer, allocatable :: indk(:), indl(:), kr(:)
 
-    real*8, allocatable :: rklr(:), rkli(:)
+    real(8), allocatable :: rklr(:), rkli(:)
     real(8) :: threshold = global_threshold ! Threshold for integrals to be stored
 
     !   Unit numbers for subspace files

@@ -19,7 +19,7 @@ SUBROUTINE casmat(mat)
     integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
     integer              :: phase, phase1, phase2
-    real*8               :: i2r, i2i
+    real(8)               :: i2r, i2i
     complex*16           :: cmplxint, mat0
     integer, allocatable :: oc(:), vi(:)
 

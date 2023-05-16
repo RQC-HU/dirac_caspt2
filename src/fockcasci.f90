@@ -13,7 +13,7 @@ SUBROUTINE fockcasci ! TO MAKE FOCK MATRIX for CASCI state
     Implicit NONE
 
     integer :: j, i, k, l
-    real*8 :: dr, di
+    real(8) :: dr, di
     complex*16 :: dens
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
@@ -118,7 +118,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
     Implicit NONE
 
     integer :: j, i, k, l
-    real*8 :: dr, di
+    real(8) :: dr, di
     complex*16 :: dens
     integer :: datetmp0, datetmp1
     real(8) :: tsectmp0, tsectmp1
