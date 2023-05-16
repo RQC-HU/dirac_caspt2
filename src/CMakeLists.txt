@@ -30,9 +30,9 @@ add_executable(r4dcascicoexe
   dim.f90
   e0after_tra.f90
   e0test.f90
+  fock_matrix_of_hf.f90
   fockcasci.f90
   fockdiag.f90
-  fockhf1.f90
   get_cas_configuration.f90
   get_filename.f90
   mem.f90

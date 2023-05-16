@@ -135,11 +135,11 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (realonly%is_realonly()) then
         allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
         fock_real(:, :) = 0.0d+00
-        call fockhf1_real
+        call fock_matrix_of_hf_real
     else
         Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
         fock_cmplx(:, :) = 0.0d+00
-        call fockhf1
+        call fock_matrix_of_hf_complex
     End if
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
