@@ -539,7 +539,7 @@ contains
         integer :: i, j, k, l
         integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le
-        integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
+        integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
         cutoff_threshold = 1.0d-15
 
@@ -806,7 +806,7 @@ contains
         integer :: i, j, k, l
         integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le
-        integer :: nmx, ini(3), end(3), isp, isym, imo, save, iostat
+        integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
         cutoff_threshold = 1.0d-15
 

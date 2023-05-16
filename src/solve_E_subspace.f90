@@ -489,7 +489,7 @@ contains
         complex*16              :: cint2, dens
 
         integer :: i, j, k, l, taij
-        integer :: it, ik, iostat, unit_int2
+        integer :: it, iostat, unit_int2
         integer :: datetmp0, datetmp1
         real(8) :: tsectmp0, tsectmp1
         logical :: is_end_of_file
@@ -513,7 +513,6 @@ contains
             if (j == l) cycle ! Read the next 2-integral if j equal to l
 
             taij = iaij(i, j, l)
-            ik = k - ninact
 
             if (j < l) then
                 cint2 = -1.0d+00*cint2
@@ -1008,7 +1007,7 @@ contains
         real(8)              :: cint2, dens
 
         integer :: i, j, k, l, taij
-        integer :: it, ik, iostat, unit_int2
+        integer :: it, iostat, unit_int2
         integer :: datetmp0, datetmp1
         real(8) :: tsectmp0, tsectmp1
         logical :: is_end_of_file
@@ -1032,7 +1031,6 @@ contains
             if (j == l) cycle ! Read the next 2-integral if j equal to l
 
             taij = iaij(i, j, l)
-            ik = k - ninact
 
             if (j < l) then
                 cint2 = -1.0d+00*cint2

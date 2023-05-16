@@ -17,7 +17,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     include 'mpif.h'
 #endif
     integer                 :: input_unit, nuniq
-    logical                 :: test
     character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -54,7 +53,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'inittime = ', inittime
     end if
 
-    nhomo = 0  ! Default value of nhomo
     Call timing(val(3), totalsec, date0, tsec)
     call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
     call read_input(input_unit)
@@ -70,7 +68,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'nbas       =', nbas
         print *, 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
         print *, 'nhomo      =', nhomo
-        print *, 'lscom      =', lscom
         print *, 'noccg      =', noccg
         print *, 'noccu      =', noccu
         print *, 'nvcutg     =', nvcutg
@@ -92,11 +89,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     ! Read UTChem type MDCINT files and expands the 2-electron integral in memory
     call readint2_casci(mdcintnew, nuniq)
 
-    realcvec = .TRUE.
-    test = .true.
-    realc = .FALSE.      !!!      realc =.TRUE.
-    realcvec = .FALSE.   !!!      realcvec =.TRUE.
-!    This is test for bug fix about realc part
     if (rank == 0) then
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
         print *, ' '
@@ -105,12 +97,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'IREP IS ', repna(totsym)
         print *, ' '
         print *, '*******************************'
-        print *, ' '
-        print *, realc, 'realc'
-        print *, realcvec, 'realcvec'
-        print *, 'FOR TEST WE DO (F,F)'
-        print *, realc, 'realc'
-        print *, realcvec, 'realcvec'
     end if
     iroot = selectroot
 

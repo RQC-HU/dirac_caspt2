@@ -14,7 +14,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     integer      :: j, i, k, i0, j0
     integer      :: isym, nv, numh
-    integer      :: imo, iao, IMAX, iostat
+    integer      :: imo, iao, iostat
     integer      :: unit_dfpcmo, unit_itrfmog, unit_itrfmou, unit_buf
     real(8)       :: thresd
     logical      :: cutoff
@@ -95,7 +95,6 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         end do
     end if
 
-    IMAX = nbas*lscom
     call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
 
 ! From DIRAC dirgp.F WRIPCMO (Write DHF-coefficients and eigenvalues )

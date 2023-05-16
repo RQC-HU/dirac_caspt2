@@ -81,8 +81,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     call readorb_enesym(filename)
     call read1mo(filename)
 
-    if (rank == 0) print *, 'realc', realc, ECORE, ninact, nact, nsec, nmo
-
     call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
@@ -118,19 +116,9 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, '*******************************'
         print *, ' '
     end if
-    realcvec = .TRUE.
 
     ! Calculate 0th order energy (CASCI energy)
     Call casci
-
-    realc = .FALSE.      !!!      realc =.TRUE.
-    realcvec = .FALSE.   !!!      realcvec =.TRUE.
-
-    if (rank == 0) then
-        print *, 'FOR TEST WE DO (F,F)'
-        print *, realc, 'realc'
-        print *, realcvec, 'realcvec'
-    end if
     iroot = selectroot
 
     Call e0test
@@ -153,11 +141,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         fock_cmplx(:, :) = 0.0d+00
         call fockhf1
     End if
-    ! debug = .TRUE.
-    ! If (debug) then
-    !     if (rank == 0) print *, 'fockhf1 start'
-    !     Call fockhf1
-    ! End if
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
