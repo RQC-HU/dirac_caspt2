@@ -57,7 +57,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE takekr_real(i, j, k, l, cint2)
+    SUBROUTINE takekr_real(i, j, k, l, rint2)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -66,7 +66,7 @@ contains
 
         Implicit NONE
         integer, intent(inout)      :: i, j, k, l
-        real(8), intent(inout)   :: cint2
+        real(8), intent(inout)      :: rint2
         real                        :: signij, signkl
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -95,7 +95,7 @@ contains
         else; signkl = -1.0d+00
         end if
 
-        cint2 = signij*signkl*cint2
+        rint2 = signij*signkl*rint2
 
     End subroutine takekr_real
 

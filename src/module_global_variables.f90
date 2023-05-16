@@ -12,7 +12,7 @@ MODULE module_global_variables
     real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
     integer      :: norb, ndet, iroot ! ndet: the number of determinant
     !! =================================================
-    !! Valiables of Input (active.inp)
+    !! Variables of Input (active.inp)
     !! =================================================
     ! ninact        : The number of inactive spinors
     ! nact          : The number of active spinors
@@ -45,7 +45,7 @@ MODULE module_global_variables
     type(dict) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
 
     !! =================================================
-    !! Valiables of CI
+    !! Variables of CI
     !! =================================================
     ! cir   : Real numbers of CI coeffients.
     ! cii   : Imaginary numbers of CI coeffients.
@@ -53,7 +53,7 @@ MODULE module_global_variables
     real(8), allocatable :: cir(:, :), cii(:, :), eigen(:)
 
     !! =================================================
-    !! Valiables of two electron integrals
+    !! Variables of two electron integrals
     !! =================================================
     ! inttwr    : Real numbers of two electron integrals (Directly specify four indices to get the integral value)
     ! inttwi    : Imaginary numbers of two electron integrals (Directly specify four indices to get the integral value)
@@ -68,7 +68,7 @@ MODULE module_global_variables
     logical :: realc, realcvec, debug, realf, evenelec
 
     !! =================================================
-    !! Valiables of timer
+    !! Variables of timer
     !! =================================================
     ! val       : Initial time of CASCI or CASPT2 programs. (ref. https://docs.oracle.com/cd/E19205-01/820-1201/aetcf/index.html)
     ! initdate  : Initial date = val(3) (min:1, max:31)
@@ -82,7 +82,7 @@ MODULE module_global_variables
     real(8)     :: totalsec, inittime, tsec0, tsec1, tsec
 
     !! ========================================
-    !! Valiables of second pertubation energy
+    !! Variables of second pertubation energy
     !! ========================================
     ! sumc2     : Second pertubation energy(total) / a.u.
     ! sumclocal : Second pertubation energy(each subspace) / a.u.
@@ -136,7 +136,7 @@ MODULE module_global_variables
 !       Write ((ONER(IMO,JMO), ONEI(IMO,JMO), JMO=1, NMO), IMO=1, NMO)
 
     !! ===================
-    !! Valiables of MPI
+    !! Variables of MPI
     !! ===================
     ! ierr                  : Error code. if ierr is not 0, the MPI method was not working properly.
     ! nprocs                : Total number of processes in MPI (Available up to 10000)
