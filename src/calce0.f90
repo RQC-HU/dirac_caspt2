@@ -14,12 +14,14 @@ SUBROUTINE calce0(e0)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
+    use module_realonly, only: realonly
+    use module_index_utils, only: convert_active_to_global_idx
 
     Implicit NONE
 
     real(8), intent(out):: e0
 
-    integer :: i, ii
+    integer :: i
     real(8)  :: dr, di
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -30,16 +32,14 @@ SUBROUTINE calce0(e0)
     di = 0.0d+00
     if (rank == 0) print *, iroot, 'iroot'
     Do i = 1, nact
-        ii = i
 
-        If (realcvec) then
-            Call dim1_density_R(ii, ii, dr)
-            e0 = e0 + dr*eps(i + ninact)
+        If (realonly%is_realonly()) then
+            Call dim1_density_R(i, i, dr)
         Else
-            Call dim1_density(ii, ii, dr, di)
+            Call dim1_density(i, i, dr, di)
             if (ABS(di) > 1.0d-10 .and. rank == 0) print *, '1dim density is complex! strange', i, di
-            e0 = e0 + dr*eps(i + ninact)
         End if
+        e0 = e0 + dr*eps(convert_active_to_global_idx(i))
 
     End do
 
