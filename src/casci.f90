@@ -7,7 +7,7 @@ SUBROUTINE casci
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use module_file_manager
-    use four_caspt2_module
+    use module_global_variables
     use module_dict, only: get_keys_vals, get_size
     use module_realonly, only: realonly
     Implicit NONE

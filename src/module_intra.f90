@@ -58,7 +58,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_file_manager
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -287,7 +287,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_file_manager
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -517,7 +517,7 @@ contains
 
         use module_error, only: stop_with_errorcode
         use module_file_manager
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -795,7 +795,7 @@ contains
 
         use module_error, only: stop_with_errorcode
         use module_file_manager
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1073,7 +1073,7 @@ contains
 
         use module_error, only: stop_with_errorcode
         use module_file_manager
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1349,7 +1349,7 @@ contains
 
         use module_error, only: stop_with_errorcode
         use module_file_manager
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1626,7 +1626,7 @@ contains
 !
 ! Author: K.Noda
 !==============================================================================================
-        use four_caspt2_module, only: nprocs, rank
+        use module_global_variables, only: nprocs, rank
         implicit none
         integer                 :: n_cnt, i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
@@ -1673,7 +1673,7 @@ contains
     end subroutine write_traint2_to_disk_fourth_complex
 
     subroutine write_traint2_to_disk_complex(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
-        use four_caspt2_module, only: nprocs, rank
+        use module_global_variables, only: nprocs, rank
         implicit none
         integer                 :: n_cnt, i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
@@ -1711,7 +1711,7 @@ contains
 !
 ! Author: K.Noda
 !==============================================================================================
-        use four_caspt2_module, only: nprocs, rank
+        use module_global_variables, only: nprocs, rank
         implicit none
         integer                 :: n_cnt, i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
@@ -1758,7 +1758,7 @@ contains
     end subroutine write_traint2_to_disk_fourth_realonly
 
     subroutine write_traint2_to_disk_realonly(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
-        use four_caspt2_module, only: nprocs, rank
+        use module_global_variables, only: nprocs, rank
         implicit none
         integer                 :: n_cnt, i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
@@ -1791,7 +1791,7 @@ contains
         ! (e.g.) (input)  ini = ninact + 1, end = ninact + nact
         !        (output) ini = 1,          end = nact  => the subspace is the active space
         !=============================================================================================
-        use four_caspt2_module, only: ninact, nact, nsec
+        use module_global_variables, only: ninact, nact, nsec
         implicit none
         integer, intent(inout) :: ini, end
         if (end == 0) then

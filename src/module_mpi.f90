@@ -3,7 +3,7 @@ module module_mpi
     ! Currently, only reduce and allreduce are implemented.
     ! Author: Kohei Noda
 
-    use four_caspt2_module, only: rank, nprocs, ierr, max_i4
+    use module_global_variables, only: rank, nprocs, ierr, max_i4
     implicit none
 #ifdef HAVE_MPI
     include 'mpif.h'

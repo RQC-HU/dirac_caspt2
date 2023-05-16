@@ -1,7 +1,7 @@
 SUBROUTINE solve_B_subspace(e0, e2b)
 
     use module_ulambda_s_half, only: ulambda_s_half
-    use four_caspt2_module
+    use module_global_variables
     use module_realonly, only: realonly
     implicit none
     real(8), intent(in) :: e0
@@ -23,7 +23,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -368,7 +368,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -443,7 +443,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -551,7 +551,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
         use module_file_manager
 #ifdef HAVE_MPI
         use module_mpi
@@ -674,7 +674,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -1005,7 +1005,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1080,7 +1080,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1188,7 +1188,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
         use module_file_manager
 #ifdef HAVE_MPI
         use module_mpi
@@ -1310,7 +1310,7 @@ contains
 !
 ! multb_s_reverse(i, j) returns the symmetry of MULTB_D(irpamo(jt), irpamo(ju) - (-1)**(mod(irpamo(ju), 2)))
 !========================================================================================================
-        use four_caspt2_module, only: nsymrpa, ninact, irpamo, MULTB_D, MULTB_S
+        use module_global_variables, only: nsymrpa, ninact, irpamo, MULTB_D, MULTB_S
         implicit none
         integer :: ii, ij, isym, syma
         integer, intent(inout) :: multb_s_reverse(:, :)

@@ -6,7 +6,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
     use module_file_manager
     use module_2integrals
     use module_realonly
@@ -268,28 +268,28 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1); deallocate (indmo_dirac_to_cas)
     end if
     if (allocated(one_elec_int_i)) then
-         Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1); deallocate (one_elec_int_i)
+        Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1); deallocate (one_elec_int_i)
     end if
     if (allocated(inttwi)) then
-         Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
+        Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
     end if
     if (allocated(one_elec_int_r)) then
-         Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1); deallocate (one_elec_int_r)
+        Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1); deallocate (one_elec_int_r)
     end if
     if (allocated(inttwr)) then
-         Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
+        Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
     end if
     if (allocated(int2r_f1)) then
-         Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
+        Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
     end if
     if (allocated(int2i_f1)) then
-         Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
+        Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
     end if
     if (allocated(int2r_f2)) then
-         Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
+        Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
     end if
     if (allocated(int2i_f2)) then
-         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
+        Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
     if (rank == 0) then
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024

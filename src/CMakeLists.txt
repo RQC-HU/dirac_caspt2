@@ -1,10 +1,9 @@
-
 add_library(dcaspt2_module STATIC
-  four_caspt2_module.f90
+  module_2integrals.f90
   module_dict.f90
   module_error.f90
-  module_2integrals.f90
   module_file_manager.f90
+  module_global_variables.f90
   module_intra.f90
   module_mpi.f90
   module_realonly.f90
@@ -18,7 +17,6 @@ add_library(caspt2_module STATIC
 ulamda_s_half.f90
 )
 target_link_libraries(caspt2_module dcaspt2_module)
-
 
 add_executable(r4dcascicoexe
   calce0.f90

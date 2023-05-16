@@ -10,7 +10,7 @@ SUBROUTINE readorb_enesym(filename)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_file_manager
     use module_sort_swap
@@ -136,16 +136,16 @@ SUBROUTINE readorb_enesym(filename)
         End do
     end if
     MULTB_DS = transpose(SD)
-    if(rank == 0) print *, "before deallocate SD"
+    if (rank == 0) print *, "before deallocate SD"
     if (rank == 0) then
         print *, 'MULTB_DS'
         Do i = 1, nsymrpa
             print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
         End do
     end if
-    if(rank == 0) print *, "before deallocate SD"
+    if (rank == 0) print *, "before deallocate SD"
     Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
-    if(rank == 0) print *, "deallocate SD"
+    if (rank == 0) print *, "deallocate SD"
     ! Define the space index for each molecular orbital.
     Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
     space_idx(1:ninact) = 1 ! inactive = 1
@@ -178,7 +178,7 @@ SUBROUTINE readorb_enesym(filename)
     if (rank == 0) then
         print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
     end if
-    if (allocated(irpmo))Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
+    if (allocated(irpmo)) Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
     if (rank == 0) then
         print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
     end if
@@ -245,7 +245,7 @@ SUBROUTINE readorb_enesym(filename)
         end do
     end if
 
-    if (allocated(dammo)) Call memminus(KIND(dammo), SIZE(dammo), 1);deallocate (dammo)
+    if (allocated(dammo)) Call memminus(KIND(dammo), SIZE(dammo), 1); deallocate (dammo)
 contains
 
     subroutine sort_list_from_energy_order_to_ras_order(want_to_sort)
@@ -253,7 +253,7 @@ contains
         ! This subroutine sorts the want_to_sort list form orbital energy order
         ! to RAS order(ninact => ras1 => ras2 => ras3 => secondary).
         !===========================================================================================================================
-        use four_caspt2_module, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
+        use module_global_variables, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
         implicit none
         real(8), intent(inout) :: want_to_sort(:)
         real(8), allocatable :: mo_energy_order(:)

@@ -9,7 +9,7 @@ SUBROUTINE e0aftertra
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_file_manager
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
 
@@ -259,7 +259,7 @@ SUBROUTINE e0aftertrac
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_file_manager
-    use four_caspt2_module
+    use module_global_variables
 #ifdef HAVE_MPI
     use module_mpi
 #endif

@@ -1,6 +1,6 @@
 SUBROUTINE solve_H_subspace(e0, e2h)
 
-    use four_caspt2_module
+    use module_global_variables
     use module_realonly, only: realonly
     implicit none
     real(8), intent(in) :: e0
@@ -21,7 +21,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
         use module_file_manager
 #ifdef HAVE_MPI
         use module_mpi
@@ -195,7 +195,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use four_caspt2_module
+        use module_global_variables
         use module_file_manager
 #ifdef HAVE_MPI
         use module_mpi
