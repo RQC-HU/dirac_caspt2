@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in utchem
+SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals created by typart in utchem
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -41,7 +41,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     Allocate (rklr((nmo/2)**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
     Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
     if (rank == 0) then
-        print *, "enter readint2_ord_co"
+        print *, "enter separate_2_elec_integral_by_subspace"
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
     end if
     indk(:) = 0
@@ -402,6 +402,6 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
     if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1); deallocate (rklr)
     if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1); deallocate (rkli)
     if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1); deallocate (kr)
-    if (rank == 0) print *, "end readint2_ord_co"
+    if (rank == 0) print *, "end separate_2_elec_integral_by_subspace"
 
-end subroutine readint2_ord_co
+end subroutine separate_2_elec_integral_by_subspace

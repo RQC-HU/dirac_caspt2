@@ -60,9 +60,9 @@ add_executable(r4dcaspt2ocoexe
   one_e_exct.f90
   r4dcaspt2_tra.f90
   ras_det_check.f90
-  readorb_enesym.f90
   read1mo.f90
-  readint2_ord.f90
+  readorb_enesym.f90
+  separate_2_elec_integral_by_subspace.f90
   solve_A_subspace.f90
   solve_B_subspace.f90
   solve_C_subspace.f90

@@ -110,7 +110,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call get_subspace_filename
 
     ! READ MDCINTNEWx's file and devide into each subspace files.
-    Call readint2_ord_co(mdcintnew)
+    Call separate_2_elec_integral_by_subspace(mdcintnew)
 
     if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
     nmo = ninact + nact + nsec
