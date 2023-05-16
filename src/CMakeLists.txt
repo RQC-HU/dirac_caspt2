@@ -4,6 +4,7 @@ add_library(dcaspt2_module STATIC
   module_error.f90
   module_file_manager.f90
   module_global_variables.f90
+  module_index_utils.f90
   module_intra.f90
   module_mpi.f90
   module_realonly.f90
