@@ -112,11 +112,6 @@ SUBROUTINE casci
         cii(:, :) = 0.0d+00
         cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
         cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
-        do j = 1, ndet
-            if (ABS(DIMAG(mat(j, selectroot))) > global_threshold) then
-                realcvec = .false.
-            end if
-        end do
         if (rank == 0) then
             do irec = 1, nroot
                 print '("Root = ",I4)', irec

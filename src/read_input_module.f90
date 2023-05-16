@@ -12,7 +12,7 @@ module read_input_module
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end
-    integer, parameter :: intmax = 10**9, max_str_length = 100
+    integer, parameter :: input_intmax = 10**9, max_str_length = 100
 contains
     subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -75,39 +75,39 @@ contains
         select case (trim(string))
 
         case ("ninact")
-            call read_an_integer(unit_num, 0, intmax, ninact)
+            call read_an_integer(unit_num, 0, input_intmax, ninact)
             is_filled(1) = .true.
 
         case ("nact")
-            call read_an_integer(unit_num, 0, intmax, nact)
+            call read_an_integer(unit_num, 0, input_intmax, nact)
             is_filled(2) = .true.
 
         case ("nsec")
-            call read_an_integer(unit_num, 0, intmax, nsec)
+            call read_an_integer(unit_num, 0, input_intmax, nsec)
             is_filled(3) = .true.
 
         case ("nelec")
-            call read_an_integer(unit_num, 0, intmax, nelec)
+            call read_an_integer(unit_num, 0, input_intmax, nelec)
             is_filled(4) = .true.
 
         case ("nroot")
-            call read_an_integer(unit_num, 0, intmax, nroot)
+            call read_an_integer(unit_num, 0, input_intmax, nroot)
             is_filled(5) = .true.
 
         case ("selectroot")
-            call read_an_integer(unit_num, 0, intmax, selectroot)
+            call read_an_integer(unit_num, 0, input_intmax, selectroot)
             is_filled(6) = .true.
 
         case ("totsym")
-            call read_an_integer(unit_num, 0, intmax, totsym)
+            call read_an_integer(unit_num, 0, input_intmax, totsym)
             is_filled(7) = .true.
 
         case ("ncore")
-            call read_an_integer(unit_num, 0, intmax, ncore)
+            call read_an_integer(unit_num, 0, input_intmax, ncore)
             is_filled(8) = .true.
 
         case ("nbas")
-            call read_an_integer(unit_num, 0, intmax, nbas)
+            call read_an_integer(unit_num, 0, input_intmax, nbas)
             is_filled(9) = .true.
 
         case ("eshift")
@@ -121,14 +121,11 @@ contains
             end do
 
         case ("diracver")
-            call read_an_integer(unit_num, 0, intmax, dirac_version)
+            call read_an_integer(unit_num, 0, input_intmax, dirac_version)
             is_filled(10) = .true.
 
-        case ("lscom")
-            call read_an_integer(unit_num, 0, 10**9, lscom)
-
         case ("nhomo")
-            call read_an_integer(unit_num, 0, 10**9, nhomo)
+            call read_an_integer(unit_num, 0, input_intmax, nhomo)
 
         case ("ras1")
             call ras_read(unit_num, ras1_list, 1)
@@ -153,23 +150,23 @@ contains
             end if
 
         case ("minholeras1")
-            call read_an_integer(unit_num, 0, intmax, min_hole_ras1)
+            call read_an_integer(unit_num, 0, input_intmax, min_hole_ras1)
 
         case ("skip_mdcint")
             skip_mdcint = .true.
 
             !ivo
         case ("noccg")
-            call read_an_integer(unit_num, 0, 10**9, noccg)
+            call read_an_integer(unit_num, 0, input_intmax, noccg)
 
         case ("noccu")
-            call read_an_integer(unit_num, 0, 10**9, noccu)
+            call read_an_integer(unit_num, 0, input_intmax, noccu)
 
         case ("nvcutg")
-            call read_an_integer(unit_num, 0, 10**9, nvcutg)
+            call read_an_integer(unit_num, 0, input_intmax, nvcutg)
 
         case ("nvcutu")
-            call read_an_integer(unit_num, 0, 10**9, nvcutu)
+            call read_an_integer(unit_num, 0, input_intmax, nvcutu)
 
         case ("end")
             is_end = .true.
@@ -215,7 +212,7 @@ contains
         !         OUTPUT : string = " , ,    ,  ", tmp_ras = [5,6,7,8,1,3,10,0,0,...,0], idx_filled = 7
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         call parse_input_string_to_int_list(string=string, list=tmp_ras, filled_num=idx_filled, &
-                                            allow_int_min=0, allow_int_max=intmax)
+                                            allow_int_min=0, allow_int_max=input_intmax)
         ! Does the input string contain at least one varible?
         if (idx_filled <= 0) then
             print *, "ERROR: string:", string, " rank:", rank

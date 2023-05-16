@@ -183,8 +183,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, ' '
     end if
     iroot = selectroot
-    realc = .FALSE.      !!!      realc =.TRUE.
-    realcvec = .FALSE.   !!!      realcvec =.TRUE.
 
     ! Calculate the 0th order energy
     e2 = 0.0d+00

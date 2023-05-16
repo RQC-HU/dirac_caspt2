@@ -14,7 +14,6 @@ SUBROUTINE fockdiag
 
     Implicit NONE
 
-    integer                 ::  i, j
     integer                 :: unit_transfock
     integer                 :: i0, n, n0, n1, nspace(3, 3)
     real(8), allocatable :: fa(:, :)
