@@ -6,9 +6,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use module_global_variables
     use module_dict, only: add
+    use module_error, only: stop_with_errorcode
     use module_file_manager
+    use module_global_variables
     use module_intra, only: intra_1, intra_2, intra_3
     use module_realonly, only: check_realonly, realonly
     use read_input_module, only: read_input
@@ -22,7 +23,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     complex*16, allocatable :: ci(:)
     real(8), allocatable     :: ecas(:)
     character*50            :: filename
-    integer                 :: dict_size ! The number of CAS configurations
+    integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
     integer                 :: idx, dict_key, dict_val
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -118,16 +119,25 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read CAS configuration convertion list
     call open_unformatted_file(unit=unit_new, file="CIMAT", status='old', optional_action="read")
     read (unit_new) ndet
-    Allocate (cas_idx(1:ndet)); Call memplus(KIND(cas_idx), SIZE(cas_idx), 1)
     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
-    read (unit_new) cas_idx(1:ndet)
     read (unit_new) ecas(1:ndet)
-    read (unit_new) dict_size ! The number of CAS configurations
-    do idx = 1, dict_size
+    read (unit_new) dict_cas_idx_size ! The number of CAS configurations
+    do idx = 1, dict_cas_idx_size
+        read (unit_new) dict_key, dict_val
+        call add(dict_cas_idx, dict_key, dict_val)
+    end do
+    read (unit_new) dict_cas_idx_reverse_size ! The number of CAS configurations
+    do idx = 1, dict_cas_idx_reverse_size
         read (unit_new) dict_key, dict_val
         call add(dict_cas_idx_reverse, dict_key, dict_val)
     end do
     close (unit_new)
+    ! Check if dict_cas_idx_size is equal to ndet
+    if (dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet) then
+        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet. ndet =', ndet, &
+            ",dict_cas_idx_size =", dict_cas_idx_size, ",dict_cas_idx_reverse_size =", dict_cas_idx_reverse_size
+        call stop_with_errorcode(1)
+    end if
 
     ! Read CASCI energy
     Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
@@ -375,7 +385,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(cii)) Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
     if (allocated(eigen)) Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
     if (allocated(eps)) Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
-    if (allocated(cas_idx)) Call memminus(KIND(cas_idx), SIZE(cas_idx), 1); deallocate (cas_idx)
     if (allocated(MULTB_S)) Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
     if (allocated(MULTB_D)) Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
     if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)

@@ -13,19 +13,16 @@ SUBROUTINE get_cas_configuration
     Implicit NONE
 
     integer :: t, allow_det_num, current_det
-    integer, allocatable  :: cas_idx0(:)
 
     if (rank == 0) print *, 'Enter get_cas_configuration'
-    Allocate (cas_idx0(ndet))
-    cas_idx0(:) = 0
     allow_det_num = 0
     ndet = 0
 
-    ! ====================================================================================
-    ! Find the CASCI determinant and store the index of the CASCI determinant in cas_idx0.
+    ! ========================================================================================
+    ! Find the CASCI determinant and store the index of the CASCI determinant in dict_cas_idx.
     ! Also, store the reverse index of the CASCI determinant in dict_cas_idx_reverse.
     ! Loop over only the nelec electron determinants
-    ! ====================================================================================
+    ! ========================================================================================
     current_det = 2**nelec - 1 ! First determinant that is the number of electrons are nact. (e.g. 1111 for 4 electrons)
     do while (current_det < 2**nact)
 
@@ -41,7 +38,7 @@ SUBROUTINE get_cas_configuration
         ! Check if the determinant is CASCI determinant
         if (is_cas_determinant()) then
             ndet = ndet + 1
-            cas_idx0(ndet) = current_det
+            call add(dict_cas_idx, ndet, current_det)
             call add(dict_cas_idx_reverse, current_det, ndet)
         end if
 
@@ -57,14 +54,11 @@ SUBROUTINE get_cas_configuration
         call stop_with_errorcode(1)
     end if
 
-    Allocate (cas_idx(ndet))
-    cas_idx(1:ndet) = cas_idx0(1:ndet)
     if (rank == 0) then
         print *, 'allow  = ', allow_det_num
         print *, 'totsym = ', totsym
         print *, 'ndet   = ', ndet
     end if
-    Deallocate (cas_idx0)
 contains
 
     function find_next_determinant() result(next_determinant)

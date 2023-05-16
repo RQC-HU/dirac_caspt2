@@ -220,9 +220,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(eps)) then
         Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
     end if
-    if (allocated(cas_idx)) then
-        Call memminus(KIND(cas_idx), SIZE(cas_idx), 1); deallocate (cas_idx)
-    end if
     if (allocated(MULTB_S)) then
         Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
     end if

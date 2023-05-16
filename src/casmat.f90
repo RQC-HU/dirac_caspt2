@@ -41,7 +41,7 @@ SUBROUTINE casmat_complex(mat)
         vi = 0
 
         Do imo = 1, nact
-            If (BTEST(cas_idx(i), imo - 1)) then
+            If (BTEST(get_val(dict_cas_idx, i), imo - 1)) then
                 occ = occ + 1
                 oc(occ) = imo
             Else
@@ -112,7 +112,7 @@ SUBROUTINE casmat_complex(mat)
                 inda = vi(k0)
                 ia = convert_active_to_global_idx(inda)
 
-                Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+                Call one_e_exct(get_val(dict_cas_idx, i), inda, indr, newcas_idx1, phase1)
 
                 if (exists(dict_cas_idx_reverse, newcas_idx1)) then
                     j = get_val(dict_cas_idx_reverse, newcas_idx1)
@@ -181,7 +181,7 @@ SUBROUTINE casmat_complex(mat)
                         ia = convert_active_to_global_idx(inda)
                         ib = convert_active_to_global_idx(indb)
 
-                        Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+                        Call one_e_exct(get_val(dict_cas_idx, i), inda, indr, newcas_idx1, phase1)
                         Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
 
                         if (exists(dict_cas_idx_reverse, newcas_idx2)) then
@@ -263,7 +263,7 @@ SUBROUTINE casmat_real(mat)
         vi = 0
 
         Do imo = 1, nact
-            If (BTEST(cas_idx(i), imo - 1)) then
+            If (BTEST(get_val(dict_cas_idx, i), imo - 1)) then
                 occ = occ + 1
                 oc(occ) = imo
             Else
@@ -326,7 +326,7 @@ SUBROUTINE casmat_real(mat)
                 inda = vi(k0)
                 ia = convert_active_to_global_idx(inda)
 
-                Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+                Call one_e_exct(get_val(dict_cas_idx, i), inda, indr, newcas_idx1, phase1)
 
                 if (exists(dict_cas_idx_reverse, newcas_idx1)) then
                     j = get_val(dict_cas_idx_reverse, newcas_idx1)
@@ -382,7 +382,7 @@ SUBROUTINE casmat_real(mat)
                         ia = convert_active_to_global_idx(inda)
                         ib = convert_active_to_global_idx(indb)
 
-                        Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
+                        Call one_e_exct(get_val(dict_cas_idx, i), inda, indr, newcas_idx1, phase1)
                         Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
 
                         if (exists(dict_cas_idx_reverse, newcas_idx2)) then

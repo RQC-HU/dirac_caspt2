@@ -7,6 +7,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_dict
     use module_global_variables
     use module_file_manager, only: open_unformatted_file
 
@@ -31,7 +32,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
         i = 0
         ok = 0
         Do j0 = 0, 63 ! 64 bits integer are possible with 64 spinors
-            if (btest(cas_idx(i0), j0)) then ! This condition should be true nelec times
+            if (btest(get_val(dict_cas_idx, i0), j0)) then ! This condition should be true nelec times
                 i = i + 1
                 if (j0 + 1 <= nact) then ! j0+1 means occupied spinor labeled by casci
                     occ(i, i0) = j0 + 1  ! This is energetic order inside active spinor!
@@ -151,7 +152,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
         i = 0
         ok = 0
         Do j0 = 0, 63 ! 64 bits integer are possible with 64 spinors
-            if (btest(cas_idx(i0), j0)) then ! This condition should be true nelec times
+            if (btest(get_val(dict_cas_idx, i0), j0)) then ! This condition should be true nelec times
                 i = i + 1
                 if (j0 + 1 <= nact) then ! j0+1 means occupied spinor labeled by casci
                     occ(i, i0) = j0 + 1  ! This is energetic order inside active spinor!

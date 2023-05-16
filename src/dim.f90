@@ -23,7 +23,7 @@ subroutine dim1_density(creat1, anhi1, sr, si)
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -59,6 +59,7 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -72,7 +73,7 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
 
     s = 0.0d+00
     do i0 = 1, ndet
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
         call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
         i = newcas_idx
@@ -104,6 +105,7 @@ subroutine dim1_density_diag(creat1, anhi1, s)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -117,7 +119,7 @@ subroutine dim1_density_diag(creat1, anhi1, s)
 
     s = 0.0d+00
     do i0 = 1, ndet
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
         call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
         i = newcas_idx
@@ -149,6 +151,7 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -165,7 +168,7 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -207,6 +210,7 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -223,7 +227,7 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat3, anhi3, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -268,6 +272,7 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -284,7 +289,7 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat4, anhi4, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -335,6 +340,7 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -350,7 +356,7 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat1, anhi1, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -379,6 +385,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -393,7 +400,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat2, anhi2, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -429,6 +436,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -443,7 +451,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat3, anhi3, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
@@ -482,6 +490,7 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_dict
     use module_global_variables
 
     Implicit NONE
@@ -496,7 +505,7 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
 
     do i0 = 1, ndet
 
-        i = cas_idx(i0)
+        i = get_val(dict_cas_idx, i0)
 
         call one_e_exct(i, creat4, anhi4, newcas_idx, phase)
         if (newcas_idx == 0) cycle ! Next i0
