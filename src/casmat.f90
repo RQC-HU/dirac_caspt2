@@ -8,6 +8,7 @@ SUBROUTINE casmat(mat)
 
     use module_global_variables
     use module_dict, only: exists, get_val
+    use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_phase
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -18,8 +19,8 @@ SUBROUTINE casmat(mat)
     integer              :: occ, vir, indr, inds, inda, indb
     integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
-    integer              :: phase, phase1, phase2
-    real(8)               :: i2r, i2i
+    integer              :: phase1, phase2
+    real(8)              :: i2r, i2i
     complex*16           :: cmplxint, mat0
     integer, allocatable :: oc(:), vi(:)
 
@@ -59,8 +60,7 @@ SUBROUTINE casmat(mat)
         End do
 
         Do i0 = 1, nelec
-            indr = oc(i0)
-            ir = indr + ninact
+            ir = convert_active_to_global_idx(oc(i0))
             cmplxint = DCMPLX(one_elec_int_r(ir, ir), one_elec_int_i(ir, ir))
             mat(i, i) = mat(i, i) + cmplxint
         End do
@@ -72,18 +72,16 @@ SUBROUTINE casmat(mat)
             if (i0 <= ninact) then
                 ir = i0
             Else
-                indr = i0 - ninact
-                indr = oc(indr)
-                ir = indr + ninact
+                indr = oc(convert_global_to_active_idx(i0))
+                ir = convert_active_to_global_idx(indr)
             End if
             Do j0 = i0 + 1, ninact + nelec
 
                 if (j0 <= ninact) then
                     is = j0
                 Else
-                    inds = j0 - ninact
-                    inds = oc(inds)
-                    is = inds + ninact
+                    inds = oc(convert_global_to_active_idx(j0))
+                    is = convert_active_to_global_idx(inds)
                 End if
 
                 ! two electron integral : (ir, ir | is, is)
@@ -108,11 +106,11 @@ SUBROUTINE casmat(mat)
 
         Do i0 = 1, nelec
             indr = oc(i0)
-            ir = indr + ninact
+            ir = convert_active_to_global_idx(indr)
 
             Do k0 = 1, nact - nelec
                 inda = vi(k0)
-                ia = inda + ninact
+                ia = convert_active_to_global_idx(inda)
 
                 Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
 
@@ -145,7 +143,7 @@ SUBROUTINE casmat(mat)
 
                     Do l0 = 1, nelec
                         inds = oc(l0)
-                        is = inds + ninact
+                        is = convert_active_to_global_idx(inds)
 
                         ! two electron integral : (ir, ia | is, is)
                         i2r = inttwr(ir, ia, is, is)
@@ -162,10 +160,7 @@ SUBROUTINE casmat(mat)
                         mat(i, j) = mat(i, j) - cmplxint
                     End do
 
-                    if (mod(phase1, 2) == 0) phase = 1.0d+00
-                    if (mod(phase1, 2) == 1) phase = -1.0d+00
-
-                    mat(i, j) = phase*mat(i, j)
+                    mat(i, j) = sign_phase(phase1)*mat(i, j)
                     mat(j, i) = DCONJG(mat(i, j))
 
                 End if
@@ -176,15 +171,15 @@ SUBROUTINE casmat(mat)
             Do j0 = i0 + 1, nelec
                 indr = oc(i0)
                 inds = oc(j0)
-                ir = indr + ninact
-                is = inds + ninact
+                ir = convert_active_to_global_idx(indr)
+                is = convert_active_to_global_idx(inds)
 
                 Do k0 = 1, nact - nelec
                     Do l0 = k0 + 1, nact - nelec
                         inda = vi(k0)
                         indb = vi(l0)
-                        ia = inda + ninact
-                        ib = indb + ninact
+                        ia = convert_active_to_global_idx(inda)
+                        ib = convert_active_to_global_idx(indb)
 
                         Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
                         Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
@@ -196,9 +191,6 @@ SUBROUTINE casmat(mat)
                         End if
 
                         If (j > i) then
-                            if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
-                            if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
-
                             ! two electron integral : (ir, ia | is, ib)
                             i2r = inttwr(ir, ia, is, ib)
                             i2i = inttwi(ir, ia, is, ib)
@@ -211,7 +203,7 @@ SUBROUTINE casmat(mat)
                             cmplxint = DCMPLX(i2r, i2i)
                             mat(i, j) = mat(i, j) - cmplxint
 
-                            mat(i, j) = phase*mat(i, j)
+                            mat(i, j) = sign_phase(phase1 + phase2)*mat(i, j)
                             mat(j, i) = DCONJG(mat(i, j))
                         End if
                     End do
@@ -239,6 +231,7 @@ SUBROUTINE casmat_real(mat)
 
     use module_global_variables
     use module_dict, only: exists, get_val
+    use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_phase
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -249,7 +242,7 @@ SUBROUTINE casmat_real(mat)
     integer              :: occ, vir, indr, inds, inda, indb
     integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
-    integer              :: phase, phase1, phase2
+    integer              :: phase1, phase2
     real(8)              :: mat0, i2r
     integer, allocatable :: oc(:), vi(:)
 
@@ -288,8 +281,7 @@ SUBROUTINE casmat_real(mat)
         End do
 
         Do i0 = 1, nelec
-            indr = oc(i0)
-            ir = indr + ninact
+            ir = convert_active_to_global_idx(oc(i0))
             mat(i, i) = mat(i, i) + one_elec_int_r(ir, ir)
         End do
 
@@ -300,18 +292,16 @@ SUBROUTINE casmat_real(mat)
             if (i0 <= ninact) then
                 ir = i0
             Else
-                indr = i0 - ninact
-                indr = oc(indr)
-                ir = indr + ninact
+                indr = oc(convert_global_to_active_idx(i0))
+                ir = convert_active_to_global_idx(indr)
             End if
             Do j0 = i0 + 1, ninact + nelec
 
                 if (j0 <= ninact) then
                     is = j0
                 Else
-                    inds = j0 - ninact
-                    inds = oc(inds)
-                    is = inds + ninact
+                    inds = oc(convert_global_to_active_idx(j0))
+                    is = convert_active_to_global_idx(inds)
                 End if
 
                 ! two electron integral : (ir, ir | is, is)
@@ -330,11 +320,11 @@ SUBROUTINE casmat_real(mat)
 
         Do i0 = 1, nelec
             indr = oc(i0)
-            ir = indr + ninact
+            ir = convert_active_to_global_idx(indr)
 
             Do k0 = 1, nact - nelec
                 inda = vi(k0)
-                ia = inda + ninact
+                ia = convert_active_to_global_idx(inda)
 
                 Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
 
@@ -360,7 +350,7 @@ SUBROUTINE casmat_real(mat)
 
                     Do l0 = 1, nelec
                         inds = oc(l0)
-                        is = inds + ninact
+                        is = convert_active_to_global_idx(inds)
 
                         ! two electron integral : (ir, ia | is, is)
                         i2r = inttwr(ir, ia, is, is)
@@ -371,10 +361,7 @@ SUBROUTINE casmat_real(mat)
                         mat(i, j) = mat(i, j) - i2r
                     End do
 
-                    if (mod(phase1, 2) == 0) phase = 1.0d+00
-                    if (mod(phase1, 2) == 1) phase = -1.0d+00
-
-                    mat(i, j) = phase*mat(i, j)
+                    mat(i, j) = sign_phase(phase1)*mat(i, j)
                     mat(j, i) = mat(i, j)
 
                 End if
@@ -385,15 +372,15 @@ SUBROUTINE casmat_real(mat)
             Do j0 = i0 + 1, nelec
                 indr = oc(i0)
                 inds = oc(j0)
-                ir = indr + ninact
-                is = inds + ninact
+                ir = convert_active_to_global_idx(indr)
+                is = convert_active_to_global_idx(inds)
 
                 Do k0 = 1, nact - nelec
                     Do l0 = k0 + 1, nact - nelec
                         inda = vi(k0)
                         indb = vi(l0)
-                        ia = inda + ninact
-                        ib = indb + ninact
+                        ia = convert_active_to_global_idx(inda)
+                        ib = convert_active_to_global_idx(indb)
 
                         Call one_e_exct(cas_idx(i), inda, indr, newcas_idx1, phase1)
                         Call one_e_exct(newcas_idx1, indb, inds, newcas_idx2, phase2)
@@ -405,8 +392,6 @@ SUBROUTINE casmat_real(mat)
                         End if
 
                         If (j > i) then
-                            if (mod(phase1 + phase2, 2) == 0) phase = 1.0d+00
-                            if (mod(phase1 + phase2, 2) == 1) phase = -1.0d+00
 
                             ! two electron integral : (ir, ia | is, ib)
                             i2r = inttwr(ir, ia, is, ib)
@@ -416,7 +401,7 @@ SUBROUTINE casmat_real(mat)
                             i2r = inttwr(ir, ib, is, ia)
                             mat(i, j) = mat(i, j) - i2r
 
-                            mat(i, j) = phase*mat(i, j)
+                            mat(i, j) = sign_phase(phase1 + phase2)*mat(i, j)
                             mat(j, i) = mat(i, j)
                         End if
                     End do

@@ -1,17 +1,17 @@
 module module_intra
 ! 2 electron integrals transformation module
-    use module_takekr
+    use module_takekr, only: takekr
     implicit none
     private
     public intra_1, intra_2, intra_3
     interface write_traint2_to_disk_fourth
         module procedure write_traint2_to_disk_fourth_complex
-        module procedure write_traint2_to_disk_fourth_realonly
+        module procedure write_traint2_to_disk_fourth_real
     end interface write_traint2_to_disk_fourth
 
     interface write_traint2_to_disk
         module procedure write_traint2_to_disk_complex
-        module procedure write_traint2_to_disk_realonly
+        module procedure write_traint2_to_disk_real
     end interface write_traint2_to_disk
 contains
 
@@ -21,7 +21,7 @@ contains
         integer, intent(in)        :: spi, spj, spk, spl
         character(50), intent(in)    :: fname
         if (realonly%is_realonly()) then
-            call intra_1_realonly(spi, spj, spk, spl, fname)
+            call intra_1_real(spi, spj, spk, spl, fname)
         else
             call intra_1_complex(spi, spj, spk, spl, fname)
         end if
@@ -32,7 +32,7 @@ contains
         integer, intent(in)        :: spi, spj, spk, spl
         character(50), intent(in)    :: fname
         if (realonly%is_realonly()) then
-            call intra_2_realonly(spi, spj, spk, spl, fname)
+            call intra_2_real(spi, spj, spk, spl, fname)
         else
             call intra_2_complex(spi, spj, spk, spl, fname)
         end if
@@ -43,7 +43,7 @@ contains
         integer, intent(in)        :: spi, spj, spk, spl
         character(50), intent(in)    :: fname
         if (realonly%is_realonly()) then
-            call intra_3_realonly(spi, spj, spk, spl, fname)
+            call intra_3_real(spi, spj, spk, spl, fname)
         else
             call intra_3_complex(spi, spj, spk, spl, fname)
         end if
@@ -281,7 +281,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE intra_1_realonly(spi, spj, spk, spl, fname)
+    SUBROUTINE intra_1_real(spi, spj, spk, spl, fname)
 !
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -505,7 +505,7 @@ contains
         deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
         deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
-    end subroutine intra_1_realonly
+    end subroutine intra_1_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -518,6 +518,7 @@ contains
         use module_error, only: stop_with_errorcode
         use module_file_manager
         use module_global_variables
+        use module_sort_swap, only: swap
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -607,18 +608,12 @@ contains
 
             if (i == k .and. j == l) then
                 continue
-            else if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
-            & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) then
+            else if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) then
                 continue
             else
 
-! swap indices i = k, j = l, k = i, l = j
-                save = i
-                i = k
-                k = save
-                save = j
-                j = l
-                l = save
+                call swap(i, k)
+                call swap(j, l)
                 isym = irpamo(l)
 
                 Do lnew = 1, nsym(spl, isym)
@@ -638,14 +633,8 @@ contains
             if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
             & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) cycle ! Continue to read 2-integrals
 
-! swap indecis i = k, j = l, k = i, l = j
-            save = i
-            i = k
-            k = save
-            save = j
-            j = l
-            l = save
-
+            call swap(i, k)
+            call swap(j, l)
             isym = irpamo(l)
 
             Do lnew = 1, nsym(spl, isym)
@@ -788,7 +777,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE intra_2_realonly(spi, spj, spk, spl, fname)
+    SUBROUTINE intra_2_real(spi, spj, spk, spl, fname)
 !
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -796,6 +785,7 @@ contains
         use module_error, only: stop_with_errorcode
         use module_file_manager
         use module_global_variables
+        use module_sort_swap, only: swap
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -885,18 +875,12 @@ contains
 
             if (i == k .and. j == l) then
                 continue
-            else if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
-            & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) then
+            else if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) then
                 continue
             else
 
-! swap indices i = k, j = l, k = i, l = j
-                save = i
-                i = k
-                k = save
-                save = j
-                j = l
-                l = save
+                call swap(i, k)
+                call swap(j, l)
                 isym = irpamo(l)
 
                 Do lnew = 1, nsym(spl, isym)
@@ -916,14 +900,8 @@ contains
             if (ABS(i - k) == 1 .and. ABS(j - l) == 1 .and. &
             & ABS(i/2 - k/2) == 1 .and. ABS(j/2 - l/2) == 1) cycle ! Continue to read 2-integrals
 
-! swap indecis i = k, j = l, k = i, l = j
-            save = i
-            i = k
-            k = save
-            save = j
-            j = l
-            l = save
-
+            call swap(i, k)
+            call swap(j, l)
             isym = irpamo(l)
 
             Do lnew = 1, nsym(spl, isym)
@@ -1061,7 +1039,7 @@ contains
         deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
         deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
-    end subroutine intra_2_realonly
+    end subroutine intra_2_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1137,10 +1115,6 @@ contains
         le = end(spl)
 
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 2)
-
-!modify iwamuro
-!        write(*,'("intra_3",8I4)')ii,ie,ji,je,ki,ke,li,le
-
         traint2 = 0.0d+00
         if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
@@ -1174,8 +1148,6 @@ contains
 
             Call takekr(i, j, k, l, cint2)
             isym = irpamo(l)
-!Iwamuro modify
-!           write(*,'("takekr",4I4,2E20.10)')i,j,k,l,cint2
 
             Do lnew = 1, nsym(spl, isym)
                 l1 = indsym(spl, isym, lnew)
@@ -1186,10 +1158,16 @@ contains
 
             i = initial_i
             j = initial_j
-            if (mod(initial_k, 2) == 0) l = initial_k - 1
-            if (mod(initial_k, 2) == 1) l = initial_k + 1
-            if (mod(initial_l, 2) == 0) k = initial_l - 1
-            if (mod(initial_l, 2) == 1) k = initial_l + 1
+            if (mod(initial_k, 2) == 0) then
+                l = initial_k - 1
+            else
+                l = initial_k + 1
+            end if
+            if (mod(initial_l, 2) == 0) then
+                k = initial_l - 1
+            else
+                k = initial_l + 1
+            end if
             cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*initial_cint2
             isym = irpamo(l)
 
@@ -1342,7 +1320,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE intra_3_realonly(spi, spj, spk, spl, fname)
+    SUBROUTINE intra_3_real(spi, spj, spk, spl, fname)
 !
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1413,10 +1391,6 @@ contains
         le = end(spl)
 
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 1)
-
-!modify iwamuro
-!        write(*,'("intra_3",8I4)')ii,ie,ji,je,ki,ke,li,le
-
         traint2 = 0.0d+00
         if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
 
@@ -1450,8 +1424,6 @@ contains
 
             Call takekr(i, j, k, l, cint2)
             isym = irpamo(l)
-!Iwamuro modify
-!           write(*,'("takekr",4I4,2E20.10)')i,j,k,l,cint2
 
             Do lnew = 1, nsym(spl, isym)
                 l1 = indsym(spl, isym, lnew)
@@ -1462,10 +1434,16 @@ contains
 
             i = initial_i
             j = initial_j
-            if (mod(initial_k, 2) == 0) l = initial_k - 1
-            if (mod(initial_k, 2) == 1) l = initial_k + 1
-            if (mod(initial_l, 2) == 0) k = initial_l - 1
-            if (mod(initial_l, 2) == 1) k = initial_l + 1
+            if (mod(initial_k, 2) == 0) then
+                l = initial_k - 1
+            else
+                l = initial_k + 1
+            end if
+            if (mod(initial_l, 2) == 0) then
+                k = initial_l - 1
+            else
+                k = initial_l + 1
+            end if
             cint2 = (-1.0d+00)**mod(initial_k + initial_l, 2)*initial_cint2
             isym = irpamo(l)
 
@@ -1613,7 +1591,7 @@ contains
         deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
         deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
 
-    end subroutine intra_3_realonly
+    end subroutine intra_3_real
 
     subroutine write_traint2_to_disk_fourth_complex(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
 !==============================================================================================
@@ -1699,8 +1677,7 @@ contains
         End do
     end subroutine write_traint2_to_disk_complex
 
-    subroutine write_traint2_to_disk_fourth_realonly(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold,&
-        & unit_int2_subspace)
+    subroutine write_traint2_to_disk_fourth_real(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
 !==============================================================================================
 ! This is a writing subroutine for two-electron integrals
 ! after the fourth integral transformation.
@@ -1747,7 +1724,8 @@ contains
                         !===================================================================================================
                         if (ABS(traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra)) > cutoff_threshold) then
                             if (mod(n_cnt, nprocs) == rank) then ! Averaging the size of the subspace 2-integral file per a MPI process
-                                write (unit_int2_subspace) i, j, k, l, traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra), 0.0d+00
+                                write (unit_int2_subspace) i, j, k, l, &
+                                    traint2(i + i_tra, j + j_tra, k + k_tra, l + l_tra), 0.0d+00
                             end if
                             n_cnt = n_cnt + 1
                         end if
@@ -1755,9 +1733,9 @@ contains
                 End do
             End do
         End do
-    end subroutine write_traint2_to_disk_fourth_realonly
+    end subroutine write_traint2_to_disk_fourth_real
 
-    subroutine write_traint2_to_disk_realonly(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
+    subroutine write_traint2_to_disk_real(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         use module_global_variables, only: nprocs, rank
         implicit none
         integer                 :: n_cnt, i, j, k, l
@@ -1782,7 +1760,7 @@ contains
                 End do
             End do
         End do
-    end subroutine write_traint2_to_disk_realonly
+    end subroutine write_traint2_to_disk_real
 
     subroutine where_subspace_is(ini, end)
         !=============================================================================================
@@ -1791,7 +1769,8 @@ contains
         ! (e.g.) (input)  ini = ninact + 1, end = ninact + nact
         !        (output) ini = 1,          end = nact  => the subspace is the active space
         !=============================================================================================
-        use module_global_variables, only: ninact, nact, nsec
+        use module_global_variables, only: ninact, nact, nsec, rank
+        use module_error, only: stop_with_errorcode
         implicit none
         integer, intent(inout) :: ini, end
         if (end == 0) then
@@ -1803,9 +1782,13 @@ contains
         else if (ini <= ninact + nact) then
             ini = 1
             end = nact
-        else
+        else if (ini <= ninact + nact + nsec) then
             ini = 1
             end = nsec
+        else
+            if (rank == 0) print '(2(a,i0),a)', "Error: The indices of the subspace are out of range. (ini, end) = (", &
+                ini, ",", end, ")"
+            call stop_with_errorcode(1)
         end if
     end subroutine where_subspace_is
 end module module_intra
