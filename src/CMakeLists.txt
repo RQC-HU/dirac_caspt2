@@ -24,7 +24,7 @@ add_executable(r4dcascicoexe
   casci.f90
   casmat.f90
   checkdgc.f90
-  create_binmdcint.f90
+  create_newmdcint.f90
   cutoff.f90
   diag.f90
   dim.f90
@@ -77,7 +77,7 @@ add_executable(r4dcaspt2ocoexe
 target_link_libraries(r4dcaspt2ocoexe dcaspt2_module caspt2_module)
 
 add_executable(r4divocoexe
-  create_binmdcint.f90
+  create_newmdcint.f90
 	diag.f90
 	dim.f90
 	e0test.f90
