@@ -18,24 +18,15 @@ SUBROUTINE casci
     real(8) :: cutoff_threshold
 
     complex*16, allocatable :: mat(:, :) ! For complex
-    real(8), allocatable :: mat_real(:, :) ! For realonly
-    real(8), allocatable     :: ecas(:)
-    character*20            :: filename, chr_root
-    real(8) :: expected_mem
+    real(8), allocatable    :: mat_real(:, :) ! For realonly
+    real(8), allocatable    :: ecas(:)
+    character(len=20)       :: filename, chr_root
     integer :: datetmp0, datetmp1, dict_size, idx
     integer, allocatable :: keys(:), vals(:)
     real(8) :: tsectmp0, tsectmp1
 
     ndet = comb(nact, nelec)
-    if (rank == 0) print *, 'ndet', ndet
-    Call casdet
-    if (rank == 0) then
-        print *, "before allocate mat(ndet,ndet)"
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
-        print *, 'kind of complex16 array named mat is ', kind(mat)
-        expected_mem = tmem + (ndet**2)*16
-        print *, 'expected used memory after allocate mat is ', expected_mem/1024/1024, 'MB'
-    end if
+    Call get_cas_configuration
 
     ! Create a matrix for CI
     if (realonly%is_realonly()) then
@@ -55,8 +46,8 @@ SUBROUTINE casci
 
     ! Diagonalize the CI matrix
     if (rank == 0) then
-        print *, 'Start mat cdiag'
-        print *, 'ndet before cdiag', ndet
+        print *, 'Start mat diagonalization'
+        print *, 'ndet before diagonalization', ndet
     end if
     cutoff_threshold = 0  ! No need to resolve linear dependence
     if (realonly%is_realonly()) then
@@ -64,11 +55,12 @@ SUBROUTINE casci
     else
         Call cdiag(mat, ndet, ndet, ecas, cutoff_threshold)
     end if
-    if (rank == 0) print *, 'End mat cdiag'
+    if (rank == 0) print *, 'End mat diagonalization'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
 
+    ! keys and vals are used to store pairs of keys and values in dict_cas_idx_reverse
     dict_size = get_size(dict_cas_idx_reverse)
     allocate (keys(dict_size), vals(dict_size))
     call get_keys_vals(dict_cas_idx_reverse, keys, vals, dict_size)

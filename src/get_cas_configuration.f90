@@ -1,9 +1,9 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casdet
+SUBROUTINE get_cas_configuration
 
-! Find the CASCI determinant and store the index of the CASCI determinant in cas_idx
-! Also, store the reverse index of the CASCI determinant in dict_cas_idx_reverse.
+! Find the CAS configurations and store the index of the CAS configurations in cas_idx
+! Also, store the reverse index of the CAS configurations in dict_cas_idx_reverse.
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -15,7 +15,7 @@ SUBROUTINE casdet
     integer :: t, allow_det_num, current_det
     integer, allocatable  :: cas_idx0(:)
 
-    if (rank == 0) print *, 'Enter casdet'
+    if (rank == 0) print *, 'Enter get_cas_configuration'
     Allocate (cas_idx0(ndet))
     cas_idx0(:) = 0
     allow_det_num = 0
@@ -143,4 +143,4 @@ contains
             end if
         end if
     end function is_cas_determinant
-end subroutine casdet
+end subroutine get_cas_configuration

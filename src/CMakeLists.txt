@@ -21,7 +21,6 @@ target_link_libraries(caspt2_module dcaspt2_module)
 add_executable(r4dcascicoexe
   calce0.f90
   casci.f90
-  casdet.f90
   casmat.f90
   checkdgc.f90
   create_binmdcint.f90
@@ -33,6 +32,7 @@ add_executable(r4dcascicoexe
   fockcasci.f90
   fockdiag.f90
   fockhf1.f90
+  get_cas_configuration.f90
   get_filename.f90
   mem.f90
   one_e_exct.f90
