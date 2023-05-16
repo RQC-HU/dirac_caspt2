@@ -27,7 +27,7 @@ add_executable(r4dcascicoexe
   create_newmdcint.f90
   cutoff.f90
   diag.f90
-  dim.f90
+  density_matrix.f90
   e0after_tra.f90
   e0test.f90
   fock_matrix_of_hf.f90
@@ -53,7 +53,7 @@ add_executable(r4dcaspt2ocoexe
   checkdgc.f90
   cutoff.f90
   diag.f90
-  dim.f90
+  density_matrix.f90
   e0test.f90
   get_filename.f90
   mem.f90
@@ -79,7 +79,7 @@ target_link_libraries(r4dcaspt2ocoexe dcaspt2_module caspt2_module)
 add_executable(r4divocoexe
   create_newmdcint.f90
 	diag.f90
-	dim.f90
+	density_matrix.f90
 	e0test.f90
 	fockivo.f90
 	get_filename.f90
