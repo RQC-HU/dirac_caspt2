@@ -12,7 +12,7 @@ module read_input_module
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end
-    integer, parameter :: input_intmax = 10**9, max_str_length = 100
+    integer, parameter :: input_intmax = 10**9, max_str_length = 500
 contains
     subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
