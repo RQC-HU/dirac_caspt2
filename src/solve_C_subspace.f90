@@ -89,7 +89,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vCmat_ord_complex(v)
+        Call vCmat_complex(v)
         if (rank == 0) print *, 'come'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -495,7 +495,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vCmat_ord_complex(v)
+    SUBROUTINE vCmat_complex(v)
 
 ! Assume C1 molecule, V=<0|H|i> matrix in space C
 !
@@ -755,7 +755,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-    end subroutine vCmat_ord_complex
+    end subroutine vCmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -831,7 +831,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vCmat_ord_real(v)
+        Call vCmat_real(v)
         if (rank == 0) print *, 'come'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -1221,7 +1221,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vCmat_ord_real(v)
+    SUBROUTINE vCmat_real(v)
 
 ! Assume C1 molecule, V=<0|H|i> matrix in space C
 !
@@ -1481,5 +1481,5 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-    end subroutine vCmat_ord_real
+    end subroutine vCmat_real
 end subroutine solve_C_subspace

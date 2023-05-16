@@ -110,7 +110,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vBmat_ord_complex(nij, iij, v)
+        Call vBmat_complex(nij, iij, v)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -539,7 +539,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vBmat_ord_complex(nij, iij, v)
+    SUBROUTINE vBmat_complex(nij, iij, v)
 !
 !
 ! V(i,j) =  SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)
@@ -647,12 +647,9 @@ contains
 ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
 !                             ==================
 !                              loop for t and u
-
-! Do iu = 1, it - 1
                 Call dim2_density(i, it, k, iu, dr, di)
                 dens = DCMPLX(dr, di)
                 v(tij, it, iu) = v(tij, it, iu) + cint2*dens
-! End do
 
             End do
 !!$OMP end do
@@ -665,7 +662,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
-    end subroutine vBmat_ord_complex
+    end subroutine vBmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -761,7 +758,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vBmat_ord_real(nij, iij, v)
+        Call vBmat_real(nij, iij, v)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -1176,7 +1173,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vBmat_ord_real(nij, iij, v)
+    SUBROUTINE vBmat_real(nij, iij, v)
 !
 !
 ! V(i,j) =  SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)
@@ -1284,12 +1281,9 @@ contains
 ! Term1 !   SIGUMA_p,q:active <0|EptEqu|0>(pi|qj)                                      ! term1
 !                             ==================
 !                              loop for t and u
-
-! Do iu = 1, it - 1
                 Call dim2_density(i, it, k, iu, dr, di)
                 dens = dr
                 v(tij, it, iu) = v(tij, it, iu) + cint2*dens
-! End do
 
             End do
 !!$OMP end do
@@ -1302,7 +1296,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
-    end subroutine vBmat_ord_real
+    end subroutine vBmat_real
 
     subroutine create_multb_s_reverse_b_subspace(multb_s_reverse)
 !========================================================================================================

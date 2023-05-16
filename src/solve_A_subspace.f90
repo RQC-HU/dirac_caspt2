@@ -95,7 +95,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vAmat_ord_complex(v)
+        Call vAmat_complex(v)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -526,7 +526,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
-    SUBROUTINE vAmat_ord_complex(v)
+    SUBROUTINE vAmat_complex(v)
 !
 ! Assume C1 molecule, V=<0|H|i> matrix in space A
 !
@@ -809,7 +809,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-    end subroutine vAmat_ord_complex
+    end subroutine vAmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -890,7 +890,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vAmat_ord_real(v)
+        Call vAmat_real(v)
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
@@ -1298,7 +1298,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
-    SUBROUTINE vAmat_ord_real(v)
+    SUBROUTINE vAmat_real(v)
 !
 ! Assume C1 molecule, V=<0|H|i> matrix in space A
 !
@@ -1581,5 +1581,5 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-    end subroutine vAmat_ord_real
+    end subroutine vAmat_real
 end SUBROUTINE solve_A_subspace

@@ -126,7 +126,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vGmat_ord_complex(nabi, iabi, v)
+        Call vGmat_complex(nabi, iabi, v)
         if (rank == 0) print *, 'end after vGmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -472,7 +472,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vGmat_ord_complex(nabi, iabi, v)
+    SUBROUTINE vGmat_complex(nabi, iabi, v)
 !
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
 !
@@ -539,7 +539,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-    end subroutine vGmat_ord_complex
+    end subroutine vGmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -653,7 +653,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vGmat_ord_real(nabi, iabi, v)
+        Call vGmat_real(nabi, iabi, v)
         if (rank == 0) print *, 'end after vGmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -981,7 +981,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vGmat_ord_real(nabi, iabi, v)
+    SUBROUTINE vGmat_real(nabi, iabi, v)
 !
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]
 !
@@ -1048,6 +1048,6 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-    end subroutine vGmat_ord_real
+    end subroutine vGmat_real
 
 end subroutine solve_G_subspace
