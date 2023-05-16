@@ -109,7 +109,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vFmat_ord_complex(nab, iab, v)
+        Call vFmat_complex(nab, iab, v)
         if (rank == 0) print *, 'end after vFmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -497,7 +497,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vFmat_ord_complex(nab, iab, v)
+    SUBROUTINE vFmat_complex(nab, iab, v)
 !
 ! V(tu, ab) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 !
@@ -609,7 +609,7 @@ contains
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
 
-    end subroutine vFmat_ord_complex
+    end subroutine vFmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
@@ -705,7 +705,7 @@ contains
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
-        Call vFmat_ord_real(nab, iab, v)
+        Call vFmat_real(nab, iab, v)
         if (rank == 0) print *, 'end after vFmat'
         Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
         datetmp1 = datetmp0
@@ -1078,7 +1078,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE vFmat_ord_real(nab, iab, v)
+    SUBROUTINE vFmat_real(nab, iab, v)
 !
 ! V(tu, ab) =  SIGUMA_p,q:active <0|EtpEuq|0>(ap|bq) -  SIGUMA_p:active <0|Etp|0>(au|bp)
 !
@@ -1190,7 +1190,7 @@ contains
         datetmp1 = datetmp0
         tsectmp1 = tsectmp0
 
-    end subroutine vFmat_ord_real
+    end subroutine vFmat_real
     subroutine create_multb_s_reverse(multb_s_reverse)
 !========================================================================================================
 ! This subroutine creates multb_s_reverse

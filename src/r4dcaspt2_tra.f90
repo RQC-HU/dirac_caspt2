@@ -194,11 +194,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     iroot = selectroot
 
-    ! Calculate the 0th order energy
-    e2 = 0.0d+00
+    ! Calculate eigenvalues of a 0th-order Hamiltonian applied to a 0th-order wave function
     Call calce0(e0)
 
     ! Initialize the date, time and the 2nd order energy
+    e2 = 0.0d+00
     e2all = 0.0d+00
     date1 = initdate
     tsec1 = totalsec
