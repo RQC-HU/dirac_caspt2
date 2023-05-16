@@ -78,8 +78,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     filename = 'MRCONEE'
-    call readorb_enesym(filename)
-    call read1mo(filename)
+    call read_mrconee(filename)
 
     call check_realonly()
     if (skip_mdcint) then
@@ -228,15 +227,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     end if
     if (allocated(MULTB_DS)) then
         Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
-    end if
-    if (allocated(MULTB_DF)) then
-        Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1); deallocate (MULTB_DF)
-    end if
-    if (allocated(MULTB_DB)) then
-        Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1); deallocate (MULTB_DB)
-    end if
-    if (allocated(MULTB_SB)) then
-        Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1); deallocate (MULTB_SB)
     end if
     if (allocated(irpamo)) then
         Call memminus(KIND(irpamo), SIZE(irpamo), 1); deallocate (irpamo)
