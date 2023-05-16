@@ -7,7 +7,7 @@ SUBROUTINE casdet
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_dict, only: add
     Implicit NONE
@@ -100,7 +100,7 @@ contains
     end function satisfy_ras_conditions
 
     logical function is_cas_determinant()
-        use four_caspt2_module
+        use module_global_variables
         implicit none
         integer :: i, j, jsym, ielec, isym, isym1
 

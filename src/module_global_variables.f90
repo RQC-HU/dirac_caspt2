@@ -1,6 +1,6 @@
 ! *+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@
 
-MODULE four_caspt2_module
+MODULE module_global_variables
 
 ! *+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@
     use module_dict
@@ -160,4 +160,4 @@ MODULE four_caspt2_module
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
     integer, parameter :: normal_output = 3000, read_line_max = 1000
 
-end MODULE four_caspt2_module
+end MODULE module_global_variables

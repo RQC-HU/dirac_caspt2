@@ -1,5 +1,5 @@
 program ras3_bitcheck
-    use four_caspt2_module
+    use module_global_variables
     use module_file_manager
     use read_input_module
     use ras_det_check

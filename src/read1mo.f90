@@ -4,7 +4,7 @@ SUBROUTINE read1mo(filename) ! one-electron MO integrals in MRCONEE
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
     use module_file_manager
 
     Implicit NONE

@@ -1,5 +1,5 @@
 module ras_det_check
-    use four_caspt2_module, only: rank, ras1_list, ras2_list
+    use module_global_variables, only: rank, ras1_list, ras2_list
     implicit none
     private
     public satisfy_ras1_condition, satisfy_ras3_condition
@@ -7,7 +7,7 @@ contains
     function satisfy_ras1_condition(i, upper_allowed_hole) result(is_det_allowed)
         ! function satisfy_ras1_condition(i,upper_allowed_hole) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
-        use four_caspt2_module, only: ras1_size, min_hole_ras1
+        use module_global_variables, only: ras1_size, min_hole_ras1
         integer, intent(in) :: i, upper_allowed_hole
         integer :: num_of_electron, ras1_bit
         logical :: is_det_allowed
@@ -18,7 +18,7 @@ contains
     function satisfy_ras3_condition(i, upper_allowed_electron) result(is_det_allowed)
         ! function satisfy_ras3_condition(i,upper_allowed_electron) result(is_det_allowed)
         ! This function returns true if the determinant (i) is allowed
-        use four_caspt2_module, only: ras1_size, ras2_size
+        use module_global_variables, only: ras1_size, ras2_size
         integer, intent(in) :: i, upper_allowed_electron
         integer :: num_of_electron, ras3_bit, width_of_shift
         logical :: is_det_allowed

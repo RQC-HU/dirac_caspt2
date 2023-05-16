@@ -5,7 +5,7 @@ subroutine dim1_density(creat1, anhi1, sr, si)
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     use module_dict
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: creat1, anhi1
@@ -59,7 +59,7 @@ subroutine dim1_density_nondiag(creat1, anhi1, s)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in)     :: creat1, anhi1
@@ -104,7 +104,7 @@ subroutine dim1_density_diag(creat1, anhi1, s)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in)     :: creat1, anhi1
@@ -149,7 +149,7 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
@@ -207,7 +207,7 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
@@ -268,7 +268,7 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
@@ -335,7 +335,7 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: creat1, anhi1
@@ -379,7 +379,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
@@ -429,7 +429,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
@@ -482,7 +482,7 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1

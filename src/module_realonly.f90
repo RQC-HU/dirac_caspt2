@@ -27,7 +27,7 @@ contains
     end function is_realonly
 
     subroutine check_realonly()
-        use four_caspt2_module
+        use module_global_variables
         use module_error
         use module_file_manager
 
@@ -40,7 +40,7 @@ contains
         allocate (k(nmo**2), l(nmo**2), rklr(nmo**2), rkli(nmo**2))
 
         call open_unformatted_file(unit_mdcint, filename, "old")
-        rewind(unit_mdcint)
+        rewind (unit_mdcint)
         read (unit_mdcint) ! Skip header
         read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
         if (iostat == 0) then ! Complex
@@ -58,7 +58,7 @@ contains
         end if
         if (rank == 0) print *, "MDCINT realonly = ", realonly%is_realonly()
         deallocate (k, l, rklr, rkli)
-        close(unit_mdcint)
+        close (unit_mdcint)
     end subroutine check_realonly
 
 end module module_realonly

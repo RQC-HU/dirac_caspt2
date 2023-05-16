@@ -6,7 +6,7 @@ SUBROUTINE tramo1(i, j, int1)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
     use module_realonly, only: realonly
 
     Implicit NONE
@@ -94,7 +94,7 @@ SUBROUTINE tramo2(i, j, k, l, int2)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_realonly, only: realonly
 

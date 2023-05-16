@@ -6,7 +6,7 @@ module read_input_module
 !
 ! This is a utility module that interpret and parse input strings.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-    use four_caspt2_module, only: rank
+    use module_global_variables, only: rank
     use module_error, only: stop_with_errorcode
     implicit none
     private
@@ -18,7 +18,7 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: ras1_size, ras2_size, ras3_size
+        use module_global_variables, only: ras1_size, ras2_size, ras3_size
         implicit none
         integer, intent(in) :: unit_num
         integer :: idx, iostat
@@ -64,7 +64,7 @@ contains
         ! This subroutine recognize the type of input that follows from the next line
         ! and calls the subroutine that we must call
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module
+        use module_global_variables
         implicit none
         integer, intent(in) :: unit_num
         character(*), intent(inout) :: string
@@ -185,9 +185,9 @@ contains
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine returns RAS[1,2,3] list from the user input
         ! (e.g.) INPUT  : string = "1,2,4..10,13,17..20"
-        !        OUTPUT : ras[1,2,3]_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras[1,2,3]_list is a global list in four_caspt2_module)
+        !        OUTPUT : ras[1,2,3]_list = [1,2,4,5,6,7,8,9,10,13,17,18,19,20], (ras[1,2,3]_list is a global list in module_global_variables)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-        use four_caspt2_module, only: max_ras_spinor_num
+        use module_global_variables, only: max_ras_spinor_num
         use module_sort_swap, only: heapSort
         implicit none
         integer, allocatable, intent(inout) :: ras_list(:)
@@ -712,7 +712,7 @@ contains
     end subroutine is_comment_line
 
     subroutine check_ras_is_valid
-        use four_caspt2_module
+        use module_global_variables
         implicit none
         integer :: idx
         logical :: electron_filled(ninact + nact + nsec)

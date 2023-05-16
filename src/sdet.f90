@@ -6,7 +6,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
@@ -35,7 +35,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
     Call zgetrf(nelec, nelec, sini, nelec, ipvt, info)   ! From lapack LU fatorization!
 
-    n = count(ipvt /= [(i, i = 1, nelec)])
+    n = count(ipvt /= [(i, i=1, nelec)])
     ! Do i = 1, nelec
     !     if (ipvt(i) /= i) n = n + 1
     ! End do
@@ -66,7 +66,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)

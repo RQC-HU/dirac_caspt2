@@ -7,7 +7,7 @@ module module_2integrals
 contains
 
     complex*16 function get_2_elec_integral(integral_real_name, idx1, idx2, idx3, idx4)
-        use four_caspt2_module, only: rank, int2r_f1, int2i_f1, int2r_f2, int2i_f2, inttwr, inttwi
+        use module_global_variables, only: rank, int2r_f1, int2i_f1, int2r_f2, int2i_f2, inttwr, inttwi
         use module_error, only: stop_with_errorcode
         use module_realonly, only: realonly
         integer, intent(in) :: idx1, idx2, idx3, idx4
@@ -62,7 +62,7 @@ contains
 
     SUBROUTINE readint2_casci_realonly(filename, nuniq, dummy_real)  ! 2 electorn integrals created by typart in utchem (Realonly)
 
-        use four_caspt2_module
+        use module_global_variables
         use module_file_manager
         use module_sort_swap, only: swap
 #ifdef HAVE_MPI
@@ -114,7 +114,7 @@ contains
 
         totalint = 0
         call open_unformatted_file(unit=unit_mdcint, file=trim(filename), status='old', optional_action='read')
-        rewind(unit_mdcint)
+        rewind (unit_mdcint)
 
         read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
@@ -381,7 +381,7 @@ contains
 
     SUBROUTINE readint2_casci_complex(filename, nuniq, dummy_complex)  ! 2 electorn integrals created by typart in utchem (Complex)
 
-        use four_caspt2_module
+        use module_global_variables
         use module_file_manager
         use module_sort_swap, only: swap
 #ifdef HAVE_MPI
@@ -442,7 +442,7 @@ contains
 
         totalint = 0
         call open_unformatted_file(unit=unit_mdcint, file=trim(filename), status='old', optional_action='read')
-        rewind(unit_mdcint)
+        rewind (unit_mdcint)
 
         read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
 

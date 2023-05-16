@@ -6,7 +6,7 @@ SUBROUTINE fockhf1 ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -93,7 +93,7 @@ SUBROUTINE fockhf1_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
     ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
 #ifdef HAVE_MPI
     use module_mpi
 #endif

@@ -9,7 +9,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     use module_file_manager
     use module_realonly, only: realonly
-    Use four_caspt2_module
+    Use module_global_variables
     ! use omp_lib
     Implicit None
 #ifdef HAVE_MPI

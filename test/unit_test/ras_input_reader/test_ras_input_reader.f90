@@ -1,5 +1,5 @@
 program main
-    use four_caspt2_module, only: ras3_list
+    use module_global_variables, only: ras3_list
     use module_file_manager
     use read_input_module
     implicit none

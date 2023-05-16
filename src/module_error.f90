@@ -14,6 +14,12 @@ contains
 #ifdef HAVE_MPI
         call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
+#ifdef INTEL
+        call TRACEBACKQQ("Exit with error", errorcode)
+#elif GNU
+        call backtrace()
+#else
         call exit(errorcode)
+#endif
     end subroutine stop_with_errorcode
 end module module_error

@@ -6,7 +6,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
     use module_file_manager
     use module_realonly, only: realonly
 

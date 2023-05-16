@@ -6,7 +6,7 @@ SUBROUTINE casmat(mat)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
     use module_dict, only: exists, get_val
 #ifdef HAVE_MPI
     use module_mpi
@@ -237,7 +237,7 @@ SUBROUTINE casmat_real(mat)
 
     ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
     use module_dict, only: exists, get_val
 #ifdef HAVE_MPI
     use module_mpi

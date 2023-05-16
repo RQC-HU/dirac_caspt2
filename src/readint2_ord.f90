@@ -4,7 +4,7 @@ SUBROUTINE readint2_ord_co(filename) ! 2 electorn integrals created by typart in
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
     use module_file_manager
     use module_realonly, only: realonly
 

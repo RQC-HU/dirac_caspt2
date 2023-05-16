@@ -1,7 +1,7 @@
 !
 SUBROUTINE timing(date0, tsec0, date, tsec)
 !
-    use four_caspt2_module, only: rank
+    use module_global_variables, only: rank
     implicit none
     integer, intent(in)  :: date0
     real*8, intent(in)   :: tsec0

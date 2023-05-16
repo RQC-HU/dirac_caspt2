@@ -6,7 +6,7 @@ SUBROUTINE checkdgc(n, old, tra, w)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
     integer, intent(in)        :: n

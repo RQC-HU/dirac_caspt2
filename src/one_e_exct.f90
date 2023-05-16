@@ -7,7 +7,7 @@ subroutine one_e_exct(icas_idx, creat, anhi, newcas_idx, phase)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
 

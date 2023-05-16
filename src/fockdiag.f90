@@ -10,7 +10,7 @@ SUBROUTINE fockdiag
 
     use module_file_manager
     use module_realonly, only: realonly
-    use four_caspt2_module
+    use module_global_variables
 
     Implicit NONE
 
@@ -93,7 +93,7 @@ SUBROUTINE fockdiag
 
         Call e0aftertra
 
-        Call memminus(KIND(fa), SIZE(fa), 1);deallocate (fa)
+        Call memminus(KIND(fa), SIZE(fa), 1); deallocate (fa)
 
     else
 
@@ -103,7 +103,7 @@ SUBROUTINE fockdiag
 
         Call e0aftertrac
 
-        Call memminus(KIND(fac), SIZE(fac), 2);deallocate (fac)
+        Call memminus(KIND(fac), SIZE(fac), 2); deallocate (fac)
 
     end if
 
