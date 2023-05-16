@@ -17,7 +17,7 @@ SUBROUTINE e0aftertra
     integer :: j, i, k, l
     integer :: unit_e0after
 
-    real*8 :: dr, di
+    real(8) :: dr, di
     complex*16 :: oneeff, cmplxint, energyHF(2)
     complex*16, allocatable :: energy(:, :)
 
@@ -268,7 +268,7 @@ SUBROUTINE e0aftertrac
     integer :: ii, jj, kk, ll
     integer :: j, i, k, l
 
-    real*8 :: dr, di
+    real(8) :: dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)
     complex*16, allocatable :: energy(:, :)
 

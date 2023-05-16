@@ -9,13 +9,13 @@ SUBROUTINE dets(fa, occold, occnew, ds)
     use module_global_variables
 
     Implicit NONE
-    real*8, intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    real(8), intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
     integer, intent(in)  :: occold(nelec), occnew(nelec)
     complex*16, intent(out) :: ds
 
     integer                  :: i0, j0, i, info, ipvt(nelec), n
     complex*16               :: sini(nelec, nelec), work(nelec), det(2), ds2
-    real*8                   :: phase
+    real(8)                   :: phase
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -75,7 +75,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 
     integer                  :: i0, j0, i, info, ipvt(nelec), n
     complex*16               :: sini(nelec, nelec), work(nelec), det(2), ds2
-    real*8                   :: phase
+    real(8)                   :: phase
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

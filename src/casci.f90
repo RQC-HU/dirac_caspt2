@@ -15,11 +15,11 @@ SUBROUTINE casci
     include 'mpif.h'
 #endif
     integer :: comb, j0, j, i0, irec, unit_cimat
-    real*8 :: cutoff_threshold
+    real(8) :: cutoff_threshold
 
     complex*16, allocatable :: mat(:, :) ! For complex
     real(8), allocatable :: mat_real(:, :) ! For realonly
-    real*8, allocatable     :: ecas(:)
+    real(8), allocatable     :: ecas(:)
     character*20            :: filename, chr_root
     real(8) :: expected_mem
     integer :: datetmp0, datetmp1, dict_size, idx

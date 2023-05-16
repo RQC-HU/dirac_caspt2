@@ -4,10 +4,10 @@ SUBROUTINE timing(date0, tsec0, date, tsec)
     use module_global_variables, only: rank
     implicit none
     integer, intent(in)  :: date0
-    real*8, intent(in)   :: tsec0
+    real(8), intent(in)   :: tsec0
     integer, intent(inout) :: date
-    real*8, intent(inout)  :: tsec
-    real*8               :: difsec, sec, resd
+    real(8), intent(inout)  :: tsec
+    real(8)               :: difsec, sec, resd
 
     integer              ::  val(8), day, hour, min
 

@@ -9,7 +9,7 @@ subroutine dim1_density(creat1, anhi1, sr, si)
 
     Implicit NONE
     integer, intent(in) :: creat1, anhi1
-    real*8, intent(out) :: sr, si
+    real(8), intent(out) :: sr, si
 
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
@@ -153,7 +153,7 @@ subroutine dim2_density(creat1, anhi1, creat2, anhi2, sr, si)
 
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
-    real*8, intent(out) :: sr, si
+    real(8), intent(out) :: sr, si
     integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
@@ -211,7 +211,7 @@ subroutine dim3_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr, si)
 
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
-    real*8, intent(out) :: sr, si
+    real(8), intent(out) :: sr, si
     integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
@@ -272,7 +272,7 @@ subroutine dim4_density(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, anh
 
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
-    real*8, intent(out) :: sr, si
+    real(8), intent(out) :: sr, si
     integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
     complex*16 :: cmplxcii, cmplxcij, cmplxs
@@ -339,7 +339,7 @@ subroutine dim1_density_R(creat1, anhi1, sr)
 
     Implicit NONE
     integer, intent(in) :: creat1, anhi1
-    real*8, intent(out) :: sr
+    real(8), intent(out) :: sr
     integer :: j0, i, i0
 
     integer ::  newcas_idx, phase, phasenew
@@ -383,7 +383,7 @@ subroutine dim2_density_R(creat1, anhi1, creat2, anhi2, sr)
 
     Implicit NONE
     integer, intent(in) :: creat2, anhi2, anhi1, creat1
-    real*8, intent(out) :: sr
+    real(8), intent(out) :: sr
     integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
 
@@ -433,7 +433,7 @@ subroutine dim3_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, sr)
 
     Implicit NONE
     integer, intent(in) :: anhi3, anhi2, anhi1, creat3, creat2, creat1
-    real*8, intent(out) :: sr
+    real(8), intent(out) :: sr
     integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
 
@@ -486,7 +486,7 @@ subroutine dim4_density_R(creat1, anhi1, creat2, anhi2, creat3, anhi3, creat4, a
 
     Implicit NONE
     integer, intent(in) :: anhi4, anhi3, anhi2, anhi1, creat4, creat3, creat2, creat1
-    real*8, intent(out) :: sr
+    real(8), intent(out) :: sr
     integer :: newcas_idx, phase, phasenew
     integer :: j0, i, i0
 

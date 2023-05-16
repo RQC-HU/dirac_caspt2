@@ -14,9 +14,9 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
     Implicit NONE
 
     integer, intent(in)  :: dimn, dimm
-    real*8, intent(in)   :: sr(dimn, dimn), w(dimn)
+    real(8), intent(in)   :: sr(dimn, dimn), w(dimn)
     real(8), intent(in)  :: threshold
-    real*8, intent(out)  :: ur(dimn, dimm), wnew(dimm)
+    real(8), intent(out)  :: ur(dimn, dimm), wnew(dimm)
     integer :: j0, i0
 
     print *, 'New dimension becomes ', dimm
@@ -54,9 +54,9 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, threshold, uc, wnew)
     Implicit NONE
 
     integer, intent(in)      :: dimn, dimm
-    real*8, intent(in)       :: w(dimn)
+    real(8), intent(in)       :: w(dimn)
     real(8), intent(in)      :: threshold
-    real*8, intent(out)      :: wnew(dimm)
+    real(8), intent(out)      :: wnew(dimm)
 
     complex*16, intent(in)   :: sc(dimn, dimn)
     complex*16, intent(out)  :: uc(dimn, dimm)

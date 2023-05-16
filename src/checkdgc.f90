@@ -13,7 +13,7 @@ SUBROUTINE checkdgc(n, old, tra, w)
     complex*16, intent(in)     :: old(n, n)
     complex*16, intent(in)     :: tra(n, n)
     complex*16                 :: mat(n, n)
-    real*8, intent(in)         :: w(n)
+    real(8), intent(in)         :: w(n)
 
     integer :: i, j
 

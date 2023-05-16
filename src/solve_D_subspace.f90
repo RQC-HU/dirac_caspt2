@@ -31,8 +31,8 @@ contains
 
         integer :: dimn, dimm, dammy
         integer, allocatable :: indsym(:, :)
-        real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-        real*8               :: e2(nsymrpa*2), e, alpha
+        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+        real(8)               :: e2(nsymrpa*2), e, alpha
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
         complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
@@ -386,7 +386,7 @@ contains
 
         integer, intent(in)      :: dimn, indsym(2, dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
-        real*8  :: a, b
+        real(8)  :: a, b
         integer :: it, iu, iy, ix
         integer :: i, j
 
@@ -436,7 +436,7 @@ contains
         complex*16, intent(in)  :: sc(dimn, dimn)
         complex*16, intent(out) :: bc(dimn, dimn)
 
-        real*8              :: e, denr, deni
+        real(8)              :: e, denr, deni
         complex*16          :: den
 
         integer :: it, iu, ix, iy, iw
@@ -508,7 +508,7 @@ contains
 
         integer, intent(in)     :: nai, iai(nsec, ninact)
         complex*16, intent(out) :: v(nai, nact, nact)
-        real*8                  :: dr, di
+        real(8)                  :: dr, di
         complex*16              :: cint1
         complex*16              :: cint2, d
         complex*16              :: effh(nsec, ninact)
@@ -721,8 +721,8 @@ contains
 
         integer :: dimn, dimm, dammy
         integer, allocatable :: indsym(:, :)
-        real*8, allocatable  :: wsnew(:), ws(:), wb(:)
-        real*8               :: e2(nsymrpa*2), e, alpha
+        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+        real(8)               :: e2(nsymrpa*2), e, alpha
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
         real(8), allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
@@ -1060,7 +1060,7 @@ contains
 
         integer, intent(in)      :: dimn, indsym(2, dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
-        real*8  :: a, b
+        real(8)  :: a, b
         integer :: it, iu, iy, ix
         integer :: i, j
 
@@ -1110,7 +1110,7 @@ contains
         real(8), intent(in)  :: sc(dimn, dimn)
         real(8), intent(out) :: bc(dimn, dimn)
 
-        real*8              :: e, denr, deni
+        real(8)              :: e, denr, deni
         real(8)          :: den
 
         integer :: it, iu, ix, iy, iw
@@ -1182,7 +1182,7 @@ contains
 
         integer, intent(in)     :: nai, iai(nsec, ninact)
         real(8), intent(out) :: v(nai, nact, nact)
-        real*8                  :: dr, di
+        real(8)                  :: dr, di
         complex*16              :: cint1
         real(8)              :: cint2, d
         real(8)              :: effh(nsec, ninact)
