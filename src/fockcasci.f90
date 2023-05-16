@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE fockcasci ! TO MAKE FOCK MATRIX for CASCI state
+SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -88,15 +88,15 @@ SUBROUTINE fockcasci ! TO MAKE FOCK MATRIX for CASCI state
     end do
 !$OMP end do
 !$OMP end parallel
-    if (rank == 0) print *, 'fockcasci before fock_cmplx allreduce'
+    if (rank == 0) print *, 'fockcasci_complex before fock_cmplx allreduce'
     call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
     datetmp0 = datetmp1
     tsectmp0 = tsectmp1
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_cmplx(1:nmo, 1:nmo))
 #endif
-    if (rank == 0) print *, 'fockcasci end'
-end subroutine fockcasci
+    if (rank == 0) print *, 'fockcasci_complex end'
+end subroutine fockcasci_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

@@ -155,7 +155,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         Call fockcasci_real
     else
         fock_cmplx(:, :) = 0.0d+00
-        Call fockcasci
+        Call fockcasci_complex
     end if
 
     if (rank == 0) then
