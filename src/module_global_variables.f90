@@ -36,7 +36,7 @@ MODULE module_global_variables
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
     logical         :: skip_mdcint = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
-    integer         :: lscom, nhomo
+    integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: noccg, noccu, nvcutg, nvcutu
     character       :: date*8, time*10
@@ -65,7 +65,7 @@ MODULE module_global_variables
     real(8), allocatable, target :: int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
     real(8), allocatable, target :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
 
-    logical :: realc, realcvec, debug, realf, evenelec
+    logical :: debug, realf, evenelec
 
     !! =================================================
     !! Variables of timer
