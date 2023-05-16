@@ -17,7 +17,7 @@ SUBROUTINE casci
     integer :: comb, j0, j, i0, irec, unit_cimat
     real(8) :: cutoff_threshold
 
-    complex*16, allocatable :: mat(:, :) ! For complex
+    complex*16, allocatable :: mat_complex(:, :) ! For complex
     real(8), allocatable    :: mat_real(:, :) ! For realonly
     real(8), allocatable    :: ecas(:)
     character(len=20)       :: filename, chr_root
@@ -34,9 +34,9 @@ SUBROUTINE casci
         if (rank == 0) print *, "end allocate mat_real(ndet,ndet)"
         Call casmat_real(mat_real)
     else
-        Allocate (mat(ndet, ndet)); Call memplus(KIND(mat), SIZE(mat), 2)
-        if (rank == 0) print *, "end allocate mat(ndet,ndet)"
-        Call casmat(mat)
+        Allocate (mat_complex(ndet, ndet)); Call memplus(KIND(mat_complex), SIZE(mat_complex), 2)
+        if (rank == 0) print *, "end allocate mat_complex(ndet,ndet)"
+        Call casmat_complex(mat_complex)
     end if
     Allocate (ecas(ndet))
     ecas = 0.0d+00
@@ -53,7 +53,7 @@ SUBROUTINE casci
     if (realonly%is_realonly()) then
         Call rdiag(mat_real, ndet, ndet, ecas, cutoff_threshold)
     else
-        Call cdiag(mat, ndet, ndet, ecas, cutoff_threshold)
+        Call cdiag(mat_complex, ndet, ndet, ecas, cutoff_threshold)
     end if
     if (rank == 0) print *, 'End mat diagonalization'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
@@ -110,23 +110,23 @@ SUBROUTINE casci
         Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
         ! Print out the results
         cii(:, :) = 0.0d+00
-        cir(1:ndet, selectroot) = DBLE(mat(1:ndet, selectroot))
-        cii(1:ndet, selectroot) = DIMAG(mat(1:ndet, selectroot))
+        cir(1:ndet, selectroot) = DBLE(mat_complex(1:ndet, selectroot))
+        cii(1:ndet, selectroot) = DIMAG(mat_complex(1:ndet, selectroot))
         if (rank == 0) then
             do irec = 1, nroot
                 print '("Root = ",I4)', irec
                 do j = 1, ndet
-                    if ((ABS(mat(j, irec))**2) > 1.0d-02) then
+                    if ((ABS(mat_complex(j, irec))**2) > 1.0d-02) then
                         i0 = cas_idx(j)
                         print *, (btest(i0, j0), j0=0, nact - 1)
                         print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
-                        & j, mat(j, irec), &
-                        & ABS(mat(j, irec))**2
+                        & j, mat_complex(j, irec), &
+                        & ABS(mat_complex(j, irec))**2
                     end if
                 end do
             end do
         end if
-        Call memminus(KIND(mat), SIZE(mat), 2); Deallocate (mat)
+        Call memminus(KIND(mat_complex), SIZE(mat_complex), 2); Deallocate (mat_complex)
     end if
     Deallocate (ecas)
     deallocate (keys, vals)

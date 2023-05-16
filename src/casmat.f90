@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE casmat(mat)
+SUBROUTINE casmat_complex(mat)
 
 ! Creates CASCI matrix(mat)
 
@@ -214,13 +214,13 @@ SUBROUTINE casmat(mat)
 
     Deallocate (oc)
     Deallocate (vi)
-    if (rank == 0) print *, 'end casmat'
+    if (rank == 0) print *, 'end casmat_complex'
 #ifdef HAVE_MPI
     if (rank == 0) print *, 'Reduce mat(:,:)'
     call allreduce_wrapper(mat=mat)
     if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
-end subroutine casmat
+end subroutine casmat_complex
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 SUBROUTINE casmat_real(mat)
