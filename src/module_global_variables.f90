@@ -104,7 +104,6 @@ MODULE module_global_variables
     real(8), allocatable :: caspt2_mo_energy(:) ! MO energy (a.u.) (CASPT2 order) [old name]: orbmo
 
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart
-    integer, allocatable ::MULTB_DF(:, :), MULTB_DB(:, :), MULTB_SB(:, :)
 
     real(8), allocatable :: eps(:)
 

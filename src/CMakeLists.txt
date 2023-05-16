@@ -39,8 +39,7 @@ add_executable(r4dcascicoexe
   one_e_exct.f90
   prtoutfock.f90
   r4dcasci.f90
-  read1mo.f90
-  readorb_enesym.f90
+  read_mrconee.f90
   sdet.f90
   timing.f90
   trac.f90
@@ -60,8 +59,7 @@ add_executable(r4dcaspt2ocoexe
   one_e_exct.f90
   r4dcaspt2_tra.f90
   ras_det_check.f90
-  read1mo.f90
-  readorb_enesym.f90
+  read_mrconee.f90
   separate_2_elec_integral_by_subspace.f90
   solve_A_subspace.f90
   solve_B_subspace.f90
@@ -86,8 +84,7 @@ add_executable(r4divocoexe
 	mem.f90
 	one_e_exct.f90
 	r4divo.f90
-	read1mo.f90
-	readorb_enesym.f90
+  read_mrconee.f90
 	timing.f90
 )
 target_link_libraries(r4divocoexe dcaspt2_module)

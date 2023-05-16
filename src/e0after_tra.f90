@@ -4,6 +4,9 @@
 
 SUBROUTINE e0aftertra
 
+! Test for HF energy consistency after MO transformation
+! HF energy after MO transformation should be equal to HF energy before MO transformation
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 

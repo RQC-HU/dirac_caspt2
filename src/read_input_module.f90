@@ -220,7 +220,7 @@ contains
         end if
         allocate (ras_list(idx_filled))
         ras_list(:) = tmp_ras(1:idx_filled)
-        call heapSort(list=ras_list, is_reverse=.false.) ! Sort the ras_list in ascending order (lower to higher)
+        call heapSort(list=ras_list, is_descending_order=.false.) ! Sort the ras_list in ascending order (lower to higher)
 
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! Check the specification of input is kramers pair?

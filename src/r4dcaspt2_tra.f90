@@ -96,8 +96,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     if (rank == 0) print *, ' ENTER READ MRCONEE'
     filename = 'MRCONEE'
-    call readorb_enesym(filename)
-    call read1mo(filename)
+    call read_mrconee(filename)
     call check_realonly()
 
     if (rank == 0) then
@@ -388,9 +387,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(MULTB_S)) Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
     if (allocated(MULTB_D)) Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
     if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
-    if (allocated(MULTB_DF)) Call memminus(KIND(MULTB_DF), SIZE(MULTB_DF), 1); deallocate (MULTB_DF)
-    if (allocated(MULTB_DB)) Call memminus(KIND(MULTB_DB), SIZE(MULTB_DB), 1); deallocate (MULTB_DB)
-    if (allocated(MULTB_SB)) Call memminus(KIND(MULTB_SB), SIZE(MULTB_SB), 1); deallocate (MULTB_SB)
 
     ! Print out the total time
     Call timing(val(3), totalsec, date0, tsec0)
