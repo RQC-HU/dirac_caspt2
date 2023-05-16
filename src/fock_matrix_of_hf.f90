@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE fockhf1 ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
+SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -84,11 +84,11 @@ SUBROUTINE fockhf1 ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 
         print *, 'fockhf end'
     end if
-end SUBROUTINE fockhf1
+end SUBROUTINE fock_matrix_of_hf_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-SUBROUTINE fockhf1_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
+SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 
     ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -171,4 +171,4 @@ SUBROUTINE fockhf1_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 
         print *, 'fockhf end'
     end if
-end SUBROUTINE fockhf1_real
+end SUBROUTINE fock_matrix_of_hf_real
