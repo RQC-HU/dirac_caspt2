@@ -16,14 +16,14 @@ contains
         dummy_real = 0.0d+00
         dummy_complex = (0.0d+00, 0.0d+00)
         if (realonly%is_realonly()) then ! Realonly
-            call readint2_casci_realonly(filename, nuniq, dummy_real)
+            call readint2_casci_realonly(filename, nuniq)
         else ! Complex
-            call readint2_casci_complex(filename, nuniq, dummy_complex)
+            call readint2_casci_complex(filename, nuniq)
         end if
 
     end subroutine readint2_casci
 
-    SUBROUTINE readint2_casci_realonly(filename, nuniq, dummy_real)  ! 2 electorn integrals created by typart in utchem (Realonly)
+    SUBROUTINE readint2_casci_realonly(filename, nuniq)  ! 2 electorn integrals created by typart in utchem (Realonly)
 
         use module_global_variables
         use module_file_manager
@@ -33,7 +33,6 @@ contains
 #endif
         Implicit NONE
         character*50, intent(in) :: filename
-        real(8), intent(in) :: dummy_real
 
         character  :: datex*10, timex*8
         integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
@@ -342,7 +341,7 @@ contains
 #endif
     end subroutine readint2_casci_realonly
 
-    SUBROUTINE readint2_casci_complex(filename, nuniq, dummy_complex)  ! 2 electorn integrals created by typart in utchem (Complex)
+    SUBROUTINE readint2_casci_complex(filename, nuniq)  ! 2 electorn integrals created by typart in utchem (Complex)
 
         use module_global_variables
         use module_file_manager
@@ -352,7 +351,6 @@ contains
 #endif
         Implicit NONE
         character*50, intent(in) :: filename
-        complex*16, intent(in) :: dummy_complex
 
         character  :: datex*10, timex*8
         integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
