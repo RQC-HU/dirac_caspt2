@@ -6,6 +6,7 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
 
     use module_global_variables
     use module_file_manager
+    use module_index_utils, only: sign_even_ret1
     use module_realonly, only: realonly
 
     Implicit NONE
@@ -96,28 +97,28 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
 
         totalint = totalint + nz
 
-        itr = i + (-1)**(mod(i, 2) + 1)
-        jtr = j + (-1)**(mod(j, 2) + 1)
+        itr = i + sign_even_ret1(i + 1) ! itr = i+1 if i+1 is even, otherwise itr = i-1
+        jtr = j + sign_even_ret1(j + 1)
 
         nmom = ninact + nact + nsec
 
         If (space_idx(i) == 4 .or. space_idx(j) == 4) cycle ! Read the next 2-integral
         If (i > ninact + nact .and. j > ninact + nact) cycle ! Read the next 2-integral
 
-        SignIJ = (-1)**(mod(i + j, 2))
+        SignIJ = sign_even_ret1(i + j) ! If i+j is even, SignIJ = 1, otherwise SignIJ = -1
 
         Do inz = 1, nz
 
             k = indk(inz)
-            ktr = k + (-1)**(mod(k, 2) + 1)
+            ktr = k + sign_even_ret1(k + 1) ! ktr = k+1 if k+1 is even, otherwise ktr = k-1
             l = indl(inz)
-            ltr = l + (-1)**(mod(l, 2) + 1)
+            ltr = l + sign_even_ret1(l + 1)
 
             If (space_idx(k) == 4 .or. space_idx(l) == 4) cycle ! Go to the next idz
             If (k > ninact + nact .and. l > ninact + nact) cycle ! Go to the next idz
             If (i == j .and. k > l) cycle ! Go to the next idz
 
-            SignKL = (-1)**(mod(k + l, 2))
+            SignKL = sign_even_ret1(k + l) ! If k+l is even, SignKL = 1, otherwise SignKL = -1
 
             max1 = max(space_idx(i), space_idx(j))
             min1 = min(space_idx(i), space_idx(j))

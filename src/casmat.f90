@@ -8,7 +8,7 @@ SUBROUTINE casmat_complex(mat)
 
     use module_global_variables
     use module_dict, only: exists, get_val
-    use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_phase
+    use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_even_ret1
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -160,7 +160,7 @@ SUBROUTINE casmat_complex(mat)
                         mat(i, j) = mat(i, j) - cmplxint
                     End do
 
-                    mat(i, j) = sign_phase(phase1)*mat(i, j)
+                    mat(i, j) = sign_even_ret1(phase1)*mat(i, j)
                     mat(j, i) = DCONJG(mat(i, j))
 
                 End if
@@ -203,7 +203,7 @@ SUBROUTINE casmat_complex(mat)
                             cmplxint = DCMPLX(i2r, i2i)
                             mat(i, j) = mat(i, j) - cmplxint
 
-                            mat(i, j) = sign_phase(phase1 + phase2)*mat(i, j)
+                            mat(i, j) = sign_even_ret1(phase1 + phase2)*mat(i, j)
                             mat(j, i) = DCONJG(mat(i, j))
                         End if
                     End do
@@ -231,7 +231,7 @@ SUBROUTINE casmat_real(mat)
 
     use module_global_variables
     use module_dict, only: exists, get_val
-    use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_phase
+    use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_even_ret1
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -361,7 +361,7 @@ SUBROUTINE casmat_real(mat)
                         mat(i, j) = mat(i, j) - i2r
                     End do
 
-                    mat(i, j) = sign_phase(phase1)*mat(i, j)
+                    mat(i, j) = sign_even_ret1(phase1)*mat(i, j)
                     mat(j, i) = mat(i, j)
 
                 End if
@@ -401,7 +401,7 @@ SUBROUTINE casmat_real(mat)
                             i2r = inttwr(ir, ib, is, ia)
                             mat(i, j) = mat(i, j) - i2r
 
-                            mat(i, j) = sign_phase(phase1 + phase2)*mat(i, j)
+                            mat(i, j) = sign_even_ret1(phase1 + phase2)*mat(i, j)
                             mat(j, i) = mat(i, j)
                         End if
                     End do

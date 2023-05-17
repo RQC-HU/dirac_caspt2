@@ -7,6 +7,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
+    use module_index_utils, only: sign_even_ret1
 
     Implicit NONE
     real(8), intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
@@ -35,16 +36,10 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
     Call zgetrf(nelec, nelec, sini, nelec, ipvt, info)   ! From lapack LU fatorization!
 
+    ! count the number of ipvt(i) /= i
     n = count(ipvt /= [(i, i=1, nelec)])
-    ! Do i = 1, nelec
-    !     if (ipvt(i) /= i) n = n + 1
-    ! End do
 
-    If (mod(n, 2) == 0) then
-        phase = 1.0d+00
-    else
-        phase = -1.0d+00
-    End if
+    phase = sign_even_ret1(n) ! If n is even, phase = 1.0d+00, else phase = -1.0d+00
 
     ds2 = 1.0d+00
 
@@ -67,6 +62,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
+    use module_index_utils, only: sign_even_ret1
 
     Implicit NONE
     complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
@@ -97,16 +93,10 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 
     Call zgetrf(nelec, nelec, sini, nelec, ipvt, info)   ! From lapack LU fatorization!
 
-    n = 0
-    Do i = 1, nelec
-        if (ipvt(i) /= i) n = n + 1
-    End do
+    ! count the number of ipvt(i) /= i
+    n = count(ipvt /= [(i, i=1, nelec)])
 
-    If (mod(n, 2) == 0) then
-        phase = 1.0d+00
-    else
-        phase = -1.0d+00
-    End if
+    phase = sign_even_ret1(n) ! If n is even, phase = 1.0d+00, else phase = -1.0d+00
 
     ds2 = 1.0d+00
 

@@ -2,7 +2,8 @@ module module_index_utils
     use module_error, only: stop_with_errorcode
     implicit none
     private
-    public :: convert_active_to_global_idx, convert_global_to_active_idx, convert_global_to_secondary_idx, sign_phase
+    public :: convert_active_to_global_idx, convert_global_to_active_idx, convert_global_to_secondary_idx, &
+              sign_even_ret1, sign_odd_ret1
 
 contains
 
@@ -65,13 +66,19 @@ contains
 
     end function convert_global_to_secondary_idx
 
-    function sign_phase(phase) result(sign)
+    function sign_even_ret1(phase) result(sign)
         ! ====================================================================================================
         ! Returns the sign of a phase, given the phase number
+        ! If the phase is even, then the sign is returned as +1
+        ! If the phase is odd, then the sign is returned as -1
         ! ====================================================================================================
         use module_global_variables, only: rank
         integer, intent(in) :: phase
         integer :: sign
+        ! phase | sign(return value)
+        ! ==========================
+        ! even  |  +1
+        !  odd  |  -1
         sign = 0
 
         if (mod(phase, 2) == 0) then
@@ -85,6 +92,33 @@ contains
             call stop_with_errorcode(4)
         end if
 
-    end function sign_phase
+    end function sign_even_ret1
+
+    function sign_odd_ret1(phase) result(sign)
+        ! ====================================================================================================
+        ! Returns the sign of a phase, given the phase number
+        ! If the phase is even, then the sign is returned as -1
+        ! If the phase is odd, then the sign is returned as +1
+        ! ====================================================================================================
+        use module_global_variables, only: rank
+        integer, intent(in) :: phase
+        integer :: sign
+        ! phase | sign(return value)
+        ! ==========================
+        ! even  |  -1
+        !  odd  |  +1
+        sign = 0
+
+        if (mod(phase, 2) == 0) then
+            sign = -1
+        else
+            sign = 1
+        end if
+
+        if (sign == 0) then
+            if (rank == 0) print *, "Error: sign = 0"
+            call stop_with_errorcode(4)
+        end if
+    end function sign_odd_ret1
 
 end module module_index_utils
