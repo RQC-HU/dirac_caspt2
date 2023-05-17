@@ -9,6 +9,7 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, cutoff_threshold)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_global_variables
 
     Implicit NONE
@@ -25,43 +26,34 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, cutoff_threshold)
     character :: jobz*1, uplo*1
     real(8), allocatable  ::  work(:)
 
+    ! Prepare for diagonalization
     w(:) = 0.0d+00
     jobz = 'V' ! calculate eigenvectors
     uplo = 'U' ! calculate upper triangle matrix
-
-!  N       (input) INTEGER
-!          The order of the matrix A.  N >= 0. = indxyz
-!*  LDA     (input) INTEGER
-!*          The leading dimension of the array A.  LDA >= max(1,N).
-!*  LWORK   (input) INTEGER
-!*          The length of the array WORK.  LWORK >= max(1,3*N-1).
-!*          For optimal efficiency, LWORK >= (NB+2)*N,
-!*          where NB is the blocksize for DSYTRD returned by ILAENV.
-!*
-!*          If LWORK = -1, then a workspace query is assumed; the routine
-!*          only calculates the optimal size of the WORK array, returns
-!*          this value as the first entry of the WORK array, and no error
-!*          message related to LWORK is issued by XERBLA.
-!*
-
     lda = max(1, dimn)
     lwork = max(1, 3*dimn - 1)
-
     allocate (work(lwork))
+    work(:) = 0.0d+00
 
+    ! Symmetric matrix diagonalization by LAPACK routine DSYEV
+    ! DSYEV: https://netlib.org/lapack/explore-html/d2/d8a/group__double_s_yeigen_ga442c43fca5493590f8f26cf42fed4044.html
+    ! sr is overwritten by eigenvectors
+    ! w is eigenvalues
+    ! info is the error code (info = 0 means no error)
     call dsyev(jobz, uplo, dimn, sr, lda, w, work, lwork, info)
 
     deallocate (work)
 
+    ! Error check
     if (info /= 0) then
         if (rank == 0) print *, 'error in diagonalization, info = ', info
-        return
+        call stop_with_errorcode(info)
     end if
 
     ! If cutoff_threshold == 0.0d+00, cutoff process is not performed.
     if (cutoff_threshold == 0.0d+00) then
         dimm = dimn
-    else
+    else ! cutoff process is performed
         if (rank == 0) print *, 'cut off threshold is ', cutoff_threshold
         dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
@@ -79,6 +71,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_global_variables
 
     Implicit NONE
@@ -98,109 +91,39 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
     real(8), allocatable      ::  rwork(:)
 
     if (rank == 0) print *, 'Enter cdiagonal part'
-    w(:) = 0.0d+00
 
+    ! Prepare for diagonalization
+    w(:) = 0.0d+00
     jobz = 'V' ! calculate eigenvectors
     uplo = 'U' ! calculate upper triangle matrix
-
-!zheev!     .. Scalar Arguments ..
-!zheev!      CHARACTER          JOBZ, UPLO
-!zheev!      INTEGER            INFO, LDA, LWORK, N
-!zheev!*     ..
-!zheev!*     .. Array Arguments ..
-!zheev!      DOUBLE PRECISION   RWORK( * ), W( * )
-!zheev!      COMPLEX*16         A( LDA, * ), WORK( * )
-!zheev!*     ..
-!zheev!*
-!zheev!*  Purpose
-!zheev!*  =======
-!zheev!*
-!zheev!*  ZHEEV computes all eigenvalues and, optionally, eigenvectors of a
-!zheev!*  complex Hermitian matrix A.
-!zheev!*
-!zheev!*  Arguments
-!zheev!*  =========
-!zheev!*
-!zheev!*  JOBZ    (input) CHARACTER*1
-!zheev!*          = 'N':  Compute eigenvalues only;
-!zheev!*          = 'V':  Compute eigenvalues and eigenvectors.
-!zheev!*
-!zheev!*  UPLO    (input) CHARACTER*1
-!zheev!*          = 'U':  Upper triangle of A is stored;
-!zheev!*          = 'L':  Lower triangle of A is stored.
-!zheev!*
-!zheev!*  N       (input) INTEGER
-!zheev!*          The order of the matrix A.  N >= 0.
-!zheev!*
-!zheev!*  A       (input/output) COMPLEX*16 array, dimension (LDA, N)
-!zheev!*          On entry, the Hermitian matrix A.  If UPLO = 'U', the
-!zheev!*          leading N-by-N upper triangular part of A contains the
-!zheev!*          upper triangular part of the matrix A.  If UPLO = 'L',
-!zheev!*          the leading N-by-N lower triangular part of A contains
-!zheev!*          the lower triangular part of the matrix A.
-!zheev!*          On exit, if JOBZ = 'V', then if INFO = 0, A contains the
-!zheev!*          orthonormal eigenvectors of the matrix A.
-!zheev!*          If JOBZ = 'N', then on exit the lower triangle (if UPLO='L')
-!zheev!*          or the upper triangle (if UPLO='U') of A, including the
-!zheev!*          diagonal, is destroyed.
-!zheev!*
-!zheev!*  LDA     (input) INTEGER
-!zheev!*          The leading dimension of the array A.  LDA >= max(1,N).
-!zheev!*
-!zheev!*  W       (output) DOUBLE PRECISION array, dimension (N)
-!zheev!*          If INFO = 0, the eigenvalues in ascending order.
-!zheev!*
-!zheev!*  WORK    (workspace/output) COMPLEX*16 array, dimension (LWORK)
-!zheev!*          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
-!zheev!*
-!zheev!*  LWORK   (input) INTEGER                                        =================================
-!zheev!*          The length of the array WORK.  LWORK >= max(1,2*N-1).  !<= 3*N-1 is better like dsyev.f
-!zheev!*          For optimal efficiency, LWORK >= (NB+1)*N,             =================================
-!zheev!*          where NB is the blocksize for ZHETRD returned by ILAENV.
-!zheev!*
-!zheev!*          If LWORK = -1, then a workspace query is assumed; the routine
-!zheev!*          only calculates the optimal size of the WORK array, returns
-!zheev!*          this value as the first entry of the WORK array, and no error
-!zheev!*          message related to LWORK is issued by XERBLA.
-!zheev!*
-!zheev!*  RWORK   (workspace) DOUBLE PRECISION array, dimension (max(1, 3*N-2))
-!zheev!*
-!zheev!*  INFO    (output) INTEGER
-!zheev!*          = 0:  successful exit
-!zheev!*          < 0:  if INFO = -i, the i-th argument had an illegal value
-!zheev!*          > 0:  if INFO = i, the algorithm failed to converge; i
-!zheev!*                off-diagonal elements of an intermediate tridiagonal
-!zheev!*                form did not converge to zero.
-!zheev!*
-!zheev!*  =====================================================================
-!zheev!*
-!zheev!*
-
     lda = max(1, dimn)
-
     lwork = max(1, 3*dimn - 1)
-
     allocate (work(lwork))
     allocate (rwork(3*dimn - 2))
+    work(:) = 0.0d+00
+    rwork(:) = 0.0d+00
 
-    work = 0.0d+00
-    rwork = 0.0d+00
-
+    ! Hermite matrix diagonalization by LAPACK routine ZHEEV
+    ! ZHEEV: https://netlib.org/lapack/explore-html/df/d9a/group__complex16_h_eeigen_gaf23fb5b3ae38072ef4890ba43d5cfea2.html
+    ! c is overwritten by eigenvectors
+    ! w is eigenvalues
+    ! info is the error code (info = 0 means no error)
     Call ZHEEV(JOBZ, UPLO, dimn, c, LDA, W, WORK, LWORK, RWORK, INFO)
 
     deallocate (work)
     deallocate (rwork)
 
+    ! Error check
     if (rank == 0) print *, 'Finish zheev info = ', info
     if (info /= 0) then
         if (rank == 0) print *, 'error in diagonalization, info = ', info
-        return
+        call stop_with_errorcode(info)
     end if
 
     ! If cutoff_threshold == 0.0d+00, cutoff process is not performed.
     if (cutoff_threshold == 0.0d+00) then
         dimm = dimn
-    else
+    else ! cutoff process is performed
         if (rank == 0) print *, 'cut off threshold is ', cutoff_threshold
         dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
@@ -226,7 +149,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
     real(8)                 ::  cutoff_threshold
     integer                 ::  j, i, dimn, dummy, ncount(nsymrpa)
-    integer                 ::  sym, isym
+    integer                 ::  isym
     integer                 ::  ind(n, nsymrpa)
 
     real(8), allocatable     ::  mat(:, :), fasym(:, :)
@@ -256,27 +179,26 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
         ind(ncount(isym), isym) = i
     End do
 
-    if (rank == 0) print *, 'sym,ncount(sym)', (ncount(sym), sym=1, nsymrpa)
-    Do sym = 1, nsymrpa
+    if (rank == 0) print *, 'isym,ncount(isym)', (ncount(isym), isym=1, nsymrpa)
+    Do isym = 1, nsymrpa
 
-        dimn = ncount(sym)
+        dimn = ncount(isym)
         Allocate (fasym(dimn, dimn))
-        fasym(1:dimn, 1:dimn) = fock_real(ind(1:dimn, sym), ind(1:dimn, sym))
+        fasym(1:dimn, 1:dimn) = fock_real(ind(1:dimn, isym), ind(1:dimn, isym))
 
         cutoff_threshold = 0.0d+00 ! No cutoff
         Call rdiag(fasym, dimn, dummy, wsym, cutoff_threshold)
-!      _________________________________________________________
 
-        w(ind(1:dimn, sym)) = wsym(1:dimn)
+        w(ind(1:dimn, isym)) = wsym(1:dimn)
         Do j = 1, dimn
             Do i = 1, dimn
-                fa(ind(i, sym), ind(j, sym)) = fasym(i, j)
+                fa(ind(i, isym), ind(j, isym)) = fasym(i, j)
             End do
         End do
 
         Deallocate (fasym)
 
-    End do ! sym
+    End do
 
 ! NOW FA BECOMES TRANSFORM MATRIX   CONJG(Fa) Fbc Fa = W <= diagonal form!
 

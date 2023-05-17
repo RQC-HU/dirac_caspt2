@@ -7,7 +7,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use module_dict
+    use module_error, only: stop_with_errorcode
     use module_global_variables
     use module_file_manager, only: open_unformatted_file
 
@@ -18,9 +18,9 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     integer :: ok, unit_newcicoeff
     integer :: occ(nelec, ndet)
 
-    integer, allocatable     :: IPIV(:)
-    complex*16, Allocatable  :: ds(:, :), dsold(:, :), ci(:), work(:)
-    logical     :: error
+    integer, allocatable    :: IPIV(:)
+    real(8), allocatable    :: ds(:, :)
+    complex*16, allocatable ::  ci(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -43,72 +43,38 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     End do
 
     Allocate (ds(ndet, ndet))
-
-    ds = 0.0d+00
-
+    ! ds = <k|k~>
     Do i0 = 1, ndet     ! k  (old)
         Do j0 = 1, ndet  ! k~ (new)   <k|k~>
-
             Call dets(fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact), &
                       occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
-
         End do
     End do
-
-    if (rank == 0) print *, 'Obtain inverse of ds matrix'
 
     Allocate (IPIV(ndet))
-    Allocate (dsold(ndet, ndet))
-
-    dsold = ds
-
-    Call ZGETRF(ndet, ndet, ds, ndet, IPIV, INFO)
-    if (rank == 0) print *, 'info', info
-
-    Allocate (work(ndet))
-
-    Call ZGETRI(ndet, ds, ndet, IPIV, WORK, ndet, INFO)
-    if (rank == 0) print *, 'info', info
-
-    Deallocate (work)
+    ! We want to create a cir vector rotated by ds^(-1) matrix
+    ! rotated_ci = ds^(-1) * cir
+    ! Therefore we need to solve ds * rotated_ci = cir, so we can get rotated_ci by simply calling dgesv.
+    ! dgesv: https://netlib.org/lapack/explore-html/d7/d3b/group__double_g_esolve_ga5ee879032a8365897c3ba91e3dc8d512.html
+    ! ds is overwritten by its LU decomposition
+    ! cir is overwritten by rotated_ci
+    if (rank == 0) print *, 'Solve linear equations for ci matrix using dgesv'
+    Call dgesv(ndet, 1, ds, ndet, IPIV, cir(1:ndet, selectroot), ndet, info)
     Deallocate (IPIV)
-    if (rank == 0) print *, 'Check whether inverese matrix is really so'
-
-    error = .FALSE.
-
-    dsold = MATMUL(ds, dsold)
-    Do i0 = 1, ndet
-        Do j0 = 1, ndet
-
-            If ((i0 /= j0) .and. ABS(dsold(i0, j0)) > 1.0d-10) then
-                error = .TRUE.
-                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
-            Elseif (i0 == j0 .and. ABS(dsold(i0, j0) - 1.0d+00) > 1.0d-10) then
-                error = .TRUE.
-                if (rank == 0) print '(2I4,2E13.5)', i0, j0, dsold(i0, j0)
-            End if
-
-        End do
-    End do
-
-    if (rank == 0) print *, 'Inverse matrix is obtained correclty'
-    Deallocate (dsold)
-
-!        Now ds is inverse matrix!
-
-    Allocate (ci(ndet))
-
-    ci = 0.0d+00
-    ci = DCMPLX(cir(1:ndet, selectroot), [(0.0d+00, i=1, nelec)])
-    ci = MATMUL(ds, ci)
-    cir(1:ndet, selectroot) = DBLE(ci)
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=unit_newcicoeff, file="NEWCICOEFF", status='replace', optional_action='write')
-        write (unit_newcicoeff) ci(1:ndet)
-        close (unit_newcicoeff)
+    if (info /= 0) then
+        if (rank == 0) print *, 'Error in dgesv, info = ', info
+        call stop_with_errorcode(info)
     end if
 
-    Deallocate (ci)
+    allocate (ci(ndet)); call memplus(kind(ci), size(ci), 2)
+    ci(:) = (0.0d+00, 0.0d+00)
+    ci = cir(1:ndet, selectroot) ! Imaginary part of ci is zero
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        call open_unformatted_file(unit=unit_newcicoeff, file="NEWCICOEFF", status='replace', optional_action='write')
+        write (unit_newcicoeff) ci(:)
+        close (unit_newcicoeff)
+    end if
+    if (allocated(ci)) call memminus(kind(ci), size(ci), 2); Deallocate (ci)
 
     Deallocate (ds)
 
@@ -122,8 +88,9 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use module_error, only: stop_with_errorcode
     use module_global_variables
-    use module_file_manager
+    use module_file_manager, only: open_unformatted_file
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -161,26 +128,17 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
             end if
         End do
     End do
-    if (rank == 0) print *, 'Before allocate a matrix named ds'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
-    Allocate (ds(ndet, ndet))
 
-    ds = 0.0d+00
-    if (rank == 0) print *, 'Initialized a matrix named ds'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
+    Allocate (ds(ndet, ndet))
     Do i0 = 1, ndet     ! k  (old)
         Do j0 = 1, ndet  ! k~ (new)   <k|k~>
-
             Call detsc(fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact), &
                        occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
-
         End do
     End do
     if (rank == 0) print *, 'End detsc'
+
+    ! Preparation for solving linear equations for ci matrix using zgesv
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
@@ -191,17 +149,21 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     ! We want to create a ci vector rotated by ds^(-1) matrix
     ! rotated_ci = ds^(-1) * ci
     ! Therefore we need to solve ds * rotated_ci = ci, so we can get rotated_ci by simply calling zgesv.
-    if (rank == 0) print *, 'directly call zgesv'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
+    ! zgesv: https://netlib.org/lapack/explore-html/d6/d10/group__complex16_g_esolve_ga531713dfc62bc5df387b7bb486a9deeb.html
+    ! ds is overwritten by its LU decomposition
+    ! ci is overwritten by rotated_ci
+    if (rank == 0) print *, 'Solve linear equations for ci matrix using zgesv'
     Call zgesv(ndet, 1, ds, ndet, IPIV, ci, ndet, info) ! ds is overwritten by its LU decomposition, ci is overwritten by rotated_ci
-    if (rank == 0) print *, 'info', info
     Deallocate (IPIV)
+    if (info /= 0) then
+        if (rank == 0) print *, 'Error in zgesv, info = ', info
+        call stop_with_errorcode(info)
+    end if
     if (rank == 0) print *, 'End zgesv', rank
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
     datetmp1 = datetmp0
     tsectmp1 = tsectmp0
+    ! ci is now rotated_ci and we need to rotate it back to cir and cii
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
