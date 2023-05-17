@@ -117,7 +117,7 @@ contains
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 2)
 
         traint2 = 0.0d+00
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -346,7 +346,7 @@ contains
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 1)
 
         traint2 = 0.0d+00
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -584,7 +584,7 @@ contains
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 2)
 
         traint2 = 0.0d+00
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -851,7 +851,7 @@ contains
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 1)
 
         traint2 = 0.0d+00
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -1116,7 +1116,7 @@ contains
 
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 2)
         traint2 = 0.0d+00
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !
@@ -1392,7 +1392,7 @@ contains
 
         Allocate (traint2(ii:ie, ji:je, ki:ke, li:le)); Call memplus(KIND(traint2), SIZE(traint2), 1)
         traint2 = 0.0d+00
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 ! Read intergals  and first index transformation !

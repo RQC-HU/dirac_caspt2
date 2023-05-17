@@ -42,7 +42,7 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
     Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
     if (rank == 0) then
         print *, "enter separate_2_elec_integral_by_subspace"
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
     end if
     indk(:) = 0
     indl(:) = 0

@@ -39,7 +39,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     tmem = 0.0d+00
 
     if (rank == 0) then
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
         val = 0
         Call DATE_AND_TIME(VALUES=val)
@@ -97,7 +97,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     ! Print the irreducible representation used to calculate CASCI energy.
     if (rank == 0) then
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
         print *, ' '
         print *, '*******************************'
         print *, ' '
@@ -114,7 +114,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     ! Recalculate the 0th order energy (CASCI energy) using the 1,2 electron integrals adn CI coefficients
     Call e0test
 
-    if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+    call write_allocated_memory_size
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 !            BUILDING  FOCK MATRIX               !
 !  fij = hij + SIGUMA[<0|Ekl|0>{(ij|kl)-(il|kj)} !
@@ -254,7 +254,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
     if (rank == 0) then
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
         Call timing(val(3), totalsec, date0, tsec0)
         print *, 'End r4dcasci part'

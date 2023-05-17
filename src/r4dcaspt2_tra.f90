@@ -108,7 +108,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! READ MDCINTNEWx's file and devide into each subspace files.
     Call separate_2_elec_integral_by_subspace(mdcintnew)
 
-    if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+    call write_allocated_memory_size
     nmo = ninact + nact + nsec
     if (rank == 0) print *, 'nmo        =', nmo
 

@@ -45,7 +45,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, ''
         print *, ' ENTER R4DIVO PROGRAM written by M. Abe 2007/7/20'
         print *, ''
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
         print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
         print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
@@ -88,7 +88,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call readint2_casci(mdcintnew, nuniq)
 
     if (rank == 0) then
-        print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
         print *, ' '
         print *, '*******************************'
         print *, ' '

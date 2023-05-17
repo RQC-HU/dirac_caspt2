@@ -62,7 +62,7 @@ contains
         !Iwamuro modify
         Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
         ! Initialize variables
         nuniq = 0
@@ -386,7 +386,7 @@ contains
         !Iwamuro modify
         Allocate (kr(-nmo/2:nmo/2)); Call memplus(KIND(kr), SIZE(kr), 1)
 
-        if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
+        call write_allocated_memory_size
 
         ! Initialize variables
         nuniq = 0
