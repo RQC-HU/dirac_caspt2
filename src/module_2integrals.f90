@@ -2,46 +2,9 @@ module module_2integrals
     use module_takekr
     implicit none
     private
-    public readint2_casci, get_2_elec_integral
+    public readint2_casci
 
 contains
-
-    complex*16 function get_2_elec_integral(integral_real_name, idx1, idx2, idx3, idx4)
-        use module_global_variables, only: rank, int2r_f1, int2i_f1, int2r_f2, int2i_f2, inttwr, inttwi
-        use module_error, only: stop_with_errorcode
-        use module_realonly, only: realonly
-        integer, intent(in) :: idx1, idx2, idx3, idx4
-        character(8), parameter :: integarl_names(3) = ["int2r_f1", "int2r_f2", "inttwr  "]
-        character(len=*), intent(in) :: integral_real_name ! Name of the integral (int2r_f1, int2r_f2, inttwr)
-        real(8), pointer :: real_integrals(:, :, :, :), imag_integrals(:, :, :, :)
-
-        ! Get the pointer to the real and imaginary part of the integrals
-        select case (trim(integral_real_name))
-        case (trim(integarl_names(1))) ! int2r_f1
-            real_integrals => int2r_f1
-            imag_integrals => int2i_f1
-        case (trim(integarl_names(2))) ! int2r_f2
-            real_integrals => int2r_f2
-            imag_integrals => int2i_f2
-        case (trim(integarl_names(3))) ! inttwr
-            real_integrals => inttwr
-            imag_integrals => inttwi
-        case default
-            if (rank == 0) then
-                print *, "Error: Integral name is not correct"
-                print *, "Integral name must be one of the following:"
-                print *, integarl_names
-            end if
-            call stop_with_errorcode(1)
-        end select
-
-        if (realonly%is_realonly()) then
-            get_2_elec_integral = DCMPLX(real_integrals(idx1, idx2, idx3, idx4), 0.0d+00)
-        else
-            get_2_elec_integral = DCMPLX(real_integrals(idx1, idx2, idx3, idx4), &
-                                         imag_integrals(idx1, idx2, idx3, idx4))
-        end if
-    end function get_2_elec_integral
 
     subroutine readint2_casci(filename, nuniq)
         use module_realonly, only: realonly

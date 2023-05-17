@@ -16,7 +16,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: i0, nuniq, inisym, endsym, unit_eps, unit_input
+    integer                 :: i0, nuniq, unit_eps, unit_input
     character*50            :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -36,7 +36,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
         print *, ''
     end if
-    debug = .FALSE.
     tmem = 0.0d+00
 
     if (rank == 0) then
@@ -80,6 +79,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     filename = 'MRCONEE'
     call read_mrconee(filename)
 
+    ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
     call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
@@ -94,19 +94,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) print *, 'nmo        =', nmo
     nmo = ninact + nact + nsec
-    if (rank == 0) print *, "iwamuro modify"
-    If (mod(nelec, 2) == 0) then
-        inisym = nsymrpa + 1
-        endsym = 2*nsymrpa
-    Else
-        inisym = 1
-        endsym = nsymrpa
-    End if
 
     ! Print the irreducible representation used to calculate CASCI energy.
     if (rank == 0) then
         print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
-
         print *, ' '
         print *, '*******************************'
         print *, ' '
@@ -120,6 +111,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     Call casci
     iroot = selectroot
 
+    ! Recalculate the 0th order energy (CASCI energy) using the 1,2 electron integrals adn CI coefficients
     Call e0test
 
     if (rank == 0) print '("Current Memory is ",F10.2,"MB")', tmem/1024/1024

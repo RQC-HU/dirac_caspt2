@@ -18,7 +18,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     include 'mpif.h'
     real(16)                :: time0, time1
 #endif
-    integer                 :: ieshift, unit_input, unit_new
+    integer                 :: unit_input, unit_new
     real(8)                  :: e0, e2, e2all, weight0
     complex*16, allocatable :: ci(:)
     real(8), allocatable     :: ecas(:)
@@ -48,7 +48,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     tmem = 0.0d+00
 
-    val = 0
+    val(:) = 0
     Call DATE_AND_TIME(VALUES=val)
     if (rank == 0) then
         print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
@@ -62,9 +62,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, inittime
         Call timing(val(3), totalsec, date0, tsec)
     end if
-
-    eshift = 0.0d+00
-    ieshift = 0
 
     call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
     call read_input(unit_input)

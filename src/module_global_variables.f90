@@ -28,7 +28,7 @@ MODULE module_global_variables
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
     integer         :: totsym, ncore, nbas
-    real(8)         :: eshift
+    real(8)         :: eshift = 0.0d+00 ! default: 0.0
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
     integer         :: ras1_start, ras2_start, ras3_start
