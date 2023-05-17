@@ -11,6 +11,7 @@ contains
         implicit none
         integer, intent(in) :: errorcode
         integer :: ierr
+        ierr = 0
 #ifdef HAVE_MPI
         call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif

@@ -27,6 +27,7 @@ contains
 
         use module_global_variables
         use module_file_manager
+        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
         use module_sort_swap, only: swap
 #ifdef HAVE_MPI
         use module_mpi
@@ -98,8 +99,8 @@ contains
 
             totalint = totalint + nz
 
-            itr = i + (-1)**(mod(i, 2) + 1)
-            jtr = j + (-1)**(mod(j, 2) + 1)
+            itr = i + sign_even_ret1(i + 1) ! If i+1 is even, itr = i+1, else itr = i-1
+            jtr = j + sign_even_ret1(j + 1)
 
             i0 = i
             itr0 = itr
@@ -114,16 +115,16 @@ contains
                 jtr = jtr0
 
                 k = indk(inz)
-                ktr = k + (-1)**(mod(k, 2) + 1)
+                ktr = k + sign_even_ret1(k + 1) ! If k+1 is even, ktr = k+1, else ktr = k-1
                 l = indl(inz)
-                ltr = l + (-1)**(mod(l, 2) + 1)
+                ltr = l + sign_even_ret1(l + 1)
 
                 If (i > nmoc .and. j > nmoc .and. k > nmoc .and. l > nmoc) cycle loop_inz ! (33|33) is ignored
                 If (i == j .and. k > l) cycle loop_inz
 
                 If (i <= nmoc .and. j <= nmoc .and. k <= nmoc .and. l <= nmoc) then
-                    SignIJ = (-1)**(mod(i, 2) + mod(j, 2))
-                    SignKL = (-1)**(mod(k, 2) + mod(l, 2))
+                    signij = sign_even_ret1(i + j) ! If i+j is even, signij = 1, else signij = -1
+                    signkl = sign_even_ret1(k + l)
                     nuniq = nuniq + 1
                     !=-> Original integral plus time-reversed partners
                     INTTWR(I, J, K, L) = rklr(inz)
@@ -150,39 +151,17 @@ contains
                         space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
                     count = 0
                     do
-                        if (mod(i, 2) == 0) then
-                            itr = i - 1
-                        else
-                            itr = i + 1
-                        end if
+                        itr = i + sign_odd_ret1(i) ! If i is even, then itr = i-1, otherwise itr = i+1
+                        jtr = j + sign_odd_ret1(j)
+                        ktr = k + sign_odd_ret1(k)
+                        ltr = l + sign_odd_ret1(l)
 
-                        if (mod(j, 2) == 0) then
-                            jtr = j - 1
-                        else
-                            jtr = j + 1
-                        end if
-
-                        if (mod(k, 2) == 0) then
-                            ktr = k - 1
-                        else
-                            ktr = k + 1
-                        end if
-
-                        if (mod(l, 2) == 0) then
-                            ltr = l - 1
-                        else
-                            ltr = l + 1
-                        end if
-
-                        SignIJ = (-1)**mod(i + j, 2)
-                        SignKL = (-1)**mod(k + l, 2)
+                        signij = sign_even_ret1(i + j) ! If i+j is even signij = 1, if i+j is odd signij = -1
+                        signkl = sign_even_ret1(k + l)
 
                         int2r_f1(i, j, k, l) = rklr(inz)
-
                         int2r_f1(jtr, itr, k, l) = SignIJ*rklr(inz)
-
                         int2r_f1(i, j, ltr, ktr) = SignKL*rklr(inz)
-
                         int2r_f1(jtr, itr, ltr, ktr) = SignIJ*SignKL*rklr(inz)
 
                         count = count + 1
@@ -200,39 +179,17 @@ contains
                         space_idx(i) < 3 .and. space_idx(i) == space_idx(j)) then !(11|33) or (22|33) type
                     count = 0
                     do
-                        if (mod(i, 2) == 0) then
-                            itr = i - 1
-                        else
-                            itr = i + 1
-                        end if
+                        itr = i + sign_odd_ret1(i) ! If i is even, then itr = i-1, otherwise itr = i+1
+                        jtr = j + sign_odd_ret1(j)
+                        ktr = k + sign_odd_ret1(k)
+                        ltr = l + sign_odd_ret1(l)
 
-                        if (mod(j, 2) == 0) then
-                            jtr = j - 1
-                        else
-                            jtr = j + 1
-                        end if
-
-                        if (mod(k, 2) == 0) then
-                            ktr = k - 1
-                        else
-                            ktr = k + 1
-                        end if
-
-                        if (mod(l, 2) == 0) then
-                            ltr = l - 1
-                        else
-                            ltr = l + 1
-                        end if
-
-                        SignIJ = (-1)**mod(i + j, 2)
-                        SignKL = (-1)**mod(k + l, 2)
+                        signij = sign_even_ret1(i + j) ! If i+j is even signij = 1, if i+j is odd signij = -1
+                        signkl = sign_even_ret1(k + l)
 
                         int2r_f1(k, l, i, j) = rklr(inz)
-
                         int2r_f1(k, l, jtr, itr) = SignIJ*rklr(inz)
-
                         int2r_f1(ltr, ktr, i, j) = SignKL*rklr(inz)
-
                         int2r_f1(ltr, ktr, jtr, itr) = SignIJ*SignKL*rklr(inz)
 
                         count = count + 1
@@ -252,49 +209,22 @@ contains
                     count = 0
 
                     do
-                        if (mod(i, 2) == 0) then
-                            itr = i - 1
-                        else
-                            itr = i + 1
-                        end if
+                        itr = i + sign_odd_ret1(i) ! If i is even, then itr = i-1, otherwise itr = i+1
+                        jtr = j + sign_odd_ret1(j)
+                        ktr = k + sign_odd_ret1(k)
+                        ltr = l + sign_odd_ret1(l)
 
-                        if (mod(j, 2) == 0) then
-                            jtr = j - 1
-                        else
-                            jtr = j + 1
-                        end if
-
-                        if (mod(k, 2) == 0) then
-                            ktr = k - 1
-                        else
-                            ktr = k + 1
-                        end if
-
-                        if (mod(l, 2) == 0) then
-                            ltr = l - 1
-                        else
-                            ltr = l + 1
-                        end if
-
-                        SignIJ = (-1)**mod(i + j, 2)
-                        SignKL = (-1)**mod(k + l, 2)
+                        signij = sign_even_ret1(i + j) ! If i+j is even signij = 1, if i+j is odd signij = -1
+                        signkl = sign_even_ret1(k + l)
 
                         if (i > j .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
-
                             int2r_f2(i, j, ltr, ktr) = signKL*rklr(inz)
-
                         elseif (i > j .and. k < l) then ! (31|13) or (32|23) ==> (31|13) or (32|23)
-
                             int2r_f2(i, j, k, l) = rklr(inz)
-
                         elseif (i < j .and. k < l) then ! (13|13) or (23|23) ==> (31|13) or (32|23)
-
                             int2r_f2(jtr, itr, k, l) = signIJ*rklr(inz)
-
                         elseif (i < j .and. k > l) then ! (13|31) or (23|32) ==> (31|13) or (32|23)
-
                             int2r_f2(jtr, itr, ltr, ktr) = signIJ*signKL*rklr(inz)
-
                         end if
 
                         count = count + 1
@@ -345,6 +275,7 @@ contains
 
         use module_global_variables
         use module_file_manager
+        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
         use module_sort_swap, only: swap
 #ifdef HAVE_MPI
         use module_mpi
@@ -427,8 +358,8 @@ contains
 
             totalint = totalint + nz
 
-            itr = i + (-1)**(mod(i, 2) + 1)
-            jtr = j + (-1)**(mod(j, 2) + 1)
+            itr = i + sign_even_ret1(i + 1)
+            jtr = j + sign_even_ret1(j + 1)
 
             i0 = i
             itr0 = itr
@@ -443,16 +374,16 @@ contains
                 jtr = jtr0
 
                 k = indk(inz)
-                ktr = k + (-1)**(mod(k, 2) + 1)
+                ktr = k + sign_even_ret1(k + 1) ! If k+1 is even, ktr = k+1, else ktr = k-1
                 l = indl(inz)
-                ltr = l + (-1)**(mod(l, 2) + 1)
+                ltr = l + sign_even_ret1(l + 1)
 
                 If (i > nmoc .and. j > nmoc .and. k > nmoc .and. l > nmoc) cycle loop_inz ! (33|33) is ignored
                 If (i == j .and. k > l) cycle loop_inz
 
                 If (i <= nmoc .and. j <= nmoc .and. k <= nmoc .and. l <= nmoc) then
-                    SignIJ = (-1)**(mod(i, 2) + mod(j, 2))
-                    SignKL = (-1)**(mod(k, 2) + mod(l, 2))
+                    signij = sign_even_ret1(i + j) ! If i+j is even, signij = 1, else signij = -1
+                    signkl = sign_even_ret1(k + l)
                     nuniq = nuniq + 1
                     !=-> Original integral plus time-reversed partners
                     INTTWR(I, J, K, L) = rklr(inz)
@@ -495,32 +426,13 @@ contains
                         space_idx(k) < 3 .and. space_idx(l) == space_idx(k)) then !(33|11) or (33|22) type
                     count = 0
                     do
-                        if (mod(i, 2) == 0) then
-                            itr = i - 1
-                        else
-                            itr = i + 1
-                        end if
+                        itr = i + sign_odd_ret1(i) ! If i is even, then itr = i-1, otherwise itr = i+1
+                        jtr = j + sign_odd_ret1(j)
+                        ktr = k + sign_odd_ret1(k)
+                        ltr = l + sign_odd_ret1(l)
 
-                        if (mod(j, 2) == 0) then
-                            jtr = j - 1
-                        else
-                            jtr = j + 1
-                        end if
-
-                        if (mod(k, 2) == 0) then
-                            ktr = k - 1
-                        else
-                            ktr = k + 1
-                        end if
-
-                        if (mod(l, 2) == 0) then
-                            ltr = l - 1
-                        else
-                            ltr = l + 1
-                        end if
-
-                        SignIJ = (-1)**mod(i + j, 2)
-                        SignKL = (-1)**mod(k + l, 2)
+                        signij = sign_even_ret1(i + j) ! If i+j is even signij = 1, if i+j is odd signij = -1
+                        signkl = sign_even_ret1(k + l)
 
                         int2r_f1(i, j, k, l) = rklr(inz)
                         int2i_f1(i, j, k, l) = rkli(inz)
@@ -550,32 +462,13 @@ contains
                         space_idx(i) < 3 .and. space_idx(i) == space_idx(j)) then !(11|33) or (22|33) type
                     count = 0
                     do
-                        if (mod(i, 2) == 0) then
-                            itr = i - 1
-                        else
-                            itr = i + 1
-                        end if
+                        itr = i + sign_odd_ret1(i) ! If i is even, then itr = i-1, otherwise itr = i+1
+                        jtr = j + sign_odd_ret1(j)
+                        ktr = k + sign_odd_ret1(k)
+                        ltr = l + sign_odd_ret1(l)
 
-                        if (mod(j, 2) == 0) then
-                            jtr = j - 1
-                        else
-                            jtr = j + 1
-                        end if
-
-                        if (mod(k, 2) == 0) then
-                            ktr = k - 1
-                        else
-                            ktr = k + 1
-                        end if
-
-                        if (mod(l, 2) == 0) then
-                            ltr = l - 1
-                        else
-                            ltr = l + 1
-                        end if
-
-                        SignIJ = (-1)**mod(i + j, 2)
-                        SignKL = (-1)**mod(k + l, 2)
+                        signij = sign_even_ret1(i + j) ! If i+j is even signij = 1, if i+j is odd signij = -1
+                        signkl = sign_even_ret1(k + l)
 
                         int2r_f1(k, l, i, j) = rklr(inz)
                         int2i_f1(k, l, i, j) = rkli(inz)
@@ -602,37 +495,17 @@ contains
                     end do
 
                 elseif (max(space_idx(i), space_idx(j)) == 3 .and. max(space_idx(k), space_idx(l)) == 3 .and. &
-                      &  min(space_idx(i), space_idx(j)) == min(space_idx(k), space_idx(l))) then                !(31|31) or (32|32) series
+                      &  min(space_idx(i), space_idx(j)) == min(space_idx(k), space_idx(l))) then   !(31|31) or (32|32) series
 
                     count = 0
-
                     do
-                        if (mod(i, 2) == 0) then
-                            itr = i - 1
-                        else
-                            itr = i + 1
-                        end if
+                        itr = i + sign_odd_ret1(i) ! If i is even, then itr = i-1, otherwise itr = i+1
+                        jtr = j + sign_odd_ret1(j)
+                        ktr = k + sign_odd_ret1(k)
+                        ltr = l + sign_odd_ret1(l)
 
-                        if (mod(j, 2) == 0) then
-                            jtr = j - 1
-                        else
-                            jtr = j + 1
-                        end if
-
-                        if (mod(k, 2) == 0) then
-                            ktr = k - 1
-                        else
-                            ktr = k + 1
-                        end if
-
-                        if (mod(l, 2) == 0) then
-                            ltr = l - 1
-                        else
-                            ltr = l + 1
-                        end if
-
-                        SignIJ = (-1)**mod(i + j, 2)
-                        SignKL = (-1)**mod(k + l, 2)
+                        signij = sign_even_ret1(i + j) ! If i+j is even signij = 1, if i+j is odd signij = -1
+                        signkl = sign_even_ret1(k + l)
 
                         if (i > j .and. k > l) then ! (31|31) or (32|32) ==> (31|13) or (32|23)
 
