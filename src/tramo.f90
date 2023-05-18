@@ -7,6 +7,7 @@ SUBROUTINE tramo1(i, j, int1)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
+    use module_index_utils, only: get_mo_range
     use module_realonly, only: realonly
 
     Implicit NONE
@@ -51,26 +52,6 @@ SUBROUTINE tramo1(i, j, int1)
 
     End if
 contains
-    subroutine get_mo_range(mo_idx, start_idx, end_idx)
-        use module_error
-        implicit none
-        integer, intent(in) :: mo_idx
-        integer, intent(out) :: start_idx, end_idx
-        if (mo_idx <= ninact) then
-            start_idx = 1
-            end_idx = ninact
-        elseif (mo_idx <= ninact + nact) then
-            start_idx = ninact + 1
-            end_idx = ninact + nact
-        elseif (mo_idx <= ninact + nact + nsec) then
-            start_idx = ninact + nact + 1
-            end_idx = ninact + nact + nsec
-        else
-            print *, "invalid mo_idx = ", mo_idx
-            call stop_with_errorcode(1)
-        end if
-
-    end subroutine get_mo_range
     subroutine craete_n_list(idx_start, idx_end, isym, n_list)
         implicit none
         integer, intent(in) :: idx_start, idx_end, isym
@@ -95,7 +76,7 @@ SUBROUTINE tramo2(i, j, k, l, int2)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
-    use module_error, only: stop_with_errorcode
+    use module_index_utils, only: get_mo_range
     use module_realonly, only: realonly
 
     Implicit NONE
@@ -173,26 +154,6 @@ SUBROUTINE tramo2(i, j, k, l, int2)
 
     End if
 contains
-    subroutine get_mo_range(mo_idx, mo_start, mo_end)
-        implicit none
-        integer, intent(in) :: mo_idx
-        integer, intent(out) :: mo_start, mo_end
-
-        if (mo_idx <= ninact) then
-            mo_start = 1
-            mo_end = ninact
-        elseif (mo_idx <= ninact + nact) then
-            mo_start = ninact + 1
-            mo_end = ninact + nact
-        elseif (mo_idx <= ninact + nact + nsec) then
-            mo_start = ninact + nact + 1
-            mo_end = ninact + nact + nsec
-        else
-            print *, "invalid mo_idx =", mo_idx
-            call stop_with_errorcode(1)
-        end if
-
-    end subroutine get_mo_range
     subroutine craete_n_list(idx_start, idx_end, isym, n_list)
         implicit none
         integer, intent(in) :: idx_start, idx_end, isym

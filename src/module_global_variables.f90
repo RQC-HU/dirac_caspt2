@@ -39,10 +39,17 @@ MODULE module_global_variables
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: noccg, noccu, nvcutg, nvcutu
+
+
     character       :: date*8, time*10
     integer, allocatable :: space_idx(:) ! Given the spinor index, return which space it belongs to. (1: inactive, 2: active, 3: secondary) [old name]: sp
     type(dict) :: dict_cas_idx ! Dictionary(Key: the number of CAS placement val: an integer value representing the CAS placement) [old name]: idet
     type(dict) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
+    ! Global index of inactive, active, secondary spinors
+    ! global_inact_start = 1, global_inact_end = ninact
+    ! global_act_start = ninact + 1, global_act_end = ninact + nact
+    ! global_sec_start = ninact + nact + 1, global_sec_end = ninact + nact + nsec
+    integer    :: global_inact_start, global_inact_end, global_act_start, global_act_end, global_sec_start, global_sec_end
 
     !! =================================================
     !! Variables of CI

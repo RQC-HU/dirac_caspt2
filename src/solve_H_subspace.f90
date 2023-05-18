@@ -21,8 +21,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_secondary_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -80,8 +81,8 @@ contains
                 i0 = i0 + 1
                 iab(ia, ib) = i0
                 iab(ib, ia) = i0
-                ia0(i0) = ia + ninact + nact ! secondary
-                ib0(i0) = ib + ninact + nact ! secondary
+                ia0(i0) = convert_secondary_to_global_idx(ia) ! secondary
+                ib0(i0) = convert_secondary_to_global_idx(ib) ! secondary
             End do
         End do
 
@@ -195,8 +196,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_secondary_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -254,8 +256,8 @@ contains
                 i0 = i0 + 1
                 iab(ia, ib) = i0
                 iab(ib, ia) = i0
-                ia0(i0) = ia + ninact + nact ! secondary
-                ib0(i0) = ib + ninact + nact ! secondary
+                ia0(i0) = convert_secondary_to_global_idx(ia) ! secondary
+                ib0(i0) = convert_secondary_to_global_idx(ib) ! secondary
             End do
         End do
 
