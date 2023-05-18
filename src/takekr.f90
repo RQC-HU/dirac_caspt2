@@ -23,7 +23,7 @@ contains
         Implicit NONE
         integer, intent(inout)      :: i, j, k, l
         complex*16, intent(inout)   :: cint2
-        real                        :: signij, signkl
+        integer                     :: signij, signkl
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -57,7 +57,7 @@ contains
         Implicit NONE
         integer, intent(inout)      :: i, j, k, l
         real(8), intent(inout)      :: rint2
-        real                        :: signij, signkl
+        integer                     :: signij, signkl
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
