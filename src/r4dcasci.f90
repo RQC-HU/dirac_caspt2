@@ -16,8 +16,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: i0, nuniq, unit_eps, unit_input
-    character*50            :: filename
+    integer                    :: i0, nuniq, unit_eps, unit_input
+    character(:), allocatable  :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

@@ -9,7 +9,7 @@ contains
     subroutine readint2_casci(filename, nuniq)
         use module_realonly, only: realonly
         implicit none
-        character*50, intent(in) :: filename
+        character(len=*), intent(in) :: filename
         integer, intent(out) :: nuniq
         real(8) :: dummy_real
         complex*16 :: dummy_complex
@@ -33,7 +33,7 @@ contains
         use module_mpi
 #endif
         Implicit NONE
-        character*50, intent(in) :: filename
+        character(len=*), intent(in) :: filename
 
         character  :: datex*10, timex*8
         integer    :: unit_mdcint, nkr, nuniq, nmoc
@@ -282,7 +282,7 @@ contains
         use module_mpi
 #endif
         Implicit NONE
-        character*50, intent(in) :: filename
+        character(len=*), intent(in) :: filename
 
         character  :: datex*10, timex*8
         integer    :: unit_mdcint, nkr, nuniq, nmoc

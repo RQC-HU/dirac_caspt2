@@ -141,9 +141,9 @@ MODULE module_global_variables
     ! fint                  : F subspace filenames for each MPI process (e.g. Fint4)
     ! gint                  : G subspace filenames for each MPI process (e.g. Gint11)
     ! hint                  : H subspace filenames for each MPI process (e.g. Hint12)
-    integer         :: ierr, nprocs, rank
-    character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
-    character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
+    integer :: ierr, nprocs, rank
+    character(:), allocatable :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
+    character(:), allocatable :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
 
     !! ================
     !! Others
@@ -168,4 +168,5 @@ MODULE module_global_variables
     real(8), parameter  :: bmat_no_cutoff = 0.0d+00   ! No threshold for B-matrix (all elements are used)
     real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
     integer      :: ndet, iroot ! ndet: the number of CAS determinant
+    integer, parameter :: len_convert_int_to_chr = 30 ! Length of the string for converting integer to character
 end MODULE module_global_variables

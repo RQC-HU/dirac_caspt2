@@ -12,7 +12,7 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
     use module_realonly, only: realonly
 
     Implicit NONE
-    character*50, intent(in) :: filename
+    character(len=*), intent(in) :: filename
     logical :: is_end_of_file
 
     character  :: datex*10, timex*8

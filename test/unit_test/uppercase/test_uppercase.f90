@@ -2,7 +2,7 @@ program main
     use module_file_manager
     use read_input_module
     implicit none
-    character(100) :: input
+    character(len=100) :: input
     character(:), allocatable :: string
     integer :: unit_new
     call open_formatted_file(unit=unit_new, file="input", status='old', optional_action='read')

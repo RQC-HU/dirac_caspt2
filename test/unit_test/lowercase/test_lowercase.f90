@@ -2,7 +2,7 @@ program main
     use module_file_manager
     use read_input_module
     implicit none
-    character(100) :: input
+    character(len=100) :: input
     character(:), allocatable :: string
     integer :: count, unit_new
     count = 1
