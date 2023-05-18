@@ -6,11 +6,6 @@ MODULE module_global_variables
     use module_dict
     Implicit NONE
 
-    real(8)      :: tmem
-    real(8)      :: smat_lin_dep_threshold = 1.0d-08  ! threshold for removing linear dependencies in S-matrix
-    real(8), parameter  :: bmat_no_cutoff = 0.0d+00   ! No threshold for B-matrix (all elements are used)
-    real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
-    integer      :: norb, ndet, iroot ! ndet: the number of determinant
     !! =================================================
     !! Variables of Input (active.inp)
     !! =================================================
@@ -40,17 +35,6 @@ MODULE module_global_variables
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: noccg, noccu, nvcutg, nvcutu
 
-
-    character       :: date*8, time*10
-    integer, allocatable :: space_idx(:) ! Given the spinor index, return which space it belongs to. (1: inactive, 2: active, 3: secondary) [old name]: sp
-    type(dict) :: dict_cas_idx ! Dictionary(Key: the number of CAS placement val: an integer value representing the CAS placement) [old name]: idet
-    type(dict) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
-    ! Global index of inactive, active, secondary spinors
-    ! global_inact_start = 1, global_inact_end = ninact
-    ! global_act_start = ninact + 1, global_act_end = ninact + nact
-    ! global_sec_start = ninact + nact + 1, global_sec_end = ninact + nact + nsec
-    integer    :: global_inact_start, global_inact_end, global_act_start, global_act_end, global_sec_start, global_sec_end
-
     !! =================================================
     !! Variables of CI
     !! =================================================
@@ -62,17 +46,16 @@ MODULE module_global_variables
     !! =================================================
     !! Variables of two electron integrals
     !! =================================================
-    ! inttwr    : Real numbers of two electron integrals (Directly specify four indices to get the integral value)
-    ! inttwi    : Imaginary numbers of two electron integrals (Directly specify four indices to get the integral value)
-    ! int2r_f1
-    ! int2r_f2
-    ! int2i_f1
-    ! int2i_f2
+    ! inttwr    : Real numbers of two electron integrals (range: (1:ninact+nact, 1:ninact+nact, 1:ninact+nact, 1:ninact+nact))
+    ! inttwi    : Imaginary numbers of two electron integrals (range: (1:ninact+nact, 1:ninact+nact, 1:ninact+nact, 1:ninact+nact))
+    ! int2r_f1  : Real numbers of two electron integrals (range: (ninact+nact+1:ninact+nact+nsec, ninact+nact+1:ninact+nact+nsec, 1:ninact+nact, 1:ninact+nact))
+    ! int2r_f2  : Real numbers of two electron integrals (range: (ninact+nact+1:ninact+nact+nsec, 1:ninact+nact, 1:ninact+nact, ninact+nact+1:ninact+nact+nsec))
+    ! int2i_f1  : Imaginary numbers of two electron integrals (range: (ninact+nact+1:ninact+nact+nsec, ninact+nact+1:ninact+nact+nsec, 1:ninact+nact, 1:ninact+nact))
+    ! int2i_f2  : Imaginary numbers of two electron integrals (range: (ninact+nact+1:ninact+nact+nsec, 1:ninact+nact, 1:ninact+nact, ninact+nact+1:ninact+nact+nsec))
     real(8), allocatable, target :: inttwr(:, :, :, :), inttwi(:, :, :, :)
     real(8), allocatable, target :: int2r_f1(:, :, :, :), int2r_f2(:, :, :, :)
     real(8), allocatable, target :: int2i_f1(:, :, :, :), int2i_f2(:, :, :, :)
 
-    logical :: debug, realf, evenelec
 
     !! =================================================
     !! Variables of timer
@@ -96,12 +79,12 @@ MODULE module_global_variables
     ! coeff1    : The coefficient for solvH (sumclocal = sumclocal + abs(coeff1)^2)
     real(8)      ::  sumc2, sumc2local
     complex*16  ::  coeff1
-! from MORCONEE
 
-    real(8) :: enuc
+    !! ====================================================================================================================================
+    !! Variables of MRCONEE (A file stores 1-electron integrals, symmetry information, multiplication table etc. that is created by DIRAC)
+    !! ====================================================================================================================================
     double precision :: ecore ! core energy
-    integer :: nsymrpa, multb(128, 128), multb2(128, 128), nmo, scfru
-    character :: repna(64)*4
+    integer :: nmo, scfru
     integer, allocatable :: irpamo(:) ! symmetry number of the specific mo
     integer, allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
     integer, allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor
@@ -109,18 +92,17 @@ MODULE module_global_variables
     real(8), allocatable :: one_elec_int_i(:, :) ! one-electron integral in CAPST2 order (imaginally part) [old name]: onei
     real(8), allocatable :: dirac_mo_energy(:) ! MO energy (a.u.) (DIRAC order)
     real(8), allocatable :: caspt2_mo_energy(:) ! MO energy (a.u.) (CASPT2 order) [old name]: orbmo
+    ! Symmetry
+    integer :: nsymrpa ! number of irreducible representation (abelian group)
+    character :: repna(64)*4 ! irreducible representation assignment (abelian group)
+    ! Multiplication table for symmetry
+    integer :: multb(128, 128), multb2(128, 128)
+    integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :)
 
-    integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :) ! This is for typart
-
-    real(8), allocatable :: eps(:)
-
+    !! ========================================
+    !! Variables of IVO calculation
+    !! ========================================
     complex*16, allocatable :: itrfmo(:, :, :)
-    complex*16, allocatable :: fock_cmplx(:, :)
-    real(8), allocatable :: fock_real(:, :)
-
-! Iwamuro modify
-    integer :: nelecd(64), nfsym, nz1, norbt
-    logical :: spfr, sfform
 
 ! Old Dirac
 !       Write(UT_sys_ftmp) NMO,BREIT,ETOTAL
@@ -159,11 +141,31 @@ MODULE module_global_variables
     ! fint                  : F subspace filenames for each MPI process (e.g. Fint4)
     ! gint                  : G subspace filenames for each MPI process (e.g. Gint11)
     ! hint                  : H subspace filenames for each MPI process (e.g. Hint12)
-    ! normal_output  : The unit number for normal output (default unit number = 3000, default file name = "caspt2.out")
-    ! read_line_max : The number of lines to be read at a time when reading two-electron integral related files.(e.g. A1int, MDCINTNEW)
     integer         :: ierr, nprocs, rank
     character(50)   :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
     character(50)   :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
-    integer, parameter :: normal_output = 3000, read_line_max = 1000
 
+    !! ================
+    !! Others
+    !! ================
+    character       :: date*8, time*10 ! Timing information stored in MDCINT (DIRAC 2-electron integral file)
+    integer, allocatable :: space_idx(:) ! Given the spinor index, return which space it belongs to. (1: inactive, 2: active, 3: secondary) [old name]: sp
+    type(dict) :: dict_cas_idx ! Dictionary(Key: the number of CAS placement val: an integer value representing the CAS placement) [old name]: idet
+    type(dict) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
+    ! Global index of inactive, active, secondary spinors
+    ! global_inact_start = 1, global_inact_end = ninact
+    ! global_act_start = ninact + 1, global_act_end = ninact + nact
+    ! global_sec_start = ninact + nact + 1, global_sec_end = ninact + nact + nsec
+    integer    :: global_inact_start, global_inact_end, global_act_start, global_act_end, global_sec_start, global_sec_end
+    logical :: debug, evenelec
+    ! Epsilon
+    real(8), allocatable :: eps(:)
+    ! Fock matrix
+    complex*16, allocatable :: fock_cmplx(:, :)
+    real(8), allocatable :: fock_real(:, :)
+    real(8)      :: tmem ! Total allocated memory size of allcatable variables in Bytes
+    real(8)      :: smat_lin_dep_threshold = 1.0d-08  ! threshold for removing linear dependencies in S-matrix
+    real(8), parameter  :: bmat_no_cutoff = 0.0d+00   ! No threshold for B-matrix (all elements are used)
+    real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
+    integer      :: ndet, iroot ! ndet: the number of CAS determinant
 end MODULE module_global_variables
