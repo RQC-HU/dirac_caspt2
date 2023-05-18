@@ -19,6 +19,7 @@ contains
         ! This subroutine is the entry point to read active.inp
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         use module_global_variables, only: ras1_size, ras2_size, ras3_size
+        use module_index_utils, only: set_global_index
         implicit none
         integer, intent(in) :: unit_num
         integer :: idx, iostat
@@ -54,6 +55,8 @@ contains
             if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
             call stop_with_errorcode(1)
         end if
+        ! Set the global index (global_[ninact, nact, nsec]_[start, end])
+        call set_global_index
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 

@@ -24,6 +24,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 
         Implicit NONE
 
@@ -103,24 +104,20 @@ contains
         Do isym = 1, nsymrpa
 
             ixyz = 0
-
             Do ix = 1, nact
                 Do iy = 1, nact
                     Do iz = 1, nact
-
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(irpamo(jx), isym)
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
                             syma = MULTB_S(syma, symb)
                         end if
-! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                         If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                             ixyz = ixyz + 1
                         End if
-
                     End do
                 End do
             End do
@@ -136,10 +133,9 @@ contains
             Do ix = 1, nact
                 Do iy = 1, nact
                     Do iz = 1, nact
-
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(irpamo(jx), isym)
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
@@ -152,7 +148,6 @@ contains
                             indsym(2, ixyz) = iy
                             indsym(3, ixyz) = iz
                         End if
-
                     End do
                 End do
             End do
@@ -195,10 +190,8 @@ contains
             End if
 
             If (debug) then
-
                 if (rank == 0) print *, 'Check whether U*SU is diagonal'
                 Call checkdgc(dimn, sc0, sc, ws)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if (rank == 0) print *, 'Check whether U*SU is diagonal END'
             End if
 
@@ -292,19 +285,15 @@ contains
             tsectmp1 = tsectmp0
 
             If (debug) then
-
                 if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
                 Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
                 datetmp1 = datetmp0
                 tsectmp1 = tsectmp0
-
                 Call checkdgc(dimm, bc0, bc1, wb)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if (rank == 0) print *, 'Check whether bc is really diagonalized or not END'
                 Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
                 datetmp1 = datetmp0
                 tsectmp1 = tsectmp0
-
             End if
             Call memminus(KIND(bc0), SIZE(bc0), 2); deallocate (bc0)
 
@@ -313,11 +302,8 @@ contains
             e2 = 0.0d+00
 
             Do ii = 1, ninact
-
                 sym1 = irpamo(ii)
-
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. sym1 == isym)) then
-
                     Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)
                     Do it = 1, dimn
                         vc(it) = v(ii, indsym(1, it), indsym(2, it), indsym(3, it))
@@ -325,7 +311,6 @@ contains
 
                     Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
                     vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(uc(1:dimn, 1:dimm))), vc(1:dimn))
-
                     Call memminus(KIND(vc), SIZE(vc), 2); Deallocate (vc)
 
                     alpha = -eps(ii) - e0 + eshift   ! For Level Shift (2007/2/9)
@@ -337,9 +322,7 @@ contains
                         e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                     End do
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
-
                 End if
-
             End do
             if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
 
@@ -353,7 +336,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2a      = ",E20.10," a.u.")', e2a
@@ -364,7 +347,6 @@ contains
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 
-        continue
         if (rank == 0) print *, 'end solve_A_subspace'
     end subroutine solve_A_subspace_complex
 
@@ -406,29 +388,17 @@ contains
                 iu = indsym(2, j)
                 iv = indsym(3, j)
 
-                a = 0.0d+0
-                b = 0.0d+0
-
 !  S(xyz,tuv) =  - <0|EzyEtxEuv|0> + d(tx)<0|EzyEuv|0>
-
                 Call dim3_density(iz, iy, it, ix, iu, iv, a, b)
-
                 sc(i, j) = sc(i, j) - DCMPLX(a, b)
 
                 If (it == ix) then
-                    a = 0.0d+0
-                    b = 0.0d+0
-
                     Call dim2_density(iz, iy, iu, iv, a, b)
-
                     sc(i, j) = sc(i, j) + DCMPLX(a, b)
-
                 End if
-
                 sc(j, i) = DCONJG(sc(i, j))
-
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -449,6 +419,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -474,18 +445,18 @@ contains
             ix = indsym(1, i)
             iy = indsym(2, i)
             iz = indsym(3, i)
-            jx = ix + ninact
-            jy = iy + ninact
-            jz = iz + ninact
+            jx = convert_active_to_global_idx(ix)
+            jy = convert_active_to_global_idx(iy)
+            jz = convert_active_to_global_idx(iz)
 
             Do j = i, dimn
 
                 it = indsym(1, j)
                 iu = indsym(2, j)
                 iv = indsym(3, j)
-                jt = it + ninact
-                ju = iu + ninact
-                jv = iv + ninact
+                jt = convert_active_to_global_idx(it)
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
 !  B(xyz,tuv) = Siguma_w eps(w){-<0|EzyEtxEuvEww|0> + d(tx)<0|EzyEuvEww|0>}
 !
@@ -494,7 +465,7 @@ contains
                 e = eps(ju) + eps(jt) - eps(jv)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
+                    jw = convert_active_to_global_idx(iw)
 
                     Call dim4_density(iz, iy, it, ix, iu, iv, iw, iw, denr, deni)
                     den = DCMPLX(denr, deni)
@@ -512,8 +483,8 @@ contains
 
                 bc(j, i) = DCONJG(bc(i, j))
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 
 #ifdef HAVE_MPI
@@ -542,8 +513,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -602,12 +574,11 @@ contains
 !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
         Do isym = 1, nsymrpa
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iv = 1, nact
-                    jv = iv + ninact
+                    jv = convert_active_to_global_idx(iv)
                     Do iu = 1, nact
-                        ju = iu + ninact
-
+                        ju = convert_active_to_global_idx(iu)
 ! EtiEuv
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(irpamo(jt), isym)
@@ -636,17 +607,15 @@ contains
 !$OMP parallel do schedule(static) private(iu,ju,iv,jv,syma)
         Do isym = 1, nsymrpa
             Do iu = 1, nact
-                ju = iu + ninact
+                ju = convert_active_to_global_idx(iu)
                 Do iv = 1, nact
-                    jv = iv + ninact
-
+                    jv = convert_active_to_global_idx(iv)
                     if (nsymrpa /= 1) syma = MULTB_D(irpamo(jv), irpamo(ju))
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                         dim2(isym) = dim2(isym) + 1
                         ind2u(dim2(isym), isym) = iu
                         ind2v(dim2(isym), isym) = iv
                     end if
-
                 End do
             End do
         End do
@@ -659,7 +628,7 @@ contains
         Do ii = rank + 1, ninact, nprocs
             ji = ii
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Call tramo1(jt, ji, cint1)
                 effh(it, ii) = cint1
             End do
@@ -682,14 +651,12 @@ contains
             if (is_end_of_file) then
                 exit
             end if
-
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  V(tuv,i)=  - SIGUMA_p,q,r:act <0|EvuEptEqr|0>(pi|qr)
 !
 !  + SIGUMA_p,q:act  <0|EvuEpq|0> (ti|pq)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!           write(*,'("TYPE 1  ",4I4,2E20.10)')i,j,k,l,cint2
 
             isym = irpamo(j)
 !$OMP parallel do private(it,iu,iv,jt,ju,jv,dr,di,d)
@@ -697,25 +664,24 @@ contains
                 it = indt(i0, isym)
                 iu = indu(i0, isym)
                 iv = indv(i0, isym)
-                jt = it + ninact
-                ju = iu + ninact
-                jv = iv + ninact
+                jt = convert_active_to_global_idx(it)
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
                 Call dim3_density(iv, iu, i, it, k, l, dr, di)
                 d = DCMPLX(dr, di)
                 v(j, it, iu, iv) = v(j, it, iu, iv) - cint2*d
-
             End do
 !$OMP end parallel do
 
-            isym = MULTB_D(irpamo(i + ninact), irpamo(j))           ! j coresponds to ii, i coresponds to it
+            isym = MULTB_D(irpamo(convert_active_to_global_idx(i)), irpamo(j))           ! j coresponds to ii, i coresponds to it
 
 !$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
             Do i0 = 1, dim2(isym)
                 iu = ind2u(i0, isym)
                 iv = ind2v(i0, isym)
-                ju = iu + ninact
-                jv = iv + ninact
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
                 Call dim2_density(iv, iu, k, l, dr, di)
                 d = DCMPLX(dr, di)
@@ -744,13 +710,9 @@ contains
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             if (k == l .and. j /= k) then       ! (PI|KK) type
-
                 effh(i, j) = effh(i, j) + cint2
-
             elseif (j == k .and. k /= l) then       ! (PK|KI) type
-
                 effh(i, l) = effh(i, l) - cint2
-
             end if
         end do
 
@@ -778,24 +740,23 @@ contains
                 iv = indv(i0, isym)
 
                 Call dim1_density(iv, iu, dr, di)
-
                 d = DCMPLX(dr, di)
                 v(ii, it, iu, iv) = v(ii, it, iu, iv) + effh(it, ii)*d
 
                 Do ip = 1, nact
-                    jp = ip + ninact
+                    jp = convert_active_to_global_idx(ip)
 
                     Call dim2_density(iv, iu, ip, it, dr, di)
                     d = DCMPLX(dr, di)
                     v(ii, it, iu, iv) = v(ii, it, iu, iv) - effh(ip, ii)*d
-
-                End do            ! ip
-            End do               !i0
-        End do                  !ii
+                End do
+            End do
+        End do
 !$OMP end parallel do
 
         if (rank == 0) print *, 'vAmat_ord is ended'
 
+        ! deallocate memory
         Call memminus(KIND(indt), SIZE(indt), 1); deallocate (indt)
         Call memminus(KIND(indu), SIZE(indu), 1); deallocate (indu)
         Call memminus(KIND(indv), SIZE(indv), 1); deallocate (indv)
@@ -819,6 +780,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 
         Implicit NONE
 
@@ -898,24 +860,20 @@ contains
         Do isym = 1, nsymrpa
 
             ixyz = 0
-
             Do ix = 1, nact
                 Do iy = 1, nact
                     Do iz = 1, nact
-
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(irpamo(jx), isym)
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
                             syma = MULTB_S(syma, symb)
                         end if
-! y,xについて(たとえば)1sの配置になるようなものは使わないようにする
                         If (nsymrpa == 1 .or. (nsymrpa /= 1 .and. (syma == 1))) then
                             ixyz = ixyz + 1
                         End if
-
                     End do
                 End do
             End do
@@ -931,10 +889,9 @@ contains
             Do ix = 1, nact
                 Do iy = 1, nact
                     Do iz = 1, nact
-
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(irpamo(jx), isym)
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
@@ -947,7 +904,6 @@ contains
                             indsym(2, ixyz) = iy
                             indsym(3, ixyz) = iz
                         End if
-
                     End do
                 End do
             End do
@@ -1085,11 +1041,8 @@ contains
             e2 = 0.0d+00
 
             Do ii = 1, ninact
-
                 sym1 = irpamo(ii)
-
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. sym1 == isym)) then
-
                     Allocate (vc(dimn)); Call memplus(KIND(vc), SIZE(vc), 2)
                     Do it = 1, dimn
                         vc(it) = v(ii, indsym(1, it), indsym(2, it), indsym(3, it))
@@ -1097,7 +1050,6 @@ contains
 
                     Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
                     vc1(1:dimm) = MATMUL(TRANSPOSE(uc(1:dimn, 1:dimm)), vc(1:dimn))
-
                     Call memminus(KIND(vc), SIZE(vc), 2); Deallocate (vc)
 
                     alpha = -eps(ii) - e0 + eshift   ! For Level Shift (2007/2/9)
@@ -1109,9 +1061,7 @@ contains
                         e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                     End do
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
-
                 End if
-
             End do
             if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
 
@@ -1125,7 +1075,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2a      = ",E20.10," a.u.")', e2a
@@ -1136,7 +1086,6 @@ contains
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 
-        continue
         if (rank == 0) print *, 'end solve_A_subspace'
     end subroutine solve_A_subspace_real
 
@@ -1178,29 +1127,17 @@ contains
                 iu = indsym(2, j)
                 iv = indsym(3, j)
 
-                a = 0.0d+0
-                b = 0.0d+0
-
 !  S(xyz,tuv) =  - <0|EzyEtxEuv|0> + d(tx)<0|EzyEuv|0>
-
                 Call dim3_density(iz, iy, it, ix, iu, iv, a, b)
-
                 sc(i, j) = sc(i, j) - a
 
                 If (it == ix) then
-                    a = 0.0d+0
-                    b = 0.0d+0
-
                     Call dim2_density(iz, iy, iu, iv, a, b)
-
                     sc(i, j) = sc(i, j) + a
-
                 End if
-
                 sc(j, i) = sc(i, j)
-
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -1221,6 +1158,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1246,18 +1184,18 @@ contains
             ix = indsym(1, i)
             iy = indsym(2, i)
             iz = indsym(3, i)
-            jx = ix + ninact
-            jy = iy + ninact
-            jz = iz + ninact
+            jx = convert_active_to_global_idx(ix)
+            jy = convert_active_to_global_idx(iy)
+            jz = convert_active_to_global_idx(iz)
 
             Do j = i, dimn
 
                 it = indsym(1, j)
                 iu = indsym(2, j)
                 iv = indsym(3, j)
-                jt = it + ninact
-                ju = iu + ninact
-                jv = iv + ninact
+                jt = convert_active_to_global_idx(it)
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
 !  B(xyz,tuv) = Siguma_w eps(w){-<0|EzyEtxEuvEww|0> + d(tx)<0|EzyEuvEww|0>}
 !
@@ -1266,7 +1204,7 @@ contains
                 e = eps(ju) + eps(jt) - eps(jv)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
+                    jw = convert_active_to_global_idx(iw)
 
                     Call dim4_density(iz, iy, it, ix, iu, iv, iw, iw, denr, deni)
                     den = denr
@@ -1284,8 +1222,8 @@ contains
 
                 bc(j, i) = bc(i, j)
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 
 #ifdef HAVE_MPI
@@ -1314,8 +1252,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1374,12 +1313,11 @@ contains
 !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
         Do isym = 1, nsymrpa
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iv = 1, nact
-                    jv = iv + ninact
+                    jv = convert_active_to_global_idx(iv)
                     Do iu = 1, nact
-                        ju = iu + ninact
-
+                        ju = convert_active_to_global_idx(iu)
 ! EtiEuv
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(irpamo(jt), isym)
@@ -1408,17 +1346,15 @@ contains
 !$OMP parallel do schedule(static) private(iu,ju,iv,jv,syma)
         Do isym = 1, nsymrpa
             Do iu = 1, nact
-                ju = iu + ninact
+                ju = convert_active_to_global_idx(iu)
                 Do iv = 1, nact
-                    jv = iv + ninact
-
+                    jv = convert_active_to_global_idx(iv)
                     if (nsymrpa /= 1) syma = MULTB_D(irpamo(jv), irpamo(ju))
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                         dim2(isym) = dim2(isym) + 1
                         ind2u(dim2(isym), isym) = iu
                         ind2v(dim2(isym), isym) = iv
                     end if
-
                 End do
             End do
         End do
@@ -1431,7 +1367,7 @@ contains
         Do ii = rank + 1, ninact, nprocs
             ji = ii
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Call tramo1(jt, ji, cint1)
                 effh(it, ii) = real(cint1, kind=KIND(effh))
             End do
@@ -1454,14 +1390,12 @@ contains
             if (is_end_of_file) then
                 exit
             end if
-
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !  V(tuv,i)=  - SIGUMA_p,q,r:act <0|EvuEptEqr|0>(pi|qr)
 !
 !  + SIGUMA_p,q:act  <0|EvuEpq|0> (ti|pq)
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!           write(*,'("TYPE 1  ",4I4,2E20.10)')i,j,k,l,cint2
 
             isym = irpamo(j)
 !$OMP parallel do private(it,iu,iv,jt,ju,jv,dr,di,d)
@@ -1469,25 +1403,24 @@ contains
                 it = indt(i0, isym)
                 iu = indu(i0, isym)
                 iv = indv(i0, isym)
-                jt = it + ninact
-                ju = iu + ninact
-                jv = iv + ninact
+                jt = convert_active_to_global_idx(it)
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
                 Call dim3_density(iv, iu, i, it, k, l, dr, di)
                 d = dr
                 v(j, it, iu, iv) = v(j, it, iu, iv) - cint2*d
-
             End do
 !$OMP end parallel do
 
-            isym = MULTB_D(irpamo(i + ninact), irpamo(j))           ! j coresponds to ii, i coresponds to it
+            isym = MULTB_D(irpamo(convert_active_to_global_idx(i)), irpamo(j))           ! j coresponds to ii, i coresponds to it
 
 !$OMP parallel do private(iu,iv,ju,jv,dr,di,d)
             Do i0 = 1, dim2(isym)
                 iu = ind2u(i0, isym)
                 iv = ind2v(i0, isym)
-                ju = iu + ninact
-                jv = iv + ninact
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
                 Call dim2_density(iv, iu, k, l, dr, di)
                 d = dr
@@ -1516,13 +1449,9 @@ contains
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             if (k == l .and. j /= k) then       ! (PI|KK) type
-
                 effh(i, j) = effh(i, j) + cint2
-
             elseif (j == k .and. k /= l) then       ! (PK|KI) type
-
                 effh(i, l) = effh(i, l) - cint2
-
             end if
         end do
 
@@ -1550,24 +1479,23 @@ contains
                 iv = indv(i0, isym)
 
                 Call dim1_density(iv, iu, dr, di)
-
                 d = dr
                 v(ii, it, iu, iv) = v(ii, it, iu, iv) + effh(it, ii)*d
 
                 Do ip = 1, nact
-                    jp = ip + ninact
+                    jp = convert_active_to_global_idx(ip)
 
                     Call dim2_density(iv, iu, ip, it, dr, di)
                     d = dr
                     v(ii, it, iu, iv) = v(ii, it, iu, iv) - effh(ip, ii)*d
-
-                End do            ! ip
-            End do               !i0
-        End do                  !ii
+                End do
+            End do
+        End do
 !$OMP end parallel do
 
         if (rank == 0) print *, 'vAmat_ord is ended'
 
+        ! deallocate memory
         Call memminus(KIND(indt), SIZE(indt), 1); deallocate (indt)
         Call memminus(KIND(indu), SIZE(indu), 1); deallocate (indu)
         Call memminus(KIND(indv), SIZE(indv), 1); deallocate (indv)

@@ -1,6 +1,5 @@
 SUBROUTINE solve_D_subspace(e0, e2d)
 
-    use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
     implicit none
@@ -23,6 +22,8 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
+        use module_ulambda_s_half, only: ulambda_s_half
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -107,7 +108,7 @@ contains
             Do ii = 1, ninact
                 i0 = i0 + 1
                 iai(ia, ii) = i0
-                ia0(i0) = ia + ninact + nact ! Secondary
+                ia0(i0) = convert_secondary_to_global_idx(ia) ! Secondary
                 ii0(i0) = ii ! inactive
             End do
         End do
@@ -128,17 +129,15 @@ contains
 
             dimn = 0
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iu = 1, nact
-                    ju = iu + ninact
-
+                    ju = convert_active_to_global_idx(iu)
                     if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
-
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                         dimn = dimn + 1
                     End if
-                End do               ! iu
-            End do                  ! it
+                End do
+            End do
 
             if (rank == 0) print *, 'isym, dimn', isym, dimn
 
@@ -149,9 +148,9 @@ contains
             dimn = 0
 
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iu = 1, nact
-                    ju = iu + ninact
+                    ju = convert_active_to_global_idx(iu)
 
                     if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
 
@@ -160,8 +159,8 @@ contains
                         indsym(1, dimn) = it
                         indsym(2, dimn) = iu
                     End if
-                End do               ! iu
-            End do                  ! it
+                End do
+            End do
 
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
@@ -198,12 +197,9 @@ contains
             End if
 
             If (debug) then
-
                 if (rank == 0) print *, 'Check whether U*SU is diagonal'
                 Call checkdgc(dimn, sc0, sc, ws)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if (rank == 0) print *, 'Check whether U*SU is diagonal END'
-
             End if
 
             Allocate (bc(dimn, dimn))                                 ! bc N*N
@@ -338,7 +334,7 @@ contains
 
                 End if
 
-            End do               !i0
+            End do
 
             deallocate (indsym)
             deallocate (uc)
@@ -351,7 +347,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2d      = ",E20.10," a.u.")', e2d
@@ -408,8 +404,8 @@ contains
                 sc(i, j) = DCMPLX(a, b)
                 sc(j, i) = DCONJG(sc(i, j))
 
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -427,6 +423,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -449,23 +446,23 @@ contains
         Do i = rank + 1, dimn, nprocs
 
             ix = indsym(1, i)
-            jx = ix + ninact
+            jx = convert_active_to_global_idx(ix)
             iy = indsym(2, i)
-            jy = iy + ninact
+            jy = convert_active_to_global_idx(iy)
 
             Do j = i, dimn
 
                 it = indsym(1, j)
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 iu = indsym(2, j)
-                ju = iu + ninact
+                ju = convert_active_to_global_idx(iu)
 
 !  B(xy,tu) = Siguma_w [eps(w)<0|EyxEtuEww|0>+S(xy,tu)(eps(t)-eps(u))]
 
                 e = eps(jt) - eps(ju)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
+                    jw = convert_active_to_global_idx(iw)
 
                     Call dim3_density(iy, ix, it, iu, iw, iw, denr, deni)
                     den = DCMPLX(denr, deni)
@@ -477,8 +474,8 @@ contains
 
                 bc(j, i) = DCONJG(bc(i, j))
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
@@ -499,8 +496,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -534,7 +532,7 @@ contains
 !
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,cint1)
         Do ia = rank + 1, nsec, nprocs
-            ja = ia + ninact + nact
+            ja = convert_secondary_to_global_idx(ia)
             Do ii = 1, ninact
                 ji = ii
                 Call tramo1(ja, ji, cint1)
@@ -583,9 +581,9 @@ contains
 
 !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iu = 1, nact
-                    ju = iu + ninact
+                    ju = convert_active_to_global_idx(iu)
 
                     Call dim2_density(iu, it, k, l, dr, di)
                     d = DCMPLX(dr, di)
@@ -713,6 +711,8 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
+        use module_ulambda_s_half, only: ulambda_s_half
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -797,7 +797,7 @@ contains
             Do ii = 1, ninact
                 i0 = i0 + 1
                 iai(ia, ii) = i0
-                ia0(i0) = ia + ninact + nact ! Secondary
+                ia0(i0) = convert_secondary_to_global_idx(ia) ! Secondary
                 ii0(i0) = ii ! inactive
             End do
         End do
@@ -818,17 +818,15 @@ contains
 
             dimn = 0
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iu = 1, nact
-                    ju = iu + ninact
-
+                    ju = convert_active_to_global_idx(iu)
                     if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
-
                     if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
                         dimn = dimn + 1
                     End if
-                End do               ! iu
-            End do                  ! it
+                End do
+            End do
 
             if (rank == 0) print *, 'isym, dimn', isym, dimn
 
@@ -839,9 +837,9 @@ contains
             dimn = 0
 
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iu = 1, nact
-                    ju = iu + ninact
+                    ju = convert_active_to_global_idx(iu)
 
                     if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
 
@@ -850,8 +848,8 @@ contains
                         indsym(1, dimn) = it
                         indsym(2, dimn) = iu
                     End if
-                End do               ! iu
-            End do                  ! it
+                End do
+            End do
 
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
@@ -1012,7 +1010,7 @@ contains
 
                 End if
 
-            End do               !i0
+            End do
 
             deallocate (indsym)
             deallocate (uc)
@@ -1025,7 +1023,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2d      = ",E20.10," a.u.")', e2d
@@ -1082,8 +1080,8 @@ contains
                 sc(i, j) = a
                 sc(j, i) = sc(i, j)
 
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -1101,6 +1099,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1123,23 +1122,23 @@ contains
         Do i = rank + 1, dimn, nprocs
 
             ix = indsym(1, i)
-            jx = ix + ninact
+            jx = convert_active_to_global_idx(ix)
             iy = indsym(2, i)
-            jy = iy + ninact
+            jy = convert_active_to_global_idx(iy)
 
             Do j = i, dimn
 
                 it = indsym(1, j)
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 iu = indsym(2, j)
-                ju = iu + ninact
+                ju = convert_active_to_global_idx(iu)
 
 !  B(xy,tu) = Siguma_w [eps(w)<0|EyxEtuEww|0>+S(xy,tu)(eps(t)-eps(u))]
 
                 e = eps(jt) - eps(ju)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
+                    jw = convert_active_to_global_idx(iw)
 
                     Call dim3_density(iy, ix, it, iu, iw, iw, denr, deni)
                     den = denr
@@ -1151,8 +1150,8 @@ contains
 
                 bc(j, i) = bc(i, j)
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
@@ -1173,8 +1172,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1208,7 +1208,7 @@ contains
 !
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,cint1)
         Do ia = rank + 1, nsec, nprocs
-            ja = ia + ninact + nact
+            ja = convert_secondary_to_global_idx(ia)
             Do ii = 1, ninact
                 ji = ii
                 Call tramo1(ja, ji, cint1)
@@ -1257,9 +1257,9 @@ contains
 
 !$OMP parallel do schedule(dynamic,1) private(it,jt,iu,ju,dr,di,d)
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iu = 1, nact
-                    ju = iu + ninact
+                    ju = convert_active_to_global_idx(iu)
 
                     Call dim2_density(iu, it, k, l, dr, di)
                     d = dr

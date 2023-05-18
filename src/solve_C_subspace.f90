@@ -23,6 +23,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -97,7 +98,6 @@ contains
         Do isym = 1, nsymrpa
 
             ixyz = 0
-
 !     EatEuv|0>
 !     EaxEyz|0>
 
@@ -105,9 +105,9 @@ contains
                 Do iy = 1, nact
                     Do iz = 1, nact
 
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(isym, irpamo(jx))
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
@@ -133,9 +133,9 @@ contains
                 Do iy = 1, nact
                     Do iz = 1, nact
 
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(isym, irpamo(jx))
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
@@ -195,12 +195,8 @@ contains
             End if
 
             If (debug) then
-
                 if (rank == 0) print *, 'Check whether U*SU is diagonal'
-
                 Call checkdgc(dimn, sc0, sc, ws)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
                 if (rank == 0) print *, 'Check whether U*SU is diagonal END'
             End if
             if (rank == 0) print *, 'OK cdiag', dimn, dimm
@@ -299,7 +295,7 @@ contains
 
             if (rank == 0) print *, 'bC1 matrix is diagonalized!'
             Do ia = 1, nsec
-                ja = ia + ninact + nact
+                ja = convert_secondary_to_global_idx(ia)
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. irpamo(ja) == isym)) then
 
@@ -338,7 +334,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2c      = ",E20.10," a.u.")', e2c
@@ -399,8 +395,8 @@ contains
                         print '(2I4,2E20.10)', i, j, sc(i, j)
                     End if
                 end if
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -430,6 +426,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -453,38 +450,36 @@ contains
             ix = indsym(1, i)
             iy = indsym(2, i)
             iz = indsym(3, i)
-            jx = ix + ninact
-            jy = iy + ninact
-            jz = iz + ninact
+            jx = convert_active_to_global_idx(ix)
+            jy = convert_active_to_global_idx(iy)
+            jz = convert_active_to_global_idx(iz)
 
             Do j = i, dimn
 
                 it = indsym(1, j)
                 iu = indsym(2, j)
                 iv = indsym(3, j)
-                jt = it + ninact
-                ju = iu + ninact
-                jv = iv + ninact
+                jt = convert_active_to_global_idx(it)
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
 !   Siguma_w [eps(w)<0|EzyExtEuvEww|0>]+S(xyz,tuv)(eps(u)-eps(v)-eps(t))
 
                 e = eps(ju) - eps(jv) - eps(jt)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
-
+                    jw = convert_active_to_global_idx(iw)
                     Call dim4_density(iz, iy, ix, it, iu, iv, iw, iw, denr, deni)
                     den = DCMPLX(denr, deni)
                     bc(i, j) = bc(i, j) + den*eps(jw)
-
                 End do
 
                 bc(i, j) = bc(i, j) + sc(i, j)*e
 
                 bc(j, i) = DCONJG(bc(i, j))
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
@@ -512,8 +507,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -577,11 +573,11 @@ contains
 !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
         Do isym = 1, nsymrpa
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iv = 1, nact
-                    jv = iv + ninact
+                    jv = convert_active_to_global_idx(iv)
                     Do iu = 1, nact
-                        ju = iu + ninact
+                        ju = convert_active_to_global_idx(iu)
 
 !     EatEuv|0>
                         if (nsymrpa /= 1) then
@@ -606,15 +602,12 @@ contains
 
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
         Do ia = rank + 1, nsec, nprocs
-            ja = ia + ninact + nact
+            ja = convert_secondary_to_global_idx(ia)
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
 
                 Call tramo1(ja, jt, cint1)
-
                 effh(ia, it) = cint1
-!              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
-
             End do
         End do
 !$OMP end parallel do
@@ -630,7 +623,7 @@ contains
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            isym = irpamo(i + ninact + nact)   ! i corresponds to a
+            isym = irpamo(convert_secondary_to_global_idx(i))   ! i corresponds to a
 !$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
             Do i0 = 1, dim(isym)
                 it = indt(i0, isym)
@@ -670,9 +663,7 @@ contains
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             if (k == l) then
-
                 effh(i, j) = effh(i, j) + cint2
-
             end if
         end do
         close (unit_int2)
@@ -695,9 +686,7 @@ contains
 !                                                  =========
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (j == k) then
-
                 effh(i, l) = effh(i, l) - cint2
-
             end if
 
         end do
@@ -715,7 +704,7 @@ contains
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
 !$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
         Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            ja = ia + ninact + nact
+            ja = convert_secondary_to_global_idx(ia)
             isym = irpamo(ja)
 
             Do ip = 1, nact
@@ -727,19 +716,19 @@ contains
                     it = indt(i0, isym)
                     iu = indu(i0, isym)
                     iv = indv(i0, isym)
-                    jt = it + ninact
-                    ju = iu + ninact
-                    jv = iv + ninact
+                    jt = convert_active_to_global_idx(it)
+                    ju = convert_active_to_global_idx(iu)
+                    jv = convert_active_to_global_idx(iv)
 
                     Call dim2_density(iv, iu, it, ip, dr, di)
                     d = DCMPLX(dr, di)
 
                     v(ia, it, iu, iv) = v(ia, it, iu, iv) + effh(ia, ip)*d
 
-                End do            !i0
+                End do
 
-            End do               !ip
-        End do                  !ia
+            End do
+        End do
 !$OMP end parallel do
 
         if (rank == 0) print *, 'vCmat_ord is ended'
@@ -765,6 +754,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -839,7 +829,6 @@ contains
         Do isym = 1, nsymrpa
 
             ixyz = 0
-
 !     EatEuv|0>
 !     EaxEyz|0>
 
@@ -847,9 +836,9 @@ contains
                 Do iy = 1, nact
                     Do iz = 1, nact
 
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(isym, irpamo(jx))
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
@@ -875,9 +864,9 @@ contains
                 Do iy = 1, nact
                     Do iz = 1, nact
 
-                        jx = ix + ninact
-                        jy = iy + ninact
-                        jz = iz + ninact
+                        jx = convert_active_to_global_idx(ix)
+                        jy = convert_active_to_global_idx(iy)
+                        jz = convert_active_to_global_idx(iz)
                         if (nsymrpa /= 1) then
                             syma = MULTB_D(isym, irpamo(jx))
                             symb = MULTB_D(irpamo(jy), irpamo(jz))
@@ -1025,7 +1014,7 @@ contains
 
             if (rank == 0) print *, 'bC1 matrix is diagonalized!'
             Do ia = 1, nsec
-                ja = ia + ninact + nact
+                ja = convert_secondary_to_global_idx(ia)
 
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. irpamo(ja) == isym)) then
 
@@ -1064,7 +1053,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2c      = ",E20.10," a.u.")', e2c
@@ -1125,8 +1114,8 @@ contains
                         print '(2I4,2E20.10)', i, j, sc(i, j)
                     End if
                 end if
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -1156,6 +1145,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1179,38 +1169,36 @@ contains
             ix = indsym(1, i)
             iy = indsym(2, i)
             iz = indsym(3, i)
-            jx = ix + ninact
-            jy = iy + ninact
-            jz = iz + ninact
+            jx = convert_active_to_global_idx(ix)
+            jy = convert_active_to_global_idx(iy)
+            jz = convert_active_to_global_idx(iz)
 
             Do j = i, dimn
 
                 it = indsym(1, j)
                 iu = indsym(2, j)
                 iv = indsym(3, j)
-                jt = it + ninact
-                ju = iu + ninact
-                jv = iv + ninact
+                jt = convert_active_to_global_idx(it)
+                ju = convert_active_to_global_idx(iu)
+                jv = convert_active_to_global_idx(iv)
 
 !   Siguma_w [eps(w)<0|EzyExtEuvEww|0>]+S(xyz,tuv)(eps(u)-eps(v)-eps(t))
 
                 e = eps(ju) - eps(jv) - eps(jt)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
-
+                    jw = convert_active_to_global_idx(iw)
                     Call dim4_density(iz, iy, ix, it, iu, iv, iw, iw, denr, deni)
                     den = denr
                     bc(i, j) = bc(i, j) + den*eps(jw)
-
                 End do
 
                 bc(i, j) = bc(i, j) + sc(i, j)*e
 
                 bc(j, i) = bc(i, j)
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
@@ -1238,8 +1226,9 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+        use module_file_manager, only: open_unformatted_file, check_iostat
         use module_global_variables
-        use module_file_manager
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1303,11 +1292,11 @@ contains
 !$OMP parallel do schedule(static) private(it,jt,iv,jv,iu,ju,syma,symb,symc)
         Do isym = 1, nsymrpa
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 Do iv = 1, nact
-                    jv = iv + ninact
+                    jv = convert_active_to_global_idx(iv)
                     Do iu = 1, nact
-                        ju = iu + ninact
+                        ju = convert_active_to_global_idx(iu)
 
 !     EatEuv|0>
                         if (nsymrpa /= 1) then
@@ -1332,15 +1321,12 @@ contains
 
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
         Do ia = rank + 1, nsec, nprocs
-            ja = ia + ninact + nact
+            ja = convert_secondary_to_global_idx(ia)
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
 
                 Call tramo1(ja, jt, cint1)
-
                 effh(ia, it) = real(cint1, kind=KIND(effh))
-!              write(*,'("1int  ",2I4,2E20.10)')ja,jt,effh(ja,jt)
-
             End do
         End do
 !$OMP end parallel do
@@ -1356,7 +1342,7 @@ contains
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            isym = irpamo(i + ninact + nact)   ! i corresponds to a
+            isym = irpamo(convert_secondary_to_global_idx(i))   ! i corresponds to a
 !$OMP parallel do schedule(static,1) private(it,iu,iv,dr,di,d)
             Do i0 = 1, dim(isym)
                 it = indt(i0, isym)
@@ -1396,9 +1382,7 @@ contains
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             if (k == l) then
-
                 effh(i, j) = effh(i, j) + cint2
-
             end if
         end do
         close (unit_int2)
@@ -1421,9 +1405,7 @@ contains
 !                                                  =========
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (j == k) then
-
                 effh(i, l) = effh(i, l) - cint2
-
             end if
 
         end do
@@ -1441,7 +1423,7 @@ contains
 ! Siguma_p effh(a,p)<0|EvuEtp|0>
 !$OMP parallel do schedule(dynamic,1) private(ja,isym,i0,it,iu,iv,jt,ju,jv,dr,di,d)
         Do ia = rank + 1, nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-            ja = ia + ninact + nact
+            ja = convert_secondary_to_global_idx(ia)
             isym = irpamo(ja)
 
             Do ip = 1, nact
@@ -1453,19 +1435,19 @@ contains
                     it = indt(i0, isym)
                     iu = indu(i0, isym)
                     iv = indv(i0, isym)
-                    jt = it + ninact
-                    ju = iu + ninact
-                    jv = iv + ninact
+                    jt = convert_active_to_global_idx(it)
+                    ju = convert_active_to_global_idx(iu)
+                    jv = convert_active_to_global_idx(iv)
 
                     Call dim2_density(iv, iu, it, ip, dr, di)
                     d = dr
 
                     v(ia, it, iu, iv) = v(ia, it, iu, iv) + effh(ia, ip)*d
 
-                End do            !i0
+                End do
 
-            End do               !ip
-        End do                  !ia
+            End do
+        End do
 !$OMP end parallel do
 
         if (rank == 0) print *, 'vCmat_ord is ended'

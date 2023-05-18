@@ -23,6 +23,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -99,7 +100,7 @@ contains
                     i0 = i0 + 1
                     iaij(ia, ii, ij) = i0
                     iaij(ia, ij, ii) = i0
-                    ia0(i0) = ia + ninact + nact ! secondary
+                    ia0(i0) = convert_secondary_to_global_idx(ia) ! secondary
                     ii0(i0) = ii ! inactive
                     ij0(i0) = ij ! inactive
                 End do
@@ -122,12 +123,12 @@ contains
 
             dimn = 0
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 if (irpamo(jt) == isym) then
                     dimn = dimn + 1
                     indt(dimn) = it
                 End if
-            End do                  ! it
+            End do
 
             if (rank == 0) print *, 'isym, dimn', isym, dimn
             If (dimn == 0) cycle ! Go to the next isym
@@ -321,7 +322,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2e      = ",E20.10," a.u.")', e2e
@@ -384,8 +385,8 @@ contains
 
                 sc(j, i) = DCONJG(sc(i, j))
 
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -410,6 +411,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -432,14 +434,14 @@ contains
 !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs
             iu = indt(i)
-            ju = iu + ninact
+            ju = convert_active_to_global_idx(iu)
 
             Do j = i, dimn
                 it = indt(j)
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
+                    jw = convert_active_to_global_idx(iw)
 
 !         = - Siguma_w [eps(w)<0|EtuEww|0>] + d(tu)e0 + S(u,t)eps(t)
 
@@ -455,8 +457,8 @@ contains
 
                 bc(j, i) = DCONJG(bc(i, j))
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
@@ -525,7 +527,7 @@ contains
                 Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
                 dens = DCMPLX(dr, di)
                 v(taij, it) = v(taij, it) + cint2*dens
-            End do                  ! it
+            End do
 !$OMP end parallel do
 
             if (j < l) then
@@ -555,6 +557,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
 #ifdef HAVE_MPI
@@ -631,7 +634,7 @@ contains
                     i0 = i0 + 1
                     iaij(ia, ii, ij) = i0
                     iaij(ia, ij, ii) = i0
-                    ia0(i0) = ia + ninact + nact ! secondary
+                    ia0(i0) = convert_secondary_to_global_idx(ia) ! secondary
                     ii0(i0) = ii ! inactive
                     ij0(i0) = ij ! inactive
                 End do
@@ -654,12 +657,12 @@ contains
 
             dimn = 0
             Do it = 1, nact
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
                 if (irpamo(jt) == isym) then
                     dimn = dimn + 1
                     indt(dimn) = it
                 End if
-            End do                  ! it
+            End do
 
             if (rank == 0) print *, 'isym, dimn', isym, dimn
             If (dimn == 0) cycle ! Go to the next isym
@@ -839,7 +842,7 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-        End do                  ! isym
+        End do
 
         if (rank == 0) then
             print '("e2e      = ",E20.10," a.u.")', e2e
@@ -902,8 +905,8 @@ contains
 
                 sc(j, i) = sc(i, j)
 
-            End do               !j
-        End do                  !i
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
@@ -928,6 +931,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -950,14 +954,14 @@ contains
 !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs
             iu = indt(i)
-            ju = iu + ninact
+            ju = convert_active_to_global_idx(iu)
 
             Do j = i, dimn
                 it = indt(j)
-                jt = it + ninact
+                jt = convert_active_to_global_idx(it)
 
                 Do iw = 1, nact
-                    jw = iw + ninact
+                    jw = convert_active_to_global_idx(iw)
 
 !         = - Siguma_w [eps(w)<0|EtuEww|0>] + d(tu)e0 + S(u,t)eps(t)
 
@@ -973,8 +977,8 @@ contains
 
                 bc(j, i) = bc(i, j)
 
-            End do               !i
-        End do                  !j
+            End do
+        End do
 !$OMP end parallel do
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
@@ -1043,7 +1047,7 @@ contains
                 Call dim1_density(it, k, dr, di)          ! k corresponds to p in above formula
                 dens = dr
                 v(taij, it) = v(taij, it) + cint2*dens
-            End do                  ! it
+            End do
 !$OMP end parallel do
 
             if (j < l) then
