@@ -1,10 +1,11 @@
 subroutine get_mdcint_filename(count)
     ! This subroutine is to get the filename of MDCINT.
-    use module_global_variables, only: rank, nprocs, mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
+    use module_global_variables, only: rank, nprocs, mdcint_filename, mdcintnew, mdcint_debug, mdcint_int, len_convert_int_to_chr
     use module_error, only: stop_with_errorcode
     implicit none
-    character(50)   :: mdcint_basename, chr_rank, digit_x_padding
-    integer, intent(in) :: count
+    integer, intent(in)         :: count
+    character(:), allocatable   :: mdcint_basename, digit_x_padding
+    character(len=len_convert_int_to_chr)           :: chr_rank
     integer :: filename_idx
     ! Rename the MDCINT to open according to the process number.
     if (rank == 0 .and. count == 0) then
@@ -48,9 +49,9 @@ end subroutine get_mdcint_filename
 subroutine get_subspace_filename
     ! This subroutine is to get the filename of [a-h]subspace 2-electron integrals.
     use module_global_variables, only: rank, a1int, a2int, bint, c1int, c2int, c3int, &
-                                       d1int, d2int, d3int, eint, fint, gint, hint
+                                       d1int, d2int, d3int, eint, fint, gint, hint, len_convert_int_to_chr
     implicit none
-    character(50) :: chr_rank
+    character(len=len_convert_int_to_chr) :: chr_rank
     if (rank == 0) then
         a1int = "A1int"
         a2int = "A2int"

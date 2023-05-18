@@ -19,7 +19,7 @@ contains
         use module_realonly, only: realonly
         implicit none
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         if (realonly%is_realonly()) then
             call intra_1_real(spi, spj, spk, spl, fname)
         else
@@ -30,7 +30,7 @@ contains
         use module_realonly, only: realonly
         implicit none
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         if (realonly%is_realonly()) then
             call intra_2_real(spi, spj, spk, spl, fname)
         else
@@ -41,7 +41,7 @@ contains
         use module_realonly, only: realonly
         implicit none
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         if (realonly%is_realonly()) then
             call intra_3_real(spi, spj, spk, spl, fname)
         else
@@ -65,7 +65,7 @@ contains
         Implicit NONE
 
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         logical :: is_end_of_file
 
         integer                 :: unit_int2_subspace
@@ -294,7 +294,7 @@ contains
         Implicit NONE
 
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         logical :: is_end_of_file
 
         integer                 :: unit_int2_subspace
@@ -525,7 +525,7 @@ contains
         Implicit NONE
 
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         logical :: is_end_of_file
 
         integer                 :: unit_int2_subspace
@@ -792,7 +792,7 @@ contains
         Implicit NONE
 
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         logical :: is_end_of_file
 
         integer                 :: unit_int2_subspace
@@ -1051,15 +1051,15 @@ contains
 
         use module_error, only: stop_with_errorcode
         use module_file_manager
-        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
         use module_global_variables
+        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
 #ifdef HAVE_MPI
         use module_mpi
 #endif
         Implicit NONE
 
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         logical :: is_end_of_file
 
         integer                 :: unit_int2_subspace
@@ -1320,15 +1320,15 @@ contains
 
         use module_error, only: stop_with_errorcode
         use module_file_manager
-        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
         use module_global_variables
+        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
 #ifdef HAVE_MPI
         use module_mpi
 #endif
         Implicit NONE
 
         integer, intent(in)        :: spi, spj, spk, spl
-        character(50), intent(in)    :: fname
+        character(len=*), intent(in)    :: fname
         logical :: is_end_of_file
 
         integer                 :: unit_int2_subspace

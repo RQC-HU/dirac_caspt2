@@ -16,8 +16,8 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                 :: input_unit, nuniq
-    character*50            :: filename
+    integer                     :: input_unit, nuniq
+    character(:), allocatable   :: filename
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

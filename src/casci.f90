@@ -21,7 +21,8 @@ SUBROUTINE casci
     complex*16, allocatable :: mat_complex(:, :) ! For complex
     real(8), allocatable    :: mat_real(:, :) ! For realonly
     real(8), allocatable    :: ecas(:)
-    character(len=20)       :: filename, chr_root
+    character(:), allocatable  :: filename
+    character(len=len_convert_int_to_chr) :: chr_root
     integer :: datetmp0, datetmp1, dict_cas_idx_size, dict_cas_idx_reverse_size, idx
     integer, allocatable :: keys(:), vals(:), keys_rev(:), vals_rev(:)
     real(8) :: tsectmp0, tsectmp1

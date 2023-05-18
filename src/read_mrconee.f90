@@ -23,7 +23,7 @@ SUBROUTINE read_mrconee(filename)
 
     integer :: unit_mrconee, IMO, IRP
     integer, allocatable :: irpmo(:)
-    character*50, intent(in) :: filename
+    character(*), intent(in) :: filename
     integer :: i0, j0, k0, i, j, m, iostat
     logical :: breit, is_end_of_file
 

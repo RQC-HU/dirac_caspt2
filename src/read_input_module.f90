@@ -6,7 +6,7 @@ module read_input_module
 !
 ! This is a utility module that interpret and parse input strings.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-    use module_global_variables, only: rank
+    use module_global_variables, only: rank, len_convert_int_to_chr
     use module_error, only: stop_with_errorcode
     implicit none
     private
@@ -23,8 +23,8 @@ contains
         implicit none
         integer, intent(in) :: unit_num
         integer :: idx, iostat
-        character(max_str_length) :: string
-        character(10) :: essential_variable_names(10) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
+        character(len=max_str_length) :: string
+        character(len=10), parameter :: essential_variable_names(10) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
                                                 "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "diracver  "/)
         logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
                    (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
@@ -71,7 +71,7 @@ contains
         implicit none
         integer, intent(in) :: unit_num
         character(*), intent(inout) :: string
-        character(max_str_length) :: input
+        character(len=max_str_length) :: input
         logical :: is_comment
         logical, intent(inout) :: is_filled(:)
         call lowercase(string)
@@ -192,9 +192,9 @@ contains
         implicit none
         integer, allocatable, intent(inout) :: ras_list(:)
         integer, intent(in) :: unit_num, ras_num
-        character(max_str_length) :: tmp_ras_chr
+        character(len=max_str_length) :: tmp_ras_chr
         character(:), allocatable :: ras_chr
-        character(max_str_length) :: string
+        character(len=max_str_length) :: string
         integer :: tmp_ras(max_ras_spinor_num), idx_filled, iostat, idx
 
         ! store ras_num character to ras_chr
@@ -301,7 +301,7 @@ contains
         character(*), intent(inout) :: string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
         integer, intent(inout) :: list(:)
-        character(30) :: min_str, max_str, read_int_str
+        character(len_convert_int_to_chr) :: min_str, max_str, read_int_str
         character(:), allocatable  :: pattern, invalid_input_message, subroutine_name
         integer :: read_int, read_int_digit, idx, iostat
         logical :: is_valid
@@ -395,8 +395,8 @@ contains
         character(*), intent(inout) :: string
         integer, intent(inout) :: filled_num ! The number of numbers already filled in list
         integer, intent(inout) :: list(:)
-        character(30) :: right_str, min_str, max_str
-        character(:), allocatable  :: pattern, invalid_input_message, subroutine_name
+        character(len=len_convert_int_to_chr)     :: right_str, min_str, max_str
+        character(:), allocatable   :: pattern, invalid_input_message, subroutine_name
         integer :: first_dot_index, stat, rightnum_first_idx, leftnum_idx, leftnum, rightnum, rightnum_digit, idx, iostat
         logical :: is_valid
 
@@ -633,7 +633,7 @@ contains
         integer, intent(inout) :: result_int
         character(:), allocatable :: pattern, invalid_input_message
         logical :: is_comment, is_subst
-        character(max_str_length) :: input
+        character(len=max_str_length) :: input
         call create_valid_pattern(allowed_min_int, allowed_max_int, pattern, invalid_input_message)
         do
             read (unit_num, '(a)') input
@@ -665,7 +665,7 @@ contains
         integer, intent(in) :: unit_num
         character(*), intent(inout) :: result_string
         logical :: is_comment
-        character(max_str_length) :: input
+        character(len=max_str_length) :: input
         do
             read (unit_num, '(a)') input
             call is_comment_line(input, is_comment)
