@@ -100,10 +100,10 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
         itr = i + sign_even_ret1(i + 1) ! itr = i+1 if i+1 is even, otherwise itr = i-1
         jtr = j + sign_even_ret1(j + 1)
 
-        nmom = ninact + nact + nsec
+        nmom = global_sec_end ! ninact + nact + nsec
 
         If (space_idx(i) == 4 .or. space_idx(j) == 4) cycle ! Read the next 2-integral
-        If (i > ninact + nact .and. j > ninact + nact) cycle ! Read the next 2-integral
+        If (i > global_act_end .and. j > global_act_end) cycle ! Read the next 2-integral
 
         SignIJ = sign_even_ret1(i + j) ! If i+j is even, SignIJ = 1, otherwise SignIJ = -1
 
@@ -115,7 +115,7 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
             ltr = l + sign_even_ret1(l + 1)
 
             If (space_idx(k) == 4 .or. space_idx(l) == 4) cycle ! Go to the next idz
-            If (k > ninact + nact .and. l > ninact + nact) cycle ! Go to the next idz
+            If (k > global_act_end .and. l > global_act_end) cycle ! Go to the next idz
             If (i == j .and. k > l) cycle ! Go to the next idz
 
             SignKL = sign_even_ret1(k + l) ! If k+l is even, SignKL = 1, otherwise SignKL = -1

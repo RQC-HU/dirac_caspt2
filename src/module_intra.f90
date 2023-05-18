@@ -83,10 +83,10 @@ contains
         cutoff_threshold = 1.0d-15
         ini(1) = 1
         end(1) = ninact
-        ini(2) = ninact + 1
-        end(2) = ninact + nact
-        ini(3) = ninact + nact + 1
-        end(3) = ninact + nact + nsec
+        ini(2) = global_act_start
+        end(2) = global_act_end
+        ini(3) = global_sec_start
+        end(3) = global_sec_end
 
         nmx = max(ninact, nact, nsec)
         Allocate (indsym(3, nsymrpa, nmx)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -312,10 +312,10 @@ contains
         cutoff_threshold = 1.0d-15
         ini(1) = 1
         end(1) = ninact
-        ini(2) = ninact + 1
-        end(2) = ninact + nact
-        ini(3) = ninact + nact + 1
-        end(3) = ninact + nact + nsec
+        ini(2) = global_act_start
+        end(2) = global_act_end
+        ini(3) = global_sec_start
+        end(3) = global_sec_end
 
         nmx = max(ninact, nact, nsec)
         Allocate (indsym(3, nsymrpa, nmx)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -550,10 +550,10 @@ contains
 
         ini(1) = 1
         end(1) = ninact
-        ini(2) = ninact + 1
-        end(2) = ninact + nact
-        ini(3) = ninact + nact + 1
-        end(3) = ninact + nact + nsec
+        ini(2) = global_act_start
+        end(2) = global_act_end
+        ini(3) = global_sec_start
+        end(3) = global_sec_end
 
         nmx = max(ninact, nact, nsec)
         Allocate (indsym(3, nsymrpa, nmx)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -817,10 +817,10 @@ contains
 
         ini(1) = 1
         end(1) = ninact
-        ini(2) = ninact + 1
-        end(2) = ninact + nact
-        ini(3) = ninact + nact + 1
-        end(3) = ninact + nact + nsec
+        ini(2) = global_act_start
+        end(2) = global_act_end
+        ini(3) = global_sec_start
+        end(3) = global_sec_end
 
         nmx = max(ninact, nact, nsec)
         Allocate (indsym(3, nsymrpa, nmx)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -1084,10 +1084,10 @@ contains
         end if
         ini(1) = 1
         end(1) = ninact
-        ini(2) = ninact + 1
-        end(2) = ninact + nact
-        ini(3) = ninact + nact + 1
-        end(3) = ninact + nact + nsec
+        ini(2) = global_act_start
+        end(2) = global_act_end
+        ini(3) = global_sec_start
+        end(3) = global_sec_end
 
         nmx = max(ninact, nact, nsec)
         Allocate (indsym(3, nsymrpa, nmx)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -1353,10 +1353,10 @@ contains
         end if
         ini(1) = 1
         end(1) = ninact
-        ini(2) = ninact + 1
-        end(2) = ninact + nact
-        ini(3) = ninact + nact + 1
-        end(3) = ninact + nact + nsec
+        ini(2) = global_act_start
+        end(2) = global_act_end
+        ini(3) = global_sec_start
+        end(3) = global_sec_end
 
         nmx = max(ninact, nact, nsec)
         Allocate (indsym(3, nsymrpa, nmx)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -1752,10 +1752,10 @@ contains
         !=============================================================================================
         ! This subroutine returns the indices of the subspace where the integrals are to be written
         ! to disk.
-        ! (e.g.) (input)  ini = ninact + 1, end = ninact + nact
+        ! (e.g.) (input)  ini = global_act_start, end = global_act_end
         !        (output) ini = 1,          end = nact  => the subspace is the active space
         !=============================================================================================
-        use module_global_variables, only: ninact, nact, nsec, rank
+        use module_global_variables, only: ninact, nact, nsec, rank, global_act_end, global_sec_end
         use module_error, only: stop_with_errorcode
         implicit none
         integer, intent(inout) :: ini, end
@@ -1765,10 +1765,10 @@ contains
         elseif (ini <= ninact) then
             ini = 1
             end = ninact
-        else if (ini <= ninact + nact) then
+        else if (ini <= global_act_end) then
             ini = 1
             end = nact
-        else if (ini <= ninact + nact + nsec) then
+        else if (ini <= global_sec_end) then
             ini = 1
             end = nsec
         else

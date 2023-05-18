@@ -95,6 +95,7 @@ contains
 
     logical function is_cas_determinant()
         use module_global_variables
+        use module_index_utils, only: convert_active_to_global_idx
         implicit none
         integer :: i, j, jsym, ielec, isym, isym1
 
@@ -107,7 +108,7 @@ contains
             Do i = 1, nact
                 if (btest(current_det, i - 1) .eqv. .true.) then
                     ielec = ielec + 1
-                    j = i + ninact
+                    j = convert_active_to_global_idx(i)
                     jsym = irpamo(j)
                     if (mod(ielec, 2) == 1) then
                         isym1 = MULTB_DS(jsym, isym) ! isym will be double irrep: odd number of electron

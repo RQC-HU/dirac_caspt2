@@ -141,8 +141,8 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 !                             !          k
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-    do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact
+    do i = rank + global_act_start, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_act_end
             oneeff = 0.0d+00
 
             do k = 1, ninact            ! kk is inactive spinor
@@ -192,10 +192,10 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
 
-    do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = ninact + 1, ninact + nact
-            do k = ninact + 1, ninact + nact
-                do l = ninact + 1, ninact + nact
+    do i = rank + global_act_start, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = global_act_start, global_act_end
+            do k = global_act_start, global_act_end
+                do l = global_act_start, global_act_end
 
                     i2r = inttwr(i, j, k, l)
                     if (.not. realonly%is_realonly()) then

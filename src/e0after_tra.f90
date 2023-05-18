@@ -122,8 +122,8 @@ SUBROUTINE e0aftertra
 !                             !          k
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
-    do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact
+    do i = rank + global_act_start, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_act_end
             oneeff = 0.0d+00
 
             do k = 1, ninact            ! kk is inactive spinor
@@ -162,10 +162,10 @@ SUBROUTINE e0aftertra
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !"""""""""""""""""""""""""""""
 
-    do i = rank + ninact + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = ninact + 1, ninact + nact
-            do k = ninact + 1, ninact + nact
-                do l = i, ninact + nact
+    do i = rank + global_act_start, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = global_act_start, global_act_end
+            do k = global_act_start, global_act_end
+                do l = i, global_act_end
                     Call tramo2(i, j, k, l, cmplxint)
                     If (i == l) cmplxint = cmplxint*(0.5d+00)
 

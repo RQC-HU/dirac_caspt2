@@ -26,7 +26,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     print *, 'inactive-active'
 
     do i = 1, ninact
-        do j = ninact + 1, ninact + nact
+        do j = global_act_start, global_act_end
             if ((i /= j) .and. (ABS(fock_cmplx(i, j)) > 1.0d-10)) then
                 print '(2I4,3E20.10)', i, j, fock_cmplx(i, j), one_elec_int_r(i, j)
             end if
@@ -36,7 +36,7 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
     print *, 'inactive-secondary'
 
     do i = 1, ninact
-        do j = ninact + nact + 1, ninact + nact + nsec
+        do j = global_sec_start, global_sec_end
             if ((i /= j) .and. (ABS(fock_cmplx(i, j)) > 1.0d-10)) then
                 print '(2I4,3E20.10)', i, j, fock_cmplx(i, j), one_elec_int_r(i, j)
             end if
@@ -45,8 +45,8 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
 
     print *, 'active-active'
 
-    do i = ninact + 1, ninact + nact
-        do j = ninact + 1, ninact + nact
+    do i = global_act_start, global_act_end
+        do j = global_act_start, global_act_end
             if ((i /= j) .and. (ABS(fock_cmplx(i, j)) > 1.0d-10)) then
                 print '(2I4,3E20.10)', i, j, fock_cmplx(i, j), one_elec_int_r(i, j)
             end if
@@ -55,8 +55,8 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
 
     print *, 'active-secondary'
 
-    do i = ninact + 1, ninact + nact
-        do j = ninact + nact + 1, ninact + nact + nsec
+    do i = global_act_start, global_act_end
+        do j = global_sec_start, global_sec_end
             if ((i /= j) .and. (ABS(fock_cmplx(i, j)) > 1.0d-10)) then
                 print '(2I4,3E20.10)', i, j, fock_cmplx(i, j), one_elec_int_r(i, j)
             end if
@@ -65,8 +65,8 @@ SUBROUTINE prtoutfock  ! TO PRINT OUT FOCK MATRIX
 
     print *, 'secondary-secondary'
 
-    do i = ninact + nact + 1, ninact + nact + nsec
-        do j = ninact + nact + 1, ninact + nact + nsec
+    do i = global_sec_start, global_sec_end
+        do j = global_sec_start, global_sec_end
             if ((i /= j) .and. (ABS(fock_cmplx(i, j)) > 1.0d-10)) then
                 print '(2I4,3E20.10)', i, j, fock_cmplx(i, j), one_elec_int_r(i, j)
             end if

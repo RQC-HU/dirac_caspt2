@@ -8,6 +8,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     use module_global_variables
     use module_file_manager
+    use module_index_utils, only: convert_secondary_to_global_idx
     use module_realonly, only: realonly
 
     Implicit NONE
@@ -46,7 +47,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     if (rank == 0) print *, 'enter building fock matrix for IVO'
 
     if (nhomo == 0) then
-        numh = count(ABS(caspt2_mo_energy(1:ninact + nact) - caspt2_mo_energy(nelec + ninact)) < 1.0d-01)
+        numh = count(ABS(caspt2_mo_energy(1:global_act_end) - caspt2_mo_energy(nelec + ninact)) < 1.0d-01)
     else
         numh = nhomo
     end if
@@ -58,13 +59,13 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     else
         ! Create Fock matrix (only virtual)
         do i = 1, nsec
-            i0 = i + ninact + nact
+            i0 = convert_secondary_to_global_idx(i)
             fock_cmplx(i, i) = caspt2_mo_energy(i0)
             do j = i, nsec
-                j0 = j + ninact + nact
-                do k = ninact + nact - numh + 1, ninact + nact
+                j0 = convert_secondary_to_global_idx(j)
+                do k = global_act_end - numh + 1, global_act_end
 
-                    if (k > ninact + nact - 2 .and. mod(nelec, 2) == 1) then
+                    if (k > global_act_end - 2 .and. mod(nelec, 2) == 1) then
                         if (realonly%is_realonly()) then
                             fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*int2r_f1(i0, j0, k, k)/DBLE(numh)
                             fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*int2r_f2(i0, k, k, j0)/DBLE(numh)
@@ -207,7 +208,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
 ! IVO calculation (Only supports with inversion symmetry)
     Do isym = 1, nsymrpa, 2
-        nv = count(irpamo(ninact + nact + 1:ninact + nact + nsec) == isym)
+        nv = count(irpamo(global_sec_start:global_sec_end) == isym)
 
         Allocate (mosym(nv))
         Allocate (fsym(nv, nv))
@@ -215,7 +216,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         fsym = 0.0d+00
         nv = 0
         Do i = 1, nsec
-            i0 = i + ninact + nact
+            i0 = convert_secondary_to_global_idx(i)
             if (irpamo(i0) == isym) then
                 nv = nv + 1
                 mosym(nv) = i
@@ -312,12 +313,12 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             i0 = mosym(i)
             if (rank == 0) then
                 print *, ''
-                print *, 'new ', i0 + ninact + nact, 'th ms consists of '
+                print *, 'new ', convert_secondary_to_global_idx(i0), 'th ms consists of '
             end if
             Do j = 1, nv
                 j0 = mosym(j)
                 if (ABS(fsym(j, i))**2 > 1.0d-03) then
-                    if (rank == 0) print '(I4,"  Weights ",F20.10)', j0 + ninact + nact, ABS(fsym(j, i))**2
+                    if (rank == 0) print '(I4,"  Weights ",F20.10)', convert_secondary_to_global_idx(j0), ABS(fsym(j, i))**2
                 end if
             end do
         end do

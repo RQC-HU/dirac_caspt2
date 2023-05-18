@@ -38,8 +38,8 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
     if (rank == 0) print *, 'enter building fock matrix'
 !$OMP parallel private(i,j,k,l,dr,di,dens)
 !$OMP do schedule(dynamic,2)
-    do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact
+    do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_act_end
 
             fock_cmplx(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
 
@@ -47,8 +47,8 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
                 fock_cmplx(i, j) = fock_cmplx(i, j) + DCMPLX(inttwr(i, j, k, k), inttwi(i, j, k, k))
                 fock_cmplx(i, j) = fock_cmplx(i, j) - DCMPLX(inttwr(i, k, k, j), inttwi(i, k, k, j))
             End do
-            do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
-                do l = ninact + 1, ninact + nact           ! ACTIVE SPACE
+            do k = global_act_start, global_act_end              ! ACTIVE SPACE
+                do l = global_act_start, global_act_end           ! ACTIVE SPACE
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
                     Call dim1_density(kact, lact, dr, di)
@@ -64,16 +64,16 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 !$OMP end do
 
 !$OMP do schedule(dynamic,2)
-    do i = ninact + nact + 1 + rank, ninact + nact + nsec, nprocs
-        do j = i, ninact + nact + nsec
+    do i = global_sec_start + rank, global_sec_end, nprocs
+        do j = i, global_sec_end
             fock_cmplx(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact
                 fock_cmplx(i, j) = fock_cmplx(i, j) + DCMPLX(int2r_f1(i, j, k, k), int2i_f1(i, j, k, k))
                 fock_cmplx(i, j) = fock_cmplx(i, j) - DCMPLX(int2r_f2(i, k, k, j), int2i_f2(i, k, k, j))
             End do
 
-            do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
-                do l = ninact + 1, ninact + nact           ! ACTIVE SPACE
+            do k = global_act_start, global_act_end              ! ACTIVE SPACE
+                do l = global_act_start, global_act_end           ! ACTIVE SPACE
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
                     Call dim1_density(kact, lact, dr, di)
@@ -137,16 +137,16 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
     if (rank == 0) print *, 'enter building fock matrix'
 !$OMP parallel private(i,j,k,l,dr)
 !$OMP do schedule(dynamic,2)
-    do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact
+    do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_act_end
 
             fock_real(i, j) = one_elec_int_r(i, j)
             do k = 1, ninact
                 fock_real(i, j) = fock_real(i, j) + inttwr(i, j, k, k)
                 fock_real(i, j) = fock_real(i, j) - inttwr(i, k, k, j)
             End do
-            do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
-                do l = ninact + 1, ninact + nact           ! ACTIVE SPACE
+            do k = global_act_start, global_act_end              ! ACTIVE SPACE
+                do l = global_act_start, global_act_end           ! ACTIVE SPACE
 
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
@@ -163,16 +163,16 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 !$OMP end do
 
 !$OMP do schedule(dynamic,2)
-    do i = ninact + nact + 1 + rank, ninact + nact + nsec, nprocs
-        do j = i, ninact + nact + nsec
+    do i = global_sec_start + rank, global_sec_end, nprocs
+        do j = i, global_sec_end
             fock_real(i, j) = one_elec_int_r(i, j)
 
             do k = 1, ninact
                 fock_real(i, j) = fock_real(i, j) + int2r_f1(i, j, k, k)
                 fock_real(i, j) = fock_real(i, j) - int2r_f2(i, k, k, j)
             End do
-            do k = ninact + 1, ninact + nact              ! ACTIVE SPACE
-                do l = ninact + 1, ninact + nact           ! ACTIVE SPACE
+            do k = global_act_start, global_act_end              ! ACTIVE SPACE
+                do l = global_act_start, global_act_end           ! ACTIVE SPACE
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
                     Call dim1_density_R(kact, lact, dr)
