@@ -337,7 +337,7 @@ contains
 ! This subroutine sorts the want_to_sort list form orbital energy order
 ! to RAS order(ninact => ras1 => ras2 => ras3 => secondary).
 !===========================================================================================================================
-        use module_global_variables, only: ras1_list, ras2_list, ras3_list, ninact, nact, nsec, ras1_size, ras2_size, ras3_size
+        use module_global_variables
         implicit none
         real(8), intent(inout) :: want_to_sort(:)
         real(8), allocatable :: mo_energy_order(:)

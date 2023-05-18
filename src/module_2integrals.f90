@@ -296,8 +296,7 @@ contains
         integer, allocatable :: indk(:), indl(:), kr(:)
         real(8), allocatable  :: rklr(:), rkli(:)
         logical :: continue_read, is_end_of_file
-        integer :: read_line_len, iostat
-        read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"
+        integer :: iostat
         continue_read = .true.
         nmoc = global_act_end
         if (rank == 0) print *, "Enter readint2_casci"
