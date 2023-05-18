@@ -60,7 +60,7 @@ add_executable(r4dcaspt2ocoexe
   r4dcaspt2_tra.f90
   ras_det_check.f90
   read_mrconee.f90
-  separate_2_elec_integral_by_subspace.f90
+  divide_2_elec_integral_into_subspaces.f90
   solve_A_subspace.f90
   solve_B_subspace.f90
   solve_C_subspace.f90

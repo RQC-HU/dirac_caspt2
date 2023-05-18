@@ -106,7 +106,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call get_subspace_filename
 
     ! READ MDCINTNEWx's file and devide into each subspace files.
-    Call separate_2_elec_integral_by_subspace(mdcintnew)
+    Call divide_2_elec_integral_into_subspaces(mdcintnew)
 
     call write_allocated_memory_size
     nmo = ninact + nact + nsec

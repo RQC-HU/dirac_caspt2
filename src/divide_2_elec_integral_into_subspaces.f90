@@ -1,8 +1,10 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals created by typart in utchem
+SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integrals created by typart in utchem
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+! This subroutine splits 2-electron integrals into subspaces (A1, A2, B, C1, C2, C3, D1, D2, D3, E, F, G, H)int
 
     use module_global_variables
     use module_file_manager
@@ -42,7 +44,7 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
     Allocate (rklr((nmo/2)**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
     Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
     if (rank == 0) then
-        print *, "enter separate_2_elec_integral_by_subspace"
+        print *, "enter divide_2_elec_integral_into_subspaces"
         call write_allocated_memory_size
     end if
     indk(:) = 0
@@ -403,6 +405,6 @@ SUBROUTINE separate_2_elec_integral_by_subspace(filename) ! 2 electorn integrals
     if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1); deallocate (rklr)
     if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1); deallocate (rkli)
     if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1); deallocate (kr)
-    if (rank == 0) print *, "end separate_2_elec_integral_by_subspace"
+    if (rank == 0) print *, "end divide_2_elec_integral_into_subspaces"
 
-end subroutine separate_2_elec_integral_by_subspace
+end subroutine divide_2_elec_integral_into_subspaces
