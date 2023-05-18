@@ -12,7 +12,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     use module_file_manager, only: open_unformatted_file
 
     Implicit NONE
-    real(8), intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    real(8), intent(in)  :: fa(global_act_start:global_act_end, global_act_start:global_act_end)
 
     integer :: i0, j0, i, info
     integer :: ok, unit_newcicoeff
@@ -46,7 +46,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     ! ds = <k|k~>
     Do i0 = 1, ndet     ! k  (old)
         Do j0 = 1, ndet  ! k~ (new)   <k|k~>
-            Call dets(fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact), &
+            Call dets(fa(global_act_start:global_act_end, global_act_start:global_act_end), &
                       occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
         End do
     End do
@@ -96,7 +96,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(in)  :: fac(global_act_start:global_act_end, global_act_start:global_act_end)
 
     integer :: i0, j0, i, info
     integer :: ok, unit_newcicoeff
@@ -132,7 +132,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     Allocate (ds(ndet, ndet))
     Do i0 = 1, ndet     ! k  (old)
         Do j0 = 1, ndet  ! k~ (new)   <k|k~>
-            Call detsc(fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact), &
+            Call detsc(fac(global_act_start:global_act_end, global_act_start:global_act_end), &
                        occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
         End do
     End do

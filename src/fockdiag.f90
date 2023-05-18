@@ -38,12 +38,12 @@ SUBROUTINE fockdiag
     nspace(2, 1) = ninact
     nspace(3, 1) = ninact
 
-    nspace(1, 2) = ninact + 1
-    nspace(2, 2) = ninact + nact
+    nspace(1, 2) = global_act_start
+    nspace(2, 2) = global_act_end
     nspace(3, 2) = nact
 
-    nspace(1, 3) = ninact + nact + 1
-    nspace(2, 3) = ninact + nact + nsec
+    nspace(1, 3) = global_sec_start
+    nspace(2, 3) = global_sec_end
     nspace(3, 3) = nsec
 
     Do i0 = 1, 3
@@ -63,11 +63,11 @@ SUBROUTINE fockdiag
     End do
 
     if (realonly%is_realonly()) then
-        Call traci(fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+        Call traci(fa(global_act_start:global_act_end, global_act_start:global_act_end))
         fock_real(1:nmo, 1:nmo) = fa(1:nmo, 1:nmo)
         Call memminus(KIND(fa), SIZE(fa), 1); deallocate (fa)
     else
-        Call tracic(fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact))
+        Call tracic(fac(global_act_start:global_act_end, global_act_start:global_act_end))
         fock_cmplx(1:nmo, 1:nmo) = fac(1:nmo, 1:nmo)
         Call memminus(KIND(fac), SIZE(fac), 2); deallocate (fac)
     end if

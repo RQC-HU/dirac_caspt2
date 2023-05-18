@@ -7,10 +7,10 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
-    use module_index_utils, only: sign_even_ret1
+    use module_index_utils, only: convert_active_to_global_idx, sign_even_ret1
 
     Implicit NONE
-    real(8), intent(in)  :: fa(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    real(8), intent(in)  :: fa(global_act_start:global_act_end, global_act_start:global_act_end)
     integer, intent(in)  :: occold(nelec), occnew(nelec)
     real(8), intent(out) :: ds
 
@@ -29,7 +29,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
     Do i0 = 1, nelec
         Do j0 = 1, nelec
-            sini(i0, j0) = fa(occold(i0) + ninact, occnew(j0) + ninact)
+            sini(i0, j0) = fa(convert_active_to_global_idx(occold(i0)), convert_active_to_global_idx(occnew(j0)))
         End do
     End do
 
@@ -61,10 +61,10 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
-    use module_index_utils, only: sign_even_ret1
+    use module_index_utils, only: convert_active_to_global_idx , sign_even_ret1
 
     Implicit NONE
-    complex*16, intent(in)  :: fac(ninact + 1:ninact + nact, ninact + 1:ninact + nact)
+    complex*16, intent(in)  :: fac(global_act_start:global_act_end, global_act_start:global_act_end)
     integer, intent(in)  :: occold(nelec), occnew(nelec)
     complex*16, intent(out) :: ds
 
@@ -86,7 +86,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 
     Do i0 = 1, nelec
         Do j0 = 1, nelec
-            sini(i0, j0) = fac(occold(i0) + ninact, occnew(j0) + ninact)
+            sini(i0, j0) = fac(convert_active_to_global_idx(occold(i0)), convert_active_to_global_idx(occnew(j0)))
         End do
     End do
 

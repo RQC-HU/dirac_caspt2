@@ -16,34 +16,34 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE solve_D_subspace_complex()
+        SUBROUTINE solve_D_subspace_complex ()
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use module_global_variables
-        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
-        use module_ulambda_s_half, only: ulambda_s_half
+            use module_global_variables
+            use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
+            use module_ulambda_s_half, only: ulambda_s_half
 
-        Implicit NONE
+            Implicit NONE
 #ifdef HAVE_MPI
-        include 'mpif.h'
+            include 'mpif.h'
 #endif
 
-        integer :: dimn, dimm, dammy
-        integer, allocatable :: indsym(:, :)
-        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(nsymrpa*2), e, alpha
-        complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
-        complex*16, allocatable  :: bc(:, :)
-        complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
-        integer, allocatable     :: ia0(:), ii0(:), iai(:, :)
-        integer                  :: nai
-        integer :: j, i, syma, isym, i0
-        integer :: ia, it, ii, iu
-        integer :: ja, jt, ji, ju
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
+            integer :: dimn, dimm, dammy
+            integer, allocatable :: indsym(:, :)
+            real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+            real(8)               :: e2(nsymrpa*2), e, alpha
+            complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
+            complex*16, allocatable  :: bc(:, :)
+            complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
+            integer, allocatable     :: ia0(:), ii0(:), iai(:, :)
+            integer                  :: nai
+            integer :: j, i, syma, isym, i0
+            integer :: ia, it, ii, iu
+            integer :: ja, jt, ji, ju
+            integer :: datetmp0, datetmp1
+            real(8) :: tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -77,190 +77,190 @@ contains
 !
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
 
-        if (rank == 0) then
-            print *, ' ENTER solv D part'
-            print *, ' nsymrpa', nsymrpa
-        end if
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
+            if (rank == 0) then
+                print *, ' ENTER solv D part'
+                print *, ' nsymrpa', nsymrpa
+            end if
+            datetmp1 = date0; datetmp0 = date0
+            Call timing(date0, tsec0, datetmp0, tsectmp0)
+            tsectmp1 = tsectmp0
 
-        e2 = 0.0d+00
-        e2d = 0.0d+00
-        dimn = 0
-        syma = 0
-
-        i0 = 0
-        Do ia = 1, nsec
-            Do ii = 1, ninact
-                i0 = i0 + 1
-            End do
-        End do
-
-        nai = i0
-        Allocate (iai(nsec, ninact))
-        iai = 0
-        Allocate (ia0(nai))
-        Allocate (ii0(nai))
-
-        i0 = 0
-        Do ia = 1, nsec
-            Do ii = 1, ninact
-                i0 = i0 + 1
-                iai(ia, ii) = i0
-                ia0(i0) = convert_secondary_to_global_idx(ia) ! Secondary
-                ii0(i0) = ii ! inactive
-            End do
-        End do
-        Allocate (v(nai, nact, nact))
-        v = 0.0d+00
-        if (rank == 0) print *, 'end before v matrices'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
-        Call vDmat_complex(nai, iai, v)
-        if (rank == 0) print *, 'end after vDmat'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
-        if (rank == 0) print *, 'come'
-
-        Do isym = 1, nsymrpa
-
+            e2 = 0.0d+00
+            e2d = 0.0d+00
             dimn = 0
-            Do it = 1, nact
-                jt = convert_active_to_global_idx(it)
-                Do iu = 1, nact
-                    ju = convert_active_to_global_idx(iu)
-                    if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
-                    if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
-                        dimn = dimn + 1
-                    End if
+            syma = 0
+
+            i0 = 0
+            Do ia = 1, nsec
+                Do ii = 1, ninact
+                    i0 = i0 + 1
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
+            nai = i0
+            Allocate (iai(nsec, ninact))
+            iai = 0
+            Allocate (ia0(nai))
+            Allocate (ii0(nai))
 
-            If (dimn == 0) cycle ! Go to the next isym
-
-            Allocate (indsym(2, dimn))
-            indsym = 0
-            dimn = 0
-
-            Do it = 1, nact
-                jt = convert_active_to_global_idx(it)
-                Do iu = 1, nact
-                    ju = convert_active_to_global_idx(iu)
-
-                    if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
-
-                    if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
-                        dimn = dimn + 1
-                        indsym(1, dimn) = it
-                        indsym(2, dimn) = iu
-                    End if
+            i0 = 0
+            Do ia = 1, nsec
+                Do ii = 1, ninact
+                    i0 = i0 + 1
+                    iai(ia, ii) = i0
+                    ia0(i0) = convert_secondary_to_global_idx(ia) ! Secondary
+                    ii0(i0) = ii ! inactive
                 End do
             End do
-
-            Allocate (sc(dimn, dimn))
-            sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sDmat'
+            Allocate (v(nai, nact, nact))
+            v = 0.0d+00
+            if (rank == 0) print *, 'end before v matrices'
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            Call sDmat_complex(dimn, indsym, sc)
+            Call vDmat_complex (nai, iai, v)
+            if (rank == 0) print *, 'end after vDmat'
+            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+            datetmp1 = datetmp0
+            tsectmp1 = tsectmp0
+            if (rank == 0) print *, 'come'
+
+            Do isym = 1, nsymrpa
+
+                dimn = 0
+                Do it = 1, nact
+                    jt = convert_active_to_global_idx(it)
+                    Do iu = 1, nact
+                        ju = convert_active_to_global_idx(iu)
+                        if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
+                        if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                            dimn = dimn + 1
+                        End if
+                    End do
+                End do
+
+                if (rank == 0) print *, 'isym, dimn', isym, dimn
+
+                If (dimn == 0) cycle ! Go to the next isym
+
+                Allocate (indsym(2, dimn))
+                indsym = 0
+                dimn = 0
+
+                Do it = 1, nact
+                    jt = convert_active_to_global_idx(it)
+                    Do iu = 1, nact
+                        ju = convert_active_to_global_idx(iu)
+
+                        if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
+
+                        if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                            dimn = dimn + 1
+                            indsym(1, dimn) = it
+                            indsym(2, dimn) = iu
+                        End if
+                    End do
+                End do
+
+                Allocate (sc(dimn, dimn))
+                sc = 0.0d+00            ! sc N*N
+                if (rank == 0) print *, 'before sDmat'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call sDmat_complex (dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            if (rank == 0) print *, 'sc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Allocate (ws(dimn))
-            ws = 0.0d+00
+                if (rank == 0) print *, 'sc matrix is obtained normally'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Allocate (ws(dimn))
+                ws = 0.0d+00
 
-            Allocate (sc0(dimn, dimn))
-            sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
+                Allocate (sc0(dimn, dimn))
+                sc0 = sc
+                if (rank == 0) print *, 'before cdiag'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after s cdiag'
+                if (rank == 0) print *, 'after s cdiag'
 
-            If (dimm == 0) then
-                deallocate (indsym)
+                If (dimm == 0) then
+                    deallocate (indsym)
+                    deallocate (sc0)
+                    deallocate (sc)
+                    deallocate (ws)
+                    cycle ! Go to the next isym
+                End if
+
+                    If (debug) then
+                        if (rank == 0) print *, 'Check whether U*SU is diagonal'
+                        Call checkdgc(dimn, sc0, sc, ws)
+                        if (rank == 0) print *, 'Check whether U*SU is diagonal END'
+                    End if
+
+                Allocate (bc(dimn, dimn))                                 ! bc N*N
+                bc = 0.0d+00
+                if (rank == 0) print *, 'before bDmat'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call bDmat_complex (dimn, sc0, indsym, bc)
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                if (rank == 0) print *, 'bc matrix is obtained normally'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
                 deallocate (sc0)
-                deallocate (sc)
+
+                if (rank == 0) print *, 'OK cdiag', dimn, dimm
+
+                Allocate (uc(dimn, dimm))                                 ! uc N*M
+                Allocate (wsnew(dimm))                                  ! wnew M
+                uc(:, :) = 0.0d+00
+                wsnew(:) = 0.0d+00
+                if (rank == 0) print *, 'before ccutoff'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                if (rank == 0) print *, 'OK ccutoff'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
                 deallocate (ws)
-                cycle ! Go to the next isym
-            End if
-
-            If (debug) then
-                if (rank == 0) print *, 'Check whether U*SU is diagonal'
-                Call checkdgc(dimn, sc0, sc, ws)
-                if (rank == 0) print *, 'Check whether U*SU is diagonal END'
-            End if
-
-            Allocate (bc(dimn, dimn))                                 ! bc N*N
-            bc = 0.0d+00
-            if (rank == 0) print *, 'before bDmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call bDmat_complex(dimn, sc0, indsym, bc)
+                deallocate (sc)
+                if (rank == 0) print *, 'before ulambda_s_half'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                deallocate (wsnew)
 
-            if (rank == 0) print *, 'bc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            deallocate (sc0)
+                if (rank == 0) print *, 'ucrams half OK'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Allocate (bc0(dimm, dimn))                       ! bc0 M*N
+                bc0 = 0.0d+00
+                bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
+                Allocate (bc1(dimm, dimm))                      ! bc1 M*M
+                bc1 = 0.0d+00
+                bc1 = MATMUL(bc0, uc)
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
+                if (rank == 0) then
+                    IF (debug) then
 
-            Allocate (uc(dimn, dimm))                                 ! uc N*M
-            Allocate (wsnew(dimm))                                  ! wnew M
-            uc(:, :) = 0.0d+00
-            wsnew(:) = 0.0d+00
-            if (rank == 0) print *, 'before ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'OK ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            deallocate (ws)
-            deallocate (sc)
-            if (rank == 0) print *, 'before ulambda_s_half'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            deallocate (wsnew)
-
-            if (rank == 0) print *, 'ucrams half OK'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Allocate (bc0(dimm, dimn))                       ! bc0 M*N
-            bc0 = 0.0d+00
-            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
-            Allocate (bc1(dimm, dimm))                      ! bc1 M*M
-            bc1 = 0.0d+00
-            bc1 = MATMUL(bc0, uc)
-
-            if (rank == 0) then
-                IF (debug) then
-
-                    print *, 'Check whether bc1 is hermite or not'
-                    Do i = 1, dimm
-                        Do j = i, dimm
-                            if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
+                        print *, 'Check whether bc1 is hermite or not'
+                        Do i = 1, dimm
+                            Do j = i, dimm
+                                if (ABS(bc1(i, j) - DCONJG(bc1(j, i))) > 1.0d-6) then
                                 print '(2I4,2E15.7)', i, j, bc1(i, j) - bc1(j, i)
                             End if
                         End do
@@ -289,13 +289,13 @@ contains
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            If (debug) then
+                If (debug) then
 
-                if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
-                Call checkdgc(dimm, bc0, bc1, wb)
+                    if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
+                    Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                if (rank == 0) print *, 'Check whether bc is really diagonalized or not END'
-            End if
+                    if (rank == 0) print *, 'Check whether bc is really diagonalized or not END'
+                End if
 
             deallocate (bc0)
 
@@ -367,7 +367,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE sDmat_complex(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in space D
+    SUBROUTINE sDmat_complex (dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in space D
 
 !  S(xy, tu) = <0|EyxEtu|0>
 !
@@ -415,7 +415,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE bDmat_complex(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in space D
+    SUBROUTINE bDmat_complex (dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in space D
 !
 !  B(xy,tu) = Siguma_w [eps(w)<0|EyxEtuEww|0>+S(xy,tu)(eps(t)-eps(u))]
 !
@@ -486,7 +486,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
-    SUBROUTINE vDmat_complex(nai, iai, v)
+    SUBROUTINE vDmat_complex (nai, iai, v)
 !
 !
 ! V(a,i) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}
@@ -705,34 +705,34 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE solve_D_subspace_real()
+        SUBROUTINE solve_D_subspace_real ()
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use module_global_variables
-        use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
-        use module_ulambda_s_half, only: ulambda_s_half
+            use module_global_variables
+            use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
+            use module_ulambda_s_half, only: ulambda_s_half
 
-        Implicit NONE
+            Implicit NONE
 #ifdef HAVE_MPI
-        include 'mpif.h'
+            include 'mpif.h'
 #endif
 
-        integer :: dimn, dimm, dammy
-        integer, allocatable :: indsym(:, :)
-        real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(nsymrpa*2), e, alpha
-        real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
-        real(8), allocatable  :: bc(:, :)
-        real(8), allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
-        integer, allocatable     :: ia0(:), ii0(:), iai(:, :)
-        integer                  :: nai
-        integer :: j, i, syma, isym, i0
-        integer :: ia, it, ii, iu
-        integer :: ja, jt, ji, ju
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
+            integer :: dimn, dimm, dammy
+            integer, allocatable :: indsym(:, :)
+            real(8), allocatable  :: wsnew(:), ws(:), wb(:)
+            real(8)               :: e2(nsymrpa*2), e, alpha
+            real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
+            real(8), allocatable  :: bc(:, :)
+            real(8), allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
+            integer, allocatable     :: ia0(:), ii0(:), iai(:, :)
+            integer                  :: nai
+            integer :: j, i, syma, isym, i0
+            integer :: ia, it, ii, iu
+            integer :: ja, jt, ji, ju
+            integer :: datetmp0, datetmp1
+            real(8) :: tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -766,184 +766,185 @@ contains
 !
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
 
-        if (rank == 0) then
-            print *, ' ENTER solv D part'
-            print *, ' nsymrpa', nsymrpa
-        end if
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
+            if (rank == 0) then
+                print *, ' ENTER solv D part'
+                print *, ' nsymrpa', nsymrpa
+            end if
+            datetmp1 = date0; datetmp0 = date0
+            Call timing(date0, tsec0, datetmp0, tsectmp0)
+            tsectmp1 = tsectmp0
 
-        e2 = 0.0d+00
-        e2d = 0.0d+00
-        dimn = 0
-        syma = 0
-
-        i0 = 0
-        Do ia = 1, nsec
-            Do ii = 1, ninact
-                i0 = i0 + 1
-            End do
-        End do
-
-        nai = i0
-        Allocate (iai(nsec, ninact))
-        iai = 0
-        Allocate (ia0(nai))
-        Allocate (ii0(nai))
-
-        i0 = 0
-        Do ia = 1, nsec
-            Do ii = 1, ninact
-                i0 = i0 + 1
-                iai(ia, ii) = i0
-                ia0(i0) = convert_secondary_to_global_idx(ia) ! Secondary
-                ii0(i0) = ii ! inactive
-            End do
-        End do
-        Allocate (v(nai, nact, nact))
-        v = 0.0d+00
-        if (rank == 0) print *, 'end before v matrices'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
-        Call vDmat_real(nai, iai, v)
-        if (rank == 0) print *, 'end after vDmat'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
-        if (rank == 0) print *, 'come'
-
-        Do isym = 1, nsymrpa
-
+            e2 = 0.0d+00
+            e2d = 0.0d+00
             dimn = 0
-            Do it = 1, nact
-                jt = convert_active_to_global_idx(it)
-                Do iu = 1, nact
-                    ju = convert_active_to_global_idx(iu)
-                    if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
-                    if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
-                        dimn = dimn + 1
-                    End if
+            syma = 0
+
+            i0 = 0
+            Do ia = 1, nsec
+                Do ii = 1, ninact
+                    i0 = i0 + 1
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
+            nai = i0
+            Allocate (iai(nsec, ninact))
+            iai = 0
+            Allocate (ia0(nai))
+            Allocate (ii0(nai))
 
-            If (dimn == 0) cycle ! Go to the next isym
-
-            Allocate (indsym(2, dimn))
-            indsym = 0
-            dimn = 0
-
-            Do it = 1, nact
-                jt = convert_active_to_global_idx(it)
-                Do iu = 1, nact
-                    ju = convert_active_to_global_idx(iu)
-
-                    if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
-
-                    if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
-                        dimn = dimn + 1
-                        indsym(1, dimn) = it
-                        indsym(2, dimn) = iu
-                    End if
+            i0 = 0
+            Do ia = 1, nsec
+                Do ii = 1, ninact
+                    i0 = i0 + 1
+                    iai(ia, ii) = i0
+                    ia0(i0) = convert_secondary_to_global_idx(ia) ! Secondary
+                    ii0(i0) = ii ! inactive
                 End do
             End do
-
-            Allocate (sc(dimn, dimn))
-            sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sDmat'
+            Allocate (v(nai, nact, nact))
+            v = 0.0d+00
+            if (rank == 0) print *, 'end before v matrices'
             Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
             datetmp1 = datetmp0
             tsectmp1 = tsectmp0
-            Call sDmat_real(dimn, indsym, sc)
+            Call vDmat_real (nai, iai, v)
+            if (rank == 0) print *, 'end after vDmat'
+            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+            datetmp1 = datetmp0
+            tsectmp1 = tsectmp0
+            if (rank == 0) print *, 'come'
+
+            Do isym = 1, nsymrpa
+
+                dimn = 0
+                Do it = 1, nact
+                    jt = convert_active_to_global_idx(it)
+                    Do iu = 1, nact
+                        ju = convert_active_to_global_idx(iu)
+                        if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
+                        if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                            dimn = dimn + 1
+                        End if
+                    End do
+                End do
+
+                if (rank == 0) print *, 'isym, dimn', isym, dimn
+
+                If (dimn == 0) cycle ! Go to the next isym
+
+                Allocate (indsym(2, dimn))
+                indsym = 0
+                dimn = 0
+
+                Do it = 1, nact
+                    jt = convert_active_to_global_idx(it)
+                    Do iu = 1, nact
+                        ju = convert_active_to_global_idx(iu)
+
+                        if (nsymrpa /= 1) syma = MULTB_D(irpamo(jt), irpamo(ju))
+
+                        if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. syma == isym)) then
+                            dimn = dimn + 1
+                            indsym(1, dimn) = it
+                            indsym(2, dimn) = iu
+                        End if
+                    End do
+                End do
+
+                Allocate (sc(dimn, dimn))
+                sc = 0.0d+00            ! sc N*N
+                if (rank == 0) print *, 'before sDmat'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call sDmat_real (dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            if (rank == 0) print *, 'sc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Allocate (ws(dimn))
-            ws = 0.0d+00
+                if (rank == 0) print *, 'sc matrix is obtained normally'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Allocate (ws(dimn))
+                ws = 0.0d+00
 
-            Allocate (sc0(dimn, dimn))
-            sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
+                Allocate (sc0(dimn, dimn))
+                sc0 = sc
+                if (rank == 0) print *, 'before cdiag'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after s cdiag'
+                if (rank == 0) print *, 'after s cdiag'
 
-            If (dimm == 0) then
-                deallocate (indsym)
+                If (dimm == 0) then
+                    deallocate (indsym)
+                    deallocate (sc0)
+                    deallocate (sc)
+                    deallocate (ws)
+                    cycle ! Go to the next isym
+                End if
+
+
+                Allocate (bc(dimn, dimn))                                 ! bc N*N
+                bc = 0.0d+00
+                if (rank == 0) print *, 'before bDmat'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call bDmat_real (dimn, sc0, indsym, bc)
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                if (rank == 0) print *, 'bc matrix is obtained normally'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
                 deallocate (sc0)
-                deallocate (sc)
+
+                if (rank == 0) print *, 'OK cdiag', dimn, dimm
+
+                Allocate (uc(dimn, dimm))                                 ! uc N*M
+                Allocate (wsnew(dimm))                                  ! wnew M
+                uc(:, :) = 0.0d+00
+                wsnew(:) = 0.0d+00
+                if (rank == 0) print *, 'before ccutoff'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call rcutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
+!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                if (rank == 0) print *, 'OK ccutoff'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
                 deallocate (ws)
-                cycle ! Go to the next isym
-            End if
-
-            Allocate (bc(dimn, dimn))                                 ! bc N*N
-            bc = 0.0d+00
-            if (rank == 0) print *, 'before bDmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call bDmat_real(dimn, sc0, indsym, bc)
+                deallocate (sc)
+                if (rank == 0) print *, 'before ulambda_s_half'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                deallocate (wsnew)
 
-            if (rank == 0) print *, 'bc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            deallocate (sc0)
+                if (rank == 0) print *, 'ucrams half OK'
+                Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
+                datetmp1 = datetmp0
+                tsectmp1 = tsectmp0
+                Allocate (bc0(dimm, dimn))                       ! bc0 M*N
+                bc0 = 0.0d+00
+                bc0 = MATMUL(TRANSPOSE(uc), bc)
+                Allocate (bc1(dimm, dimm))                      ! bc1 M*M
+                bc1 = 0.0d+00
+                bc1 = MATMUL(bc0, uc)
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
+                if (rank == 0) then
+                    IF (debug) then
 
-            Allocate (uc(dimn, dimm))                                 ! uc N*M
-            Allocate (wsnew(dimm))                                  ! wnew M
-            uc(:, :) = 0.0d+00
-            wsnew(:) = 0.0d+00
-            if (rank == 0) print *, 'before ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call rcutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'OK ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            deallocate (ws)
-            deallocate (sc)
-            if (rank == 0) print *, 'before ulambda_s_half'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
-!      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            deallocate (wsnew)
-
-            if (rank == 0) print *, 'ucrams half OK'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
-            Allocate (bc0(dimm, dimn))                       ! bc0 M*N
-            bc0 = 0.0d+00
-            bc0 = MATMUL(TRANSPOSE(uc), bc)
-            Allocate (bc1(dimm, dimm))                      ! bc1 M*M
-            bc1 = 0.0d+00
-            bc1 = MATMUL(bc0, uc)
-
-            if (rank == 0) then
-                IF (debug) then
-
-                    print *, 'Check whether bc1 is hermite or not'
-                    Do i = 1, dimm
-                        Do j = i, dimm
-                            if (ABS(bc1(i, j) - bc1(j, i)) > 1.0d-6) then
+                        print *, 'Check whether bc1 is hermite or not'
+                        Do i = 1, dimm
+                            Do j = i, dimm
+                                if (ABS(bc1(i, j) - bc1(j, i)) > 1.0d-6) then
                                 print '(2I4,2E15.7)', i, j, bc1(i, j) - bc1(j, i)
                             End if
                         End do
@@ -1043,7 +1044,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE sDmat_real(dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in space D
+    SUBROUTINE sDmat_real (dimn, indsym, sc) ! Assume C1 molecule, overlap matrix S in space D
 
 !  S(xy, tu) = <0|EyxEtu|0>
 !
@@ -1091,7 +1092,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE bDmat_real(dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in space D
+    SUBROUTINE bDmat_real (dimn, sc, indsym, bc) ! Assume C1 molecule, overlap matrix B in space D
 !
 !  B(xy,tu) = Siguma_w [eps(w)<0|EyxEtuEww|0>+S(xy,tu)(eps(t)-eps(u))]
 !
@@ -1162,7 +1163,7 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 !
-    SUBROUTINE vDmat_real(nai, iai, v)
+    SUBROUTINE vDmat_real (nai, iai, v)
 !
 !
 ! V(a,i) = SIGUMA_pq:active <0|EutEpq|0>{(ai|pq) - (aq|pi)}

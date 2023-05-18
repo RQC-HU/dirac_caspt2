@@ -29,8 +29,8 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
     fock_cmplx = 0.0d+00
 
 !$OMP parallel do private(j,k)
-    do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact
+    do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_act_end
             fock_cmplx(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact + nelec
 
@@ -44,8 +44,8 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
     End do          ! i
 
 !$OMP parallel do private(j,k)
-    do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact + nsec
+    do i = rank + global_sec_start, global_sec_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_sec_end
             fock_cmplx(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
             do k = 1, ninact + nelec
 
@@ -66,8 +66,8 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
         print *, ' '
         print *, 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
         print *, ' '
-        do i = 1, ninact + nact + nsec
-            do j = i, ninact + nact + nsec
+        do i = 1, global_sec_end
+            do j = i, global_sec_end
                 if ((i /= j) .and. (ABS(fock_cmplx(i, j)) > 1.0d-6)) then
                     print '(2I4,2E20.10)', i, j, fock_cmplx(i, j)
                 end if
@@ -78,7 +78,7 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
         print *, ' '
         print *, '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
         &, 'Spinor Energy (HF)        ERROR'
-        do i = 1, ninact + nact + nsec
+        do i = 1, global_sec_end
             print '(I4,4E20.10)', i, fock_cmplx(i, i), caspt2_mo_energy(i), caspt2_mo_energy(i) - dble(fock_cmplx(i, i))
         end do
 
@@ -116,8 +116,8 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
     fock_real = 0.0d+00
 
 !$OMP parallel do private(j,k)
-    do i = rank + 1, ninact + nact, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact
+    do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_act_end
             fock_real(i, j) = one_elec_int_r(i, j)
             do k = 1, ninact + nelec
 
@@ -131,8 +131,8 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
     End do          ! i
 
 !$OMP parallel do private(j,k)
-    do i = rank + ninact + nact + 1, ninact + nact + nsec, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
-        do j = i, ninact + nact + nsec
+    do i = rank + global_sec_start, global_sec_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
+        do j = i, global_sec_end
             fock_real(i, j) = one_elec_int_r(i, j)
             do k = 1, ninact + nelec
 
@@ -153,8 +153,8 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         print *, ' '
         print *, 'OFF DIAGONAL ELEMENTS OF FOCK MATRIX WHICH IS LARGER THAN 1.0d-06 '
         print *, ' '
-        do i = 1, ninact + nact + nsec
-            do j = i, ninact + nact + nsec
+        do i = 1, global_sec_end
+            do j = i, global_sec_end
                 if ((i /= j) .and. (ABS(fock_real(i, j)) > 1.0d-6)) then
                     print '(2I4,2E20.10)', i, j, fock_real(i, j)
                 end if
@@ -165,7 +165,7 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         print *, ' '
         print *, '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
         &, 'Spinor Energy (HF)        ERROR'
-        do i = 1, ninact + nact + nsec
+        do i = 1, global_sec_end
             print '(I4,4E20.10)', i, fock_real(i, i), caspt2_mo_energy(i), caspt2_mo_energy(i) - dble(fock_real(i, i))
         end do
 

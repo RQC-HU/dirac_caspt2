@@ -61,12 +61,12 @@ SUBROUTINE read_mrconee(filename)
         end do
 
         print *, 'active'
-        do i0 = ninact + 1, ninact + nact
+        do i0 = global_act_start, global_act_end
             print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
 
         print *, 'secondary'
-        do i0 = ninact + nact + 1, ninact + nact + nsec
+        do i0 = global_sec_start, global_sec_end
             print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
     end if
@@ -193,9 +193,9 @@ contains
         ! Define the space index for each molecular orbital.
         Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
         space_idx(1:ninact) = 1 ! inactive = 1
-        space_idx(ninact + 1:ninact + nact) = 2 ! active = 2
-        space_idx(ninact + nact + 1:ninact + nact + nsec) = 3 ! secondary = 3
-        space_idx(ninact + nact + nsec + 1:nmo) = 4 ! virtual = 4
+        space_idx(global_act_start:global_act_end) = 2 ! active = 2
+        space_idx(global_sec_start:global_sec_end) = 3 ! secondary = 3
+        space_idx(global_sec_end + 1:nmo) = 4 ! virtual = 4
 
         allocate (IRPMO(1:NMO)); call memplus(size(IRPMO), kind(IRPMO), 1)
         Allocate (irpamo(nmo)); Call memplus(KIND(irpamo), SIZE(irpamo), 1)
@@ -314,7 +314,7 @@ contains
 
         close (unit_mrconee)
 
-        nmom = ninact + nact + nsec
+        nmom = global_sec_end
         Allocate (one_elec_int_r(nmom, nmom)); Call memplus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
         Allocate (one_elec_int_i(nmom, nmom)); Call memplus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
 
@@ -364,8 +364,8 @@ contains
             end if
             idx_energy_order = idx_energy_order + 1 ! Next spinor (energy order)
         end do
-! idx_ras_order must be ninact + 1
-        if (idx_ras_order /= ninact + 1) then
+! idx_ras_order must be global_act_start
+        if (idx_ras_order /= global_act_start) then
             print *, "ERROR: Sorting energy ascending order to RAS order is failed... STOP THE PROGRAM"
             print *, "ORIGINAL ENERGY ORDER LIST : ", mo_energy_order
             print *, "LIST OF SORTING IN PROGRESS: ", want_to_sort(1:idx_ras_order)
@@ -395,15 +395,15 @@ contains
             idx_ras_order = idx_ras_order + ras3_size
         end if
 
-! idx_ras_order must be ninact + nact +1
-        if (idx_ras_order /= ninact + nact + 1) then
+! idx_ras_order must be global_act_end +1
+        if (idx_ras_order /= global_sec_start) then
             print *, "ERROR: Sorting energy ascending order to RAS order is failed... STOP THE PROGRAM"
             print *, "ORIGINAL ENERGY ORDER LIST : ", mo_energy_order
             print *, "LIST OF SORTING IN PROGRESS: ", want_to_sort(1:idx_ras_order)
             call stop_with_errorcode(1) ! ERROR, STOP THE PROGRAM
         end if
 ! Fill secondary
-        do while (idx_ras_order <= ninact + nact + nsec)
+        do while (idx_ras_order <= global_sec_end)
             if (ras1_size > 0 .and. ras1_list(ras1_idx) == idx_energy_order) then
                 if (ras1_size > ras1_idx) ras1_idx = ras1_idx + 1 ! Skip ras1_list(ras1_idx)
             elseif (ras2_size > 0 .and. ras2_list(ras2_idx) == idx_energy_order) then

@@ -36,7 +36,7 @@ contains
         character*50, intent(in) :: filename
 
         character  :: datex*10, timex*8
-        integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
+        integer    :: unit_mdcint, nkr, nuniq, nmoc
         integer    :: j0, i0
         integer    :: k, l
         integer    :: i, j, nz
@@ -49,12 +49,13 @@ contains
         logical :: continue_read, is_end_of_file
         integer :: iostat
         continue_read = .true.
-        nmoc = ninact + nact
-        nmom = ninact + nact + nsec
+        nmoc = global_act_end
         if (rank == 0) print *, "Enter readint2_casci subroutine (realonly)"
 
-        Allocate (int2r_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-        Allocate (int2r_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
+        Allocate (int2r_f1(global_sec_start:global_sec_end, global_sec_start:global_sec_end, nmoc, nmoc))
+        Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
+        Allocate (int2r_f2(global_sec_start:global_sec_end, nmoc, nmoc, global_sec_start:global_sec_end))
+        Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
         Allocate (inttwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwr), SIZE(inttwr), 1)
         Allocate (indk(nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
         Allocate (indl(nmo**2)); Call memplus(KIND(indl), SIZE(indl), 1)
@@ -284,7 +285,7 @@ contains
         character*50, intent(in) :: filename
 
         character  :: datex*10, timex*8
-        integer    :: unit_mdcint, nkr, nuniq, nmom, nmoc
+        integer    :: unit_mdcint, nkr, nuniq, nmoc
         integer    :: j0, i0
         integer    :: k, l
         integer    :: i, j, nz
@@ -298,14 +299,17 @@ contains
         integer :: read_line_len, iostat
         read_line_len = read_line_max ! Set read_line_len as parameter "read_line_max"
         continue_read = .true.
-        nmoc = ninact + nact
-        nmom = ninact + nact + nsec
+        nmoc = global_act_end
         if (rank == 0) print *, "Enter readint2_casci"
 
-        Allocate (int2r_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
-        Allocate (int2i_f1(nmoc + 1:nmoc + nsec, nmoc + 1:nmoc + nsec, nmoc, nmoc)); Call memplus(KIND(int2i_f1), SIZE(int2i_f1), 1)
-        Allocate (int2r_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
-        Allocate (int2i_f2(nmoc + 1:nmoc + nsec, nmoc, nmoc, nmoc + 1:nmoc + nsec)); Call memplus(KIND(int2i_f2), SIZE(int2i_f2), 1)
+        Allocate (int2r_f1(global_sec_start:global_sec_end, global_sec_start:global_sec_end, nmoc, nmoc))
+        Call memplus(KIND(int2r_f1), SIZE(int2r_f1), 1)
+        Allocate (int2i_f1(global_sec_start:global_sec_end, global_sec_start:global_sec_end, nmoc, nmoc))
+        Call memplus(KIND(int2i_f1), SIZE(int2i_f1), 1)
+        Allocate (int2r_f2(global_sec_start:global_sec_end, nmoc, nmoc, global_sec_start:global_sec_end))
+        Call memplus(KIND(int2r_f2), SIZE(int2r_f2), 1)
+        Allocate (int2i_f2(global_sec_start:global_sec_end, nmoc, nmoc, global_sec_start:global_sec_end))
+        Call memplus(KIND(int2i_f2), SIZE(int2i_f2), 1)
         Allocate (inttwr(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwr), SIZE(inttwr), 1)
         Allocate (inttwi(nmoc, nmoc, nmoc, nmoc)); Call memplus(KIND(inttwi), SIZE(inttwi), 1)
         Allocate (indk(nmo**2)); Call memplus(KIND(indk), SIZE(indk), 1)
