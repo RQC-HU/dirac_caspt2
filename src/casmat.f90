@@ -414,7 +414,7 @@ SUBROUTINE casmat_real(mat)
     Deallocate (vi)
     if (rank == 0) print *, 'end casmat_real'
 #ifdef HAVE_MPI
-    if (rank == 0) print *, 'Reduce mat(:,:)'
+    if (rank == 0) print *, 'Allreduce mat(:,:)'
     call allreduce_wrapper(mat=mat)
     if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif

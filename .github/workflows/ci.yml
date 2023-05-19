@@ -105,7 +105,7 @@ jobs:
         with:
           path: |
             /opt/intel/oneapi
-          key: ${{ runner.os }}-install-${{ matrix.gcc-version }}-${{ env.KEYVERSION }}
+          key: ${{ runner.os }}-install-${{ matrix.version }}-${{ env.KEYVERSION }}
       - name: Setup MKL
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
