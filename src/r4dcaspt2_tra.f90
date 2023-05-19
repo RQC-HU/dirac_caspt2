@@ -84,12 +84,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
     end if
 
-    If (mod(nelec, 2) == 0) then
-        evenelec = .true.
-    else
-        evenelec = .false.
-    End if
-
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     if (rank == 0) print *, ' ENTER READ MRCONEE'
     filename = 'MRCONEE'

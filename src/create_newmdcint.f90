@@ -10,7 +10,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     use module_file_manager
     use module_realonly, only: realonly
     Use module_global_variables
-    ! use omp_lib
     Implicit None
 #ifdef HAVE_MPI
     include 'mpif.h'
@@ -22,7 +21,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
     integer, allocatable :: indk(:), indl(:), kr(:)
     double precision, allocatable  :: rklr(:), rkli(:)
-    ! Iwamuro modify
     real(8) :: cutoff
     integer :: iiit, jjjt, kkkt, lllt
     integer :: nkr, nz, file_idx, iostat

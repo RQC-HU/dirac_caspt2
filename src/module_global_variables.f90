@@ -157,7 +157,7 @@ MODULE module_global_variables
     ! global_act_start = ninact + 1, global_act_end = ninact + nact
     ! global_sec_start = ninact + nact + 1, global_sec_end = ninact + nact + nsec
     integer    :: global_inact_start, global_inact_end, global_act_start, global_act_end, global_sec_start, global_sec_end
-    logical :: debug, evenelec
+    logical :: debug
     ! Epsilon
     real(8), allocatable :: eps(:)
     ! Fock matrix
