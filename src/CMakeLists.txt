@@ -15,7 +15,7 @@ add_library(dcaspt2_module STATIC
 )
 
 add_library(caspt2_module STATIC
-ulamda_s_half.f90
+ulambda_s_half.f90
 )
 target_link_libraries(caspt2_module dcaspt2_module)
 
