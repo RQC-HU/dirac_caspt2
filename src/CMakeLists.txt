@@ -33,7 +33,7 @@ add_executable(r4dcascicoexe
   fock_matrix_of_hf.f90
   fockcasci.f90
   fockdiag.f90
-  get_cas_configuration.f90
+  search_cas_configuration.f90
   get_filename.f90
   mem.f90
   one_e_exct.f90

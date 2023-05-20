@@ -1,6 +1,6 @@
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SUBROUTINE get_cas_configuration
+SUBROUTINE search_cas_configuration
 
 ! Find the CAS configurations and store the index of the CAS configurations in cas_idx
 ! Also, store the reverse index of the CAS configurations in dict_cas_idx_reverse.
@@ -14,7 +14,7 @@ SUBROUTINE get_cas_configuration
 
     integer :: t, allow_det_num, current_det
 
-    if (rank == 0) print *, 'Enter get_cas_configuration'
+    if (rank == 0) print *, 'Enter search_cas_configuration'
     allow_det_num = 0
     ndet = 0
 
@@ -138,4 +138,4 @@ contains
             end if
         end if
     end function is_cas_determinant
-end subroutine get_cas_configuration
+end subroutine search_cas_configuration

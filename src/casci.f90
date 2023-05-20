@@ -27,7 +27,7 @@ SUBROUTINE casci
     integer, allocatable :: keys(:), vals(:), keys_rev(:), vals_rev(:)
     real(8) :: tsectmp0, tsectmp1
 
-    Call get_cas_configuration
+    Call search_cas_configuration
 
     ! Create a matrix for CI
     if (realonly%is_realonly()) then
