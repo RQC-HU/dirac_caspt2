@@ -11,6 +11,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use module_2integrals
     use module_realonly, only: check_realonly, realonly
     use read_input_module
+    use module_ivo_consistency_check
 
     Implicit NONE
 #ifdef HAVE_MPI
@@ -77,6 +78,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     filename = 'MRCONEE'
     call read_mrconee(filename)
+
+    ! Check consistency of IVO input and DFPCMO file.
+    call ivo_consistency_check
 
     call check_realonly
     ! Create UTChem type MDCINT file from Dirac MDCINT file
