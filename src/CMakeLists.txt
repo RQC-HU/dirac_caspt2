@@ -77,7 +77,7 @@ add_executable(r4dcaspt2ocoexe
   timing.f90
   tramo.f90
 )
-target_link_libraries(r4dcaspt2ocoexe dcaspt2_module caspt2_module)
+target_link_libraries(r4dcaspt2ocoexe caspt2_module)
 
 add_executable(r4divocoexe
   create_newmdcint.f90
@@ -92,7 +92,7 @@ add_executable(r4divocoexe
   read_mrconee.f90
 	timing.f90
 )
-target_link_libraries(r4divocoexe dcaspt2_module ivo_module)
+target_link_libraries(r4divocoexe ivo_module)
 
 install(TARGETS r4divocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
