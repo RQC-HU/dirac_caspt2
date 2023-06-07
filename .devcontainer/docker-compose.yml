@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  dcaspt2:
+    container_name: 'dirac-caspt2'
+    hostname: 'dirac-caspt2'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    tty: true
+    # Login as non-root user (docker)
+    # because mpirun does not work as root
+    # except if --allow-run-as-root option is used
+    environment:
+      GID: 1000
+      UID: 1000
+      USER: docker
+    user: docker
+    volumes:
+      - type: bind
+        source: ..
+        target: /workspace
