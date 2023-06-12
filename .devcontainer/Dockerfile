@@ -33,7 +33,7 @@ apt-get install -y intel-oneapi-mkl
 USER ${UNAME}
 WORKDIR /workspace
 
-RUN echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bashrc
+RUN echo "source /opt/intel/oneapi/setvars.sh --force > /dev/null" >> ~/.bashrc
 
 # Intel oneapi
 # RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
