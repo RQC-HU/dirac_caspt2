@@ -1,29 +1,41 @@
-# DIRAC-CASPT2
+# DIRAC-CASPT2: 相対論的多配置2次摂動論プログラム
 
-- [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
 
-## お知らせ
+[![DIRAC-CASPT2-CI-test](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml) [English README](README.md)
 
-- [開発者の方はGithub Wikiを参考に開発を行ってください](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki)
+- [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはRASCI/RASPT2法で2次の多配置摂動計算を行います
+
+## Contribution
+
+このプロジェクトに貢献(バグレポート、機能追加など)する方法については[CONTRIBUTING.md](CONTRIBUTING.md)を参照してください
 
 ## 目次
 
-- [DIRAC-CASPT2](#dirac-caspt2)
-  - [お知らせ](#お知らせ)
+- [DIRAC-CASPT2](#dirac-caspt2-相対論的多配置2次摂動論プログラム)
+  - [Contribution](#contribution)
   - [目次](#目次)
-  - [Requirements](#requirements)
+  - [Prerequisites for build](#prerequisites-for-build)
+  - [ダウンロード](#ダウンロード)
   - [How to build](#how-to-build)
     - [Basic build](#basic-build)
     - [MPI Support](#mpi-support)
-    - [Install](#install)
+    - [Installation](#installation)
     - [CMakeビルドオプション](#cmakeビルドオプション)
   - [How to use](#how-to-use)
-    - [Prerequisites](#prerequisites)
+    - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
     - [input file](#input-file)
     - [インプットファイルの仕様](#インプットファイルの仕様)
 
-## Requirements
+## ダウンロード
+
+- GitHubからソースコードをダウンロードします
+
+```sh
+git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+```
+
+## Prerequisites for build
 
 以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
 
@@ -82,31 +94,30 @@
 
 ## How to build
 
-- このプログラムはCMakeを使用してビルドを行います
+- このプログラムはsetupスクリプトを使用してビルドできます
   - CMakeコマンドを直接使用してビルドすることもできますが、setupスクリプトを使用することをおすすめします
   - CMakeを直接使用してビルドしたい場合は、[CMakeビルドオプション](#cmakeビルドオプション)を参照してください
 
 ### Basic build
 
-- GitHubからソースコードをダウンロードします(初回のみ)
-
-```sh
-git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
-```
-
 - ソースコードのディレクトリに移動します
 
 ```sh
-# Change directory to the source code directory
-# ( cd /path/to/dirac_caspt2 )
-cd dirac_caspt2
+cd /path/to/dirac_caspt2
 ```
 
-- セットアップスクリプトを実行します。(--buildオプションをつけるとビルドまで行います。--fcオプションをつけてコンパイラを明示的に指定することを推奨します)
+- セットアップスクリプトを実行してビルドします(コンパイラが指定されていない場合、CMakeが最初に見つけたコンパイラが使われます)
+
 
   ```sh
-  ./setup --build --fc=ifort
+  ./setup --build
   ```
+
+  - コンパイラを明示的に指定する場合は--fcオプションを使用します
+
+    ```sh
+    ./setup --build --fc ifort
+    ```
 
   - セットアップスクリプトのオプションについては以下のコマンドで確認できます
 
@@ -217,7 +228,7 @@ pytest --all
 
 ## How to use
 
-### Prerequisites
+### Prerequisites for execution
 
 - [DIRAC](http://diracprogram.org/)の計算で1,2電子積分ファイル(MRCONEE, MDCINT, MDCINXXXX1...)が得られていることを前提としています
   - 1,2電子積分ファイルを得るには[DIRACの**MOLTRAの項](http://www.diracprogram.org/doc/master/manual/moltra.html)を参照してください
@@ -237,40 +248,67 @@ pytest --all
 ### input file
 
 - インプットファイルには以下のような内容を記述してください
+  - CASCI/CASPT2 input
+    ```in
+    ninact
+    8
+    nact
+    6
+    nsec
+    142
+    nelec
+    2
+    nroot
+    3
+    selectroot
+    2
+    totsym
+    3
+    ncore
+    0
+    nbas
+    156
+    eshift
+    0.0
+    diracver
+    21
+    end
+    ```
 
-```in
-ninact
-8
-nact
-6
-nsec
-142
-nelec
-2
-nroot
-3
-selectroot
-2
-totsym
-3
-ncore
-0
-nbas
-156
-eshift
-0.0
-diracver
-21
-ras1
-1..4,9,10
-1
-ras2
-5 6
-ras3
-20..30
-3
-end
-```
+  - RASCI/RASPT2 input
+    ```in
+    ninact
+    30
+    nact ! sum of ras1, ras2 and ras3
+    28
+    nsec
+    574
+    nelec
+    12
+    nroot
+    10
+    totsym
+    33
+    selectroot
+    1
+    ncore
+    64
+    nbas
+    550
+    eshift
+    0.0
+    diracver
+    22
+    ras1
+    31..42
+    2
+    ras2
+    43..48
+    ras3
+    49..58
+    2
+    end
+    ```
 
 各パラメータの意味と必須パラメータかどうかについては以下を参照してください
 
