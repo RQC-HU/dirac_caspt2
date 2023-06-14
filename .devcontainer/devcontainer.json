@@ -28,6 +28,27 @@
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
+			"settings": {
+				// Fortran
+				"fortran.formatting.path": "/home/docker/.local/bin",
+				"fortran.fortls.path": "/home/docker/.local/bin/fortls",
+				"fortran.linter.compiler": "gfortran",
+				"fortran.linter.compilerPath": "/usr/bin/gfortran",
+				// Python
+				"python.pythonPath": "/usr/bin/python",
+				"python.languageServer": "Pylance",
+				"python.linting.enabled": true,
+				"python.linting.flake8Enabled": true,
+				"python.linting.flake8Args": [
+					"--max-line-length=200"
+				],
+				"python.linting.pylintEnabled": false,
+				"python.formatting.provider": "black",
+				"python.formatting.blackargs": [
+					"--line-length=200"
+				],
+				"python.terminal.activateEnvironment": true
+			},
 			"extensions": [
 				// コード自動実行
 				"formulahendry.code-runner",
@@ -53,6 +74,9 @@
 				"eamodio.gitlens",
 				// コーディングルール強制
 				"EditorConfig.EditorConfig",
+				// Python
+				"ms-python.python",
+				"ms-python.vscode-pylance"
 			]
 		}
 	},
