@@ -1,55 +1,63 @@
-# DIRAC-CASPT2
+# DIRAC-CASPT2: A relativistic second order multi-configuration perturbation calculation program
+[![DIRAC-CASPT2-CI-test](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml)  [日本語README](README.ja.md)
 
-- [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはDMRG/CASPT2法で2次の多配置摂動計算を行います
+- This program performs the second order multi-configuration perturbation calculation using the IVO/CASCI/CASPT2 or IVO/RASCI/RASPT2 method with 1- and 2-electron integrals obtained from the [DIRAC](http://diracprogram.org/doku.php) calculation.
 
-## お知らせ
+## Contribution
 
-- [開発者の方はGithub Wikiを参考に開発を行ってください](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki)
+If you want to contribute to this project (bug report, feature request, pull request, etc.), please read the [CONTRIBUTING.md](CONTRIBUTING.md) file before you start contributing.
 
-## 目次
+## Table of Contents
 
-- [DIRAC-CASPT2](#dirac-caspt2)
-  - [お知らせ](#お知らせ)
-  - [目次](#目次)
-  - [Requirements](#requirements)
+- [DIRAC-CASPT2](#dirac-caspt2-a-relativistic-second-order-multi-configuration-perturbation-calculation-program)
+  - [Contribution](#contribution)
+  - [Table of contents](#table-of-contents)
+  - [Download](#download)
+  - [Prerequisites for build](#prerequisites-for-build)
   - [How to build](#how-to-build)
     - [Basic build](#basic-build)
     - [MPI Support](#mpi-support)
-    - [Install](#install)
-    - [CMakeビルドオプション](#cmakeビルドオプション)
+    - [Installation](#installation)
+    - [CMake build options](#cmake-build-options)
   - [How to use](#how-to-use)
-    - [Prerequisites](#prerequisites)
+    - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
     - [input file](#input-file)
-    - [インプットファイルの仕様](#インプットファイルの仕様)
+    - [Input file specification](#input-file-specification)
 
-## Requirements
+## Download
 
-以下のコンパイラおよびツール、ライブラリと依存性があり、ビルドを行う計算機でこれらがセットアップされている必要があります
+- Download the source code from GitHub.
 
-- [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
-- [CMake(version ≧ 3.14)](https://cmake.org/)
-  - CMakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
+```sh
+git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+```
+
+## Prerequisites for build
+
+If you want to build this program, you need to have the following compilers, tools and libraries installed on your machine.
+
+- [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (You can use the MPI compiler for parallel calculation)
+- [CMake(version >= 3.14)](https://cmake.org/)
+  - If CMake is not installed on your machine or the version is too old, please build CMake or use the pre-built CMake binary from [CMake Github](https://github.com/Kitware/CMake/releases).
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
-  - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
-    \$MKLROOTが設定されているか確認するには、以下のコマンドを実行して環境変数\$MKLROOTが設定されているか確認してください
+  - You need to configure the environment variable \$MKLROOT to link MKL.
+    To verify that \$MKLROOT is configured, run the following command
 
     ```sh
     echo $MKLROOT
     ```
 
-  - 現時点ではMKLのBlas,Lapack以外のBlas,Lapackの実装を用いてビルドする場合、--no-mklオプションを指定し、かつBLAS/LAPACKのリンクを--flagsに指定する必要があります
-  - また、MKLのBlas,Lapack以外での動作は現在保障しておりませんのでご了承ください
+  - If you want to build with BLAS/LAPACK implementation other than MKL, you need to specify --no-mkl option and specify the link path of BLAS/LAPACK in --flags at this moment.
 
-    ビルド例
+    Example
 
     ```sh
     ./setup --no-mkl --flags "Replace this by Your BLAS and LAPACK Library link path" --fc gfortran --build
     ```
-
-- [Python(version ≧ 3.6)](https://www.python.org/)
-  - setupスクリプト(ビルド用スクリプト),dcaspt2スクリプト(プログラム実行用スクリプト)およびテストを実行するのに使用します
-  - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
+- [Python(version >= 3.6)](https://www.python.org/)
+  - The setup script(build script), the dcaspt2 script(program execution script) and pytest use Python.
+  - If Python (version >= 3.6) is not installed on your machine and you don't have root privileges, it is recommended to install and setup Python with Python version management tool such as [pyenv](https://github.com/pyenv/pyenv)
 
     (e.g.) pyenv setup instruction for Bash users
 
@@ -65,103 +73,101 @@
     # Reload ~/.bashrc
     source ~/.bashrc
 
-    # Install Python (version ≧ 3.6)
+    # Install Python (version >= 3.6)
     pyenv install 3.9.9
 
     # Set default Python version to the one installed with pyenv
     pyenv global 3.9.9
     ```
 
-- [pytest](https://docs.pytest.org/)
-  - テストを実行するために使用します
-  - Python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
+- [pytest](https://docs.pytest.org/en/latest/)
+  - This program uses pytest to run tests.
+  - If pytest is not installed on your machine, please install pytest with pip.
 
-  ```sh
-  python -m pip install pytest
-  ```
+    ```sh
+    pip install pytest
+    ```
 
 ## How to build
 
-- このプログラムはCMakeを使用してビルドを行います
-  - CMakeコマンドを直接使用してビルドすることもできますが、setupスクリプトを使用することをおすすめします
-  - CMakeを直接使用してビルドしたい場合は、[CMakeビルドオプション](#cmakeビルドオプション)を参照してください
+- You can build this program with the setup script.
+  - You can also build this program directly with CMake command, but we recommend you to use the setup script.
+  - If you want to build directly with CMake, please see [CMake build options](#cmakeビルドオプション).
 
 ### Basic build
 
-- GitHubからソースコードをダウンロードします(初回のみ)
+- Change the directory to the source code directory.
 
 ```sh
-git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+cd /path/to/dirac_caspt2
 ```
 
-- ソースコードのディレクトリに移動します
-
-```sh
-# Change directory to the source code directory
-# ( cd /path/to/dirac_caspt2 )
-cd dirac_caspt2
-```
-
-- セットアップスクリプトを実行します。(--buildオプションをつけるとビルドまで行います。--fcオプションをつけてコンパイラを明示的に指定することを推奨します)
+- Build the program with the setup script (If you don't specify the compiler, use the compiler that CMake finds first.)
 
   ```sh
-  ./setup --build --fc=ifort
+  ./setup --build
   ```
 
-  - セットアップスクリプトのオプションについては以下のコマンドで確認できます
+  - If you want to build with the specific compiler, please specify the compiler with the --fc option
+
+    ```sh
+    ./setup --build --fc ifort
+    ```
+
+  - You can check the options of setup script with the following command
 
     ```sh
     ./setup --help
     ```
 
-  - 複数コアを用いた並列ビルドも可能です。並列ビルドは-j 並列数のオプションを付ければ実行できます
+  - You can also do a parallel build with multiple cores. You can specify the number of cores with the -j option
 
     ```sh
     ./setup --build -j 4
     ```
-
-  - スレッド並列実行用にOpenMPを使用する場合は--ompオプションを付けてください
+  
+  - If you want to use OpenMP for thread parallel execution, please specify the --omp option
 
     ```sh
-    ./setup --fc=ifort --omp --build
+    ./setup --build --omp
     ```
 
-- ビルドが完了したら問題なくビルドできたか確かめるため、テストを実行することを推奨します
+- We recommend you to run tests after build
 
-```sh
-pytest --all
-```
+  ```sh
+  pytest --all
+  ```
 
 ### MPI Support
 
-- プログラムをプロセス並列実行するためにMPIを有効にする場合、--mpiオプションを付けてビルドします(デフォルトで使用するコンパイラはmpiifortです)
+- You can enable MPI support with the --mpi option (default compiler is mpiifort)
 
   ```sh
   ./setup --mpi --build
   ```
 
-  - コンパイラを指定する場合は--fcオプションを使用します
+  - You can specify the compiler with the --fc option
 
     ```sh
     ./setup --mpi --fc mpif90 --build -j 4
     ```
 
-  - OpenMPとのハイブリッド並列のビルドも可能です
+  - You can also build with hybrid parallel execution with OpenMP
 
     ```sh
     ./setup --mpi --omp --fc mpiifort --build -j 4
     ```
 
-- ビルドが完了したら問題なくビルドできたか確かめるため、テストを実行することを推奨します
+- We recommend you to run tests after build
 
-```sh
-# pytest --all --mpi=<number of MPI processes>
-pytest --all --mpi=4
-```
+  ```sh
+  pytest --all
+  ```
 
-### Install
+### Installation
 
-- 以下のいずれかのコマンドで--prefixで指定したインストール先にプログラムをインストールできます
+- You can install the program into the directory specified by the --prefix option with the following command
+
 
 ```sh
 # Use CMake to install the program
@@ -170,11 +176,11 @@ cmake --install build
 make -C build install
 ```
 
-### CMakeビルドオプション
+### CMake build options
 
 (This section is for advanced users.)
 
-CMakeを直接使ってビルドする場合以下のようなコマンドを実行するとビルドできます
+If you want to build directly with CMake, you can build with the following command
 
 ```sh
 # DCMAKE_Fortran_COMPILER: Fortran compiler, (e.g.) ifort, gfortran, mpiifort
@@ -182,97 +188,127 @@ cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DOPENM
 pytest --all
 ```
 
-ビルドオプションはcmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,のように使います
-
-現時点でサポートしているカスタムCMakeビルドオプションは以下のとおりです
+You can use build options with cmake -DBUILDOPTION1=on -DBUILDOPTION2=off ,,,
+The following custom CMake build options are currently supported
 
 - MPI
-  - MPIを使用するなら必須です.マルチプロセス対応ビルドのためのプリプロセッサの設定を行います(default:OFF)
+  - Required if you want to use MPI. You need to build with MPI support to perform parallel execution.(default: OFF)
+    (e.g.) Build with MPI support
 
-      (例)
+    ```sh
+    cmake -B build -DCMAKE_Fortran_COMPILER=mpiifort -DCMAKE_BUILD_TYPE=Release -DMPI=ON && cmake --build build
+    ```
 
-      ```sh
-      cmake -DCMAKE_Fortran_COMPILER=mpiifort -DMPI=on -B build && cmake --build build
-      ```
+- OpenMP
+  - Required if you want to use OpenMP for thread parallel execution.(default: OFF)
+    (e.g.) Build with OpenMP support
 
-- OPENMP
-
-  - OpenMPを使用するなら必須です.OpenMP用のビルドオプションを追加します(default:OFF)
-
-      (例)
-
-      ```sh
-      cmake -DCMAKE_Fortran_COMPILER=ifort -DOPENMP=on -B build && cmake --build build
-      ```
+    ```sh
+    cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DOPENMP=ON && cmake --build build
+    ```
 
 - MKL
+  - You need to disable this option if you want to use BLAS and LAPACK libraries other than MKL.(default: ON)
+    (e.g.) Build without MKL support
 
-  - MKLを使わないときはこのビルドオプションをOFFにする必要があります.(default:ON)
-
-      (例)
-
-      ```sh
-      LDFLAGS="/your/blas/link/path /your/lapack/link/path" cmake -DCMAKE_Fortran_COMPILER=ifort -DMKL=off -B build && cmake --build build
-      ```
+    ```sh
+    cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DMKL=OFF && cmake --build build
+    ```
 
 ## How to use
 
-### Prerequisites
+### Prerequisites for execution
 
-- [DIRAC](http://diracprogram.org/)の計算で1,2電子積分ファイル(MRCONEE, MDCINT, MDCINXXXX1...)が得られていることを前提としています
-  - 1,2電子積分ファイルを得るには[DIRACの**MOLTRAの項](http://www.diracprogram.org/doc/master/manual/moltra.html)を参照してください
-  - 1,2電子積分ファイルは同一のディレクトリ上に存在する必要があります
-- 任意のファイル名の[インプットファイル](#input-file)が必要です
+- This program assumes that 1 and 2 electron integral files (MRCONEE, MDCINT, MDCINXXXX1...) are obtained by [DIRAC](http://diracprogram.org/) calculation
+  - Please refer to the [**MOLTRA section of DIRAC manual](http://www.diracprogram.org/doc/master/manual/moltra.html) to obtain 1 and 2 electron integral files
+  - 1 and 2 electron integral files must be in the same directory
+- You need an [input file](#input-file) with any file name
 
 ### Calculation
 
-- ビルド後に作られるbinディレクトリ直下またはprefixを指定した場合はインストール先のディレクトリ直下のdcaspt2スクリプトを用いて計算を行います
-  - dcaspt2スクリプトで使用可能なオプションはdcaspt2 -hで確認できます
-  - 例えば以下のように使用します
+- You can use this program with the dcaspt2 script
+  - The dcaspt2 script is located in the bin directory or in the destination directory if installed by specifying with a --prefix option.
 
-  ```sh
-  dcaspt2 -i h2.caspt2.inp
-  ```
+    ```sh
+    # If you did not install with --prefix
+    /path/to/dirac_caspt2/bin/dcaspt2 -i input_file
+    # If you installed with --prefix
+    $PREFIX/bin/dcaspt2 -i input_file
+    ```
 
-### input file
+    (e.g.)
 
-- インプットファイルには以下のような内容を記述してください
+    ```sh
+    dcaspt2 -i h2.caspt2.inp
+    ```
 
-```in
-ninact
-8
-nact
-6
-nsec
-142
-nelec
-2
-nroot
-3
-selectroot
-2
-totsym
-3
-ncore
-0
-nbas
-156
-eshift
-0.0
-diracver
-21
-ras1
-1..4,9,10
-1
-ras2
-5 6
-ras3
-20..30
-3
-end
-```
+### Input file
 
-各パラメータの意味と必須パラメータかどうかについては以下を参照してください
+- The input file is a text file with the following format
+
+  - CASCI/CASPT2 input
+    ```in
+    ninact
+    8
+    nact
+    6
+    nsec
+    142
+    nelec
+    2
+    nroot
+    3
+    selectroot
+    2
+    totsym
+    3
+    ncore
+    0
+    nbas
+    156
+    eshift
+    0.0
+    diracver
+    21
+    end
+    ```
+
+  - RASCI/RASPT2 input
+    ```in
+    ninact
+    30
+    nact ! sum of ras1, ras2 and ras3
+    28
+    nsec
+    574
+    nelec
+    12
+    nroot
+    10
+    totsym
+    33
+    selectroot
+    1
+    ncore
+    64
+    nbas
+    550
+    eshift
+    0.0
+    diracver
+    22
+    ras1
+    31..42
+    2
+    ras2
+    43..48
+    ras3
+    49..58
+    2
+    end
+    ```
+
+- Please refer to the following for the meaning of each parameter and whether it is a required parameter or not
 
 ```in
 Input for CASCI and CASPT2
@@ -308,30 +344,33 @@ nvcutg      : The number of virtual cut spinors (gerade)
 nvcutu      : The number of virtual cut spinors (ungerade)
 ```
 
-### インプットファイルの仕様
+### Input file specification
 
-- 1行あたり500文字を読み取ります
-- endがある行をインプットの終わりと認識します
-- end及びrequiredな変数についての指定がないと不正なインプットとしてプログラムを終了します
-- \!か\#を書くとそれ以降の文字はコメントと認識します
+- Reads 500 characters per a line
+- Recognizes lines with an end parameter as the end of the input file
+- Exits the program as invalid input if the required variable specifications are not filled.
+- If you write \! or \#, the rest of the characters are recognized as comments.
+
+  ```in
+   nact ! The number of nact
+   ↓
+   nact
+  ```
+
+- Two or more consecutive dots are considered to be a range specification
+  - You need to write the smaller number to the left of the dot and the larger number to the right
 
 ```in
- nact ! The number of nact
- ↓
- nact
-```
-
-- RASについて.(ドット)が2つ以上連続していると範囲指定をしているとみなします(左に小さい数値、右に大きい数値を書く必要があります)
-
-```in
-  1..4
+  RAS2
+  2..5
   ↓
-  1,2,3,4
+  2,3,4,5
 ```
 
-- RASについて,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
+- Recognizes a , (semicolon) or half-width space as a numeric delimiter
 
 ```in
+  RAS1
   1..4, 7   8 11..14
   ↓
   1,2,3,4,7,8,11,12,14
