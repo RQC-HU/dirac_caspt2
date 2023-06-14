@@ -34,6 +34,7 @@ USER ${UNAME}
 WORKDIR /workspace
 
 RUN echo "source /opt/intel/oneapi/setvars.sh --force > /dev/null" >> ~/.bashrc
+RUN pip install black flake8 fortls fprettify
 
 # Intel oneapi
 # RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
