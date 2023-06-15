@@ -49,6 +49,9 @@ jobs:
           path: |
             /opt/intel/oneapi
           key: ${{ runner.os }}-install-${{ env.KEYVERSION }}
+      - name: Update packages
+        run: |
+          sudo apt-get update
       - name: Setup Intel fortran (apt)
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
@@ -64,6 +67,9 @@ jobs:
         run: |
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
+      - name: Install cmake
+        run: |
+          sudo apt-get install -y cmake
       - name: Install python
         uses: actions/setup-python@v4
         with:
@@ -106,6 +112,9 @@ jobs:
           path: |
             /opt/intel/oneapi
           key: ${{ runner.os }}-install-${{ matrix.version }}-${{ env.KEYVERSION }}
+      - name: Update packages
+        run: |
+          sudo apt-get update
       - name: Setup MKL
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
@@ -117,6 +126,9 @@ jobs:
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
           sudo apt-get install -y intel-oneapi-mkl
+      - name: Install cmake
+        run: |
+          sudo apt-get install -y cmake
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh

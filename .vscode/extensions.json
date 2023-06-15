@@ -24,5 +24,8 @@
     "eamodio.gitlens",
     // コーディングルール強制
     "EditorConfig.EditorConfig",
+    // Python
+    "ms-python.python",
+    "ms-python.vscode-pylance"
   ]
 }

@@ -1,10 +1,11 @@
-# Ignore dotfiles (except .gitignore, .vscode, .editorconfig and .github)
+# Ignore dotfiles (except .gitignore, .vscode, .editorconfig, .github and .devcontainer)
 .*
 !.gitkeep
 !.gitignore
 !.vscode
 !.editorconfig
 !.github
+!.devcontainer
 
 ## Fortran (ref : https://github.com/github/gitignore/blob/main/C%2B%2B.gitignore)
 # Ignore object files
