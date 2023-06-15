@@ -25,22 +25,19 @@ RUN groupadd -g $GID -o $UNAME && useradd -m -u $UID -g $GID -G sudo -o -s /bin/
 RUN apt-get install -y wget && \
 wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
 apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
+rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
 echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list && \
 apt-get update && \
 apt-get install -y intel-oneapi-mkl
+
+# Intel oneapi
+# RUN apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel
 
 # Change to docker user
 USER ${UNAME}
 WORKDIR /workspace
 
+# Add intel oneapi to path
 RUN echo "source /opt/intel/oneapi/setvars.sh --force > /dev/null" >> ~/.bashrc
+# Install dependencies
 RUN pip install black flake8 fortls fprettify
-
-# Intel oneapi
-# RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
-#     apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
-#     rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
-#     echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list && \
-#     apt-get update && \
-#     apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel && \
-#     echo "source /opt/intel/oneapi/setvars.sh" >> ~/.bashrc
