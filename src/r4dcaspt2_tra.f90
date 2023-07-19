@@ -83,7 +83,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     read (unit_new) ci(1:ndet)
     close (unit_new)
     if (.not. allocated(cir)) Allocate (cir(1:ndet, selectroot:selectroot))
-    if(.not. allocated(cii)) Allocate (cii(1:ndet, selectroot:selectroot))
+    if (.not. allocated(cii)) Allocate (cii(1:ndet, selectroot:selectroot))
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     deallocate (ci)
@@ -100,13 +100,13 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call open_unformatted_file(unit=unit_new, file="TRANSFOCK", status='old', optional_action="read")
     read (unit_new) nmo
     if (realonly%is_realonly()) then
-        ! allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        if (.not. allocated(fock_real)) allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
         read (unit_new) fock_real
-        ! allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        if (.not. allocated(fock_cmplx)) allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
         fock_cmplx = 0.0d+00
         fock_cmplx = fock_real
     else
-        ! Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        if (.not. allocated(fock_cmplx)) allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
         read (unit_new) fock_cmplx
     end if
 
