@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
+subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -32,14 +32,14 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     debug = .FALSE.
 
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
-#ifdef HAVE_MPI
-    call MPI_INIT(ierr)
-    time0 = MPI_Wtime()
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-#else
-    rank = 0; nprocs = 1
-#endif
+! #ifdef HAVE_MPI
+!     call MPI_INIT(ierr)
+!     time0 = MPI_Wtime()
+!     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+!     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+! #else
+!     rank = 0; nprocs = 1
+! #endif
     if (rank == 0) then
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
@@ -437,4 +437,4 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call MPI_FINALIZE(ierr)
 #endif
 
-END program r4dcaspt2_tra
+end subroutine r4dcaspt2_tra

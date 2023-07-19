@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
+subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -253,14 +253,20 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(int2i_f2)) then
         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
+    if (allocated(caspt2_mo_energy)) then
+        Call memminus(KIND(caspt2_mo_energy), SIZE(caspt2_mo_energy), 1); deallocate (caspt2_mo_energy)
+    end if
+    if (allocated(dirac_mo_energy)) then
+        Call memminus(KIND(dirac_mo_energy), SIZE(dirac_mo_energy), 1); deallocate (dirac_mo_energy)
+    end if
     if (rank == 0) then
         call write_allocated_memory_size
 
         Call timing(val(3), totalsec, date0, tsec0)
         print *, 'End r4dcasci part'
     end if
-#ifdef HAVE_MPI
-    call MPI_FINALIZE(ierr)
-#endif
+! #ifdef HAVE_MPI
+!     call MPI_FINALIZE(ierr)
+! #endif
 
-END program r4dcasci
+end subroutine r4dcasci
