@@ -12,20 +12,16 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     use module_global_variables
     use module_intra, only: intra_1, intra_2, intra_3
     use module_realonly, only: check_realonly, realonly
-    use read_input_module, only: read_input
     Implicit NONE
-    integer                 :: unit_input, unit_new
+    integer                 :: unit_new
     real(8)                 :: e0, e2, e2all, weight0
     complex*16, allocatable         :: ci(:)
     real(8), allocatable            :: ecas(:)
-    character(:), allocatable       :: filename
     integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
     integer                 :: idx, dict_key, dict_val
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
-    debug = .FALSE.
 
     if (rank == 0) then
         print *, ''
@@ -33,53 +29,6 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, ''
     end if
     tmem = 0.0d+00
-
-    val(:) = 0
-    Call DATE_AND_TIME(VALUES=val)
-    if (rank == 0) then
-        print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-    end if
-    totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
-    initdate = val(3)
-    inittime = totalsec
-
-    if (rank == 0) then
-        print *, inittime
-        Call timing(val(3), totalsec, date0, tsec)
-    end if
-
-    call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
-    call read_input(unit_input)
-    close (unit_input)
-
-    if (rank == 0) then
-        print *, 'ninact        =', ninact
-        print *, 'nact          =', nact
-        print *, 'nsec          =', nsec
-        print *, 'nelec         =', nelec
-        print *, 'nroot         =', nroot
-        print *, 'selectroot    =', selectroot
-        print *, 'totsym        =', totsym
-        print *, 'ncore         =', ncore
-        print *, 'nbas          =', nbas
-        print *, 'eshift        =', eshift
-        print *, 'dirac_version =', dirac_version
-        if (ras1_size /= 0) print *, "RAS1 =", ras1_list
-        if (ras2_size /= 0) print *, "RAS2 =", ras2_list
-        if (ras3_size /= 0) print *, "RAS3 =", ras3_list
-    end if
-
-    if (ninact == 0 .and. nsec == 0) then
-        if (rank == 0) print *, "The CASPT2 energy cannot be defined when ninact = 0 and nsec = 0."
-        stop
-    end if
-
-    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    if (rank == 0) print *, ' ENTER READ MRCONEE'
-    filename = 'MRCONEE'
-    call read_mrconee(filename)
-    call check_realonly()
 
     if (rank == 0) then
         print *, ' EXIT READ MRCONEE'
@@ -121,7 +70,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 
     ! Read CASCI energy
-    Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
+    ! Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
     eigen = 0.0d+00
     eigen(1:nroot) = ecas(1:nroot) + ecore
     Deallocate (ecas)
@@ -133,8 +82,8 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call open_unformatted_file(unit=unit_new, file="NEWCICOEFF", status='old', optional_action="read")
     read (unit_new) ci(1:ndet)
     close (unit_new)
-    Allocate (cir(1:ndet, selectroot:selectroot))
-    Allocate (cii(1:ndet, selectroot:selectroot))
+    if (.not. allocated(cir)) Allocate (cir(1:ndet, selectroot:selectroot))
+    if(.not. allocated(cii)) Allocate (cii(1:ndet, selectroot:selectroot))
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     deallocate (ci)
@@ -143,7 +92,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read epsilons
     call open_unformatted_file(unit=unit_new, file="EPS", status='old', optional_action="read")
     read (unit_new) nmo
-    Allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
+    ! Allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
     eps = 0.0d+00
     read (unit_new) eps(1:nmo)
     close (unit_new)
@@ -151,13 +100,13 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call open_unformatted_file(unit=unit_new, file="TRANSFOCK", status='old', optional_action="read")
     read (unit_new) nmo
     if (realonly%is_realonly()) then
-        allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        ! allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
         read (unit_new) fock_real
-        allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        ! allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
         fock_cmplx = 0.0d+00
         fock_cmplx = fock_real
     else
-        Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        ! Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
         read (unit_new) fock_cmplx
     end if
 

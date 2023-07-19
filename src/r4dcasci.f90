@@ -17,8 +17,7 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 #ifdef HAVE_MPI
     include 'mpif.h'
 #endif
-    integer                    :: i0, nuniq, unit_eps, unit_input
-    character(:), allocatable  :: filename
+    integer                    :: i0, nuniq, unit_eps
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -39,33 +38,6 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, inittime
     end if
 
-    call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
-    call read_input(unit_input)
-    close (unit_input)
-
-    if (rank == 0) then
-        print *, 'ninact        =', ninact
-        print *, 'nact          =', nact
-        print *, 'nsec          =', nsec
-        print *, 'nelec         =', nelec
-        print *, 'nroot         =', nroot
-        print *, 'selectroot    =', selectroot
-        print *, 'totsym        =', totsym
-        print *, 'ncore         =', ncore
-        print *, 'nbas          =', nbas
-        print *, 'eshift        =', eshift
-        print *, 'dirac_version =', dirac_version
-        if (ras1_size /= 0) print *, "RAS1 =", ras1_list
-        if (ras2_size /= 0) print *, "RAS2 =", ras2_list
-        if (ras3_size /= 0) print *, "RAS3 =", ras3_list
-    end if
-
-    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    filename = 'MRCONEE'
-    call read_mrconee(filename)
-
-    ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
-    call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
     else
@@ -165,93 +137,11 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         close (unit_eps)
     end if
 
-    ! Deallocate the memory
-    if (allocated(ras1_list)) then
-        Call memminus(KIND(ras1_list), SIZE(ras1_list), 1); deallocate (ras1_list)
-    end if
-    if (allocated(ras2_list)) then
-        Call memminus(KIND(ras2_list), SIZE(ras2_list), 1); deallocate (ras2_list)
-    end if
-    if (allocated(ras3_list)) then
-        Call memminus(KIND(ras3_list), SIZE(ras3_list), 1); deallocate (ras3_list)
-    end if
-    if (allocated(space_idx)) then
-        Call memminus(KIND(space_idx), SIZE(space_idx), 1); deallocate (space_idx)
-    end if
-    if (allocated(cir)) then
-        Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
-    end if
-    if (allocated(cii)) then
-        Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
-    end if
-    if (allocated(eigen)) then
-        Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
-    end if
-    if (allocated(fock_real)) then
-        Call memminus(KIND(fock_real), SIZE(fock_real), 1); deallocate (fock_real)
-    end if
-    if (allocated(fock_cmplx)) then
-        Call memminus(KIND(fock_cmplx), SIZE(fock_cmplx), 2); deallocate (fock_cmplx)
-    end if
-    if (allocated(eps)) then
-        Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
-    end if
-    if (allocated(MULTB_S)) then
-        Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
-    end if
-    if (allocated(MULTB_D)) then
-        Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
-    end if
-    if (allocated(MULTB_DS)) then
-        Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
-    end if
-    if (allocated(irpamo)) then
-        Call memminus(KIND(irpamo), SIZE(irpamo), 1); deallocate (irpamo)
-    end if
-    if (allocated(indmo_cas_to_dirac)) then
-        Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1); deallocate (indmo_cas_to_dirac)
-    end if
-    if (allocated(indmo_dirac_to_cas)) then
-        Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1); deallocate (indmo_dirac_to_cas)
-    end if
-    if (allocated(one_elec_int_i)) then
-        Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1); deallocate (one_elec_int_i)
-    end if
-    if (allocated(inttwi)) then
-        Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
-    end if
-    if (allocated(one_elec_int_r)) then
-        Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1); deallocate (one_elec_int_r)
-    end if
-    if (allocated(inttwr)) then
-        Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
-    end if
-    if (allocated(int2r_f1)) then
-        Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
-    end if
-    if (allocated(int2i_f1)) then
-        Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
-    end if
-    if (allocated(int2r_f2)) then
-        Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
-    end if
-    if (allocated(int2i_f2)) then
-        Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
-    end if
-    if (allocated(caspt2_mo_energy)) then
-        Call memminus(KIND(caspt2_mo_energy), SIZE(caspt2_mo_energy), 1); deallocate (caspt2_mo_energy)
-    end if
-    if (allocated(dirac_mo_energy)) then
-        Call memminus(KIND(dirac_mo_energy), SIZE(dirac_mo_energy), 1); deallocate (dirac_mo_energy)
-    end if
     if (rank == 0) then
         call write_allocated_memory_size
 
         Call timing(val(3), totalsec, date0, tsec0)
         print *, 'End r4dcasci part'
     end if
-! #ifdef HAVE_MPI
-!     call MPI_FINALIZE(ierr)
-! #endif
 
 end subroutine r4dcasci
