@@ -14,10 +14,6 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     use module_realonly, only: check_realonly, realonly
     use read_input_module, only: read_input
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-    real(16)                :: time0, time1
-#endif
     integer                 :: unit_input, unit_new
     real(8)                 :: e0, e2, e2all, weight0
     complex*16, allocatable         :: ci(:)
@@ -31,17 +27,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     debug = .FALSE.
 
-!   MPI initialization and get the number of MPI processes (nprocs) and own process number.
-! #ifdef HAVE_MPI
-!     call MPI_INIT(ierr)
-!     time0 = MPI_Wtime()
-!     call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-!     call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-! #else
-!     rank = 0; nprocs = 1
-! #endif
     if (rank == 0) then
-        print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
         print *, ' ENTER R4DCASPT2_TRA PROGRAM written by M. Abe 2007.7.23'
         print *, ''
@@ -427,14 +413,5 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Print out the total time
     Call timing(val(3), totalsec, date0, tsec0)
     if (rank == 0) print *, 'End r4dcaspt2_tra'
-#ifdef HAVE_MPI
-    ! MPI finalization
-    time1 = MPI_Wtime()
-    if (rank == 0) then
-        ! Print out the total time (MPI)
-        write (*, "(a,e16.6)") "MPI_Wtime :", time1 - time0
-    end if
-    call MPI_FINALIZE(ierr)
-#endif
 
 end subroutine r4dcaspt2_tra

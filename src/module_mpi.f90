@@ -8,6 +8,9 @@ module module_mpi
 #ifdef HAVE_MPI
     include 'mpif.h'
     private
+#endif
+    public mpi_init_wrapper, mpi_finalize_wrapper
+#ifdef HAVE_MPI
     public reduce_wrapper, allreduce_wrapper
     interface reduce_wrapper
         module procedure reduce_i, reduce_i_1, reduce_r_2, reduce_c_2
@@ -39,8 +42,29 @@ module module_mpi
     integer, parameter :: ops(12) = (/op_mpi_max, op_mpi_min, op_mpi_sum, op_mpi_prod, &
                                       op_mpi_land, op_mpi_band, op_mpi_lor, op_mpi_bor, &
                                       op_mpi_lxor, op_mpi_bxor, op_mpi_maxloc, op_mpi_minloc/)
-contains
+#endif
 
+contains
+    subroutine mpi_init_wrapper()
+        ! Wrapper for MPI_Init
+        implicit none
+#ifdef HAVE_MPI
+        call MPI_INIT(ierr)
+        call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+        call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
+#else
+        rank = 0; nprocs = 1
+#endif
+    end subroutine mpi_init_wrapper
+
+    subroutine mpi_finalize_wrapper
+        implicit none
+#ifdef HAVE_MPI
+        call MPI_FINALIZE(ierr)
+#endif
+    end subroutine mpi_finalize_wrapper
+
+#ifdef HAVE_MPI
     subroutine reduce_i(mat, root_rank, optional_op)
         ! Reduce for an integer value
         implicit none

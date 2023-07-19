@@ -1,8 +1,8 @@
 add_library(dcaspt2_global STATIC
-module_global_variables.f90
-module_error.f90
-module_dict.f90
-module_mpi.f90
+  module_global_variables.f90
+  module_error.f90
+  module_dict.f90
+  module_mpi.f90
 )
 
 add_library(dcaspt2_module STATIC

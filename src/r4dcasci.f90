@@ -7,6 +7,7 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
+    ! use module_file_manager, only: open_unformatted_file
     use module_file_manager
     use module_2integrals
     use module_realonly
@@ -21,22 +22,6 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
-! MPI initialization and get the number of MPI processes (nprocs) and own process number.
-#ifdef HAVE_MPI
-    call MPI_INIT(ierr)
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-#else
-    rank = 0; nprocs = 1
-#endif
-    if (rank == 0) then
-        print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
-        print *, ''
-        print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
-        print *, ''
-    end if
-    tmem = 0.0d+00
 
     if (rank == 0) then
         call write_allocated_memory_size
