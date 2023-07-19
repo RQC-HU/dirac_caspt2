@@ -81,6 +81,7 @@ contains
         integer :: nmx, ini(3), end(3), isp, isym, imo
 
         cutoff_threshold = 1.0d-15
+        readint2 = 0.0d+00
         ini(1) = 1
         end(1) = ninact
         ini(2) = global_act_start
@@ -310,6 +311,7 @@ contains
         integer :: nmx, ini(3), end(3), isp, isym, imo
 
         cutoff_threshold = 1.0d-15
+        readint2 = 0.0d+00
         ini(1) = 1
         end(1) = ninact
         ini(2) = global_act_start
@@ -542,6 +544,7 @@ contains
         integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
         cutoff_threshold = 1.0d-15
+        readint2 = 0.0d+00
 
         if (.not. (spi == spk .and. spj == spl)) then
             print *, 'error intra_2', spi, spj, spk, spl
@@ -809,6 +812,7 @@ contains
         integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
         cutoff_threshold = 1.0d-15
+        readint2 = 0.0d+00
 
         if (.not. (spi == spk .and. spj == spl)) then
             print *, 'error intra_2', spi, spj, spk, spl
@@ -1077,6 +1081,7 @@ contains
         integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
         cutoff_threshold = 1.0d-15
+        readint2 = 0.0d+00
 
         if (.not. (spk == spl)) then
             print *, 'error intra_3', spi, spj, spk, spl
@@ -1346,6 +1351,7 @@ contains
         integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
 
         cutoff_threshold = 1.0d-15
+        readint2 = 0.0d+00
 
         if (.not. (spk == spl)) then
             print *, 'error intra_3', spi, spj, spk, spl
