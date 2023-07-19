@@ -9,7 +9,7 @@ module module_mpi
     include 'mpif.h'
     private
 #endif
-    public mpi_init_wrapper, mpi_finalize_wrapper
+    public mpi_init_wrapper, mpi_finalize_wrapper, mpi_barrier_wrapper
 #ifdef HAVE_MPI
     public reduce_wrapper, allreduce_wrapper
     interface reduce_wrapper
@@ -63,6 +63,13 @@ contains
         call MPI_FINALIZE(ierr)
 #endif
     end subroutine mpi_finalize_wrapper
+
+    subroutine mpi_barrier_wrapper
+        implicit none
+#ifdef HAVE_MPI
+        call MPI_Barrier(MPI_COMM_WORLD, ierr)
+#endif
+    end subroutine mpi_barrier_wrapper
 
 #ifdef HAVE_MPI
     subroutine reduce_i(mat, root_rank, optional_op)

@@ -62,6 +62,7 @@ program main
     call check_realonly()
 
     call r4dcasci
+    call mpi_barrier_wrapper
     call r4dcaspt2_tra
 
     call mpi_finalize_wrapper
