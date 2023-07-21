@@ -149,8 +149,8 @@ MODULE module_global_variables
     !! ================
     character       :: date*8, time*10 ! Timing information stored in MDCINT (DIRAC 2-electron integral file)
     integer, allocatable :: space_idx(:) ! Given the spinor index, return which space it belongs to. (1: inactive, 2: active, 3: secondary) [old name]: sp
-    type(dict) :: dict_cas_idx ! Dictionary(Key: the number of CAS placement val: an integer value representing the CAS placement) [old name]: idet
-    type(dict) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
+    type(dict_int) :: dict_cas_idx ! Dictionary(Key: the number of CAS placement val: an integer value representing the CAS placement) [old name]: idet
+    type(dict_int) :: dict_cas_idx_reverse ! Dictionary(key: an integer representing the CAS placement, val: the position in the CAS placement ordering) [old name]: idetr
     ! Global index of inactive, active, secondary spinors
     ! global_inact_start = 1, global_inact_end = ninact
     ! global_act_start = ninact + 1, global_act_end = ninact + nact

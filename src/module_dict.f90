@@ -9,22 +9,65 @@ module module_dict
     use module_error, only: stop_with_errorcode
     implicit none
     private
-    public :: dict, get_val, add, exists, remove, get_keys_vals, get_size, get_kth_key
+    public :: dict_int, dict_chr_logical, get_val, add, exists, remove, get_keys_vals, get_size, get_kth_key
 
-    type dict
-        type(node), pointer :: root => null()
+    type dict_int
+        type(node_int), pointer :: root => null()
         integer :: randstate = 1231767121
     contains
-        final :: destruct_dict
-    end type dict
+        final :: destruct_dict_int
+    end type dict_int
 
-    type node
-        type(node), pointer :: left => null(), right => null()
+    type dict_chr_logical
+        type(node_chr_logical), pointer :: root => null()
+        integer :: randstate = 1231767121
+    contains
+        final :: destruct_dict_chr_logical
+    end type dict_chr_logical
+
+    type node_int
+        type(node_int), pointer :: left => null(), right => null()
         integer, allocatable :: key
         integer :: val
         integer :: pri  ! min-heap
         integer :: cnt = 1
-    end type node
+    end type node_int
+
+    type node_chr_logical
+        type(node_chr_logical), pointer :: left => null(), right => null()
+        character(:), allocatable :: key
+        logical :: val
+        integer :: pri  ! min-heap
+        integer :: cnt = 1
+    end type node_chr_logical
+    interface get_val
+        module procedure get_val_int
+        module procedure get_val_chr_logical
+    end interface get_val
+    interface add
+        module procedure add_int
+        module procedure add_chr_logical
+    end interface add
+    interface exists
+        module procedure exists_int
+        module procedure exists_chr_logical
+    end interface exists
+    interface remove
+        module procedure remove_int
+        module procedure remove_chr_logical
+    end interface remove
+    interface get_keys_vals
+        module procedure get_keys_vals_int
+        module procedure get_keys_vals_chr_logical
+    end interface get_keys_vals
+    interface get_size
+        module procedure get_size_int
+        module procedure get_size_chr_logical
+    end interface get_size
+    interface get_kth_key
+        module procedure get_kth_key_int
+        module procedure get_kth_key_chr_logical
+    end interface get_kth_key
 contains
     ! High level wrapper of dictionary data structure
     pure function xorshift(i)
@@ -41,144 +84,274 @@ contains
         xorshift = ieor(xorshift, ishft(xorshift, 15))
     end function xorshift
 
-    function get_val(t, key)
+    function get_val_int(t, key)
         implicit none
-        type(dict), intent(in) :: t
+        type(dict_int), intent(in) :: t
         integer, intent(in) :: key
-        type(node), pointer :: nd
-        integer :: get_val
-        nd => find_node(t%root, key)
+        type(node_int), pointer :: nd
+        integer :: get_val_int
+        nd => find_node_int(t%root, key)
         if (.not. associated(nd)) then
             call stop_with_errorcode(1)
         end if
-        get_val = nd%val
-    end function get_val
+        get_val_int = nd%val
+    end function get_val_int
 
-    function exists(t, key)
+    function get_val_chr_logical(t, key)
         implicit none
-        type(dict), intent(in) :: t
-        integer, intent(in) :: key
-        type(node), pointer :: nd
-        logical :: exists
-        nd => find_node(t%root, key)
-        exists = (associated(nd))
-    end function exists
+        type(dict_chr_logical), intent(in) :: t
+        character(*), intent(in) :: key
+        type(node_chr_logical), pointer :: nd
+        logical :: get_val_chr_logical
+        nd => find_node_chr_logical(t%root, key)
+        if (.not. associated(nd)) then
+            call stop_with_errorcode(1)
+        end if
+        get_val_chr_logical = nd%val
+    end function get_val_chr_logical
 
-    subroutine add(t, key, val)
+    function exists_int(t, key)
+        implicit none
+        type(dict_int), intent(in) :: t
+        integer, intent(in) :: key
+        type(node_int), pointer :: nd
+        logical :: exists_int
+        nd => find_node_int(t%root, key)
+        exists_int = (associated(nd))
+    end function exists_int
+
+    function exists_chr_logical(t, key)
+        implicit none
+        type(dict_chr_logical), intent(in) :: t
+        character(*), intent(in) :: key
+        type(node_chr_logical), pointer :: nd
+        logical :: exists_chr_logical
+        nd => find_node_chr_logical(t%root, key)
+        exists_chr_logical = (associated(nd))
+    end function exists_chr_logical
+
+    subroutine add_int(t, key, val)
         ! Add a new key-value pair to the dictionary.
         implicit none
-        type(dict), intent(inout) :: t
+        type(dict_int), intent(inout) :: t
         integer, intent(in) :: key
         integer, intent(in) :: val
-        type(node), pointer :: nd
-        nd => find_node(t%root, key)
+        type(node_int), pointer :: nd
+        nd => find_node_int(t%root, key)
         if (associated(nd)) then
             nd%val = val
         else  ! This implementation is not optimal
-            t%root => insert(t%root, key, val, t%randstate)
+            t%root => insert_int(t%root, key, val, t%randstate)
             t%randstate = xorshift(t%randstate)
         end if
-    end subroutine add
+    end subroutine add_int
 
-    subroutine remove(t, key)
+    subroutine add_chr_logical(t, key, val)
+        ! Add a new key-value pair to the dictionary.
         implicit none
-        type(dict), intent(inout) :: t
+        type(dict_chr_logical), intent(inout) :: t
+        character(*), intent(in) :: key
+        logical, intent(in) :: val
+        type(node_chr_logical), pointer :: nd
+        nd => find_node_chr_logical(t%root, key)
+        if (associated(nd)) then
+            nd%val = val
+        else  ! This implementation is not optimal
+            t%root => insert_chr_logical(t%root, key, val, t%randstate)
+            t%randstate = xorshift(t%randstate)
+        end if
+    end subroutine add_chr_logical
+
+    subroutine remove_int(t, key)
+        implicit none
+        type(dict_int), intent(inout) :: t
         integer, intent(in) :: key
-        t%root => erase(t%root, key)
-    end subroutine remove
+        t%root => erase_int(t%root, key)
+    end subroutine remove_int
 
-    function get_kth_key(t, k)
+    subroutine remove_chr_logical(t, key)
         implicit none
-        type(dict), intent(in) :: t
+        type(dict_chr_logical), intent(inout) :: t
+        character(*), intent(in) :: key
+        t%root => erase_chr_logical(t%root, key)
+    end subroutine remove_chr_logical
+
+    function get_kth_key_int(t, k)
+        implicit none
+        type(dict_int), intent(in) :: t
         integer, intent(in) :: k
-        type(node), pointer :: res
-        integer, allocatable :: get_kth_key
-        if (k < 1 .or. k > my_count(t%root)) then
+        type(node_int), pointer :: res
+        integer, allocatable :: get_kth_key_int
+        if (k < 1 .or. k > my_count_int(t%root)) then
             print *, "get_kth_key failed"
             call stop_with_errorcode(1)
         else
-            res => kth_node(t%root, k)
-            get_kth_key = res%key
+            res => kth_node_int(t%root, k)
+            get_kth_key_int = res%key
         end if
-    end function get_kth_key
+    end function get_kth_key_int
 
-    subroutine get_keys_vals(t, keys, vals, n)
+    function get_kth_key_chr_logical(t, k)
         implicit none
-        type(dict), intent(in) :: t
+        type(dict_chr_logical), intent(in) :: t
+        integer, intent(in) :: k
+        type(node_chr_logical), pointer :: res
+        character(:), allocatable :: get_kth_key_chr_logical
+        if (k < 1 .or. k > my_count_chr_logical(t%root)) then
+            print *, "get_kth_key failed"
+            call stop_with_errorcode(1)
+        else
+            res => kth_node_chr_logical(t%root, k)
+            get_kth_key_chr_logical = res%key
+        end if
+    end function get_kth_key_chr_logical
+
+    subroutine get_keys_vals_int(t, keys, vals, n)
+        implicit none
+        type(dict_int), intent(in) :: t
         integer, intent(in) :: n
         integer, intent(out) :: keys(n)
         integer, intent(out) :: vals(n)
         integer :: counter
-        if (my_count(t%root) /= n) call stop_with_errorcode(1)
+        if (my_count_int(t%root) /= n) call stop_with_errorcode(1)
         counter = 0
-        call inorder(t%root, keys, vals, counter)
-    end subroutine get_keys_vals
+        call inorder_int(t%root, keys, vals, counter)
+    end subroutine get_keys_vals_int
 
-    function get_size(t)
+    subroutine get_keys_vals_chr_logical(t, keys, vals, n)
         implicit none
-        type(dict), intent(in) :: t
-        integer :: get_size
-        get_size = my_count(t%root)
-    end function get_size
+        type(dict_chr_logical), intent(in) :: t
+        integer, intent(in) :: n
+        character(*), intent(out) :: keys(n)
+        logical, intent(out) :: vals(n)
+        integer :: counter
+        if (my_count_chr_logical(t%root) /= n) call stop_with_errorcode(1)
+        counter = 0
+        call inorder_chr_logical(t%root, keys, vals, counter)
+    end subroutine get_keys_vals_chr_logical
 
-    subroutine destruct_dict(t)
+    function get_size_int(t)
         implicit none
-        type(dict), intent(inout) :: t
-        call delete_all(t%root)
-    end subroutine destruct_dict
+        type(dict_int), intent(in) :: t
+        integer :: get_size_int
+        get_size_int = my_count_int(t%root)
+    end function get_size_int
+
+    function get_size_chr_logical(t)
+        implicit none
+        type(dict_chr_logical), intent(in) :: t
+        integer :: get_size_chr_logical
+        get_size_chr_logical = my_count_chr_logical(t%root)
+    end function get_size_chr_logical
+
+    subroutine destruct_dict_int(t)
+        implicit none
+        type(dict_int), intent(inout) :: t
+        call delete_all_int(t%root)
+    end subroutine destruct_dict_int
+
+    subroutine destruct_dict_chr_logical(t)
+        implicit none
+        type(dict_chr_logical), intent(inout) :: t
+        call delete_all_chr_logical(t%root)
+    end subroutine destruct_dict_chr_logical
+
     ! Low level data structure and operations of treap.
     ! This allows multiple nodes with a same key.
 
-    subroutine update(root)
+    subroutine update_int(root)
         implicit none
-        type(node), pointer, intent(in) :: root
-        root%cnt = my_count(root%left) + my_count(root%right) + 1
-    end subroutine update
+        type(node_int), pointer, intent(in) :: root
+        root%cnt = my_count_int(root%left) + my_count_int(root%right) + 1
+    end subroutine update_int
 
-    function my_count(root)
+    subroutine update_chr_logical(root)
         implicit none
-        type(node), pointer, intent(in) :: root
-        integer :: my_count
+        type(node_chr_logical), pointer, intent(in) :: root
+        root%cnt = my_count_chr_logical(root%left) + my_count_chr_logical(root%right) + 1
+    end subroutine update_chr_logical
+
+    function my_count_int(root)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
+        integer :: my_count_int
         if (associated(root)) then
-            my_count = root%cnt
+            my_count_int = root%cnt
         else
-            my_count = 0
+            my_count_int = 0
         end if
-    end function my_count
+    end function my_count_int
 
-    function rotate_ccw(root)
+    function my_count_chr_logical(root)
         implicit none
-        type(node), pointer, intent(in) :: root
-        type(node), pointer :: tmp, rotate_ccw
+        type(node_chr_logical), pointer, intent(in) :: root
+        integer :: my_count_chr_logical
+        if (associated(root)) then
+            my_count_chr_logical = root%cnt
+        else
+            my_count_chr_logical = 0
+        end if
+    end function my_count_chr_logical
+
+    function rotate_ccw_int(root)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
+        type(node_int), pointer :: tmp, rotate_ccw_int
         if (.not. associated(root%right)) call stop_with_errorcode(1)
         tmp => root%right
         root%right => tmp%left
         tmp%left => root
-        rotate_ccw => tmp
-        call update(root)
-        call update(tmp)
-    end function rotate_ccw
+        rotate_ccw_int => tmp
+        call update_int(root)
+        call update_int(tmp)
+    end function rotate_ccw_int
 
-    function rotate_cw(root)
+    function rotate_ccw_chr_logical(root)
         implicit none
-        type(node), pointer, intent(in) :: root
-        type(node), pointer :: tmp, rotate_cw
+        type(node_chr_logical), pointer, intent(in) :: root
+        type(node_chr_logical), pointer :: tmp, rotate_ccw_chr_logical
+        if (.not. associated(root%right)) call stop_with_errorcode(1)
+        tmp => root%right
+        root%right => tmp%left
+        tmp%left => root
+        rotate_ccw_chr_logical => tmp
+        call update_chr_logical(root)
+        call update_chr_logical(tmp)
+    end function rotate_ccw_chr_logical
+
+    function rotate_cw_int(root)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
+        type(node_int), pointer :: tmp, rotate_cw_int
         if (.not. associated(root%left)) call stop_with_errorcode(1)
         tmp => root%left
         root%left => tmp%right
         tmp%right => root
-        rotate_cw => tmp
-        call update(root)
-        call update(tmp)
-    end function rotate_cw
+        rotate_cw_int => tmp
+        call update_int(root)
+        call update_int(tmp)
+    end function rotate_cw_int
 
-    recursive function insert(root, key, val, pri) result(res)
+    function rotate_cw_chr_logical(root)
         implicit none
-        type(node), pointer, intent(in) :: root
+        type(node_chr_logical), pointer, intent(in) :: root
+        type(node_chr_logical), pointer :: tmp, rotate_cw_chr_logical
+        if (.not. associated(root%left)) call stop_with_errorcode(1)
+        tmp => root%left
+        root%left => tmp%right
+        tmp%right => root
+        rotate_cw_chr_logical => tmp
+        call update_chr_logical(root)
+        call update_chr_logical(tmp)
+    end function rotate_cw_chr_logical
+
+    recursive function insert_int(root, key, val, pri) result(res)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
         integer, intent(in) :: pri
         integer, intent(in) :: key
         integer, intent(in) :: val
-        type(node), pointer :: res
+        type(node_int), pointer :: res
 
         if (.not. associated(root)) then
             allocate (res)
@@ -188,26 +361,57 @@ contains
         else
             res => root
             if (key > root%key) then
-                root%right => insert(root%right, key, val, pri)
-                call update(root)
+                root%right => insert_int(root%right, key, val, pri)
+                call update_int(root)
                 if (root%pri > root%right%pri) then
-                    res => rotate_ccw(res)
+                    res => rotate_ccw_int(res)
                 end if
             else
-                root%left => insert(root%left, key, val, pri)
-                call update(root)
+                root%left => insert_int(root%left, key, val, pri)
+                call update_int(root)
                 if (root%pri > root%left%pri) then
-                    res => rotate_cw(res)
+                    res => rotate_cw_int(res)
                 end if
             end if
         end if
-    end function insert
+    end function insert_int
 
-    recursive function erase(root, key) result(res)
+    recursive function insert_chr_logical(root, key, val, pri) result(res)
         implicit none
-        type(node), pointer, intent(in) :: root
+        type(node_chr_logical), pointer, intent(in) :: root
+        integer, intent(in) :: pri
+        character(*), intent(in) :: key
+        logical, intent(in) :: val
+        type(node_chr_logical), pointer :: res
+
+        if (.not. associated(root)) then
+            allocate (res)
+            res%key = key
+            res%pri = pri
+            res%val = val
+        else
+            res => root
+            if (key > root%key) then
+                root%right => insert_chr_logical(root%right, key, val, pri)
+                call update_chr_logical(root)
+                if (root%pri > root%right%pri) then
+                    res => rotate_ccw_chr_logical(res)
+                end if
+            else
+                root%left => insert_chr_logical(root%left, key, val, pri)
+                call update_chr_logical(root)
+                if (root%pri > root%left%pri) then
+                    res => rotate_cw_chr_logical(res)
+                end if
+            end if
+        end if
+    end function insert_chr_logical
+
+    recursive function erase_int(root, key) result(res)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
         integer, intent(in) :: key
-        type(node), pointer :: res, tmp
+        type(node_int), pointer :: res, tmp
 
         if (.not. associated(root)) then
             print *, "Erase failed"
@@ -215,10 +419,10 @@ contains
         end if
 
         if (key < root%key) then
-            root%left => erase(root%left, key)
+            root%left => erase_int(root%left, key)
             res => root
         else if (key > root%key) then
-            root%right => erase(root%right, key)
+            root%right => erase_int(root%right, key)
             res => root
         else
             if ((.not. associated(root%left)) .or. (.not. associated(root%right))) then
@@ -231,72 +435,169 @@ contains
                 deallocate (tmp)
             else
                 if (root%left%pri < root%right%pri) then
-                    res => rotate_ccw(root)
-                    res%left => erase(res%left, key)
+                    res => rotate_ccw_int(root)
+                    res%left => erase_int(res%left, key)
                 else
-                    res => rotate_cw(root)
-                    res%right => erase(res%right, key)
+                    res => rotate_cw_int(root)
+                    res%right => erase_int(res%right, key)
                 end if
             end if
         end if
-        if (associated(res)) call update(res)
-    end function erase
+        if (associated(res)) call update_int(res)
+    end function erase_int
 
-    recursive function find_node(root, key) result(res)
+    recursive function erase_chr_logical(root, key) result(res)
         implicit none
-        type(node), pointer, intent(in) :: root
+        type(node_chr_logical), pointer, intent(in) :: root
+        character(*), intent(in) :: key
+        type(node_chr_logical), pointer :: res, tmp
+
+        if (.not. associated(root)) then
+            print *, "Erase failed"
+            call stop_with_errorcode(1)
+        end if
+
+        if (key < root%key) then
+            root%left => erase_chr_logical(root%left, key)
+            res => root
+        else if (key > root%key) then
+            root%right => erase_chr_logical(root%right, key)
+            res => root
+        else
+            if ((.not. associated(root%left)) .or. (.not. associated(root%right))) then
+                tmp => root
+                if (.not. associated(root%left)) then
+                    res => root%right
+                else
+                    res => root%left
+                end if
+                deallocate (tmp)
+            else
+                if (root%left%pri < root%right%pri) then
+                    res => rotate_ccw_chr_logical(root)
+                    res%left => erase_chr_logical(res%left, key)
+                else
+                    res => rotate_cw_chr_logical(root)
+                    res%right => erase_chr_logical(res%right, key)
+                end if
+            end if
+        end if
+        if (associated(res)) call update_chr_logical(res)
+    end function erase_chr_logical
+
+    recursive function find_node_int(root, key) result(res)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
         integer, intent(in) :: key
-        type(node), pointer :: res
+        type(node_int), pointer :: res
         if (.not. associated(root)) then
             res => null()
         else if (root%key == key) then
             res => root
         else if (key < root%key) then
-            res => find_node(root%left, key)
+            res => find_node_int(root%left, key)
         else
-            res => find_node(root%right, key)
+            res => find_node_int(root%right, key)
         end if
-    end function find_node
+    end function find_node_int
 
-    recursive function kth_node(root, k) result(res)
+    recursive function find_node_chr_logical(root, key) result(res)
         implicit none
-        type(node), pointer, intent(in) :: root
-        integer, intent(in) :: k
-        type(node), pointer :: res
+        type(node_chr_logical), pointer, intent(in) :: root
+        character(*), intent(in) :: key
+        type(node_chr_logical), pointer :: res
         if (.not. associated(root)) then
             res => null()
-        else if (k <= my_count(root%left)) then
-            res => kth_node(root%left, k)
-        else if (k == my_count(root%left) + 1) then
+        else if (root%key == key) then
+            res => root
+        else if (key < root%key) then
+            res => find_node_chr_logical(root%left, key)
+        else
+            res => find_node_chr_logical(root%right, key)
+        end if
+    end function find_node_chr_logical
+
+    recursive function kth_node_int(root, k) result(res)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
+        integer, intent(in) :: k
+        type(node_int), pointer :: res
+        if (.not. associated(root)) then
+            res => null()
+        else if (k <= my_count_int(root%left)) then
+            res => kth_node_int(root%left, k)
+        else if (k == my_count_int(root%left) + 1) then
             res => root
         else
-            res => kth_node(root%right, k - my_count(root%left) - 1)
+            res => kth_node_int(root%right, k - my_count_int(root%left) - 1)
         end if
-    end function kth_node
+    end function kth_node_int
 
-    recursive subroutine delete_all(root)
+    recursive function kth_node_chr_logical(root, k) result(res)
         implicit none
-        type(node), pointer, intent(inout) :: root
+        type(node_chr_logical), pointer, intent(in) :: root
+        integer, intent(in) :: k
+        type(node_chr_logical), pointer :: res
+        if (.not. associated(root)) then
+            res => null()
+        else if (k <= my_count_chr_logical(root%left)) then
+            res => kth_node_chr_logical(root%left, k)
+        else if (k == my_count_chr_logical(root%left) + 1) then
+            res => root
+        else
+            res => kth_node_chr_logical(root%right, k - my_count_chr_logical(root%left) - 1)
+        end if
+    end function kth_node_chr_logical
+
+    recursive subroutine delete_all_int(root)
+        implicit none
+        type(node_int), pointer, intent(inout) :: root
         if (.not. associated(root)) return
 
-        call delete_all(root%left)
-        call delete_all(root%right)
+        call delete_all_int(root%left)
+        call delete_all_int(root%right)
         deallocate (root)
         nullify (root)
-    end subroutine delete_all
+    end subroutine delete_all_int
 
-    recursive subroutine inorder(root, keys, vals, counter)
+    recursive subroutine delete_all_chr_logical(root)
         implicit none
-        type(node), pointer, intent(in) :: root
+        type(node_chr_logical), pointer, intent(inout) :: root
+        if (.not. associated(root)) return
+
+        call delete_all_chr_logical(root%left)
+        call delete_all_chr_logical(root%right)
+        deallocate (root)
+        nullify (root)
+    end subroutine delete_all_chr_logical
+
+    recursive subroutine inorder_int(root, keys, vals, counter)
+        implicit none
+        type(node_int), pointer, intent(in) :: root
         integer, intent(inout) :: keys(:)
         integer, intent(inout) :: vals(:)
         integer, intent(inout) :: counter
         if (.not. associated(root)) return
 
-        call inorder(root%left, keys, vals, counter)
+        call inorder_int(root%left, keys, vals, counter)
         counter = counter + 1
         keys(counter) = root%key
         vals(counter) = root%val
-        call inorder(root%right, keys, vals, counter)
-    end subroutine inorder
+        call inorder_int(root%right, keys, vals, counter)
+    end subroutine inorder_int
+
+    recursive subroutine inorder_chr_logical(root, keys, vals, counter)
+        implicit none
+        type(node_chr_logical), pointer, intent(in) :: root
+        character(*), intent(inout) :: keys(:)
+        logical, intent(inout) :: vals(:)
+        integer, intent(inout) :: counter
+        if (.not. associated(root)) return
+
+        call inorder_chr_logical(root%left, keys, vals, counter)
+        counter = counter + 1
+        keys(counter) = root%key
+        vals(counter) = root%val
+        call inorder_chr_logical(root%right, keys, vals, counter)
+    end subroutine inorder_chr_logical
 end module module_dict
