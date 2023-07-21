@@ -21,7 +21,8 @@ MODULE module_global_variables
     ! eshift        : Real shift
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
-    integer         :: nroot, selectroot
+    integer         :: nroot = 10, selectroot
+    integer, allocatable :: selectroot_list(:, :), totsym_list(:)
     integer         :: totsym, ncore, nbas
     real(8)         :: eshift = 0.0d+00 ! default: 0.0
     integer         :: dirac_version
@@ -31,7 +32,8 @@ MODULE module_global_variables
     logical         :: skip_mdcint = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
-    integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
+    integer, parameter :: max_ras_spinor_num = 200, max_totsym = 64, max_selectroot = 100
+    integer, parameter :: max_i4 = huge(0_4) ! 4byte integer max value
     integer         :: noccg, noccu, nvcutg, nvcutu
 
     !! =================================================

@@ -6,7 +6,7 @@ program main
     use read_input_module, only: read_input
     use module_realonly, only: check_realonly
     implicit none
-    integer :: unit_input
+    integer :: unit_input, idx_totsym, idx_selectroot
 
     call mpi_init_wrapper
     if (rank == 0) then
@@ -61,10 +61,26 @@ program main
     ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
     call check_realonly()
 
-    call r4dcasci
-    call mpi_barrier_wrapper
-    call r4dcaspt2_tra
-
+    print *, "totsym_list, selectroot_list", totsym_list, selectroot_list
+    do idx_totsym = 1, size(totsym_list)
+        totsym = totsym_list(idx_totsym)
+        do idx_selectroot = 1, size(selectroot_list, 1)
+            selectroot = selectroot_list(idx_selectroot, idx_totsym)
+            if (selectroot == 0) exit
+            call r4dcasci
+            call mpi_barrier_wrapper
+            call r4dcaspt2_tra
+            call mpi_barrier_wrapper
+            print *, "totsym, selectroot", totsym, selectroot, idx_selectroot, idx_totsym
+        end do
+        call mpi_barrier_wrapper
+    end do
     call mpi_finalize_wrapper
+
+contains
+    subroutine deallocate_variables
+        implicit none
+
+    end subroutine deallocate_variables
 
 end program main

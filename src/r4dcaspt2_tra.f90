@@ -49,7 +49,8 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read CAS configuration convertion list
     call open_unformatted_file(unit=unit_new, file="CIMAT", status='old', optional_action="read")
     read (unit_new) ndet
-    Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
+    if(allocated(ecas)) deallocate (ecas)
+    allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
     read (unit_new) ecas(1:ndet)
     read (unit_new) dict_cas_idx_size ! The number of CAS configurations
     do idx = 1, dict_cas_idx_size
@@ -70,7 +71,8 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 
     ! Read CASCI energy
-    ! Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
+    if (allocated(eigen)) deallocate (eigen)
+    allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
     eigen = 0.0d+00
     eigen(1:nroot) = ecas(1:nroot) + ecore
     Deallocate (ecas)
@@ -82,8 +84,10 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     call open_unformatted_file(unit=unit_new, file="NEWCICOEFF", status='old', optional_action="read")
     read (unit_new) ci(1:ndet)
     close (unit_new)
-    if (.not. allocated(cir)) Allocate (cir(1:ndet, selectroot:selectroot))
-    if (.not. allocated(cii)) Allocate (cii(1:ndet, selectroot:selectroot))
+    if (allocated(cir)) deallocate (cir)
+    if (allocated(cii)) deallocate (cii)
+    allocate (cir(1:ndet, selectroot:selectroot))
+    allocate (cii(1:ndet, selectroot:selectroot))
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     deallocate (ci)
@@ -92,7 +96,8 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read epsilons
     call open_unformatted_file(unit=unit_new, file="EPS", status='old', optional_action="read")
     read (unit_new) nmo
-    ! Allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
+    if (allocated(eps)) deallocate (eps)
+    allocate (eps(1:nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
     eps = 0.0d+00
     read (unit_new) eps(1:nmo)
     close (unit_new)

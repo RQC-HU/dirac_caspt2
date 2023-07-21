@@ -6,14 +6,29 @@ module read_input_module
 !
 ! This is a utility module that interpret and parse input strings.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-    use module_global_variables, only: rank, len_convert_int_to_chr
+    use module_dict
     use module_error, only: stop_with_errorcode
+    use module_global_variables, only: rank, len_convert_int_to_chr
     implicit none
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end
+    type(dict_chr_logical) :: essential_variables
     integer, parameter :: input_intmax = 10**9, max_str_length = 500
 contains
+
+    subroutine initialize_essential_variables
+        call add(essential_variables, "ninact", .false.)
+        call add(essential_variables, "nact", .false.)
+        call add(essential_variables, "nsec", .false.)
+        call add(essential_variables, "nelec", .false.)
+        call add(essential_variables, "selectroot", .false.)
+        call add(essential_variables, "totsym", .false.)
+        call add(essential_variables, "ncore", .false.)
+        call add(essential_variables, "nbas", .false.)
+        call add(essential_variables, "diracver", .false.)
+    end subroutine initialize_essential_variables
+
     subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
@@ -24,11 +39,10 @@ contains
         integer, intent(in) :: unit_num
         integer :: idx, iostat
         character(len=max_str_length) :: string
-        character(len=10), parameter :: essential_variable_names(10) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
-                                                "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "diracver  "/)
-        logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
-                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        character(:), allocatable :: key
+        logical :: is_comment, is_config_sufficient
         is_end = .false.
+        call initialize_essential_variables
 
         do while (.not. is_end) ! Read the input file until the "end" is found
             read (unit_num, "(a)", iostat=iostat) string
@@ -41,13 +55,14 @@ contains
             end if
             call is_comment_line(string, is_comment)
             if (is_comment) cycle ! Read the next line
-            call check_input_type(unit_num, string, is_variable_filled)
+            call check_input_type(unit_num, string)
         end do
         ! Check if the input is sufficient
         is_config_sufficient = .true.
-        do idx = 1, size(is_variable_filled)
-            if (.not. is_variable_filled(idx)) then
-                if (rank == 0) print *, "ERROR: You must specify a variable ", trim(essential_variable_names(idx)), " before end."
+        do idx = 1, get_size(essential_variables)
+            key = get_kth_key(essential_variables, idx)
+            if (.not. get_val(essential_variables, key)) then
+                if (rank == 0) print *, "ERROR: You must specify a variable ", trim(key), " before end."
                 is_config_sufficient = .false.
             end if
         end do
@@ -62,7 +77,7 @@ contains
 
     end subroutine read_input
 
-    subroutine check_input_type(unit_num, string, is_filled)
+    subroutine check_input_type(unit_num, string)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine recognize the type of input that follows from the next line
         ! and calls the subroutine that we must call
@@ -73,45 +88,68 @@ contains
         character(*), intent(inout) :: string
         character(len=max_str_length) :: input
         logical :: is_comment
-        logical, intent(inout) :: is_filled(:)
         call lowercase(string)
         select case (trim(string))
 
         case ("ninact")
             call read_an_integer(unit_num, 0, input_intmax, ninact)
-            is_filled(1) = .true.
+            call update_dict(essential_variables, "ninact", .true.)
 
         case ("nact")
             call read_an_integer(unit_num, 0, input_intmax, nact)
-            is_filled(2) = .true.
+            call update_dict(essential_variables, "nact", .true.)
 
         case ("nsec")
             call read_an_integer(unit_num, 0, input_intmax, nsec)
-            is_filled(3) = .true.
+            call update_dict(essential_variables, "nsec", .true.)
 
         case ("nelec")
             call read_an_integer(unit_num, 0, input_intmax, nelec)
-            is_filled(4) = .true.
+            call update_dict(essential_variables, "nelec", .true.)
 
         case ("nroot")
             call read_an_integer(unit_num, 0, input_intmax, nroot)
-            is_filled(5) = .true.
+
+        case ("multiple_state")
+            if (get_val(essential_variables, "selectroot")) then
+                if (rank == 0) print *, "ERROR: You can't specify both 'multiple_state' and 'selectroot'"
+                call stop_with_errorcode(1)
+            else if (get_val(essential_variables, "totsym")) then
+                if (rank == 0) print *, "ERROR: You can't specify both 'multiple_state' and 'totsym'"
+                call stop_with_errorcode(1)
+            end if
+            call read_totsym_list(unit_num)
+            call read_selectroot_list(unit_num)
+            call update_dict(essential_variables, "selectroot", .true.)
+            call update_dict(essential_variables, "totsym", .true.)
 
         case ("selectroot")
+            if (get_val(essential_variables, "selectroot")) then
+                if (rank == 0) print *, "ERROR: You can't specify both 'multiple_state' and 'selectroot'"
+                call stop_with_errorcode(1)
+            end if
             call read_an_integer(unit_num, 0, input_intmax, selectroot)
-            is_filled(6) = .true.
+            allocate (selectroot_list(1, 1))
+            selectroot_list(1, 1) = selectroot
+            call update_dict(essential_variables, "selectroot", .true.)
 
         case ("totsym")
+            if (get_val(essential_variables, "totsym")) then
+                if (rank == 0) print *, "ERROR: You can't specify both 'multiple_state' and 'totsym'"
+                call stop_with_errorcode(1)
+            end if
             call read_an_integer(unit_num, 0, input_intmax, totsym)
-            is_filled(7) = .true.
+            allocate (totsym_list(1))
+            totsym_list(1) = totsym
+            call update_dict(essential_variables, "totsym", .true.)
 
         case ("ncore")
             call read_an_integer(unit_num, 0, input_intmax, ncore)
-            is_filled(8) = .true.
+            call update_dict(essential_variables, "ncore", .true.)
 
         case ("nbas")
             call read_an_integer(unit_num, 0, input_intmax, nbas)
-            is_filled(9) = .true.
+            call update_dict(essential_variables, "nbas", .true.)
 
         case ("eshift")
             do
@@ -125,7 +163,7 @@ contains
 
         case ("diracver")
             call read_an_integer(unit_num, 0, input_intmax, dirac_version)
-            is_filled(10) = .true.
+            call update_dict(essential_variables, "diracver", .true.)
 
         case ("nhomo")
             call read_an_integer(unit_num, 0, input_intmax, nhomo)
@@ -172,6 +210,52 @@ contains
         end select
 
     end subroutine check_input_type
+
+    subroutine read_selectroot_list(unit_num)
+        use module_global_variables, only: selectroot_list, max_selectroot, totsym_list
+        implicit none
+        integer, intent(in) :: unit_num
+        integer :: iostat, idx_filled, totsym_list_size, idx
+        character(len=max_str_length) :: string
+        totsym_list_size = size(totsym_list)
+        allocate (selectroot_list(max_selectroot, totsym_list_size))
+        selectroot_list(:, :) = 0
+        do idx = 1, totsym_list_size
+            read (unit_num, '(a)', iostat=iostat) string ! Read a line of active.inp
+            if (iostat /= 0) then
+                if (rank == 0) print *, "ERROR: read_selectroot_list: iostat = ", iostat, ", string =", string
+                call stop_with_errorcode(iostat)
+                call exit(iostat)
+            end if
+            idx_filled = 0
+            call parse_input_string_to_int_list(string=string, list=selectroot_list(:, idx), filled_num=idx_filled, &
+                                                allow_int_min=1, allow_int_max=input_intmax)
+        end do
+    end subroutine read_selectroot_list
+
+    subroutine read_totsym_list(unit_num)
+        use module_global_variables, only: totsym_list, max_totsym
+        implicit none
+        integer, intent(in) :: unit_num
+        integer :: iostat, idx_filled
+        character(len=max_str_length) :: string
+        integer, allocatable :: tmp_totsym_list(:)
+        allocate (tmp_totsym_list(max_totsym))
+        tmp_totsym_list(:) = 0
+        read (unit_num, '(a)', iostat=iostat) string ! Read a line of active.inp
+        if (iostat /= 0) then
+            if (rank == 0) print *, "ERROR: read_totsym_list: iostat = ", iostat, ", string =", string
+            call stop_with_errorcode(iostat)
+            call exit(iostat)
+        end if
+        idx_filled = 0
+        call parse_input_string_to_int_list(string=string, list=tmp_totsym_list, filled_num=idx_filled, &
+                                            allow_int_min=1, allow_int_max=max_totsym)
+        allocate (totsym_list(idx_filled))
+        totsym_list(:) = tmp_totsym_list(1:idx_filled)
+        deallocate (tmp_totsym_list)
+
+    end subroutine read_totsym_list
 
     subroutine ras_read(unit_num, ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -622,7 +706,7 @@ contains
     subroutine read_an_integer(unit_num, allowed_min_int, allowed_max_int, result_int)
         implicit none
         integer, intent(in) :: unit_num, allowed_min_int, allowed_max_int
-        integer, intent(inout) :: result_int
+        integer, intent(out) :: result_int
         character(:), allocatable :: pattern, invalid_input_message
         logical :: is_comment, is_subst
         character(len=max_str_length) :: input
