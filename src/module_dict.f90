@@ -9,7 +9,7 @@ module module_dict
     use module_error, only: stop_with_errorcode
     implicit none
     private
-    public :: dict_int, dict_chr_logical, get_val, add, exists, remove, get_keys_vals, get_size, get_kth_key
+    public :: dict_int, dict_chr_logical, update_dict, get_val, add, exists, remove, get_keys_vals, get_size, get_kth_key
 
     type dict_int
         type(node_int), pointer :: root => null()
@@ -40,6 +40,10 @@ module module_dict
         integer :: pri  ! min-heap
         integer :: cnt = 1
     end type node_chr_logical
+    interface update_dict
+        module procedure update_dict_int
+        module procedure update_dict_chr_logical
+    end interface update_dict
     interface get_val
         module procedure get_val_int
         module procedure get_val_chr_logical
@@ -83,6 +87,32 @@ contains
         xorshift = ieor(xorshift, ishft(xorshift, -17))
         xorshift = ieor(xorshift, ishft(xorshift, 15))
     end function xorshift
+
+    subroutine update_dict_int(t, key, val)
+        implicit none
+        type(dict_int), intent(inout) :: t
+        integer, intent(in) :: key
+        integer, intent(in) :: val
+        type(node_int), pointer :: nd
+        nd => find_node_int(t%root, key)
+        if (.not. associated(nd)) then
+            call stop_with_errorcode(1)
+        end if
+        nd%val = val
+    end subroutine update_dict_int
+
+    subroutine update_dict_chr_logical(t, key, val)
+        implicit none
+        type(dict_chr_logical), intent(inout) :: t
+        character(*), intent(in) :: key
+        logical, intent(in) :: val
+        type(node_chr_logical), pointer :: nd
+        nd => find_node_chr_logical(t%root, key)
+        if (.not. associated(nd)) then
+            call stop_with_errorcode(1)
+        end if
+        nd%val = val
+    end subroutine update_dict_chr_logical
 
     function get_val_int(t, key)
         implicit none
@@ -259,17 +289,17 @@ contains
     ! Low level data structure and operations of treap.
     ! This allows multiple nodes with a same key.
 
-    subroutine update_int(root)
+    subroutine update_my_count_int(root)
         implicit none
         type(node_int), pointer, intent(in) :: root
         root%cnt = my_count_int(root%left) + my_count_int(root%right) + 1
-    end subroutine update_int
+    end subroutine update_my_count_int
 
-    subroutine update_chr_logical(root)
+    subroutine update_my_count_chr_logical(root)
         implicit none
         type(node_chr_logical), pointer, intent(in) :: root
         root%cnt = my_count_chr_logical(root%left) + my_count_chr_logical(root%right) + 1
-    end subroutine update_chr_logical
+    end subroutine update_my_count_chr_logical
 
     function my_count_int(root)
         implicit none
@@ -302,8 +332,8 @@ contains
         root%right => tmp%left
         tmp%left => root
         rotate_ccw_int => tmp
-        call update_int(root)
-        call update_int(tmp)
+        call update_my_count_int(root)
+        call update_my_count_int(tmp)
     end function rotate_ccw_int
 
     function rotate_ccw_chr_logical(root)
@@ -315,8 +345,8 @@ contains
         root%right => tmp%left
         tmp%left => root
         rotate_ccw_chr_logical => tmp
-        call update_chr_logical(root)
-        call update_chr_logical(tmp)
+        call update_my_count_chr_logical(root)
+        call update_my_count_chr_logical(tmp)
     end function rotate_ccw_chr_logical
 
     function rotate_cw_int(root)
@@ -328,8 +358,8 @@ contains
         root%left => tmp%right
         tmp%right => root
         rotate_cw_int => tmp
-        call update_int(root)
-        call update_int(tmp)
+        call update_my_count_int(root)
+        call update_my_count_int(tmp)
     end function rotate_cw_int
 
     function rotate_cw_chr_logical(root)
@@ -341,8 +371,8 @@ contains
         root%left => tmp%right
         tmp%right => root
         rotate_cw_chr_logical => tmp
-        call update_chr_logical(root)
-        call update_chr_logical(tmp)
+        call update_my_count_chr_logical(root)
+        call update_my_count_chr_logical(tmp)
     end function rotate_cw_chr_logical
 
     recursive function insert_int(root, key, val, pri) result(res)
@@ -362,13 +392,13 @@ contains
             res => root
             if (key > root%key) then
                 root%right => insert_int(root%right, key, val, pri)
-                call update_int(root)
+                call update_my_count_int(root)
                 if (root%pri > root%right%pri) then
                     res => rotate_ccw_int(res)
                 end if
             else
                 root%left => insert_int(root%left, key, val, pri)
-                call update_int(root)
+                call update_my_count_int(root)
                 if (root%pri > root%left%pri) then
                     res => rotate_cw_int(res)
                 end if
@@ -393,13 +423,13 @@ contains
             res => root
             if (key > root%key) then
                 root%right => insert_chr_logical(root%right, key, val, pri)
-                call update_chr_logical(root)
+                call update_my_count_chr_logical(root)
                 if (root%pri > root%right%pri) then
                     res => rotate_ccw_chr_logical(res)
                 end if
             else
                 root%left => insert_chr_logical(root%left, key, val, pri)
-                call update_chr_logical(root)
+                call update_my_count_chr_logical(root)
                 if (root%pri > root%left%pri) then
                     res => rotate_cw_chr_logical(res)
                 end if
@@ -443,7 +473,7 @@ contains
                 end if
             end if
         end if
-        if (associated(res)) call update_int(res)
+        if (associated(res)) call update_my_count_int(res)
     end function erase_int
 
     recursive function erase_chr_logical(root, key) result(res)
@@ -482,7 +512,7 @@ contains
                 end if
             end if
         end if
-        if (associated(res)) call update_chr_logical(res)
+        if (associated(res)) call update_my_count_chr_logical(res)
     end function erase_chr_logical
 
     recursive function find_node_int(root, key) result(res)
