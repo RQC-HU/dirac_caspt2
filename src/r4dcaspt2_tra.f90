@@ -84,6 +84,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
     end if
 
+    if (ninact == 0 .and. nsec == 0) then
+        if (rank == 0) print *, "The CASPT2 energy cannot be defined when ninact = 0 and nsec = 0."
+        stop
+    end if
+
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     if (rank == 0) print *, ' ENTER READ MRCONEE'
     filename = 'MRCONEE'
