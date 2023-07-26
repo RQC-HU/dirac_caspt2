@@ -15,7 +15,84 @@ def check_type(obj, type_: type):
     return obj
 
 
+def check_test_type() -> str:
+    # Ask for the type of the test(slow, normal, fast)
+    test_speed_types: dict[str, str] = {
+        "slow, 20↑ sec": "slow",
+        "normal, 10-20 sec": "unmarked",
+        "fast(dev), 1-10 sec": "dev",
+    }
+    ref_test_speed_types = list(test_speed_types.keys())
+    ref_test_type = check_type(
+        questionary.select(
+            "What type of test would you like to generate?",
+            choices=ref_test_speed_types,
+            default="fast(dev), 1-10 sec",
+        ).ask(),
+        str,
+    )
+    logging.info(f"Reference test type: {ref_test_type}")
+    return test_speed_types[ref_test_type]
+
+
+def ask_point_group() -> str:
+    point_group_answer = check_type(questionary.text("Please enter the point group of the molecule.").ask(), str)
+    logging.info(f"Point group: {point_group_answer}")
+    return point_group_answer
+
+
+def ask_molecule_name() -> str:
+    molecule_name_answer = check_type(questionary.text("Please enter the name or the formula of the molecule.").ask(), str)
+    logging.info(f"Molecule: {molecule_name_answer}")
+    return molecule_name_answer
+
+
+def ask_general_file_path(program_name: str, file_type: str, default_path: Path = Path()) -> Path:
+    file_answer = check_type(questionary.path(f"Please enter the path of the {program_name} {file_type} file.", default=str(default_path)).ask(), str)
+    # Check if the file exists
+    file_path = Path(file_answer).expanduser().resolve()
+    if not file_path.is_file():
+        logging.error(f"{program_name} {file_type} file does not exist. Exiting...")
+        raise FileNotFoundError
+    logging.info(f"{program_name} {file_type} path: {file_path}")
+    return file_path
+
+
+def ask_input_file_path(program_name: str, default_path: Path = Path()) -> Path:
+    return ask_general_file_path(program_name, "input", default_path)
+
+
+def ask_mol_file_path(program_name: str, default_path: Path = Path()) -> Path:
+    return ask_general_file_path(program_name, "*.mol or *.xyz", default_path)
+
+
+def ask_output_file_path(program_name: str, default_path: Path = Path()) -> Path:
+    return ask_general_file_path(program_name, "output", default_path)
+
+
+def ask_dirac_integrals_directory(default_dir: Path = Path()) -> Path:
+    integral_dir_answer = check_type(questionary.path("Please enter the directory of the DIRAC integrals files (MRCONEE, MDCINT, MDCINXXXX1, ...) are stored.", default=str(default_dir)).ask(), str)
+    # Check if the directory exists
+    integral_dir_path = Path(integral_dir_answer).expanduser().resolve()
+    mrconee_path = Path.joinpath(integral_dir_path, "MRCONEE")
+    mdcint_path = Path.joinpath(integral_dir_path, "MDCINT")
+    # if MRCONEE and MDCINT (and MDCINX* (optional)) are not in the integrals file, exit
+    if not integral_dir_path.is_dir():
+        logging.error("DIRAC integrals directory does not exist. Exiting...")
+        raise FileNotFoundError
+    if not mrconee_path.is_file():
+        logging.error("MRCONEE is not in the DIRAC integrals directory. Exiting...")
+        raise FileNotFoundError
+    if not mdcint_path.is_file():
+        logging.error("MDCINT is not in the DIRAC integrals directory. Exiting...")
+        raise FileNotFoundError
+    logging.info(f"DIRAC integrals directory: {integral_dir_path}")
+    return integral_dir_path
+
+
 def main():
+    # Get the user cwd directory
+    user_dir = Path(os.getcwd()).resolve()
     # Get the test directory
     test_dir = Path(__file__).parent.parent.joinpath("test").resolve()
     test_template_dir = test_dir.joinpath("template").resolve()
@@ -41,89 +118,51 @@ def main():
 
     if test_type == "CASPT2 energy test":
         # Generate CASPT2 energy test
-        # Ask for the path of the reference output
-        ref_output_answer = check_type(questionary.path("Please enter the path of the reference DIRAC-CASPT2 output file.").ask(), str)
-        # Check if the reference output file exists
-        ref_output_path = Path(ref_output_answer).expanduser().resolve()
-        if not ref_output_path.is_file():
-            logging.error("Reference output file does not exist. Exiting...")
-            raise FileNotFoundError
-        ref_parent_dir = ref_output_path.parent
-        logging.info(f"Reference output path: {ref_output_path}")
+
         # Ask for the type of the test(slow, normal, fast)
-        test_speed_types: dict[str, str] = {
-            "slow, 20↑ sec": "slow",
-            "normal, 10-20 sec": "unmarked",
-            "fast(dev), 1-10 sec": "dev",
-        }
-        ref_test_speed_types = list(test_speed_types.keys())
-        ref_test_type = check_type(
-            questionary.select(
-                "What type of test would you like to generate?",
-                choices=ref_test_speed_types,
-                default="fast(dev), 1-10 sec",
-            ).ask(),
-            str,
-        )
-        selected_test_type = test_speed_types[ref_test_type]
-        logging.info(f"Reference test type: {ref_test_type}")
+        selected_test_type = check_test_type()
+
+        # Ask for the path of the reference output
+        ref_output_path = ask_output_file_path(program_name="DIRAC-CASPT2", default_path=user_dir)
+        ref_parent_dir = ref_output_path.parent
+        # Get the point group and the molecule name
+        point_group = ask_point_group()
+        molecule_name = ask_molecule_name()
+        # Create the test directory name
+        type_str = "" if selected_test_type == "unmarked" else f"_{selected_test_type}"
+        dirname = point_group + "_" + molecule_name + type_str
         # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
-        # dirname = ref_output_path.split("/")[-1].split(".")[0]
-        dirname = ref_output_path.stem.split(".")[0]
-        # dir_path = Path(os.path.join(test_dir, selected_test_type, dirname))
         dir_path = Path.joinpath(test_dir, selected_test_type, dirname).resolve()
-        logging.info(dir_path)
         # if the directory already exists, exit
         if dir_path.is_dir():
-            logging.error("The test directory already exists. Exiting...")
+            logging.error(f"The test directory {dir_path} already exists. Exiting...")
             raise FileExistsError
         # Get the input file path
-        input_file_answer = check_type(questionary.path("Please enter the path of the input file.", default=str(ref_parent_dir)).ask(), str)
-        input_file_path = Path(input_file_answer).expanduser().resolve()
-        if not input_file_path.is_file():
-            logging.error("Input file does not exist. Exiting...")
-            raise FileNotFoundError
+        input_file_path = ask_input_file_path(program_name="DIRAC-CASPT2", default_path=ref_parent_dir)
 
-        integrals_file_answer = questionary.path("Please enter the path of the integrals file", default=str(ref_parent_dir)).ask()
-        integrals_file_path = Path(integrals_file_answer).resolve()
+        # Ask for the path of the integrals file
+        integrals_file_path = ask_dirac_integrals_directory(default_dir=ref_parent_dir)
         mrconee_path = Path.joinpath(integrals_file_path, "MRCONEE")
         mdcint_path = Path.joinpath(integrals_file_path, "MDCINT")
-        # if MRCONEE and MDCINT (and MDCINX* (optional)) are not in the integrals file, exit
-        # Check if the integrals file path exists
-        if not integrals_file_path.is_dir():
-            logging.error("Integrals file path does not exist. Exiting...")
-            raise FileNotFoundError
-        # Check if the MRCONEE is in the integrals file path
-        if not mrconee_path.is_file():
-            logging.error("MRCONEE is not in the integrals file path. Exiting...")
-            raise FileNotFoundError
-        # Check if the MDCINT is in the integrals file path
-        if not mdcint_path.is_file():
-            logging.error("MDCINT is not in the integrals file path. Exiting...")
-            raise FileNotFoundError
 
         # mkdir the test directory
-        # os.mkdir(dir_path)
-        # os.chdir(dir_path)
         dir_path.mkdir(parents=True, exist_ok=True)
 
-        # Copy the input file to the test directory
+        # Copy the input and output file to the test directory
+        logging.info("Copying input, and output files to the test directory...")
         shutil.copy(input_file_path, Path.joinpath(dir_path, "active.inp"))
-        # Copy the output file to the test directory
         shutil.copy(ref_output_path, Path.joinpath(dir_path, f"{dirname}.out"))
         # Copy the integral files to the test directory
-
-        print(mrconee_path, mdcint_path)
+        logging.info("Copying integral files to the test directory...")
         shutil.copy(mrconee_path, dir_path)
         shutil.copy(mdcint_path, dir_path)
         # Copy the optional integral files to the test directory
         for file in glob.glob(os.path.join(integrals_file_path, "MDCINX*")):
             shutil.copy(file, dir_path)
         # Copy the template python file to the test directory
-        template_python_file_path = Path.joinpath(test_template_dir, "caspt2_energy_test", "test_template.py")
+        logging.info("Copying template python file to the test directory...")
+        template_python_file_path = Path.joinpath(test_template_dir, "caspt2_energy_test", "test_template_caspt2.py")
         python_file_path = Path.joinpath(dir_path, f"test_{dirname}.py")
-        print("Copying template python file to the test directory...")
-        print(template_python_file_path, python_file_path)
         shutil.copy(template_python_file_path, python_file_path)
 
         # Replace the template python file with the correct values
@@ -138,6 +177,7 @@ def main():
         }
         with open(python_file_path, "r") as f:
             lines = f.readlines()
+        logging.info("Replacing the template python file with the correct values...")
         with open(python_file_path, "w") as f:
             for line in lines:
                 for key, value in replace_dict.items():
@@ -145,34 +185,117 @@ def main():
                 f.write(line)
 
         # DIRAC input, mol and output files
-        dirac_input_file_answer = check_type(questionary.path("Please enter the path of the DIRAC input file.", default=str(ref_parent_dir)).ask(), str)
-        dirac_input_file_path = Path(dirac_input_file_answer).expanduser().resolve()
-        if not dirac_input_file_path.is_file():
-            logging.error("DIRAC input file does not exist. Exiting...")
-            raise FileNotFoundError
-
-        dirac_mol_file_answer = check_type(questionary.path("Please enter the path of the DIRAC *.mol or *.xyz file.", default=str(ref_parent_dir)).ask(), str)
-        dirac_mol_file_path = Path(dirac_mol_file_answer).expanduser().resolve()
-        if not dirac_mol_file_path.is_file():
-            logging.error("DIRAC *.mol or *.xyz file does not exist. Exiting...")
-            raise FileNotFoundError
-
-        dirac_output_file_answer = check_type(questionary.path("Please enter the path of the DIRAC output file.", default=str(ref_parent_dir)).ask(), str)
-        dirac_output_file_path = Path(dirac_output_file_answer).expanduser().resolve()
-        if not dirac_output_file_path.is_file():
-            logging.error("DIRAC output file does not exist. Exiting...")
-            raise FileNotFoundError
-
+        dirac_input_file_path = ask_input_file_path(program_name="DIRAC", default_path=ref_parent_dir)
+        dirac_parent_dir = dirac_input_file_path.parent
+        dirac_mol_file_path = ask_mol_file_path(program_name="DIRAC", default_path=dirac_parent_dir)
+        dirac_output_file_path = ask_output_file_path(program_name="DIRAC", default_path=dirac_parent_dir)
         # mkdir the dirac_data directory
         dirac_data_directory = Path.joinpath(dir_path, "dirac_data")
         dirac_data_directory.mkdir(parents=True, exist_ok=True)
         # Copy the DIRAC input, mol and output files to the dirac_data directory
+        logging.info("Copying DIRAC input, mol and output files to the dirac_data directory...")
         shutil.copy(dirac_input_file_path, dirac_data_directory)
         shutil.copy(dirac_mol_file_path, dirac_data_directory)
         shutil.copy(dirac_output_file_path, dirac_data_directory)
 
         logging.info("Successfully generated the test!")
+        logging.info(f"test directory: {dir_path}")
+        logging.info(f"dirac_data directory: {dirac_data_directory}")
         logging.info("Before you commit a new test, please run the test to make sure it passes.")
+
+    elif test_type == "IVO test":
+        # Generate IVO test
+
+        # Ask for the type of the test(slow, normal, fast)
+        selected_test_type = check_test_type()
+
+        # Ask for the path of the reference output
+        ref_output_path = ask_output_file_path(program_name="DIRAC-IVO", default_path=user_dir)
+        ref_parent_dir = ref_output_path.parent
+        # Get the point group and the molecule name
+        point_group = ask_point_group()
+        molecule_name = ask_molecule_name()
+        # Create the test directory name
+        type_str = "" if selected_test_type == "unmarked" else f"_{selected_test_type}"
+
+        # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
+        dirname = point_group + "_" + molecule_name + "_ivo" + type_str
+        dir_path = Path.joinpath(test_dir, selected_test_type, dirname).resolve()
+        # if the directory already exists, exit
+        if dir_path.is_dir():
+            logging.error(f"The test directory {dir_path} already exists. Exiting...")
+            raise FileExistsError
+        # Get the input file path
+        input_file_path = ask_input_file_path(program_name="DIRAC-IVO", default_path=ref_parent_dir)
+
+        # Ask for the DFPCMO and DFPCMONEW files
+        dfpcmo_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMO", default_path=ref_parent_dir)
+        ref_dfpcmonew_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMONEW", default_path=ref_parent_dir)
+
+        # Ask for the path of the integrals file
+        integrals_file_path = ask_dirac_integrals_directory(default_dir=ref_output_path.parent)
+
+        # mkdir the test directory
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        # Copy the input and output file to the test directory
+        logging.info("Copying input, and output files to the test directory...")
+        shutil.copy(input_file_path, Path.joinpath(dir_path, "active.ivo.inp"))
+        shutil.copy(ref_output_path, Path.joinpath(dir_path, f"{dirname}.out"))
+        # Copy the DFPCMO and DFPCMONEW files to the test directory
+        logging.info("Copying DFPCMO and DFPCMONEW files to the test directory...")
+        shutil.copy(dfpcmo_file_path, Path.joinpath(dir_path, "DFPCMO"))
+        shutil.copy(ref_dfpcmonew_file_path, Path.joinpath(dir_path, "ref_DFPCMONEW"))
+        # Copy the integral files to the test directory
+        logging.info("Copying integral files to the test directory...")
+        shutil.copy(Path.joinpath(integrals_file_path, "MRCONEE"), dir_path)
+        shutil.copy(Path.joinpath(integrals_file_path, "MDCINT"), dir_path)
+        # Copy the optional integral files to the test directory
+        for file in glob.glob(os.path.join(integrals_file_path, "MDCINX*")):
+            shutil.copy(file, dir_path)
+        # Copy the template python file to the test directory
+        logging.info("Copying template python file to the test directory...")
+        template_python_file_path = Path.joinpath(test_template_dir, "ivo_test", "test_template_ivo.py")
+        python_file_path = Path.joinpath(dir_path, f"test_{dirname}.py")
+        shutil.copy(template_python_file_path, python_file_path)
+
+        # Replace the template python file with the correct values
+        new_marker = "" if selected_test_type == "unmarked" else "@pytest.mark." + selected_test_type
+        replace_dict = {
+            "replace_output_filename.out": f"latest_passed.{dirname}.ivo.out",
+            "replace_latest_passed_output_filename.out": f"latest_passed.{dirname}.ivo.out",
+            "def replace_test_template": f"def test_{dirname}",
+            "# @replace_marker": new_marker,
+        }
+
+        with open(python_file_path, "r") as f:
+            lines = f.readlines()
+        logging.info("Replacing the template python file with the correct values...")
+        with open(python_file_path, "w") as f:
+            for line in lines:
+                for key, value in replace_dict.items():
+                    line = line.replace(key, value)
+                f.write(line)
+
+        # DIRAC input, mol and output files
+        dirac_input_file_path = ask_input_file_path(program_name="DIRAC", default_path=ref_parent_dir)
+        dirac_parent_dir = dirac_input_file_path.parent
+        dirac_mol_file_path = ask_mol_file_path(program_name="DIRAC", default_path=dirac_parent_dir)
+        dirac_output_file_path = ask_output_file_path(program_name="DIRAC", default_path=dirac_parent_dir)
+        # mkdir the dirac_data directory
+        dirac_data_directory = Path.joinpath(dir_path, "dirac_data")
+        dirac_data_directory.mkdir(parents=True, exist_ok=True)
+        # Copy the DIRAC input, mol and output files to the dirac_data directory
+        logging.info("Copying DIRAC input, mol and output files to the dirac_data directory...")
+        shutil.copy(dirac_input_file_path, dirac_data_directory)
+        shutil.copy(dirac_mol_file_path, dirac_data_directory)
+        shutil.copy(dirac_output_file_path, dirac_data_directory)
+
+        logging.info("Successfully generated the test!")
+        logging.info(f"test directory: {dir_path}")
+        logging.info(f"dirac_data directory: {dirac_data_directory}")
+        logging.info("Before you commit a new test, please run the test to make sure it passes.")
+
     else:
         # Currently only CASPT2 energy test is supported
         logging.error("Sorry, this test type is not supported yet.")
