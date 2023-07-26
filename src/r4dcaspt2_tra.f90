@@ -84,6 +84,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
     end if
 
+    if (ninact == 0 .and. nsec == 0) then
+        if (rank == 0) print *, "The CASPT2 energy cannot be defined when ninact = 0 and nsec = 0."
+        stop
+    end if
+
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     if (rank == 0) print *, ' ENTER READ MRCONEE'
     filename = 'MRCONEE'
@@ -194,171 +199,211 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     tsec1 = totalsec
     Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform A subspace 2-electron integrals (active, inactive | active, active)
-    if (rank == 0) print *, 'A1int filename : ', trim(a1int), ' rank', rank
-    Call intra_3(2, 1, 2, 2, a1int)
-    if (rank == 0) print *, 'End intra3 A1int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (ninact == 0) then
+        if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy &
+&        because the 2nd order energy of A subspace cannot be defined when ninact = 0."
+    else
+        ! Transform A subspace 2-electron integrals (active, inactive | active, active)
+        if (rank == 0) print *, 'A1int filename : ', trim(a1int), ' rank', rank
+        Call intra_3(2, 1, 2, 2, a1int)
+        if (rank == 0) print *, 'End intra3 A1int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform A subspace 2-electron integrals (active, inactive | inactive, inactive)
-    Call intra_3(2, 1, 1, 1, a2int)
-    if (rank == 0) print *, 'End intra_3 A2int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Transform A subspace 2-electron integrals (active, inactive | inactive, inactive)
+        Call intra_3(2, 1, 1, 1, a2int)
+        if (rank == 0) print *, 'End intra_3 A2int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Calculate the A subspace 2nd order energy
-    sumc2local = 0.0d+00
-    if (rank == 0) print *, 'Enter solvA'
-    Call solve_A_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the A subspace 2nd order energy
+        sumc2local = 0.0d+00
+        if (rank == 0) print *, 'Enter solvA'
+        Call solve_A_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Transform B subspace 2-electron integrals (active, inactive | active, inactive)
-    Call intra_2(2, 1, 2, 1, bint)
-    if (rank == 0) print *, 'End intra_2 Bint'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (ninact == 0) then
+        if (rank == 0) print *, "Skip the calculation of B subspace 2nd order energy &
+&        because the 2nd order energy of B subspace cannot be defined when ninact = 0."
+    else
+        ! Transform B subspace 2-electron integrals (active, inactive | active, inactive)
+        Call intra_2(2, 1, 2, 1, bint)
+        if (rank == 0) print *, 'End intra_2 Bint'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Calculate the B subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_B_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the B subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_B_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Transform C subspace 2-electron integrals (secondary, active | active, active)
-    Call intra_3(3, 2, 2, 2, c1int)
-    if (rank == 0) print *, 'End intra_3 C1int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (nsec == 0) then
+        if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy &
+&        because the 2nd order energy of C subspace cannot be defined when nsec = 0."
+    else
 
-    ! Transform C subspace 2-electron integrals (secondary, active | inactive, inactive)
-    Call intra_3(3, 2, 1, 1, c2int)
-    if (rank == 0) print *, 'End intra_3 C2int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Transform C subspace 2-electron integrals (secondary, active | active, active)
+        Call intra_3(3, 2, 2, 2, c1int)
+        if (rank == 0) print *, 'End intra_3 C1int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform C subspace 2-electron integrals (secondary, inactive | inactive, active)
-    Call intra_1(3, 1, 1, 2, c3int)
-    if (rank == 0) print *, 'End intra_1 C3int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Transform C subspace 2-electron integrals (secondary, active | inactive, inactive)
+        Call intra_3(3, 2, 1, 1, c2int)
+        if (rank == 0) print *, 'End intra_3 C2int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Calculate the B subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_C_subspace(e0, e2)
-    e2all = e2all + e2
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Transform C subspace 2-electron integrals (secondary, inactive | inactive, active)
+        Call intra_1(3, 1, 1, 2, c3int)
+        if (rank == 0) print *, 'End intra_1 C3int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform D subspace 2-electron integrals (secondary, inactive | active, active)
-    Call intra_3(3, 1, 2, 2, d1int)
-    if (rank == 0) print *, 'End intra_1 D1int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the B subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_C_subspace(e0, e2)
+        e2all = e2all + e2
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Transform D subspace 2-electron integrals (secondary, active | active, inactive)
-    Call intra_1(3, 2, 2, 1, d2int)
-    if (rank == 0) print *, 'End intra_1 D2int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (ninact == 0 .or. nsec == 0) then
+        if (rank == 0) print *, "Skip the calculation of D subspace 2nd order energy &
+&        because the 2nd order energy of D subspace cannot be defined when ninact = 0 or nsec = 0."
+    else
+        ! Transform D subspace 2-electron integrals (secondary, inactive | active, active)
+        Call intra_3(3, 1, 2, 2, d1int)
+        if (rank == 0) print *, 'End intra_1 D1int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform D subspace 2-electron integrals (secondary, inactive | inactive, inactive)
-    Call intra_3(3, 1, 1, 1, d3int)
-    if (rank == 0) print *, 'End intra_1 D3int'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Transform D subspace 2-electron integrals (secondary, active | active, inactive)
+        Call intra_1(3, 2, 2, 1, d2int)
+        if (rank == 0) print *, 'End intra_1 D2int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Calculate the D subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_D_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Transform D subspace 2-electron integrals (secondary, inactive | inactive, inactive)
+        Call intra_3(3, 1, 1, 1, d3int)
+        if (rank == 0) print *, 'End intra_1 D3int'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform E subspace 2-electron integrals (secondary, active | active, inactive)
-    Call intra_1(3, 1, 2, 1, eint)
-    if (rank == 0) print *, 'End intra_1 Eint'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the D subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_D_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Calculate the E subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_E_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (ninact == 0 .or. nsec == 0) then
+        if (rank == 0) print *, "Skip the calculation of E subspace 2nd order energy &
+&        because the 2nd order energy of E subspace cannot be defined when ninact = 0 or nsec = 0."
+    else
+        ! Transform E subspace 2-electron integrals (secondary, active | active, inactive)
+        Call intra_1(3, 1, 2, 1, eint)
+        if (rank == 0) print *, 'End intra_1 Eint'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform F subspace 2-electron integrals (secondary, active | secondary, active)
-    Call intra_2(3, 2, 3, 2, fint)
-    if (rank == 0) print *, 'End intra_1 Fint'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the E subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_E_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Calculate the F subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_F_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (nsec == 0) then
+        if (rank == 0) print *, "Skip the calculation of F subspace 2nd order energy &
+&        because the 2nd order energy of F subspace cannot be defined when nsec = 0."
+    else
+        ! Transform F subspace 2-electron integrals (secondary, active | secondary, active)
+        Call intra_2(3, 2, 3, 2, fint)
+        if (rank == 0) print *, 'End intra_1 Fint'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform G subspace 2-electron integrals (secondary, inactive | secondary, active)
-    Call intra_1(3, 1, 3, 2, gint)
-    if (rank == 0) print *, 'End intra_1 Gint'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the F subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_F_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Calculate the G subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_G_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (ninact == 0 .or. nsec == 0) then
+        if (rank == 0) print *, "Skip the calculation of G subspace 2nd order energy &
+&        because the 2nd order energy of G subspace cannot be defined when ninact = 0 or nsec = 0."
+    else
+        ! Transform G subspace 2-electron integrals (secondary, inactive | secondary, active)
+        Call intra_1(3, 1, 3, 2, gint)
+        if (rank == 0) print *, 'End intra_1 Gint'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
-    ! Transform H subspace 2-electron integrals (secondary, inactive | secondary, inactive)
-    if (rank == 0) print *, 'Enter intra_2 Hint'
-    Call intra_2(3, 1, 3, 1, hint)
-    if (rank == 0) print *, 'End intra_2 Hint'
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+        ! Calculate the G subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_G_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
 
-    ! Calculate the H subspace 2nd order energy
-    sumc2local = 0.0d+00
-    Call solve_H_subspace(e0, e2)
-    e2all = e2all + e2
-    if (rank == 0) print *, e2all
-    date1 = date0
-    tsec1 = tsec0
-    Call timing(date1, tsec1, date0, tsec0)
+    if (ninact == 0 .or. nsec == 0) then
+        if (rank == 0) print *, "Skip the calculation of H subspace 2nd order energy &
+&        because the 2nd order energy of H subspace cannot be defined when ninact = 0 or nsec = 0."
+    else
+        ! Transform H subspace 2-electron integrals (secondary, inactive | secondary, inactive)
+        if (rank == 0) print *, 'Enter intra_2 Hint'
+        Call intra_2(3, 1, 3, 1, hint)
+        if (rank == 0) print *, 'End intra_2 Hint'
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
 
+        ! Calculate the H subspace 2nd order energy
+        sumc2local = 0.0d+00
+        Call solve_H_subspace(e0, e2)
+        e2all = e2all + e2
+        if (rank == 0) print *, e2all
+        date1 = date0
+        tsec1 = tsec0
+        Call timing(date1, tsec1, date0, tsec0)
+    end if
     ! Print out the total 2nd order energy
     if (rank == 0) print '("c^2 ",F30.15)', sumc2
     ! Calculate and print the weight of the 0th wave function
