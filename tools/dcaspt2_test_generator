@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import os
+import glob
+import shutil
+
+import questionary
+
+
+def check_type(obj, type_: type):
+    if not isinstance(obj, type_):
+        raise TypeError(f"Expected {type_}, but got {type(obj)}")
+    return obj
+
+
+def main():
+    # Get the test directory
+    test_dir = Path(__file__).parent.parent.joinpath("test").resolve()
+    test_template_dir = test_dir.joinpath("template").resolve()
+    print("Welcome to the DIRAC-CASPT2 test generator!")
+    print("This tool will generate a test for you to run on the DIRAC-CASPT2 program.")
+    print("Please answer the following questions to generate the test.")
+    # CASPT2 energy test or Unit test or IVO test?
+    test_types = [
+        "CASPT2 energy test",
+        "Unit test",
+        "IVO test",
+    ]
+    test_type = check_type(
+        questionary.select(
+            "What type of test would you like to generate?",
+            choices=test_types,
+            default="CASPT2 energy test",
+        ).ask(),
+        str,
+    )
+
+    print(f"Generating {test_type}...")
+
+    if test_type == "CASPT2 energy test":
+        # Generate CASPT2 energy test
+        # Ask for the path of the reference output
+        ref_output_answer = check_type(questionary.path("Please enter the path of the reference DIRAC-CASPT2 output file.").ask(), str)
+        # Check if the reference output file exists
+        ref_output_path = Path(ref_output_answer).expanduser().resolve()
+        if not ref_output_path.is_file():
+            print("Reference output file does not exist. Exiting...")
+            exit(1)
+        ref_parent_dir = ref_output_path.parent
+        print(f"Reference output path: {ref_output_path}")
+        # Ask for the type of the test(slow, normal, fast)
+        test_speed_types: dict[str, str] = {
+            "slow, 20↑ sec": "slow",
+            "normal, 10-20 sec": "unmarked",
+            "fast(dev), 1-10 sec": "dev",
+        }
+        ref_test_speed_types = list(test_speed_types.keys())
+        ref_test_type = check_type(
+            questionary.select(
+                "What type of test would you like to generate?",
+                choices=ref_test_speed_types,
+                default="fast(dev), 1-10 sec",
+            ).ask(),
+            str,
+        )
+        selected_test_type = test_speed_types[ref_test_type]
+        print(f"Reference test type: {ref_test_type}")
+        # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
+        # dirname = ref_output_path.split("/")[-1].split(".")[0]
+        dirname = ref_output_path.stem.split(".")[0]
+        # dir_path = Path(os.path.join(test_dir, selected_test_type, dirname))
+        dir_path = Path.joinpath(test_dir, selected_test_type, dirname).resolve()
+        print(dir_path)
+        # if the directory already exists, exit
+        if dir_path.is_dir():
+            print("The test directory already exists. Exiting...")
+            exit(1)
+        # Get the input file path
+        input_file_answer = check_type(questionary.path("Please enter the path of the input file.", default=str(ref_parent_dir)).ask(), str)
+        input_file_path = Path(input_file_answer).expanduser().resolve()
+        if not input_file_path.is_file():
+            print("Input file does not exist. Exiting...")
+            exit(1)
+
+        integrals_file_answer = questionary.path("Please enter the path of the integrals file", default=str(ref_parent_dir)).ask()
+        integrals_file_path = Path(integrals_file_answer).resolve()
+        mrconee_path = Path.joinpath(integrals_file_path, "MRCONEE")
+        mdcint_path = Path.joinpath(integrals_file_path, "MDCINT")
+        # if MRCONEE and MDCINT (and MDCINX* (optional)) are not in the integrals file, exit
+        # Check if the integrals file path exists
+        if not integrals_file_path.is_dir():
+            print("Integrals file path does not exist. Exiting...")
+            exit(1)
+        # Check if the MRCONEE is in the integrals file path
+        if not mrconee_path.is_file():
+            print("MRCONEE is not in the integrals file path. Exiting...")
+            exit(1)
+        # Check if the MDCINT is in the integrals file path
+        if not mdcint_path.is_file():
+            print("MDCINT is not in the integrals file path. Exiting...")
+            exit(1)
+
+        # mkdir the test directory
+        # os.mkdir(dir_path)
+        # os.chdir(dir_path)
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        # Copy the input file to the test directory
+        shutil.copy(input_file_path, Path.joinpath(dir_path, "active.inp"))
+        # Copy the output file to the test directory
+        shutil.copy(ref_output_path, Path.joinpath(dir_path, f"{dirname}.out"))
+        # Copy the integral files to the test directory
+
+        print(mrconee_path, mdcint_path)
+        shutil.copy(mrconee_path, dir_path)
+        shutil.copy(mdcint_path, dir_path)
+        # Copy the optional integral files to the test directory
+        for file in glob.glob(os.path.join(integrals_file_path, "MDCINX*")):
+            shutil.copy(file, dir_path)
+        # Copy the template python file to the test directory
+        template_python_file_path = Path.joinpath(test_template_dir, "caspt2_energy_test", "test_template.py")
+        python_file_path = Path.joinpath(dir_path, f"test_{dirname}.py")
+        print("Copying template python file to the test directory...")
+        print(template_python_file_path, python_file_path)
+        shutil.copy(template_python_file_path, python_file_path)
+
+        # Replace the template python file with the correct values
+        # Replece ref_output_file.out with the correct value
+        new_marker = "" if selected_test_type == "unmarked" else "@pytest.mark." + selected_test_type
+        replace_dict = {
+            "replace_ref_output_file.out": f"reference.{dirname}.out",
+            "replace_output_filename.out": f"{dirname}.caspt2.out",
+            "replace_latest_passed.output_filename.out": f"latest_passed.{dirname}.caspt2.out",
+            "def replace_test_template": f"def test_{dirname}",
+            "# @replace_marker": new_marker,
+        }
+        with open(python_file_path, "r") as f:
+            lines = f.readlines()
+        with open(python_file_path, "w") as f:
+            for line in lines:
+                for key, value in replace_dict.items():
+                    line = line.replace(key, value)
+                f.write(line)
+
+    else:
+        # Currently only CASPT2 energy test is supported
+        print("Sorry, this test type is not supported yet.")
+
+
+if __name__ == "__main__":
+    # if run as a script, run main()
+    # and if ctrl-c is pressed, exit with 1
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt detected. Exiting...")
+        exit(1)
