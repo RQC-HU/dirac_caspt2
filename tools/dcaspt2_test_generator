@@ -3,6 +3,7 @@
 from pathlib import Path
 import os
 import glob
+import logging
 import shutil
 
 import questionary
@@ -36,7 +37,7 @@ def main():
         str,
     )
 
-    print(f"Generating {test_type}...")
+    logging.info(f"Generating {test_type}...")
 
     if test_type == "CASPT2 energy test":
         # Generate CASPT2 energy test
@@ -45,10 +46,10 @@ def main():
         # Check if the reference output file exists
         ref_output_path = Path(ref_output_answer).expanduser().resolve()
         if not ref_output_path.is_file():
-            print("Reference output file does not exist. Exiting...")
-            exit(1)
+            logging.error("Reference output file does not exist. Exiting...")
+            raise FileNotFoundError
         ref_parent_dir = ref_output_path.parent
-        print(f"Reference output path: {ref_output_path}")
+        logging.info(f"Reference output path: {ref_output_path}")
         # Ask for the type of the test(slow, normal, fast)
         test_speed_types: dict[str, str] = {
             "slow, 20↑ sec": "slow",
@@ -65,23 +66,23 @@ def main():
             str,
         )
         selected_test_type = test_speed_types[ref_test_type]
-        print(f"Reference test type: {ref_test_type}")
+        logging.info(f"Reference test type: {ref_test_type}")
         # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
         # dirname = ref_output_path.split("/")[-1].split(".")[0]
         dirname = ref_output_path.stem.split(".")[0]
         # dir_path = Path(os.path.join(test_dir, selected_test_type, dirname))
         dir_path = Path.joinpath(test_dir, selected_test_type, dirname).resolve()
-        print(dir_path)
+        logging.info(dir_path)
         # if the directory already exists, exit
         if dir_path.is_dir():
-            print("The test directory already exists. Exiting...")
-            exit(1)
+            logging.error("The test directory already exists. Exiting...")
+            raise FileExistsError
         # Get the input file path
         input_file_answer = check_type(questionary.path("Please enter the path of the input file.", default=str(ref_parent_dir)).ask(), str)
         input_file_path = Path(input_file_answer).expanduser().resolve()
         if not input_file_path.is_file():
-            print("Input file does not exist. Exiting...")
-            exit(1)
+            logging.error("Input file does not exist. Exiting...")
+            raise FileNotFoundError
 
         integrals_file_answer = questionary.path("Please enter the path of the integrals file", default=str(ref_parent_dir)).ask()
         integrals_file_path = Path(integrals_file_answer).resolve()
@@ -90,16 +91,16 @@ def main():
         # if MRCONEE and MDCINT (and MDCINX* (optional)) are not in the integrals file, exit
         # Check if the integrals file path exists
         if not integrals_file_path.is_dir():
-            print("Integrals file path does not exist. Exiting...")
-            exit(1)
+            logging.error("Integrals file path does not exist. Exiting...")
+            raise FileNotFoundError
         # Check if the MRCONEE is in the integrals file path
         if not mrconee_path.is_file():
-            print("MRCONEE is not in the integrals file path. Exiting...")
-            exit(1)
+            logging.error("MRCONEE is not in the integrals file path. Exiting...")
+            raise FileNotFoundError
         # Check if the MDCINT is in the integrals file path
         if not mdcint_path.is_file():
-            print("MDCINT is not in the integrals file path. Exiting...")
-            exit(1)
+            logging.error("MDCINT is not in the integrals file path. Exiting...")
+            raise FileNotFoundError
 
         # mkdir the test directory
         # os.mkdir(dir_path)
@@ -143,12 +144,42 @@ def main():
                     line = line.replace(key, value)
                 f.write(line)
 
+        # DIRAC input, mol and output files
+        dirac_input_file_answer = check_type(questionary.path("Please enter the path of the DIRAC input file.", default=str(ref_parent_dir)).ask(), str)
+        dirac_input_file_path = Path(dirac_input_file_answer).expanduser().resolve()
+        if not dirac_input_file_path.is_file():
+            logging.error("DIRAC input file does not exist. Exiting...")
+            raise FileNotFoundError
+
+        dirac_mol_file_answer = check_type(questionary.path("Please enter the path of the DIRAC *.mol or *.xyz file.", default=str(ref_parent_dir)).ask(), str)
+        dirac_mol_file_path = Path(dirac_mol_file_answer).expanduser().resolve()
+        if not dirac_mol_file_path.is_file():
+            logging.error("DIRAC *.mol or *.xyz file does not exist. Exiting...")
+            raise FileNotFoundError
+
+        dirac_output_file_answer = check_type(questionary.path("Please enter the path of the DIRAC output file.", default=str(ref_parent_dir)).ask(), str)
+        dirac_output_file_path = Path(dirac_output_file_answer).expanduser().resolve()
+        if not dirac_output_file_path.is_file():
+            logging.error("DIRAC output file does not exist. Exiting...")
+            raise FileNotFoundError
+
+        # mkdir the dirac_data directory
+        dirac_data_directory = Path.joinpath(dir_path, "dirac_data")
+        dirac_data_directory.mkdir(parents=True, exist_ok=True)
+        # Copy the DIRAC input, mol and output files to the dirac_data directory
+        shutil.copy(dirac_input_file_path, dirac_data_directory)
+        shutil.copy(dirac_mol_file_path, dirac_data_directory)
+        shutil.copy(dirac_output_file_path, dirac_data_directory)
+
+        logging.info("Successfully generated the test!")
+        logging.info("Before you commit a new test, please run the test to make sure it passes.")
     else:
         # Currently only CASPT2 energy test is supported
-        print("Sorry, this test type is not supported yet.")
+        logging.error("Sorry, this test type is not supported yet.")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(levelname)s : %(message)s", level=logging.INFO)
     # if run as a script, run main()
     # and if ctrl-c is pressed, exit with 1
     try:
