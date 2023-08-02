@@ -213,7 +213,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
                         Call dim2_density(ii, jj, kk, ll, dr, di)
                     end if
                     dens = DCMPLX(dr, di)
-                    energy(iroot, 4) = energy(iroot, 4) - dens*cmplxint
+                    energy(iroot, 4) = energy(iroot, 4) + dens*cmplxint
 
                     if (j == k) then
                         if (realonly%is_realonly()) then
