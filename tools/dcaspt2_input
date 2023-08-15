@@ -28,15 +28,39 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser = argparse.ArgumentParser(description=desc, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-i", "--inp", type=str, dest="input", help="Input file [default: active.inp]")
     parser.add_argument("-o", "--out", type=str, dest="output", help="Specify the name of output file [default: dirac_caspt2.out]")
-    parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: The directory where this script is used]")
+    parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: current directory]", metavar="1-2_INTEGRALS_DIR")
     parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
-    parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]")
-    parser.add_argument("--omp", dest="threads", type=int, help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]")
-    parser.add_argument("--get", dest="get", type=str, help="Specify the name of the file to be copied from the scratch directory.\nRegular expression is available.\n[default: None]")
-    parser.add_argument("--scratch", dest="scratchdir", help="Set the scratch directory. Add the subdirectory to the specified directory.\n(e.g.) --scratch /home/username/scratch \n=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_scratch]")
+    parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]", metavar="NUM_MPI_PROCESS")
+    parser.add_argument(
+        "--omp",
+        dest="threads",
+        type=int,
+        help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]",
+        metavar="NUM_OMP_THREADS",
+    )
+    parser.add_argument(
+        "--get",
+        dest="get",
+        type=str,
+        help="Specify the name of the files to be copied from the scratch directory.\n\
+Wildcard is available.\n\
+(e.g.) --get \"MDCINTNEW*\" => Copy MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...\n\
+[default: None]\n\
+(Note: The file name must be enclosed in double quotes or single quotes to prevent shell expansion.)\n",
+        metavar='"FILES"',
+    )
+    parser.add_argument(
+        "--scratch",
+        dest="scratchdir",
+        help="Set the scratch directory. Add the subdirectory to the specified directory.\n(e.g.) --scratch /home/username/scratch \n=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_scratch]",
+    )
     parser.add_argument("--scratchfull", dest="scratchfull", help="Set the scratch directory. Use the specified directory as the scratch directory.\n[default: None]")
-    parser.add_argument("--only-casci", dest="onlycasci", action="store_true", help="Run CASCI calculation only. [default: False]\nThis option cannot be used at the same time with --skip-casci option.")
-    parser.add_argument("--skip-casci", dest="skipcasci", action="store_true", help="Skip the CASCI calculation. [default: False]\nThis option cannot be used at the same time with --only-casci option.")
+    parser.add_argument(
+        "--only-casci", dest="onlycasci", action="store_true", help="Run CASCI calculation only. [default: False]\nThis option cannot be used at the same time with --skip-casci option."
+    )
+    parser.add_argument(
+        "--skip-casci", dest="skipcasci", action="store_true", help="Skip the CASCI calculation. [default: False]\nThis option cannot be used at the same time with --only-casci option."
+    )
     parser.add_argument(
         "--no-scratch",
         dest="noscratch",
@@ -49,7 +73,7 @@ in the current directory in advance.\n\
 Therefore, this option is recommended only you concern about disk space.)",
         action="store_true",
     )
-    parser.add_argument("-s", "--save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
+    parser.add_argument("-s", "--save", "--keep_scratch", dest="save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
     return parser.parse_args()
 
 
@@ -179,7 +203,9 @@ def check_integral_files(integrals_dir: str) -> None:
     files = ["MDCINT", "MRCONEE"]
     for file in files:
         if not os.path.exists(os.path.join(integrals_dir, file)):
-            raise Exception(f"\n{file} file is not found under {integrals_dir}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/user/H2O/MDCINT, dcaspt2 -int /home/user/H2O/ ")
+            raise Exception(
+                f"\n{file} file is not found under {integrals_dir}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/username/H2O/MDCINT, use the following command: dcaspt2 -i input_file_path --int /home/username/H2O/.\n For more information, please use the --help option ( dcaspt2 --help )."
+            )
     return
 
 
@@ -278,9 +304,10 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user
 
         # Copy the specified files from the scratch directory to the user submitted directory
         if args.get is not None:  # and args.noscratch is False:
+            print(args.get)
             get_files = str(args.get).split()  # Split the string by space
-            for file_regex in get_files:  # regex is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
-                for file in glob.glob(file_regex):
+            for file_glob in get_files:  # glob is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
+                for file in glob.glob(file_glob):
                     print(f"Copying {file} to {user_submitted_dir}")
                     if os.path.isfile(file):
                         try:
@@ -354,7 +381,6 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
 
 
 def main() -> None:
-
     user_submitted_dir: str = os.getcwd()
     script_path: str = os.path.abspath(__file__)
     binary_dir: str = os.path.dirname(script_path)
@@ -372,7 +398,9 @@ def main() -> None:
     # Set and create scratch directory
     if args.noscratch:
         scratch_dir: str = user_submitted_dir
-        print(f"--no-scratch option : --no-scratch option is specified. The scratch directory is the submitted directory.\n--no-scratch option : Temporary files will remain in the {user_submitted_dir} directory.")
+        print(
+            f"--no-scratch option : --no-scratch option is specified. The scratch directory is the submitted directory.\n--no-scratch option : Temporary files will remain in the {user_submitted_dir} directory."
+        )
     else:
         scratch_dir = create_scratch_dir(args, input_file_path, user_submitted_dir)
         print(f"Scratch directory : {scratch_dir}")
