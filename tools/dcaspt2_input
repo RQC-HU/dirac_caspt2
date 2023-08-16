@@ -61,9 +61,10 @@ Wildcard is available.\n\
     parser.add_argument(
         "--scratch",
         dest="scratchdir",
+        type=str,
         help="Set the scratch directory. Add the subdirectory to the specified directory.\n(e.g.) --scratch /home/username/scratch \n=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_scratch]",
     )
-    parser.add_argument("--scratchfull", dest="scratchfull", help="Set the scratch directory. Use the specified directory as the scratch directory.\n[default: None]")
+    parser.add_argument("--scratchfull", dest="scratchfull", type=str, help="Set the scratch directory. Use the specified directory as the scratch directory.\n[default: None]")
     parser.add_argument(
         "--only-casci", dest="onlycasci", action="store_true", help="Run CASCI calculation only. [default: False]\nThis option cannot be used at the same time with --skip-casci option."
     )
