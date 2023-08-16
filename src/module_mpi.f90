@@ -49,9 +49,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -78,9 +79,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -125,9 +127,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
         integer :: i, j, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -184,9 +187,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
         integer :: i, j, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -242,9 +246,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -267,9 +272,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -304,9 +310,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, step
         integer :: i, j, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -351,9 +358,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke
         integer :: i, j, k, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -411,9 +419,10 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke, li, le
         integer :: i, j, k, l, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
         integer :: datatype
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -486,8 +495,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -505,8 +515,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -536,8 +547,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
         integer :: i, j, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -578,8 +590,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke
         integer :: i, j, k, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -633,8 +646,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke, li, le
         integer :: i, j, k, l, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -703,8 +717,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -722,8 +737,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
         integer :: i, cnt
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -753,8 +769,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je
         integer :: i, j, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -795,8 +812,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke
         integer :: i, j, k, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
@@ -850,8 +868,9 @@ contains
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie, ji, je, ki, ke, li, le
         integer :: i, j, k, l, cnt, step
-        integer :: op = op_mpi_sum ! default operation
+        integer :: op
 
+        op = op_mpi_sum ! default operation
         if (present(optional_op)) then
             call check_operation(optional_op)
             op = optional_op
