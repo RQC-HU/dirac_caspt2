@@ -11,15 +11,15 @@
 
 ## 目次
 
-- [DIRAC-CASPT2](#dirac-caspt2-相対論的多配置2次摂動論プログラム)
+- [DIRAC-CASPT2: 相対論的多配置2次摂動論プログラム](#dirac-caspt2-相対論的多配置2次摂動論プログラム)
   - [Contribution](#contribution)
   - [目次](#目次)
-  - [Prerequisites for build](#prerequisites-for-build)
   - [ダウンロード](#ダウンロード)
+  - [Prerequisites for build](#prerequisites-for-build)
   - [How to build](#how-to-build)
     - [Basic build](#basic-build)
     - [MPI Support](#mpi-support)
-    - [Installation](#installation)
+    - [Install](#install)
     - [CMakeビルドオプション](#cmakeビルドオプション)
   - [How to use](#how-to-use)
     - [Prerequisites for execution](#prerequisites-for-execution)
@@ -97,6 +97,7 @@ git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
 - このプログラムはsetupスクリプトを使用してビルドできます
   - CMakeコマンドを直接使用してビルドすることもできますが、setupスクリプトを使用することをおすすめします
   - CMakeを直接使用してビルドしたい場合は、[CMakeビルドオプション](#cmakeビルドオプション)を参照してください
+- デフォルトでは、ビルドした結果のバイナリとdcaspt2スクリプトはbinディレクトリ直下に配置されます
 
 ### Basic build
 
@@ -334,7 +335,7 @@ noccu       : The number of occupied spinors (ungerade)
 
 [optional parameters]
 eshift      : for real shift (if you don't write, it will be 0)
-ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
+ras1        : RAS1 spinor list (row 1) and the maximum number of hole allowed in ras1(row 2)
 ras2        : RAS2 spinor list
 ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 minholeras1 : The minimum number of hole in ras1 (If you don't write, it will be 0)
