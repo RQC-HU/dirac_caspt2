@@ -9,9 +9,9 @@ If you want to contribute to this project (bug report, feature request, pull req
 
 ## Table of Contents
 
-- [DIRAC-CASPT2](#dirac-caspt2-a-relativistic-second-order-multi-configuration-perturbation-calculation-program)
+- [DIRAC-CASPT2: A relativistic second order multi-configuration perturbation calculation program](#dirac-caspt2-a-relativistic-second-order-multi-configuration-perturbation-calculation-program)
   - [Contribution](#contribution)
-  - [Table of contents](#table-of-contents)
+  - [Table of Contents](#table-of-contents)
   - [Download](#download)
   - [Prerequisites for build](#prerequisites-for-build)
   - [How to build](#how-to-build)
@@ -22,7 +22,7 @@ If you want to contribute to this project (bug report, feature request, pull req
   - [How to use](#how-to-use)
     - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
-    - [input file](#input-file)
+    - [Input file](#input-file)
     - [Input file specification](#input-file-specification)
 
 ## Download
@@ -92,7 +92,7 @@ If you want to build this program, you need to have the following compilers, too
 
 - You can build this program with the setup script.
   - You can also build this program directly with CMake command, but we recommend you to use the setup script.
-  - If you want to build directly with CMake, please see [CMake build options](#cmakeビルドオプション).
+  - If you want to build directly with CMake, please see [CMake build options](#cmake-build-options).
 
 ### Basic build
 
@@ -125,7 +125,7 @@ cd /path/to/dirac_caspt2
     ```sh
     ./setup --build -j 4
     ```
-  
+
   - If you want to use OpenMP for thread parallel execution, please specify the --omp option
 
     ```sh
@@ -134,9 +134,9 @@ cd /path/to/dirac_caspt2
 
 - We recommend you to run tests after build
 
-  ```sh
-  pytest --all
-  ```
+```sh
+pytest --all
+```
 
 ### MPI Support
 
@@ -160,9 +160,10 @@ cd /path/to/dirac_caspt2
 
 - We recommend you to run tests after build
 
-  ```sh
-  pytest --all
-  ```
+```sh
+# pytest --all --mpi=<number of MPI processes>
+pytest --all --mpi=4
+```
 
 ### Installation
 
@@ -233,7 +234,7 @@ The following custom CMake build options are currently supported
     # If you did not install with --prefix
     /path/to/dirac_caspt2/bin/dcaspt2 -i input_file
     # If you installed with --prefix
-    $PREFIX/bin/dcaspt2 -i input_file
+    $PREFIX/dcaspt2 -i input_file
     ```
 
     (e.g.)
