@@ -12,6 +12,15 @@ import tempfile
 import time
 
 
+class ExitWithHelpArgumentParser(argparse.ArgumentParser):
+    """A custom ArgumentParser class that exits with help message when the unrecognized arguments are specified"""
+
+    def error(self, message):
+        print(f"\nError: Invalid arguments : {message}\nPlease check the following help message and try again.\n")
+        self.print_help(sys.stderr)
+        self.exit(2, f"\nError: Invalid argument : {message}\n")
+
+
 def parse_args() -> "argparse.Namespace":
     """Parse user input arguments
 
@@ -25,7 +34,7 @@ You can can calculate the CASPT2 energy of a molecule using this script.\n\
 You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in advance.\n\
 ==========================================================================================\n"
 
-    parser = argparse.ArgumentParser(description=desc, formatter_class=argparse.RawTextHelpFormatter)
+    parser = ExitWithHelpArgumentParser(description=desc, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-i", "--inp", type=str, dest="input", help="Input file [default: active.inp]")
     parser.add_argument("-o", "--out", type=str, dest="output", help="Specify the name of output file [default: dirac_caspt2.out]")
     parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: current directory]", metavar="1-2_INTEGRALS_DIR")
@@ -42,11 +51,11 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
         "--get",
         dest="get",
         type=str,
-        help="Specify the name of the files to be copied from the scratch directory.\n\
+        help='Specify the name of the files to be copied from the scratch directory.\n\
 Wildcard is available.\n\
-(e.g.) --get \"MDCINTNEW*\" => Copy MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...\n\
+(e.g.) --get "MDCINTNEW*" => Copy MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...\n\
 [default: None]\n\
-(Note: The file name must be enclosed in double quotes or single quotes to prevent shell expansion.)\n",
+(Note: The file name must be enclosed in double quotes or single quotes to prevent shell expansion.)\n',
         metavar='"FILES"',
     )
     parser.add_argument(
@@ -74,6 +83,7 @@ Therefore, this option is recommended only you concern about disk space.)",
         action="store_true",
     )
     parser.add_argument("-s", "--save", "--keep_scratch", dest="save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
+
     return parser.parse_args()
 
 
