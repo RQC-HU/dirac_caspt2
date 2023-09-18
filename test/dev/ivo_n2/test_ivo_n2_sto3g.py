@@ -64,7 +64,7 @@ def run_ivo_test_n2_sto3g(mpi_num_process: int, omp_num_threads: int, save: bool
                 DFPCMONEW_float_values = [float(value) for value in DFPCMONEW_values]
                 ref_float_values = [float(value) for value in ref_values]
                 for DFPCMONEW_float_value, ref_float_value in zip(DFPCMONEW_float_values, ref_float_values):
-                    pytest.approx(DFPCMONEW_float_value, ref_float_value, abs=1e-10)
+                    assert ref_float_value == pytest.approx(DFPCMONEW_float_value, abs=1e-13)
             except ValueError:
                 assert DFPCMONEW_values == ref_values
 
