@@ -54,47 +54,43 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     if (rank == 0) print *, 'number of degeneracy of HOMO is', numh, DBLE(numh), 1.0d+00/DBLE(numh)
 
-    if (realonly%is_realonly()) then
+    ! Create Fock matrix (only virtual)
+    do i = 1, nsec
+        i0 = convert_secondary_to_global_idx(i)
+        fock_cmplx(i, i) = caspt2_mo_energy(i0)
+        do j = i, nsec
+            j0 = convert_secondary_to_global_idx(j)
+            do k = global_act_end - numh + 1, global_act_end
 
-    else
-        ! Create Fock matrix (only virtual)
-        do i = 1, nsec
-            i0 = convert_secondary_to_global_idx(i)
-            fock_cmplx(i, i) = caspt2_mo_energy(i0)
-            do j = i, nsec
-                j0 = convert_secondary_to_global_idx(j)
-                do k = global_act_end - numh + 1, global_act_end
-
-                    if (k > global_act_end - 2 .and. mod(nelec, 2) == 1) then
-                        if (realonly%is_realonly()) then
-                            fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*int2r_f1(i0, j0, k, k)/DBLE(numh)
-                            fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*int2r_f2(i0, k, k, j0)/DBLE(numh)
-                        else
-                            fock_cmplx(i, j) = fock_cmplx(i, j) - &
-                                               0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                            fock_cmplx(i, j) = fock_cmplx(i, j) + &
-                                               0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
-                        end if
+                if (k > global_act_end - 2 .and. mod(nelec, 2) == 1) then
+                    if (realonly%is_realonly()) then
+                        fock_cmplx(i, j) = fock_cmplx(i, j) - 0.5d+00*int2r_f1(i0, j0, k, k)/DBLE(numh)
+                        fock_cmplx(i, j) = fock_cmplx(i, j) + 0.5d+00*int2r_f2(i0, k, k, j0)/DBLE(numh)
                     else
-                        if (realonly%is_realonly()) then
-                            fock_cmplx(i, j) = fock_cmplx(i, j) + int2r_f2(i0, k, k, j0)/DBLE(numh)
-                            fock_cmplx(i, j) = fock_cmplx(i, j) - int2r_f1(i0, j0, k, k)/DBLE(numh)
-                        else
-                            fock_cmplx(i, j) = fock_cmplx(i, j) - DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
-                            fock_cmplx(i, j) = fock_cmplx(i, j) + DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
-                        end if
+                        fock_cmplx(i, j) = fock_cmplx(i, j) - &
+                                           0.5d+00*DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                        fock_cmplx(i, j) = fock_cmplx(i, j) + &
+                                           0.5d+00*DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
                     end if
+                else
+                    if (realonly%is_realonly()) then
+                        fock_cmplx(i, j) = fock_cmplx(i, j) + int2r_f2(i0, k, k, j0)/DBLE(numh)
+                        fock_cmplx(i, j) = fock_cmplx(i, j) - int2r_f1(i0, j0, k, k)/DBLE(numh)
+                    else
+                        fock_cmplx(i, j) = fock_cmplx(i, j) - DCMPLX(int2r_f1(i0, j0, k, k), int2i_f1(i0, j0, k, k))/DBLE(numh)
+                        fock_cmplx(i, j) = fock_cmplx(i, j) + DCMPLX(int2r_f2(i0, k, k, j0), int2i_f2(i0, k, k, j0))/DBLE(numh)
+                    end if
+                end if
 
-                end do
             end do
         end do
-        ! Take conjugate
-        do i = 1, nsec
-            do j = i, nsec
-                fock_cmplx(j, i) = DCONJG(fock_cmplx(i, j))
-            end do
+    end do
+    ! Take conjugate
+    do i = 1, nsec
+        do j = i, nsec
+            fock_cmplx(j, i) = DCONJG(fock_cmplx(i, j))
         end do
-    end if
+    end do
 
     call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
 
@@ -135,7 +131,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     end if
     ! Read MO coefficient of DFPCMO
     write_itrfmo = .true.
-    read(unit_dfpcmo, *, iostat=iostat) BUF
+    read (unit_dfpcmo, *, iostat=iostat) BUF
 
     if (rank == 0) print *, 'end reading MO coefficient'
     if (write_itrfmo) then
