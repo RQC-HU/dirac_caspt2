@@ -37,7 +37,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     logical                 :: write_itrfmo
     integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
-    integer :: positronic_mo(2), electronic_mo(2), basis_ao(2), basis_all(2)
+    integer :: positronic_mo(2), electronic_mo(2), basis_ao(2), basis_all(2), mo(2)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -129,6 +129,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     if (rank == 0) print *, 'end reading information, symmetry information and energy'
 
     basis_all = (positronic_mo + electronic_mo)*basis_ao
+    mo = positronic_mo + electronic_mo
     total_mo = sum(positronic_mo) + sum(electronic_mo)
     total_ao = sum(basis_all)
 
@@ -137,9 +138,6 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     Allocate (BUF(total_ao))
 
     BUF = 0.0d+00
-    mo_start_idx = npg + noccg + 1
-    mo_end_idx = npg + neg - nvcutg
-    print *, "mo_start_idx", mo_start_idx, "mo_end_idx", mo_end_idx
     if (dirac_version == 21 .or. dirac_version == 22) then
         read (unit_dfpcmo, '(A150)') line3
     end if
@@ -185,17 +183,17 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     do idx_irrep = 1, A
         num_ao = basis_ao(idx_irrep)
         if (idx_irrep == 1) then
-            num_virtual_mo = electronic_mo(idx_irrep) - noccg - nvcutg
+            num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
             start_isym = 1
             end_isym = nsymrpa/2
-            juck_up_idx = (positronic_mo(idx_irrep) + noccg)*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - noccg - nvcutg
+            juck_up_idx = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         else
-            num_virtual_mo = electronic_mo(idx_irrep) - noccu - nvcutu
+            num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
             start_isym = nsymrpa/2 + 1
             end_isym = nsymrpa
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + noccu)*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - noccu - nvcutu
+            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         end if
 
         allocate (itrfmo(basis_ao(idx_irrep), num_virtual_mo))
@@ -221,12 +219,12 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             end do
 
             if (idx_irrep == 1) then
-                mo_start_idx = positronic_mo(1) + noccg + 1
-                mo_end_idx = positronic_mo(1) + electronic_mo(1) - nvcutg
+                mo_start_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep) + 1
+                mo_end_idx = positronic_mo(idx_irrep) + electronic_mo(idx_irrep) - vcut_mo_num(idx_irrep)
                 isym_for_syminfo = isym
             else
-                mo_start_idx = positronic_mo(1) + electronic_mo(1) + positronic_mo(2) + noccu + 1
-                mo_end_idx = positronic_mo(1) + electronic_mo(1) + positronic_mo(2) + electronic_mo(2) - nvcutu
+                mo_start_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep) + 1
+                mo_end_idx = mo(1) + positronic_mo(idx_irrep) + electronic_mo(idx_irrep) - vcut_mo_num(idx_irrep)
                 isym_for_syminfo = isym - nsymrpa/2
             end if
 
@@ -253,17 +251,17 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             allocate(coeff(basis_ao(idx_irrep), nv))
             coeff(:, :) = 0.0d+00
             if (idx_irrep == 1) then
-                juck_up_idx = positronic_mo(1) + noccg
+                juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
             else
-                juck_up_idx = positronic_mo(1) + electronic_mo(1) + positronic_mo(2) + noccu
+                juck_up_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
             end if
             call get_coeff
 
             coeff(:, :) = MATMUL(coeff(:, :), fsym(:, :))
             if (idx_irrep == 1) then
-                juck_up_idx = positronic_mo(1) + noccg
+                juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
             else
-                juck_up_idx = positronic_mo(1) + electronic_mo(1) + positronic_mo(2) + noccu
+                juck_up_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
             end if
 
             call write_back_itrfmo
@@ -295,11 +293,11 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         end do
         num_ao = basis_ao(idx_irrep)
         if (idx_irrep == 1) then
-            juck_up_idx = (positronic_mo(idx_irrep) + noccg)*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - noccg - nvcutg
+            juck_up_idx = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         else
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + noccu)*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - noccu - nvcutu
+            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         end if
 
         do iao = 1, num_ao
