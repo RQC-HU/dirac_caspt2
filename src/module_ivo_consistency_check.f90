@@ -22,6 +22,7 @@ contains
         integer :: i, total_mo, total_ao
         integer :: positronic_mo(2), electronic_mo(2), basis_ao(2), basis_all(2), mo(2)
 
+        positronic_mo(:) = 0; electronic_mo(:) = 0; basis_ao(:) = 0; basis_all(:) = 0; mo(:) = 0
         filename = "DFPCMO"
         call open_formatted_file(unit=unit_dfpcmo, file=filename, status="old")
         ! If DIRAC version is >= 21, additional information is printed in the DFPCMO file
@@ -34,9 +35,9 @@ contains
         call check_end_of_file
 
         if (dirac_version >= 21) then
-            read (unit_dfpcmo, *, iostat=iostat) A, B, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1,A)
+            read (unit_dfpcmo, *, iostat=iostat) A, B, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         else ! DIRAC version < 21
-            read (unit_dfpcmo, *, iostat=iostat) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1,A)
+            read (unit_dfpcmo, *, iostat=iostat) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         end if
         basis_all = (positronic_mo + electronic_mo)*basis_ao
         mo = positronic_mo + electronic_mo
@@ -76,15 +77,6 @@ contains
         read (unit_dfpcmo, *, iostat=iostat) supersym
         print *, "supersym", supersym
 
-        ! End of file check
-        read (unit_dfpcmo, '(A)', iostat=iostat) line ! iostat should be -1 (end of file)
-        call check_iostat(iostat=iostat, file=filename, end_of_file_reached=end_of_file)
-        if (.not. end_of_file) then
-            ! Additional information is printed in the DFPCMO file
-            print *, "Error: The DFPCMO file is not correctly formatted"
-            call stop_with_errorcode(1)
-        end if
-
         close (unit_dfpcmo) ! Close the DFPCMO file
 
         do i = 1, A
@@ -103,28 +95,32 @@ contains
                 end_isym = nsymrpa
             end if
             ! Print the virtual MOs supersymmetry
-            print * ,"Virtual supersym", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
+            print *, "Virtual supersym", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
             ! Check the consistency of the input and DFPCMO data
             ! At any isym(irreducible representation)
             ! the number of virtual MOs in the DFPCMO file must be equal to the number of virtual MOs in the input file
             print *, "irpamo", irpamo(start_idx_input:end_idx_input)
-            do isym = start_isym, end_isym, 2
-                if (i == 1) then
-                    isym_for_supersym = isym
-                else
-                    isym_for_supersym = isym - nsymrpa/2
-                end if
-                nv_dfpcmo = count(abs(supersym(start_idx_dfpcmo:end_idx_dfpcmo)) == isym_for_supersym)  ! Number of virtual MOs corresponding to isym in the DFPCMO file
-                nv_input = count(irpamo(start_idx_input:end_idx_input) == isym)  ! Number of virtual MOs corresponding to isym in the input file
-                print *, "isym", isym, "isym_f_s", isym_for_supersym, "nv_dfpcmo", nv_dfpcmo, "nv_input", nv_input
-                if (nv_input /= nv_dfpcmo) then
-                    print *, "isym =", isym, "supersym =", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
-                    print *, "The number of virtual MOs in the DFPCMO file is not equal", &
-                        "to the number of virtual MOs in the input file.", &
-                        "isym = ", isym, "nv_input = ", nv_input, "nv_dfpcmo = ", nv_dfpcmo
-                    call stop_with_errorcode(1)
-                end if
-            end do
+            if (all(supersym(:) == 0)) then
+                print *, "All MOs are non-supersymmetric"
+            else
+                do isym = start_isym, end_isym, 2
+                    if (i == 1) then
+                        isym_for_supersym = isym
+                    else
+                        isym_for_supersym = isym - nsymrpa/2
+                    end if
+                    nv_dfpcmo = count(abs(supersym(start_idx_dfpcmo:end_idx_dfpcmo)) == isym_for_supersym)  ! Number of virtual MOs corresponding to isym in the DFPCMO file
+                    nv_input = count(irpamo(start_idx_input:end_idx_input) == isym)  ! Number of virtual MOs corresponding to isym in the input file
+                    print *, "isym", isym, "isym_f_s", isym_for_supersym, "nv_dfpcmo", nv_dfpcmo, "nv_input", nv_input
+                    if (nv_input /= nv_dfpcmo) then
+                        print *, "isym =", isym, "supersym =", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
+                        print *, "The number of virtual MOs in the DFPCMO file is not equal", &
+                            "to the number of virtual MOs in the input file.", &
+                            "isym = ", isym, "nv_input = ", nv_input, "nv_dfpcmo = ", nv_dfpcmo
+                        call stop_with_errorcode(1)
+                    end if
+                end do
+            end if
         end do
 
     contains

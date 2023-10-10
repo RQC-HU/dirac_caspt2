@@ -34,7 +34,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     integer :: idx_irrep, start_isym, end_isym
     integer, allocatable :: syminfo(:), dmosym(:)
     ! complex*16, allocatable :: itrfmo(:, :)
-    logical                 :: write_itrfmo
+    logical                 :: write_itrfmo, is_all_syminfo_zero
     integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
     integer :: positronic_mo(2), electronic_mo(2), basis_ao(2), basis_all(2), mo(2)
@@ -46,6 +46,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 !! fij = hij + SIGUMA_k (ij|kk)-(ik|kj)} i, j run over virtual spinors k runs occupied spinors except HOMO
 
     fock_cmplx = 0.0d+00
+    positronic_mo(:) = 0; electronic_mo(:) = 0; basis_ao(:) = 0; basis_all(:) = 0; mo(:) = 0
 
     if (rank == 0) print *, 'enter building fock matrix for IVO'
 
@@ -96,6 +97,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     end do
 
     call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
+    rewind (unit_dfpcmo)
 
 ! From DIRAC dirgp.F WRIPCMO (Write DHF-coefficients and eigenvalues )
 
@@ -228,7 +230,14 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
                 isym_for_syminfo = isym - nsymrpa/2
             end if
 
-            nv0 = count(ABS(syminfo(mo_start_idx:mo_end_idx)) == isym_for_syminfo)
+            if (all(syminfo(mo_start_idx:mo_end_idx) == 0)) then
+                print *, 'all syminfo is zero, idx_irrep = ', idx_irrep
+                nv0 = mo_end_idx - mo_start_idx + 1
+                is_all_syminfo_zero = .true.
+            else
+                nv0 = count(ABS(syminfo(mo_start_idx:mo_end_idx)) == isym_for_syminfo)
+                is_all_syminfo_zero = .false.
+            end if
             Allocate (dmosym(nv0))
             call create_dmosym(mo_start_idx, mo_end_idx)
 
@@ -248,7 +257,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             call cdiag(fsym, nv, nv, wsym, thresd)
 
             ! Gerade
-            allocate(coeff(basis_ao(idx_irrep), nv))
+            allocate (coeff(basis_ao(idx_irrep), nv))
             coeff(:, :) = 0.0d+00
             if (idx_irrep == 1) then
                 juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
@@ -362,7 +371,7 @@ contains
         dmosym(:) = 0
         cnt = 0
         do idx = start_idx, end_idx
-            if (abs(syminfo(idx)) == isym_for_syminfo) then
+            if (is_all_syminfo_zero .or. abs(syminfo(idx)) == isym_for_syminfo) then
                 cnt = cnt + 1
                 dmosym(cnt) = idx
             end if
