@@ -23,11 +23,9 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     real(8), allocatable      :: BUF(:)  ! One dimensional array representing MO coeff. read from DFPCMO
     real(8), allocatable      :: wsym(:), eval(:)
     integer, allocatable     :: mosym(:)
-    character*150 :: line0, line1, line2, line3, line4, line5
+    character*150 :: line0, line1, line2, line3, line4, line5, format_str
 
     ! for new code of IVO
-    integer :: npg, neg, nbasg ! number of positronic gerade(g), electronic g, basis set for g
-    integer :: npu, neu, nbasu ! number of positronic ungerade(u), electronic u, basis set for u
     integer :: total_ao, total_mo
     integer :: nv0, A, B ! A and B are dammy indices written in DFPCMO, A is nfsym in DIRAC
     integer :: idx_irrep, start_isym, end_isym
@@ -108,22 +106,8 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         ! A is nfsym2 in DIRAC (https://gitlab.com/dirac/dirac/-/blob/b10f505a6f00c29a062f5cad70ca156e72e012d7/src/dirac/dirgp.F#L77-78)
         ! A is 1 or 2
         read (unit_dfpcmo, *) A, B, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
-        npg = positronic_mo(1)
-        neg = electronic_mo(1)
-        nbasg = basis_ao(1)
-        npu = positronic_mo(2)
-        neu = electronic_mo(2)
-        nbasu = basis_ao(2)
-        if (rank == 0) print *, A, B, npg, neg, nbasg, npu, neu, nbasu
     else
         read (unit_dfpcmo, *) A, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
-        npg = positronic_mo(1)
-        neg = electronic_mo(1)
-        nbasg = basis_ao(1)
-        npu = positronic_mo(2)
-        neu = electronic_mo(2)
-        nbasu = basis_ao(2)
-        if (rank == 0) print *, A, npg, neg, nbasg, npu, neu, nbasu
     end if
     read (unit_dfpcmo, '(A150)') line2
 
@@ -324,9 +308,19 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         end if
         write (unit_dfpcmo, '(A150)') line1
         if (dirac_version >= 21) then
-            write (unit_dfpcmo, '(8(X,I0))') A, B, npg, neg, nbasg, npu, neu, nbasu
+            if (A == 1) then
+                format_str = '(5(X,I0))'
+            else
+                format_str = '(8(X,I0))'
+            end if
+            write (unit_dfpcmo, format_str) A, B, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         else
-            write (unit_dfpcmo, '(7(X,I0))') A, npg, neg, nbasg, npu, neu, nbasu
+            if (A == 1) then
+                format_str = '(4(X,I0))'
+            else
+                format_str = '(7(X,I0))'
+            end if
+            write (unit_dfpcmo, format_str) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         end if
         write (unit_dfpcmo, '(A150)') line2
         if (dirac_version >= 21) then
