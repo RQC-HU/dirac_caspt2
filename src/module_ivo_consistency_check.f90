@@ -72,7 +72,11 @@ contains
         end if
 
         ! Read MO coefficients
-        allocate (BUF(total_ao))
+        if (realonly%is_realonly()) then
+            allocate (BUF(total_ao))
+        else
+            allocate (BUF(total_ao*2))
+        end if
         read (unit_dfpcmo, *, iostat=iostat) BUF
 
         if (dirac_version >= 21) then
