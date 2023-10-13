@@ -43,11 +43,11 @@ contains
             ! B = 1 : real-only format
             ! B = 2 : complex format
             if (realonly%is_realonly() .and. B == 2) then
-                ! realonly%is_realonly() must be true if B is 2
+                ! realonly%is_realonly() must be false if B is 2
                 if (rank == 0) print *, 'MDCINT is written in real-only format, but DFPCMO is not'
                 call stop_with_errorcode(1)
             else if (.not. realonly%is_realonly() .and. B == 1) then
-                ! realonly%is_realonly() must be false if B is 1
+                ! realonly%is_realonly() must be true if B is 1
                 if (rank == 0) print *, 'MDCINT is written in complex format, but DFPCMO is not'
                 call stop_with_errorcode(1)
             else if (B /= 1 .and. B /= 2) then
