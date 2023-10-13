@@ -68,10 +68,15 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'nbas       =', nbas
         print *, 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
         print *, 'nhomo      =', nhomo
-        print *, 'noccg      =', noccg
-        print *, 'noccu      =', noccu
-        print *, 'nvcutg     =', nvcutg
-        print *, 'nvcutu     =', nvcutu
+        if (inversion) then
+            print *, "noccg      =", occ_mo_num(1)
+            print *, "noccu      =", occ_mo_num(2)
+            print *, "nvcutg     =", vcut_mo_num(1)
+            print *, "nvcutu     =", vcut_mo_num(2)
+        else
+            print *, "nocc      =", occ_mo_num(1)
+            print *, "nvcut     =", vcut_mo_num(1)
+        end if
         print *, 'diracver   =', dirac_version
     end if
 
@@ -80,7 +85,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call read_mrconee(filename)
 
     ! Check consistency of IVO input and DFPCMO file.
-    call ivo_consistency_check
+    if (rank == 0) call ivo_consistency_check
 
     call check_realonly
     ! Create UTChem type MDCINT file from Dirac MDCINT file

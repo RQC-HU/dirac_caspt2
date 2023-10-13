@@ -33,7 +33,10 @@ MODULE module_global_variables
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
-    integer         :: noccg, noccu, nvcutg, nvcutu
+    ! vcut_mo_num: The number of virtual orbitals in each fermion irreducible representation
+    ! occ_mo_num: The number of occupied orbitals in each fermion irreducible representation
+    integer         :: vcut_mo_num(2) = 0, occ_mo_num(2) = 0
+    logical         :: inversion = .false., no_inversion = .false.
 
     !! =================================================
     !! Variables of CI
@@ -101,7 +104,7 @@ MODULE module_global_variables
     !! ========================================
     !! Variables of IVO calculation
     !! ========================================
-    complex*16, allocatable :: itrfmo(:, :, :)
+    complex*16, allocatable :: itrfmo(:, :)
 
 ! Old Dirac
 !       Write(UT_sys_ftmp) NMO,BREIT,ETOTAL

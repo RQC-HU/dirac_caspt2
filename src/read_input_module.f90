@@ -158,18 +158,35 @@ contains
         case ("skip_mdcint")
             skip_mdcint = .true.
 
-            !ivo
+        case("nocc")
+            if (inversion) call err_ivo_input
+            call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(1))
+            no_inversion = .true.
+
         case ("noccg")
-            call read_an_integer(unit_num, 0, input_intmax, noccg)
+            if (no_inversion) call err_ivo_input
+            call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(1))
+            inversion = .true.
 
         case ("noccu")
-            call read_an_integer(unit_num, 0, input_intmax, noccu)
+            if (no_inversion) call err_ivo_input
+            call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(2))
+            inversion = .true.
+
+        case ("nvcut")
+            if (inversion) call err_ivo_input
+            call read_an_integer(unit_num, 0, input_intmax, vcut_mo_num(1))
+            no_inversion = .true.
 
         case ("nvcutg")
-            call read_an_integer(unit_num, 0, input_intmax, nvcutg)
+            if (no_inversion) call err_ivo_input
+            call read_an_integer(unit_num, 0, input_intmax, vcut_mo_num(1))
+            inversion = .true.
 
         case ("nvcutu")
-            call read_an_integer(unit_num, 0, input_intmax, nvcutu)
+            if (no_inversion) call err_ivo_input
+            call read_an_integer(unit_num, 0, input_intmax, vcut_mo_num(2))
+            inversion = .true.
 
         case ("end")
             is_end = .true.
@@ -178,6 +195,13 @@ contains
             if (rank == 0) print *, "ERROR: Unknown input: ", trim(string)
             call stop_with_errorcode(1)
         end select
+    contains
+        subroutine err_ivo_input
+            implicit none
+            if (rank == 0) print *, "ERROR: nocc or nvcut and noccg or noccu or nvcutg or nvcutu", &
+             "cannot be specified at the same time."
+            call stop_with_errorcode(1)
+        end subroutine err_ivo_input
 
     end subroutine check_input_type
 

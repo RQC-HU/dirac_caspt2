@@ -18,8 +18,6 @@ contains
         print *, "Exit with error", errorcode
 #ifdef INTEL
         call TRACEBACKQQ("Exit with error", errorcode)
-#elif GNU
-        call abort
 #endif
         call exit(errorcode)
     end subroutine stop_with_errorcode

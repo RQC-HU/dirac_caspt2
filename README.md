@@ -328,8 +328,9 @@ diracver    : DIRAC version
 end         : The identifier at the end of the input file
 
 [required parameters (IVO)]
-noccg       : The number of occupied spinors (gerade)
-noccu       : The number of occupied spinors (ungerade)
+nvcut       : The number of virtual cut MO (This option is for molecules without inversion center symmetry)
+noccg       : The number of occupied MO (gerade)
+noccu       : The number of occupied MO (ungerade)
 
 [optional parameters]
 eshift      : for real shift (if you don't write, it will be 0)
@@ -341,8 +342,9 @@ calctype    : The type of calculation. only CASCI or DMRG are currently supporte
 
 [optional parameters (IVO)]
 nhomo       : The number of HOMO-like spinors
-nvcutg      : The number of virtual cut spinors (gerade)
-nvcutu      : The number of virtual cut spinors (ungerade)
+nvcut       : The number of virtual cut MO (This option is for molecules without inversion center symmetry)
+nvcutg      : The number of virtual cut MO (gerade)
+nvcutu      : The number of virtual cut MO (ungerade)
 ```
 
 ### Input file specification

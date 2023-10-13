@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from subprocess import Popen
+from subprocess import PIPE, Popen
 import argparse
 import datetime
 import glob
@@ -285,18 +285,22 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user
         start_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         try:
-            p = Popen(command, shell=True, stdout=f, stderr=f)
+            p = Popen(command, shell=True, stdout=f, stderr=PIPE)
             p.wait()
         except KeyboardInterrupt:
             delete_scratch_dir()
             print("Calculation was interrupted by the user.(ctrl+c, SIGINT)")
             sys.exit(signal.SIGINT)
 
+        end_message = ""
+        if p.stderr is not None:
+            end_message += "\n================= Standard error =================\n"
+            end_message += p.stderr.read().decode("utf-8")
         end_time = time.time()
         end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         user_command = " ".join(sys.argv)
 
-        end_message = "\n================= Calculation finished ================\n"
+        end_message += "\n================= Calculation finished ================\n"
         end_message += f"User Command : {user_command}\n"
         end_message += f"Auto-created Command : {command}\n"
         end_message += f"Scratch directory : {scratch_dir}\n"
@@ -380,7 +384,8 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
         str: Path to the output file
     """
     if args.output is None:
-        output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
+        filename = "dirac_ivo.out" if args.ivo else "dirac_caspt2.out"
+        output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, filename))
     else:
         expand_output = os.path.expanduser(args.output)
         if os.path.isabs(expand_output):  # absolute path

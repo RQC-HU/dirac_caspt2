@@ -55,6 +55,7 @@ SUBROUTINE fockdiag
             if (i0 == 2) print *, 'FOR ACTIVE-ACTIVE ROTATION !'
             if (i0 == 3) print *, 'FOR SECONDARY-SECONDARY ROTATION !'
         end if
+        if (n == 0) cycle
         if (realonly%is_realonly()) then
             Call rdiag0(n, n0, n1, fa(n0:n1, n0:n1), eps(n0:n1))
         else
