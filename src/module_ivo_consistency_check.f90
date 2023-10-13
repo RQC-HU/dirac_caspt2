@@ -6,9 +6,10 @@ module module_ivo_consistency_check
 
 contains
     subroutine ivo_consistency_check
-        use module_global_variables, only: irpamo, dirac_version, ninact, nact, nsec, nsymrpa, occ_mo_num, vcut_mo_num
-        use module_file_manager
         use module_error
+        use module_file_manager
+        use module_global_variables, only: irpamo, dirac_version, ninact, nact, nsec, nsymrpa, occ_mo_num, vcut_mo_num, rank
+        use module_realonly, only: realonly
         implicit none
         integer :: unit_dfpcmo, iostat
         logical :: end_of_file
@@ -22,7 +23,7 @@ contains
         integer :: i, total_mo, total_ao
         integer :: positronic_mo(2), electronic_mo(2), basis_ao(2), basis_all(2), mo(2)
 
-        print *, "Start checking the consistency of your input and DFPCMO data"
+        if (rank == 0) print *, "Start checking the consistency of your input and DFPCMO data"
         positronic_mo(:) = 0; electronic_mo(:) = 0; basis_ao(:) = 0; basis_all(:) = 0; mo(:) = 0
         filename = "DFPCMO"
         call open_formatted_file(unit=unit_dfpcmo, file=filename, status="old")
@@ -37,6 +38,22 @@ contains
 
         if (dirac_version >= 21) then
             read (unit_dfpcmo, *, iostat=iostat) A, B, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
+            ! The value of B is important to detect that whether the DFPCMO file is written in real-only or complex format
+            ! and MDCINT should be written in the same format, so we validate it here
+            ! B = 1 : real-only format
+            ! B = 2 : complex format
+            if (realonly%is_realonly() .and. B == 2) then
+                ! realonly%is_realonly() must be true if B is 2
+                if (rank == 0) print *, 'MDCINT is written in real-only format, but DFPCMO is not'
+                call stop_with_errorcode(1)
+            else if (.not. realonly%is_realonly() .and. B == 1) then
+                ! realonly%is_realonly() must be false if B is 1
+                if (rank == 0) print *, 'MDCINT is written in complex format, but DFPCMO is not'
+                call stop_with_errorcode(1)
+            else if (B /= 1 .and. B /= 2) then
+                if (rank == 0) print *, 'Invalid value of B in the DFPCMO file'
+                call stop_with_errorcode(1)
+            end if
         else ! DIRAC version < 21
             read (unit_dfpcmo, *, iostat=iostat) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         end if
@@ -76,7 +93,7 @@ contains
         ! Read MO supersymmetry
         allocate (supersym(total_mo))
         read (unit_dfpcmo, *, iostat=iostat) supersym
-        print *, "supersym", supersym
+        if (rank == 0) print *, "supersym", supersym
 
         close (unit_dfpcmo) ! Close the DFPCMO file
 
@@ -96,11 +113,11 @@ contains
                 end_isym = nsymrpa
             end if
             ! Print the virtual MOs supersymmetry
-            print *, "Virtual supersym", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
+            if (rank == 0) print *, "Virtual supersym", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
             ! Check the consistency of the input and DFPCMO data
             ! At any isym(irreducible representation)
             ! the number of virtual MOs in the DFPCMO file must be equal to the number of virtual MOs in the input file
-            print *, "irpamo", irpamo(start_idx_input:end_idx_input)
+            if (rank == 0) print *, "irpamo", irpamo(start_idx_input:end_idx_input)
 
             do isym = start_isym, end_isym, 2
                 if (i == 1) then
@@ -114,14 +131,15 @@ contains
                     nv_dfpcmo = count(abs(supersym(start_idx_dfpcmo:end_idx_dfpcmo)) == isym_for_supersym)  ! Number of virtual MOs corresponding to isym in the DFPCMO file
                 end if
                 nv_input = count(irpamo(start_idx_input:end_idx_input) == isym)  ! Number of virtual MOs corresponding to isym in the input file
-                print *, "isym", isym, "isym_f_s", isym_for_supersym, "nv_dfpcmo", nv_dfpcmo, "nv_input", nv_input
+                if (rank == 0) print *, "isym", isym, "isym_f_s", isym_for_supersym, "nv_dfpcmo", nv_dfpcmo, "nv_input", nv_input
                 if (nv_input /= nv_dfpcmo) then
-                    print *, "isym =", isym, "supersym =", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
-                    print *, "The number of virtual MOs in the DFPCMO file is not equal", &
-                        "to the number of virtual MOs in the input file.", &
-                        "isym = ", isym, "nv_input = ", nv_input, "nv_dfpcmo = ", nv_dfpcmo
-                    print *, "Please check your input file."
-                    print *, "Maybe you forgot to set the nvcut(g,u) parameter in the input file?"
+                    if (rank == 0) then
+                        print *, "isym =", isym, "supersym =", supersym(start_idx_dfpcmo:end_idx_dfpcmo)
+                        print *, "The number of virtual MOs in the DFPCMO file is not equal", &
+                            "to the number of virtual MOs in the input file.", &
+                            "isym = ", isym, "nv_input = ", nv_input, "nv_dfpcmo = ", nv_dfpcmo
+                        print *, "Please check your input file."
+                    end if
                     call stop_with_errorcode(1)
                 end if
             end do
@@ -132,7 +150,7 @@ contains
             implicit none
             call check_iostat(iostat=iostat, file=filename, end_of_file_reached=end_of_file)
             if (end_of_file) then
-                print *, "Error: The DFPCMO file contains less data than expected."
+                if (rank == 0) print *, "Error: The DFPCMO file contains less data than expected."
                 call stop_with_errorcode(1)
             end if
         end subroutine check_end_of_file

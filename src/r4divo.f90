@@ -85,9 +85,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call read_mrconee(filename)
 
     ! Check consistency of IVO input and DFPCMO file.
-    if (rank == 0) call ivo_consistency_check
-
-    call check_realonly
+    call ivo_consistency_check
     ! Create UTChem type MDCINT file from Dirac MDCINT file
     if (rank == 0) print *, "Create_newmdcint"
     call create_newmdcint
