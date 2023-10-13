@@ -20,6 +20,7 @@ ulambda_s_half.f90
 target_link_libraries(caspt2_module dcaspt2_module)
 
 add_library(ivo_module STATIC
+  fockivo.f90
   module_ivo_consistency_check.f90
 )
 target_link_libraries(ivo_module dcaspt2_module)
@@ -84,7 +85,6 @@ add_executable(r4divocoexe
 	diag.f90
 	density_matrix.f90
 	e0test.f90
-	fockivo.f90
 	get_filename.f90
 	mem.f90
 	one_e_exct.f90

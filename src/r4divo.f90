@@ -10,6 +10,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use module_file_manager
     use module_2integrals
     use module_realonly, only: check_realonly, realonly
+    use fockivo
     use read_input_module
     use module_ivo_consistency_check
 
@@ -84,6 +85,8 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     filename = 'MRCONEE'
     call read_mrconee(filename)
 
+    call check_realonly
+
     ! Check consistency of IVO input and DFPCMO file.
     call ivo_consistency_check
     ! Create UTChem type MDCINT file from Dirac MDCINT file
@@ -106,16 +109,13 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     iroot = selectroot
 
     if (rank == 0) then
-        Allocate (fock_cmplx(nsec, nsec)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
-
-        fock_cmplx(:, :) = 0.0d+00
-
 !! NOW MAKE FOCK MATRIX FOR IVO (only virtual spinors)
 !! fij = hij + SIGUMA_a(ij|aa)-(ia|aj)}
-
-        Call fockivo
-
-        Call memminus(KIND(fock_cmplx), SIZE(fock_cmplx), 2); deallocate (fock_cmplx)
+        if (realonly%is_realonly()) then
+            call fockivo_real
+        else
+            call fockivo_cmplx
+        end if
     end if
 
     ! Deallocate memory

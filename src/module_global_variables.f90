@@ -104,7 +104,7 @@ MODULE module_global_variables
     !! ========================================
     !! Variables of IVO calculation
     !! ========================================
-    complex*16, allocatable :: itrfmo(:, :)
+    ! complex*16, allocatable :: itrfmo(:, :)
 
 ! Old Dirac
 !       Write(UT_sys_ftmp) NMO,BREIT,ETOTAL
