@@ -380,7 +380,8 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
         str: Path to the output file
     """
     if args.output is None:
-        output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "dirac_caspt2.out"))
+        filename = "dirac_ivo.out" if args.ivo else "dirac_caspt2.out"
+        output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, filename))
     else:
         expand_output = os.path.expanduser(args.output)
         if os.path.isabs(expand_output):  # absolute path
