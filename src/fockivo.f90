@@ -281,7 +281,7 @@ contains
 
             do iao = 1, num_ao
                 do imo = 1, num_mo
-                    BUF(juck_up_idx + (imo - 1)*num_ao + iao) = DBLE(itrfmo(iao, imo))
+                    BUF(juck_up_idx + (imo - 1)*num_ao + iao) = itrfmo(iao, imo)
                 end do
             end do
             deallocate (itrfmo)
@@ -313,9 +313,7 @@ contains
             if (dirac_version >= 21) then
                 write (unit_dfpcmo, '(A150)') line3
             end if
-            Do I = 1, total_ao, 6
-                Write (unit_dfpcmo, '(6F22.16)') BUF(I:I + 5)
-            End do
+            write (unit_dfpcmo, '(6F22.16)') BUF
             if (dirac_version >= 21) then
                 write (unit_dfpcmo, '(A150)') line4
             end if
@@ -464,12 +462,6 @@ contains
                 end do
             end do
         end do
-        ! Take conjugate
-        do i = 1, nsec
-            do j = i, nsec
-                fock_cmplx(j, i) = DCONJG(fock_cmplx(i, j))
-            end do
-        end do
 
         call open_formatted_file(unit=unit_dfpcmo, file='DFPCMO', status='old', optional_action='read')
         rewind (unit_dfpcmo)
@@ -516,9 +508,7 @@ contains
         if (rank == 0) then
             print *, 'end reading MO coefficient'
             call open_formatted_file(unit=unit_buf, file='BUF_write', status='replace', optional_action='write')
-            Do I = 1, total_ao, 6
-                Write (unit_buf, '(6F22.16)') BUF_READWRITE(I:I + 5)
-            End do
+            write (unit_buf, '(6F22.16)') BUF
             close (unit_buf)
         end if
 
@@ -676,7 +666,7 @@ contains
 
             do iao = 1, num_ao
                 do imo = 1, num_mo
-                    BUF(juck_up_idx + (imo - 1)*num_ao + iao) = DBLE(itrfmo(iao, imo))
+                    BUF(juck_up_idx + (imo - 1)*num_ao + iao) = itrfmo(iao, imo)
                 end do
             end do
             deallocate (itrfmo)
@@ -712,9 +702,7 @@ contains
                 BUF_READWRITE(i) = real(BUF(i), kind=kind(BUF))
                 BUF_READWRITE(total_ao + i) = aimag(BUF(i))
             end do
-            Do I = 1, total_ao, 6
-                Write (unit_dfpcmo, '(6F22.16)') BUF_READWRITE(I:I + 5)
-            End do
+            write (unit_dfpcmo, '(6F22.16)') BUF_READWRITE
             if (dirac_version >= 21) then
                 write (unit_dfpcmo, '(A150)') line4
             end if
