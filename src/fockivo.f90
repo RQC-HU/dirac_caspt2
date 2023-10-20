@@ -510,7 +510,7 @@ contains
         allocate (BUF_READWRITE(total_ao*2))
         read (unit_dfpcmo, *, iostat=iostat) BUF_READWRITE
         do i = 1, total_ao
-            BUF(i) = DCMPLX(BUF_READWRITE(2*i - 1), BUF_READWRITE(2*i))
+            BUF(i) = DCMPLX(BUF_READWRITE(i), BUF_READWRITE(total_ao + i))
         end do
 
         if (rank == 0) then
@@ -709,8 +709,8 @@ contains
                 write (unit_dfpcmo, '(A150)') line3
             end if
             do i = 1, total_ao
-                BUF_READWRITE(2*i - 1) = real(BUF(i))
-                BUF_READWRITE(2*i) = aimag(BUF(i))
+                BUF_READWRITE(i) = real(BUF(i), kind=kind(BUF))
+                BUF_READWRITE(total_ao + i) = aimag(BUF(i))
             end do
             Do I = 1, total_ao, 6
                 Write (unit_dfpcmo, '(6F22.16)') BUF_READWRITE(I:I + 5)
