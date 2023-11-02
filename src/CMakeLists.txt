@@ -1,18 +1,22 @@
-add_library(dcaspt2_module STATIC
-  module_2integrals.f90
+add_library(dcaspt2_module_global STATIC
   module_dict.f90
   module_error.f90
-  module_file_manager.f90
   module_global_variables.f90
+  module_mpi.f90
+)
+
+add_library(dcaspt2_module STATIC
+  module_2integrals.f90
+  module_file_manager.f90
   module_index_utils.f90
   module_intra.f90
-  module_mpi.f90
   module_realonly.f90
   module_sort_swap.f90
   ras_det_check.f90
   read_input_module.f90
   takekr.f90
 )
+target_link_libraries(dcaspt2_module dcaspt2_module_global)
 
 add_library(caspt2_module STATIC
 ulambda_s_half.f90
