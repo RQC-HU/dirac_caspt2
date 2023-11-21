@@ -328,7 +328,7 @@ diracver    : DIRAC version
 end         : The identifier at the end of the input file
 
 [required parameters (IVO)]
-nvcut       : The number of virtual cut MO (This option is for molecules without inversion center symmetry)
+nocc        : The number of occupied MO (This option is for molecules without inversion center symmetry)
 noccg       : The number of occupied MO (gerade)
 noccu       : The number of occupied MO (ungerade)
 
