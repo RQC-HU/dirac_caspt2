@@ -25,12 +25,10 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     integer, allocatable     :: mosym(:)
     character*150 :: line0, line1, line2, line3, line4, line5, format_str
 
-    ! for new code of IVO
     integer :: total_ao, total_mo
     integer :: nv0, A, B ! A and B are dammy indices written in DFPCMO, A is nfsym in DIRAC
     integer :: idx_irrep, start_isym, end_isym
     integer, allocatable :: syminfo(:), dmosym(:)
-    ! complex*16, allocatable :: itrfmo(:, :)
     logical                 :: write_itrfmo, is_all_syminfo_zero
     integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
@@ -158,9 +156,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     if (rank == 0) then
         call open_formatted_file(unit=unit_buf, file='BUF_write', status='replace', optional_action='write')
-        Do I = 1, total_ao, 6
-            Write (unit_buf, '(6F22.16)') BUF(I:I + 5)
-        End do
+        write(unit_buf, '(6F22.16)') BUF(:)
         close (unit_buf)
     end if
 
