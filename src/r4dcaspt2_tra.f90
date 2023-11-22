@@ -75,7 +75,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, 'nroot         =', nroot
         print *, 'selectroot    =', selectroot
         print *, 'totsym        =', totsym
-        print *, 'ncore         =', ncore
         print *, 'eshift        =', eshift
         print *, 'dirac_version =', dirac_version
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list
