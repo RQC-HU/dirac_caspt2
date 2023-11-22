@@ -25,7 +25,6 @@ if(MPI)
   add_compile_options(-DHAVE_MPI) # Add MPI preprocessor flag
 endif()
 
-# set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS "")
 if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DINTEL -g -traceback -cpp -i8 -I$ENV{MKLROOT}/include -pad -mp1 -integer-size 64 -unroll -warn nounused -nogen-interface") # "-warn nounused" means "-warn all -warn nounused"
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check -debug extended -debug-parameters -warn")
@@ -46,7 +45,6 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 10.0)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fallow-argument-mismatch")
   endif()
-  # set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DGNU -fallow-argument-mismatch -g -fbacktrace -cpp -fdefault-integer-8 -m64 -I$ENV{MKLROOT}/include -Wall -Wno-unused-variable")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -Wall -Wextra -Wimplicit-interface -fPIC -fmax-errors=1 -fcheck=all")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   link_libraries(-fdefault-integer-8 -m64)
