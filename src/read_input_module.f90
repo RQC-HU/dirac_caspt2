@@ -24,10 +24,10 @@ contains
         integer, intent(in) :: unit_num
         integer :: idx, iostat
         character(len=max_str_length) :: string
-        character(len=10), parameter :: essential_variable_names(10) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
-                                                "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "diracver  "/)
-        logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
-                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        character(len=10), parameter :: essential_variable_names(9) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
+                                                "nelec     ", "selectroot", "totsym    ", "ncore     ", "diracver  "/)
+        logical :: is_comment, is_config_sufficient, is_variable_filled(9) = &
+                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
 
         do while (.not. is_end) ! Read the input file until the "end" is found
@@ -109,10 +109,6 @@ contains
             call read_an_integer(unit_num, 0, input_intmax, ncore)
             is_filled(8) = .true.
 
-        case ("nbas")
-            call read_an_integer(unit_num, 0, input_intmax, nbas)
-            is_filled(9) = .true.
-
         case ("eshift")
             do
                 read (unit_num, '(A)') input
@@ -125,7 +121,7 @@ contains
 
         case ("diracver")
             call read_an_integer(unit_num, 0, input_intmax, dirac_version)
-            is_filled(10) = .true.
+            is_filled(9) = .true.
 
         case ("nhomo")
             call read_an_integer(unit_num, 0, input_intmax, nhomo)

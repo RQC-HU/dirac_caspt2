@@ -65,7 +65,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'selectroot =', selectroot
         print *, 'totsym     =', totsym
         print *, 'ncore      =', ncore
-        print *, 'nbas       =', nbas
         print *, 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
         print *, 'nhomo      =', nhomo
         if (inversion) then

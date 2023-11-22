@@ -30,7 +30,7 @@ SUBROUTINE read_mrconee(filename)
     call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
 
 ! Read the number of molecular orbitals, Breit interaction and the core energy.
-    Read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE  ! NMO is nbas - ncore
+    Read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
     if (is_end_of_file) then
         print *, 'Error: error in reading NMO, BREIT, ECORE (end of file reached)'
@@ -38,8 +38,8 @@ SUBROUTINE read_mrconee(filename)
         call stop_with_errorcode(iostat)
     end if
     if (rank == 0) then
-        print *, 'NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore'
-        print *, NMO, BREIT, ECORE, 1  ! NMO is nbas - ncore
+        print *, 'NMO, BREIT, ECORE'
+        print *, NMO, BREIT, ECORE
     end if
 
 ! Read the irreducible representation information. (nsymrpa, repna)
