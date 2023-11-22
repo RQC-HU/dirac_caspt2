@@ -322,8 +322,6 @@ nelec       : the number of active electrons in active space
 nroot       : the number of roots
 selectroot  : which root do you want to obtain
 totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
-ncore       : the number of core orbital
-nbas        : the number of basis set
 diracver    : DIRAC version
 end         : The identifier at the end of the input file
 
