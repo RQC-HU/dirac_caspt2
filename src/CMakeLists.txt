@@ -7,6 +7,7 @@ add_library(dcaspt2_module_global STATIC
 
 add_library(dcaspt2_module STATIC
   module_2integrals.f90
+  module_essential_input.f90
   module_file_manager.f90
   module_index_utils.f90
   module_intra.f90
