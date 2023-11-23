@@ -15,7 +15,7 @@ def define_args():
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
     parser.add_argument("--flags", type=str, help="The compiler flags.(If not specified, the default flags will be used.)")
-    parser.add_argument("-j", "--parallel", type=int, default=1, help="Specify the number of build processes. This option is used only when the --build option is specified. [default: 1]")
+    parser.add_argument("-j", "--parallel", type=int, nargs="?", const=-1, default=1, help="The maximum number of concurrent processes to use when building. This option is used only when the --build option is specified. If [Parallel] is omitted the native build tool's default number is used. [default: 1]")
     parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.[default compiler: mpiifort]")
     parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
@@ -119,7 +119,10 @@ def configure_source(cmake_flags):
 
 def build(args):
     num_of_process = args.parallel
-    process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
+    if num_of_process == -1: # const value of -j option, which means the native build tool's default number is used. (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
+        process = Popen("cmake --build build -j", shell=True)
+    else:
+        process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
     process.wait()
     if process.returncode != 0:
         logging.error("Failed to build the project!")
