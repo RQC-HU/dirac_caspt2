@@ -9,7 +9,7 @@ import shutil
 from subprocess import Popen, PIPE
 
 
-def define_args():
+def define_args() -> "argparse.Namespace":
     parser = argparse.ArgumentParser(description="This script is used as a setup script for this project.")
     parser.add_argument("--build", action="store_true", help="Build the project after the setup. [default: False]")
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
@@ -23,8 +23,8 @@ def define_args():
     return parser.parse_args()
 
 
-def preprocess(args, exec_path, script_path):
-    def check_cmake_is_installed():
+def preprocess(args: "argparse.Namespace", exec_path: str, script_path: str) -> str:
+    def check_cmake_is_installed() -> None:
         print("Checking if CMake is installed...")
         try:
             process = Popen("cmake --version", shell=True, stdout=PIPE, stderr=PIPE)
@@ -47,7 +47,7 @@ def preprocess(args, exec_path, script_path):
             logging.error("CMake is not installed!, Aborting...")
             raise Exception(e)
 
-    def clean_dir():
+    def clean_dir() -> None:
         logging.info("Cleaning the build directory...")
         remove_dirs_name = ["build", "bin"]
         for rmdir_name in remove_dirs_name:
@@ -57,7 +57,7 @@ def preprocess(args, exec_path, script_path):
                 shutil.rmtree(rmdir)
                 logging.info(f"Removed the directory {os.path.abspath(rmdir)}")
 
-    def set_compiler(cmake_flags: str):
+    def set_compiler(cmake_flags: str) -> str:
         if args.fc is not None:
             # CMAKE_<LANG>_COMPILER: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER.html#variable:CMAKE_%3CLANG%3E_COMPILER
             cmake_flags += f" -DCMAKE_Fortran_COMPILER={args.fc}"
@@ -66,7 +66,7 @@ def preprocess(args, exec_path, script_path):
                 cmake_flags += " -DCMAKE_Fortran_COMPILER=mpiifort"
         return cmake_flags
 
-    def set_build_type(cmake_flags: str):
+    def set_build_type(cmake_flags: str) -> str:
         if args.build_type is None:  # If --build-type option is not specified, set it to release.
             logging.info('Build type is "release"')
             cmake_flags += " -DCMAKE_BUILD_TYPE=release"
@@ -80,7 +80,7 @@ def preprocess(args, exec_path, script_path):
                 exit(1)
         return cmake_flags
 
-    def set_install_dir(cmake_flags: str):
+    def set_install_dir(cmake_flags: str) -> str:
         if args.prefix is None:  # User did not specify the installation directory.
             pass  # If --prefix option is not specified, the default installation directory defined in CMakeLists.txt will be used.
         else:  # User specified the installation directory.
@@ -115,7 +115,7 @@ def preprocess(args, exec_path, script_path):
     return cmake_flags
 
 
-def configure_source(cmake_flags, script_path):
+def configure_source(cmake_flags: str, script_path: str) -> None:
     logging.info(f"CMake flags are {cmake_flags}")
     build_dir = os.path.join(script_path, "build")
     if not os.path.exists(build_dir):
@@ -133,7 +133,7 @@ def configure_source(cmake_flags, script_path):
     logging.info("Successfully configured the source code.")
 
 
-def build(args):
+def build(args: "argparse.Namespace") -> None:
     num_of_process = args.parallel
     if num_of_process == -1: # const value of -j option, which means the native build tool's default number is used. (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
         process = Popen("cmake --build build -j", shell=True)
