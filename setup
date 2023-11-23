@@ -23,7 +23,7 @@ def define_args():
     return parser.parse_args()
 
 
-def preprocess(args, exec_path):
+def preprocess(args, exec_path, script_path):
     def check_cmake_is_installed():
         print("Checking if CMake is installed...")
         try:
@@ -49,8 +49,10 @@ def preprocess(args, exec_path):
 
     def clean_dir():
         logging.info("Cleaning the build directory...")
-        remove_dirs = ["build", "bin"]
-        for rmdir in remove_dirs:
+        remove_dirs_name = ["build", "bin"]
+        for rmdir_name in remove_dirs_name:
+            rmdir = os.path.join(script_path, rmdir_name)
+            logging.info(f"Checking if {os.path.abspath(rmdir)} exists...")
             if os.path.exists(rmdir):
                 shutil.rmtree(rmdir)
                 logging.info(f"Removed the directory {os.path.abspath(rmdir)}")
@@ -151,7 +153,7 @@ def main():
     os.chdir(script_path)
 
     args = define_args()
-    cmake_flags = preprocess(args, exec_path)
+    cmake_flags = preprocess(args, exec_path, script_path)
     configure_source(cmake_flags, script_path)
 
     if not args.build:
