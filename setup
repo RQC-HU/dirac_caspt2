@@ -55,48 +55,61 @@ def preprocess(args, exec_path):
                 shutil.rmtree(rmdir)
                 logging.info(f"Removed the directory {os.path.abspath(rmdir)}")
 
+    def set_compiler(cmake_flags: str):
+        if args.fc is not None:
+            # CMAKE_<LANG>_COMPILER: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER.html#variable:CMAKE_%3CLANG%3E_COMPILER
+            cmake_flags += f" -DCMAKE_Fortran_COMPILER={args.fc}"
+        if args.mpi:
+            if args.fc is None:
+                cmake_flags += " -DCMAKE_Fortran_COMPILER=mpiifort"
+        return cmake_flags
+
+    def set_build_type(cmake_flags: str):
+        if args.build_type is None:  # If --build-type option is not specified, set it to release.
+            logging.info('Build type is "release"')
+            cmake_flags += " -DCMAKE_BUILD_TYPE=release"
+        else:
+            build_type = args.build_type.lower()
+            if build_type == "release" or build_type == "debug":
+                logging.info(f'Build type is "{build_type}"')
+                cmake_flags += f" -DCMAKE_BUILD_TYPE={build_type}"
+            else:
+                logging.error('Invalid build type. The build type should be "release" or "debug".')
+                exit(1)
+        return cmake_flags
+
+    def set_install_dir(cmake_flags: str):
+        if args.prefix is None:  # User did not specify the installation directory.
+            pass  # If --prefix option is not specified, the default installation directory defined in CMakeLists.txt will be used.
+        else:  # User specified the installation directory.
+            if args.prefix.startswith("/"):  # Absolute path
+                prefix = os.path.abspath(args.prefix)
+            else:  # Relative path
+                prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
+            logging.info(f"Installation directory is {prefix}")
+            cmake_flags += f" -DCMAKE_INSTALL_PREFIX={prefix}"
+        return cmake_flags
+
     check_cmake_is_installed()
     clean_dir()
 
-    cmake_flags = ""
     logging.info("Configuring cmake build flags...")
 
-    if args.fc is not None:
-        # CMAKE_<LANG>_COMPILER: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER.html#variable:CMAKE_%3CLANG%3E_COMPILER
-        cmake_flags += f" -DCMAKE_Fortran_COMPILER={args.fc}"
+    cmake_flags = ""
+    cmake_flags = set_compiler(cmake_flags)
+    cmake_flags = set_build_type(cmake_flags)
+    cmake_flags = set_install_dir(cmake_flags)
+
     if args.flags is not None:
         # CMAKE_<LANG>_FLAGS: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html#variable:CMAKE_%3CLANG%3E_FLAGS
         cmake_flags += f" -DCMAKE_Fortran_FLAGS='{args.flags}'"
-
     if args.no_mkl:
         cmake_flags += " -DMKL=off"
-
-    if args.build_type is None:  # If --build-type option is not specified, set it to release.
-        logging.info('Build type is "release"')
-        cmake_flags += " -DCMAKE_BUILD_TYPE=release"
-    else:
-        build_type = args.build_type.lower()
-        if build_type == "release" or build_type == "debug":
-            logging.info(f'Build type is "{build_type}"')
-            cmake_flags += f" -DCMAKE_BUILD_TYPE={build_type}"
-        else:
-            logging.error('Invalid build type. The build type should be "release" or "debug".')
-            exit(1)
     if args.mpi:
-        if args.fc is None:
-            cmake_flags += " -DCMAKE_Fortran_COMPILER=mpiifort"
         cmake_flags += " -DMPI=ON"
     if args.omp:
         cmake_flags += " -DOPENMP=ON"
-    if args.prefix is None:  # User did not specify the installation directory.
-        pass  # If --prefix option is not specified, the default installation directory defined in CMakeLists.txt will be used.
-    else:  # User specified the installation directory.
-        if args.prefix.startswith("/"):  # Absolute path
-            prefix = os.path.abspath(args.prefix)
-        else:  # Relative path
-            prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
-        logging.info(f"Installation directory is {prefix}")
-        cmake_flags += f" -DCMAKE_INSTALL_PREFIX={prefix}"
+
     return cmake_flags
 
 
