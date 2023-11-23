@@ -153,15 +153,16 @@ def main():
     enable_or_disable_mpi = "set" if args.mpi else "do not set"
 
     logging.info(
-        f"[Note]\n\
-        About tests\n\
+        f"[Note] About tests\n\
         We recommend you to run tests to check if the build is successful.\n\
+        Before running tests, if you don't have pytest, please install it by running the following command:\n\n\
+        \tpip install pytest\n\n\
         You {enable_or_disable_mpi} --mpi option. Therefore, you should run one of the following tests:\n\
         - Run all tests:\n\
         \tpytest --all{mpi_option_message}{omp_option_message}\n\
         - Run tests excluding the tests long time to run:\n\
         \tpytest{mpi_option_message}{omp_option_message}\n\
-        For more logging.information, please read the README.md file."
+        For more information, please read the {script_path}/README.md file."
     )
 
 
