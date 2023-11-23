@@ -117,9 +117,10 @@ def preprocess(args, exec_path, script_path):
 
 def configure_source(cmake_flags, script_path):
     logging.info(f"CMake flags are {cmake_flags}")
-    if not os.path.exists("build"):
-        os.mkdir("build")
-    command = "cmake -B build" + cmake_flags
+    build_dir = os.path.join(script_path, "build")
+    if not os.path.exists(build_dir):
+        os.mkdir(build_dir)
+    command = f"cmake -B {build_dir} {cmake_flags}"
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
     logging.info(f"BUILD COMMAND is {command}")
