@@ -15,7 +15,6 @@ contains
 #ifdef HAVE_MPI
         call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
-        print *, "Exit with error", errorcode
 #ifdef INTEL
         call TRACEBACKQQ("Exit with error", errorcode)
 #endif

@@ -6,6 +6,8 @@ module read_input_module
 !
 ! This is a utility module that interpret and parse input strings.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+    use module_essential_input, only: add_essential_input, update_esesential_input, &
+                                      check_all_essential_inputs_specified, essential_inputs
     use module_global_variables, only: rank, len_convert_int_to_chr
     use module_error, only: stop_with_errorcode
     implicit none
@@ -13,7 +15,20 @@ module read_input_module
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end
     integer, parameter :: input_intmax = 10**9, max_str_length = 500
+
 contains
+
+    subroutine init_essential_variables
+        call add_essential_input("ninact")
+        call add_essential_input("nact")
+        call add_essential_input("nsec")
+        call add_essential_input("nelec")
+        call add_essential_input("nroot")
+        call add_essential_input("selectroot")
+        call add_essential_input("totsym")
+        call add_essential_input("diracver")
+    end subroutine init_essential_variables
+
     subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
@@ -22,13 +37,12 @@ contains
         use module_index_utils, only: set_global_index
         implicit none
         integer, intent(in) :: unit_num
-        integer :: idx, iostat
+        integer :: iostat
         character(len=max_str_length) :: string
-        character(len=10), parameter :: essential_variable_names(8) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
-                                                                        "nelec     ", "selectroot", "totsym    ", "diracver  "/)
-        logical :: is_comment, is_config_sufficient, is_variable_filled(8) = &
-                   (/.false., .false., .false., .false., .false., .false., .false., .false./)
+        logical :: is_comment
         is_end = .false.
+
+        call init_essential_variables
 
         do while (.not. is_end) ! Read the input file until the "end" is found
             read (unit_num, "(a)", iostat=iostat) string
@@ -41,28 +55,17 @@ contains
             end if
             call is_comment_line(string, is_comment)
             if (is_comment) cycle ! Read the next line
-            call check_input_type(unit_num, string, is_variable_filled)
+            call read_keyword_and_value(unit_num, string)
         end do
-        ! Check if the input is sufficient
-        is_config_sufficient = .true.
-        do idx = 1, size(is_variable_filled)
-            if (.not. is_variable_filled(idx)) then
-                if (rank == 0) print *, "ERROR: You must specify a variable ", trim(essential_variable_names(idx)), " before end."
-                is_config_sufficient = .false.
-            end if
-        end do
-        if (.not. is_config_sufficient) then! Error in input. Stop the Program
-            if (rank == 0) print *, "ERROR: Error in input, valiables you specified is insufficient!!. Stop the program."
-            call stop_with_errorcode(1)
-        end if
-        ! Set the global index (global_[ninact, nact, nsec]_[start, end])
+
+        call check_all_essential_inputs_specified
         call set_global_index
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
     end subroutine read_input
 
-    subroutine check_input_type(unit_num, string, is_filled)
+    subroutine read_keyword_and_value(unit_num, string)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine recognize the type of input that follows from the next line
         ! and calls the subroutine that we must call
@@ -73,37 +76,36 @@ contains
         character(*), intent(inout) :: string
         character(len=max_str_length) :: input
         logical :: is_comment
-        logical, intent(inout) :: is_filled(:)
         call lowercase(string)
-        select case (trim(string))
+        select case (trim(adjustl(string)))
 
         case ("ninact")
             call read_an_integer(unit_num, 0, input_intmax, ninact)
-            is_filled(1) = .true.
+            call update_esesential_input("ninact", .true.)
 
         case ("nact")
             call read_an_integer(unit_num, 0, input_intmax, nact)
-            is_filled(2) = .true.
+            call update_esesential_input("nact", .true.)
 
         case ("nsec")
             call read_an_integer(unit_num, 0, input_intmax, nsec)
-            is_filled(3) = .true.
+            call update_esesential_input("nsec", .true.)
 
         case ("nelec")
             call read_an_integer(unit_num, 0, input_intmax, nelec)
-            is_filled(4) = .true.
+            call update_esesential_input("nelec", .true.)
 
         case ("nroot")
             call read_an_integer(unit_num, 0, input_intmax, nroot)
-            is_filled(5) = .true.
+            call update_esesential_input("nroot", .true.)
 
         case ("selectroot")
             call read_an_integer(unit_num, 0, input_intmax, selectroot)
-            is_filled(6) = .true.
+            call update_esesential_input("selectroot", .true.)
 
         case ("totsym")
             call read_an_integer(unit_num, 0, input_intmax, totsym)
-            is_filled(7) = .true.
+            call update_esesential_input("totsym", .true.)
 
         case ("ncore")
             call read_an_integer(unit_num, 0, input_intmax, ncore)
@@ -120,7 +122,7 @@ contains
 
         case ("diracver")
             call read_an_integer(unit_num, 0, input_intmax, dirac_version)
-            is_filled(8) = .true.
+            call update_esesential_input("diracver", .true.)
 
         case ("nhomo")
             call read_an_integer(unit_num, 0, input_intmax, nhomo)
@@ -198,7 +200,7 @@ contains
             call stop_with_errorcode(1)
         end subroutine err_ivo_input
 
-    end subroutine check_input_type
+    end subroutine read_keyword_and_value
 
     subroutine ras_read(unit_num, ras_list, ras_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
