@@ -66,8 +66,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'nroot         =', nroot
         print *, 'selectroot    =', selectroot
         print *, 'totsym        =', totsym
-        print *, 'ncore         =', ncore
-        print *, 'nbas          =', nbas
         print *, 'eshift        =', eshift
         print *, 'dirac_version =', dirac_version
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list

@@ -24,10 +24,10 @@ contains
         integer, intent(in) :: unit_num
         integer :: idx, iostat
         character(len=max_str_length) :: string
-        character(len=10), parameter :: essential_variable_names(10) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
-                                                "nelec     ", "selectroot", "totsym    ", "ncore     ", "nbas      ", "diracver  "/)
-        logical :: is_comment, is_config_sufficient, is_variable_filled(10) = &
-                   (/.false., .false., .false., .false., .false., .false., .false., .false., .false., .false./)
+        character(len=10), parameter :: essential_variable_names(8) = (/"ninact    ", "nact      ", "nsec      ", "nroot     ", &
+                                                                        "nelec     ", "selectroot", "totsym    ", "diracver  "/)
+        logical :: is_comment, is_config_sufficient, is_variable_filled(8) = &
+                   (/.false., .false., .false., .false., .false., .false., .false., .false./)
         is_end = .false.
 
         do while (.not. is_end) ! Read the input file until the "end" is found
@@ -107,11 +107,6 @@ contains
 
         case ("ncore")
             call read_an_integer(unit_num, 0, input_intmax, ncore)
-            is_filled(8) = .true.
-
-        case ("nbas")
-            call read_an_integer(unit_num, 0, input_intmax, nbas)
-            is_filled(9) = .true.
 
         case ("eshift")
             do
@@ -125,7 +120,7 @@ contains
 
         case ("diracver")
             call read_an_integer(unit_num, 0, input_intmax, dirac_version)
-            is_filled(10) = .true.
+            is_filled(8) = .true.
 
         case ("nhomo")
             call read_an_integer(unit_num, 0, input_intmax, nhomo)
@@ -158,7 +153,7 @@ contains
         case ("skip_mdcint")
             skip_mdcint = .true.
 
-        case("nocc")
+        case ("nocc")
             if (inversion) call err_ivo_input
             call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(1))
             no_inversion = .true.
@@ -199,7 +194,7 @@ contains
         subroutine err_ivo_input
             implicit none
             if (rank == 0) print *, "ERROR: nocc or nvcut and noccg or noccu or nvcutg or nvcutu", &
-             "cannot be specified at the same time."
+                "cannot be specified at the same time."
             call stop_with_errorcode(1)
         end subroutine err_ivo_input
 
