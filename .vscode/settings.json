@@ -44,4 +44,23 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
+    "black-formatter.args": [
+        "--line-length=180"
+    ],
+    "ruff.lint.args": [
+        "--line-length=180",
+        // FBT001: boolean-type-hint-positional-argument https://docs.astral.sh/ruff/rules/boolean-type-hint-positional-argument/
+        // T201: print https://docs.astral.sh/ruff/rules/print/
+        // PLR2004: magic-value-comparison https://docs.astral.sh/ruff/rules/magic-value-comparison/
+        // S101: use-of-assert https://docs.astral.sh/ruff/rules/use-of-assert/
+        // S603: subprocess-without-shell-equals-true https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true/
+        "--ignore=FBT001,T201,PLR2004,S101,S603"
+    ]
 }
