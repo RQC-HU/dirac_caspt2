@@ -1,14 +1,18 @@
-import pytest
 import glob
 import os
 import shutil
+from pathlib import Path
+from typing import List, Tuple
+
+import pytest
+from module_testing import create_test_command_dcaspt2
 
 slow_only_option = "--slowonly"
 dev_option = "--dev"
 runall_option = "--all"
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(slow_only_option, action="store_true", default=False, help="run only very slow tests")
     parser.addoption(dev_option, action="store_true", default=False, help="run tests for development")
     parser.addoption(runall_option, action="store_true", default=False, help="run all tests")
@@ -28,26 +32,54 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture
-def mpi_num_process(request):
+def mpi_num_process(request: pytest.FixtureRequest):
     return request.config.getoption("--mpi")
 
 
 @pytest.fixture
-def omp_num_threads(request):
+def omp_num_threads(request: pytest.FixtureRequest):
     return request.config.getoption("--omp")
 
 
 @pytest.fixture
-def save(request):
+def save(request: pytest.FixtureRequest):
     return request.config.getoption("--save")
 
 
-def pytest_configure(config):
+@pytest.fixture(scope="function")
+def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_threads: int, save: bool) -> Tuple[Path, Path, Path, Path, str]:
+    root_path = Path(__file__).parent.parent
+    test_path = Path(request.fspath).parent
+    # test_nameはテストファイル名から拡張子を除いたものから最初のtest_を除いたもの
+    test_name = os.path.splitext(os.path.basename(request.fspath))[0][5:]
+
+    input_file = "active.inp"
+    ref_output_file = f"reference.{test_name}.out"
+    output_filename = f"{test_name}.caspt2.out"
+    latest_passed_output = f"latest_passed.{test_name}.caspt2.out"
+
+    input_path = test_path / input_file
+    ref_output_path = test_path / ref_output_file
+    output_path = test_path / output_filename
+    latest_passed_path = test_path / latest_passed_output
+    dcaspt2 = root_path / "bin/dcaspt2"
+    test_command = create_test_command_dcaspt2(dcaspt2, mpi_num_process, omp_num_threads, input_path, output_path, test_path, save)
+
+    return (
+        test_path,
+        ref_output_path,
+        output_path,
+        latest_passed_path,
+        test_command,
+    )
+
+
+def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "slowonly: mark test as slow to run")
     config.addinivalue_line("markers", "dev: mark test as for development")
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]) -> None:
     skip_slow = pytest.mark.skip(reason=f"need {runall_option} or {slow_only_option} option to run. REASON: slow test")
     skip_tests_because_dev = pytest.mark.skip(reason=f"need no option or {runall_option} option to run. REASON: --dev was activated")
     skip_fast_dev = pytest.mark.skip(reason=f"need no option or {dev_option} or {runall_option} option or  to run. REASON: --slowonly was activated")
