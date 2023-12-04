@@ -133,7 +133,7 @@ jobs:
         run: |
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
-      - uses: awvwgk/setup-fortran@10d482ae709dc07adfb4ff5d152dc315ec5abbe9 # Fix the commit hash to avoid breaking changes.
+      - uses: awvwgk/setup-fortran@v1.3
         id: setup-fortran
         with:
           compiler: ${{ matrix.compiler }}
