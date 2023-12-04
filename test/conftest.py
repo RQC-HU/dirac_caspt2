@@ -74,6 +74,40 @@ def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_n
     )
 
 
+@pytest.fixture(scope="function")
+def env_setup_ivo(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_threads: int, save: bool) -> Tuple[Path, Path, Path, Path, str]:
+    root_path = Path(__file__).parent.parent
+    test_path = Path(request.fspath).parent
+    # test_nameはテストファイル名から拡張子を除いたものから最初のtest_を除いたもの
+    test_name = os.path.splitext(os.path.basename(request.fspath))[0][5:]
+
+    input_file = "active.ivo.inp"
+    DFPCMONEW_file = "DFPCMONEW"
+    ref_DFPCMONEW_file = "reference.DFPCMONEW"
+    output_filename = f"{test_name}.ivo.out"
+    latest_passed_output = f"latest_passed.{test_name}.ivo.out"
+
+    input_path = test_path / input_file
+    DFPCMONEW_path = test_path / DFPCMONEW_file
+    ref_DFPCMONEW_path = test_path / ref_DFPCMONEW_file
+    latest_passed_DFPCMONEW_path = test_path / latest_passed_output
+    output_path = test_path / output_filename
+    latest_passed_output_path = test_path / latest_passed_output
+    dcaspt2 = root_path / "bin/dcaspt2"
+    is_ivo = True
+    test_command = create_test_command_dcaspt2(dcaspt2, mpi_num_process, omp_num_threads, input_path, output_path, test_path, save, is_ivo)
+
+    return (
+        test_path,
+        DFPCMONEW_path,
+        ref_DFPCMONEW_path,
+        latest_passed_DFPCMONEW_path,
+        output_path,
+        latest_passed_output_path,
+        test_command,
+    )
+
+
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "slowonly: mark test as slow to run")
     config.addinivalue_line("markers", "dev: mark test as for development")

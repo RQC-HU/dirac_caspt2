@@ -1,38 +1,15 @@
 import os
 import shutil
+
 import pytest
-from module_testing import (
-    run_test_dcaspt2,
-    create_test_command_dcaspt2,
-)
+from module_testing import run_test_dcaspt2
 
 
 @pytest.mark.dev
-def test_ivo_h2o_6_31g(mpi_num_process: int, omp_num_threads: int, save: bool) -> None:
-
-    test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
+def test_ivo_c2_h2o_dev(env_setup_ivo) -> None:
+    (test_path, DFPCMONEW_path, ref_DFPCMONEW_path, latest_passed_DFPCMONEW_path, output_path, latest_passed_output_path, test_command) = env_setup_ivo
     os.chdir(test_path)  # Change directory to the path of this file
 
-    # Set file names
-    input_file = "active.ivo.inp"  # Input
-    DFPCMONEW_file = "DFPCMONEW"  # Test (This file is compared with Reference)
-    ref_DFPCMONEW_file = "reference.DFPCMONEW"  # Reference
-    latest_passed_test = "latest_passed.DFPCMONEW"  # latest passed DFPCMONEW
-    output_filename = "c2_h2o_dev.ivo.out"  # Output
-    latest_passed_output = "latest_passed.c2_h2o_dev.ivo.out"  # latest passed output (After test, the output file is moved to this)
-
-    # Set file paths
-    input_file_path = os.path.abspath(os.path.join(test_path, input_file))
-    DFPCMONEW_file_path = os.path.abspath(os.path.join(test_path, DFPCMONEW_file))
-    ref_DFPCMONEW_file_path = os.path.abspath(os.path.join(test_path, ref_DFPCMONEW_file))
-    latest_passed_DFPCMONEW_file_path = os.path.abspath(os.path.join(test_path, latest_passed_test))
-    output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
-    latest_passed_output_file_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    binary_dir = os.path.abspath(os.path.join(test_path, "../../../bin"))  # Set the Built binary directory
-    dcaspt2 = os.path.join(binary_dir, "dcaspt2")  # Set the dcaspt2 binary path
-
-    is_ivo = True
-    test_command = create_test_command_dcaspt2(dcaspt2, mpi_num_process, omp_num_threads, input_file_path, output_file_path, test_path, save, is_ivo)
     run_test_dcaspt2(test_command)
 
     # DFPCMONEW format
@@ -55,7 +32,7 @@ def test_ivo_h2o_6_31g(mpi_num_process: int, omp_num_threads: int, save: bool) -
     #  1 2 3 2
 
     # Open DFPCMONEW and reference.DFPCMONEW and compare the values (if the values are float, compare the values to 10th decimal places)
-    with open(DFPCMONEW_file_path, "r") as DFPCMONEW_file, open(ref_DFPCMONEW_file_path, "r") as ref_file:
+    with open(DFPCMONEW_path, "r") as DFPCMONEW_file, open(ref_DFPCMONEW_path, "r") as ref_file:
         for DFPCMONEW_line, ref_line in zip(DFPCMONEW_file, ref_file):
             # if the first value cannot be converted to float, compare the values as strings
             DFPCMONEW_values = DFPCMONEW_line.split()
@@ -70,5 +47,5 @@ def test_ivo_h2o_6_31g(mpi_num_process: int, omp_num_threads: int, save: bool) -
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
-    shutil.copy(output_file_path, latest_passed_output_file_path)
-    shutil.copy(DFPCMONEW_file_path, latest_passed_DFPCMONEW_file_path)
+    shutil.copy(output_path, latest_passed_output_path)
+    shutil.copy(DFPCMONEW_path, latest_passed_DFPCMONEW_path)
