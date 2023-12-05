@@ -56,11 +56,6 @@ jobs:
       - name: Update packages
         run: |
           sudo apt-get update
-      - uses: fortran-lang/setup-fortran@v1.3
-        id: setup-fortran
-        with:
-          compiler: ${{ matrix.toolchain.compiler }}
-          version: ${{ matrix.toolchain.version }}
       - name: Setup Intel fortran (apt)
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
@@ -72,6 +67,11 @@ jobs:
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
           sudo apt-get install -y intel-oneapi-mpi-devel intel-oneapi-mkl
+      - uses: fortran-lang/setup-fortran@v1.3
+        id: setup-fortran
+        with:
+          compiler: ${{ matrix.toolchain.compiler }}
+          version: ${{ matrix.toolchain.version }}
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh --force
