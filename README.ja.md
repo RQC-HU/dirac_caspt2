@@ -42,6 +42,7 @@ git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (並列計算をするために並列コンパイラを使うこともできます)
 - [CMake(version ≧ 3.14)](https://cmake.org/)
   - CMakeが計算機に入っていないか、バージョンが古い場合[CMakeのGithub](https://github.com/Kitware/CMake/releases)からビルドするもしくはビルド済みのファイルを解凍して使用してください
+  - ifx又はmpiifxをFortranコンパイラとして使用する場合、[CMakeが3.20.2からifx,mpiifxをサポートしたので](https://cmake.org/cmake/help/latest/release/3.20.html#id3:~:text=The%20Intel%20oneAPI%20Fortran%20compiler%20is%20now%20identified%20as%20IntelLLVM)バージョン3.20.2以上を使用してください
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
   - MKLをリンクするため環境変数\$MKLROOTが設定されている必要があります
     \$MKLROOTが設定されているか確認するには、以下のコマンドを実行して環境変数\$MKLROOTが設定されているか確認してください
