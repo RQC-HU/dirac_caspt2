@@ -50,8 +50,9 @@ def save(request: pytest.FixtureRequest):
 def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_threads: int, save: bool) -> Tuple[Path, Path, Path, Path, str]:
     root_path = Path(__file__).parent.parent
     test_path = Path(request.fspath).parent
-    # test_nameはテストファイル名から拡張子を除いたものから最初のtest_を除いたもの
-    test_name = os.path.splitext(os.path.basename(request.fspath))[0][5:]
+    # test_name is the name of the test file without the extension and the first test_.
+    # (e.g.) /path/to/test/slow/c1_methane_slow/test_c1_methane_slow.py -> c1_methane_slow
+    test_name = Path(request.fspath).stem[5:]
 
     input_file = "active.inp"
     ref_output_file = f"reference.{test_name}.out"
@@ -78,8 +79,9 @@ def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_n
 def env_setup_ivo(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_threads: int, save: bool) -> Tuple[Path, Path, Path, Path, str]:
     root_path = Path(__file__).parent.parent
     test_path = Path(request.fspath).parent
-    # test_nameはテストファイル名から拡張子を除いたものから最初のtest_を除いたもの
-    test_name = os.path.splitext(os.path.basename(request.fspath))[0][5:]
+    # test_name is the name of the test file without the extension and the first test_.
+    # (e.g.) /path/to/test/dev/ivo_c32h_n2_dev_dirac22/test_ivo_c32h_n2_dev_dirac22.py -> ivo_c32h_n2_dev_dirac22
+    test_name = Path(request.fspath).stem[5:]
 
     input_file = "active.ivo.inp"
     DFPCMONEW_file = "DFPCMONEW"
