@@ -157,7 +157,7 @@ jobs:
       - name: Run unittest(serial, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --slowonly --omp=2
+          pytest --slowonly
       - name: Run unittest(serial, run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
@@ -165,4 +165,4 @@ jobs:
       - name: Run unittest(serial, run all tests, push to main branch)
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
-          pytest --all --omp=2
+          pytest --all
