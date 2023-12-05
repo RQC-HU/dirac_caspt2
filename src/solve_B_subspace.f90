@@ -619,8 +619,7 @@ contains
 ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
 !                             ===========================      ================
 !                                loop for t                     loop for u(variable u is renamed to t)
-!$OMP parallel private(isym)
-!$OMP do schedule(dynamic,1) private(it,dr,di,dens,iu)
+!!$OMP parallel do schedule(dynamic,1) private(it,dr,di,dens)
             Do it = 1, nact
 
                 Call dim1_density(k, it, dr, di)
@@ -632,9 +631,9 @@ contains
                 dens = DCMPLX(dr, di)
                 v(tij, it, k) = v(tij, it, k) - cint2*dens
             end do
-!$OMP end do
+!!$OMP end parallel do
             isym = multb_s_reverse(j, l)
-!$OMP do schedule(dynamic,1) private(i0,it,iu,dr,di,dens)
+!!$OMP parallel do schedule(dynamic,1) private(i0,it,iu,dr,di,dens)
             do i0 = 1, pattern_tu_count(isym)
                 it = pattern_t(i0, isym)
                 iu = pattern_u(i0, isym)
@@ -647,8 +646,7 @@ contains
                 v(tij, it, iu) = v(tij, it, iu) + cint2*dens
 
             End do
-!$OMP end do
-!$OMP end parallel
+!!$OMP end parallel do
         end do
 
         close (unit_int2)
@@ -1250,7 +1248,7 @@ contains
 ! Term 2 !  + SIGUMA_p:active[<0|Ept|0> {(ui|pj) - (pi|uj)}  - <0|Epu|0> (ti|pj)]
 !                             ===========================      ================
 !                                loop for t                     loop for u(variable u is renamed to t)
-!$OMP parallel do private(iu,dr,di,dens)
+!!$OMP parallel do private(iu,dr,di,dens)
             Do it = 1, nact
 
                 Call dim1_density(k, it, dr, di)
@@ -1262,9 +1260,9 @@ contains
                 dens = dr
                 v(tij, it, k) = v(tij, it, k) - cint2*dens
             end do
-!$OMP end parallel do
+!!$OMP end parallel do
             isym = multb_s_reverse(j, l)
-!$OMP parallel do private(it,iu,dr,di,dens)
+!!$OMP parallel do private(it,iu,dr,di,dens)
             do i0 = 1, pattern_tu_count(isym)
                 it = pattern_t(i0, isym)
                 iu = pattern_u(i0, isym)
@@ -1277,7 +1275,7 @@ contains
                 v(tij, it, iu) = v(tij, it, iu) + cint2*dens
 
             End do
-!$OMP end parallel do
+!!$OMP end parallel do
         end do
 
         close (unit_int2)
