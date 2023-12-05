@@ -28,7 +28,8 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
     n = 0
     fock_cmplx = 0.0d+00
 
-!$OMP parallel do private(j,k)
+!$OMP parallel private(i,j,k)
+!$OMP do
     do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, global_act_end
             fock_cmplx(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
@@ -42,8 +43,8 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
             fock_cmplx(j, i) = DCONJG(fock_cmplx(i, j))
         End do       ! j
     End do          ! i
-
-!$OMP parallel do private(j,k)
+!$OMP end do
+!$OMP do
     do i = rank + global_sec_start, global_sec_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, global_sec_end
             fock_cmplx(i, j) = DCMPLX(one_elec_int_r(i, j), one_elec_int_i(i, j))
@@ -58,6 +59,9 @@ SUBROUTINE fock_matrix_of_hf_complex ! TO CALCULATE FOCK MATRIX OF HF STATE, A T
 
         End do       ! j
     End do          ! i
+!$OMP end do
+!$OMP end parallel
+
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_cmplx(1:nmo, 1:nmo))
 #endif
@@ -115,7 +119,8 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
     n = 0
     fock_real = 0.0d+00
 
-!$OMP parallel do private(j,k)
+!$OMP parallel private(i,j,k)
+!$OMP do
     do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, global_act_end
             fock_real(i, j) = one_elec_int_r(i, j)
@@ -129,8 +134,8 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
             fock_real(j, i) = fock_real(i, j)
         End do       ! j
     End do          ! i
-
-!$OMP parallel do private(j,k)
+!$OMP end do
+!$OMP do
     do i = rank + global_sec_start, global_sec_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, global_sec_end
             fock_real(i, j) = one_elec_int_r(i, j)
@@ -145,6 +150,9 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
 
         End do       ! j
     End do          ! i
+!$OMP end do
+!$OMP end parallel
+
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_real(1:nmo, 1:nmo))
 #endif
