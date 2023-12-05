@@ -39,9 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toolchain:
-          - {compiler: intel-classic, version: '2021.10', fc: mpiifort}
-          - {compiler: intel, version: '2023.2', fc: mpiifx}
+        fc: [mpiifort, mpiifx]
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
     steps:
@@ -74,7 +72,7 @@ jobs:
       - name: Install cmake
         run: |
           sudo apt-get install -y cmake
-      - run: ${{ matrix.toolchain.fc }} --version
+      - run: ${{ matrix.fc }} --version
       - name: Install python
         uses: actions/setup-python@v4
         with:
@@ -84,7 +82,7 @@ jobs:
         run: python -m pip install pytest
       - name: Build source code (parallel)
         run: |
-          ./setup --mpi --omp -j --build --fc ${{ matrix.toolchain.fc }}
+          ./setup --mpi --omp -j --build --fc ${{ matrix.fc }}
       - name: Run unittest(parallel, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
