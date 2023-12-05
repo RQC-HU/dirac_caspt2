@@ -74,7 +74,7 @@ jobs:
           sudo apt-get install -y intel-oneapi-mpi-devel intel-oneapi-mkl
       - name: Set Intel oneAPI environments
         run: |
-          source /opt/intel/oneapi/setvars.sh
+          source /opt/intel/oneapi/setvars.sh --force
           printenv >> $GITHUB_ENV
       - name: Install cmake
         run: |
