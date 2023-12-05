@@ -34,7 +34,7 @@ defaults:
   run:
     shell: bash
 jobs:
-  test-linux-mpiifort:
+  test-linux-intel-mpi:
     timeout-minutes: 60 # Max execution time (min)
     runs-on: ubuntu-latest
     strategy:
@@ -66,12 +66,7 @@ jobs:
       - name: Install Intel Fortran compiler
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y intel-oneapi-mpi-devel intel-oneapi-mkl
-      - uses: fortran-lang/setup-fortran@v1.3
-        id: setup-fortran
-        with:
-          compiler: ${{ matrix.toolchain.compiler }}
-          version: ${{ matrix.toolchain.version }}
+          sudo apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh --force
