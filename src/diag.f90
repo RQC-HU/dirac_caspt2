@@ -214,7 +214,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
         do j = n0, n1
             do i = n0, n1
                 if (i /= j .and. (ABS(mat(i, j)) > 1.0d-10)) then
-                    print '(2E13.5,2I3)', mat(i, j), i, j
+                    print '(E13.5,2I3)', mat(i, j), i, j
                 end if
             end do
         end do

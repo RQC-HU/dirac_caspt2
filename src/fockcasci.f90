@@ -36,7 +36,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
     fock_cmplx(:, :) = 0.0d+00
 
     if (rank == 0) print *, 'enter building fock matrix'
-!$OMP parallel private(i,j,k,l,dr,di,dens)
+!$OMP parallel private(i,j,k,l,dr,di,dens,kact,lact)
 !$OMP do schedule(dynamic,2)
     do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, global_act_end
@@ -135,7 +135,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
     fock_real(:, :) = 0.0d+00
 
     if (rank == 0) print *, 'enter building fock matrix'
-!$OMP parallel private(i,j,k,l,dr)
+!$OMP parallel private(i,j,k,l,dr,kact,lact)
 !$OMP do schedule(dynamic,2)
     do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
         do j = i, global_act_end

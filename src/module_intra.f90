@@ -272,10 +272,10 @@ contains
         call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
         call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         close (unit_int2_subspace)
-        deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
+        Call memminus(KIND(traint2), SIZE(traint2), 2); deallocate (traint2)
 
-        deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
+        Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+        Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
 
     end subroutine intra_1_complex
 
@@ -502,10 +502,10 @@ contains
         call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
         call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         close (unit_int2_subspace)
-        deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 1)
+        Call memminus(KIND(traint2), SIZE(traint2), 1); deallocate (traint2)
 
-        deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
+        Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+        Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
 
     end subroutine intra_1_real
 
@@ -771,9 +771,9 @@ contains
         call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
         call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         close (unit_int2_subspace)
-        deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
-        deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
+        Call memminus(KIND(traint2), SIZE(traint2), 2); deallocate (traint2)
+        Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+        Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
 
     end subroutine intra_2_complex
 
@@ -1039,9 +1039,9 @@ contains
         call open_unformatted_file(unit=unit_int2_subspace, file=trim(fname), status='old', optional_action='write')
         call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         close (unit_int2_subspace)
-        deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 1)
-        deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
+        Call memminus(KIND(traint2), SIZE(traint2), 1); deallocate (traint2)
+        Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+        Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
 
     end subroutine intra_2_real
 
@@ -1309,9 +1309,9 @@ contains
         close (unit_int2_subspace)
 
         if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
-        deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 2)
-        deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
+        Call memminus(KIND(traint2), SIZE(traint2), 2); deallocate (traint2)
+        Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+        Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
 
     end subroutine intra_3_complex
 
@@ -1579,9 +1579,9 @@ contains
         close (unit_int2_subspace)
 
         if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
-        deallocate (traint2); Call memminus(KIND(traint2), SIZE(traint2), 1)
-        deallocate (indsym); Call memminus(KIND(indsym), SIZE(indsym), 1)
-        deallocate (nsym); Call memminus(KIND(nsym), SIZE(nsym), 1)
+        Call memminus(KIND(traint2), SIZE(traint2), 1); deallocate (traint2)
+        Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
+        Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
 
     end subroutine intra_3_real
 

@@ -40,6 +40,7 @@ If you want to build this program, you need to have the following compilers, too
 - [GNU Fortran](https://gcc.gnu.org/fortran/) or [Intel Fortran](https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler.html) compiler (You can use the MPI compiler for parallel calculation)
 - [CMake(version >= 3.14)](https://cmake.org/)
   - If CMake is not installed on your machine or the version is too old, please build CMake or use the pre-built CMake binary from [CMake Github](https://github.com/Kitware/CMake/releases).
+  - If you use ifx or mpiifx as the Fortran compiler, CMake version >= 3.20.2 is required because [CMake supports ifx and mpiifx from version 3.20.2.](https://cmake.org/cmake/help/latest/release/3.20.html#id3:~:text=The%20Intel%20oneAPI%20Fortran%20compiler%20is%20now%20identified%20as%20IntelLLVM)
 - [Intel MKL(Math Kernel Library)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)
   - You need to configure the environment variable \$MKLROOT to link MKL.
     To verify that \$MKLROOT is configured, run the following command
