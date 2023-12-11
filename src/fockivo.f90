@@ -23,13 +23,13 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     real(8), allocatable      :: BUF(:)  ! One dimensional array representing MO coeff. read from DFPCMO
     real(8), allocatable      :: wsym(:), eval(:)
     integer, allocatable     :: mosym(:)
-    character*150 :: line0, line1, line2, line3, line4, line5, line6, format_str, line_check_eof
+    character*150 :: line0, line1, line2, line3, line4, line5, line6, format_str
 
     integer :: total_ao, total_mo
     integer :: nv0, A, B ! A and B are dammy indices written in DFPCMO, A is nfsym in DIRAC
     integer :: idx_irrep, start_isym, end_isym
     integer, allocatable :: syminfo(:), dmosym(:), kappa(:)
-    logical                 :: write_itrfmo, is_all_syminfo_zero, eof_reached
+    logical                 :: write_itrfmo, is_all_syminfo_zero
     integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
     integer :: positronic_mo(2), electronic_mo(2), basis_ao(2), basis_all(2), mo(2)
