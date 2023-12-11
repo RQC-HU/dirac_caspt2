@@ -72,7 +72,6 @@ contains
             read (unit_dfpcmo, '(A)', iostat=iostat) line ! SUPERSYM
             call check_end_of_file
         end if
-        print *, "supersym info", iostat
 
         ! Read MO supersymmetry
         allocate (supersym(total_mo))
@@ -88,8 +87,6 @@ contains
                 call check_end_of_file
             end if
             read (unit_dfpcmo, *, iostat=iostat) kappa
-            print *, "kappa", kappa
-            print *, "iostat", iostat
             call check_iostat(iostat, filename, end_of_file)
         end if
         close (unit_dfpcmo) ! Close the DFPCMO file
