@@ -8,7 +8,7 @@ from module_testing import (
 
 
 @pytest.mark.dev
-def test_ivo_c32h_ar_dev(env_setup_ivo) -> None:
+def test_ivo_c32h_ar_with_kappa_dev(env_setup_ivo) -> None:
     (test_path, DFPCMONEW_path, ref_DFPCMONEW_path, latest_passed_DFPCMONEW_path, output_path, latest_passed_output_path, test_command) = env_setup_ivo
     os.chdir(test_path)  # Change directory to the path of this file
     run_test_dcaspt2(test_command)
