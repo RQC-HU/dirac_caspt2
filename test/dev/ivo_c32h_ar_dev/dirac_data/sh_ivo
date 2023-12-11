@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+	DCASPT2=/home/noda/develop/dirac_caspt2/bin/dcaspt2 # REPLACE THIS PATH TO YOUR DCASPT2 EXECUTABLE
+    MOL=Ar
+
+	rm M* DFPCMO*
+    INPFILE=x2c.inp
+    MOLFILE=$MOL.mol
+    LOGFILE=$MOL.log
+
+	# DIRAC HF calculation
+    module load DIRAC/22.0
+    pam --get="MRCONEE MDCIN* DFPCMO" --mol=${MOLFILE} --inp=${INPFILE} >& ${LOGFILE}
+    module unload DIRAC/22.0
+
+	# IVO calculation
+	$DCASPT2 -i active.ivo.inp --ivo --get "DFPCMONEW"
