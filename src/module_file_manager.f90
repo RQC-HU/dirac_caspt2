@@ -22,7 +22,6 @@ contains
         logical, intent(in) :: is_formatted
         integer :: iostat
         character(10) :: test_str_for_eof
-        logical :: ie_eof
 
         if (is_formatted) then
             read (unit, *, iostat=iostat) test_str_for_eof
