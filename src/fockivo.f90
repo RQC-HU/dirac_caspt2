@@ -322,9 +322,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         if (dirac_version >= 21) then
             write (unit_dfpcmo, '(A150)') line3
         end if
-        Do I = 1, total_ao, 6
-            Write (unit_dfpcmo, '(6F22.16)') BUF(I:I + 5)
-        End do
+        write (unit_dfpcmo, '(6F22.16)') BUF(:)
         if (dirac_version >= 21) then
             write (unit_dfpcmo, '(A150)') line4
         end if
