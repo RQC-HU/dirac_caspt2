@@ -24,7 +24,7 @@ contains
         character(10) :: test_str_for_eof
 
         if (is_formatted) then
-            read (unit, *, iostat=iostat) test_str_for_eof
+            read (unit, '(A)', iostat=iostat) test_str_for_eof
         else
             read (unit, iostat=iostat) test_str_for_eof
         end if
