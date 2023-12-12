@@ -11,9 +11,26 @@ module module_file_manager
     implicit none
 
     private
-    public check_iostat, open_unformatted_file, open_formatted_file
+    public check_iostat, is_eof, open_unformatted_file, open_formatted_file
 
 contains
+
+    logical function is_eof(unit, file, is_formatted)
+        ! Check whether a unit file is EOF or not.
+        integer, intent(in) :: unit
+        character(len=*), intent(in) :: file
+        logical, intent(in) :: is_formatted
+        integer :: iostat
+        character(10) :: test_str_for_eof
+
+        if (is_formatted) then
+            read (unit, '(A)', iostat=iostat) test_str_for_eof
+        else
+            read (unit, iostat=iostat) test_str_for_eof
+        end if
+        call check_iostat(iostat, file, is_eof)
+        backspace (unit) ! Since read test_str_for_eof, backspace to return to the begginning of the line
+    end function
 
     subroutine check_iostat(iostat, file, end_of_file_reached)
         ! Check the value of iostat.

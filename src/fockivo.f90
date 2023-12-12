@@ -23,12 +23,12 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     real(8), allocatable      :: BUF(:)  ! One dimensional array representing MO coeff. read from DFPCMO
     real(8), allocatable      :: wsym(:), eval(:)
     integer, allocatable     :: mosym(:)
-    character*150 :: line0, line1, line2, line3, line4, line5, format_str
+    character*150 :: line0, line1, line2, line3, line4, line5, line6, format_str
 
     integer :: total_ao, total_mo
     integer :: nv0, A, B ! A and B are dammy indices written in DFPCMO, A is nfsym in DIRAC
     integer :: idx_irrep, start_isym, end_isym
-    integer, allocatable :: syminfo(:), dmosym(:)
+    integer, allocatable :: syminfo(:), dmosym(:), kappa(:)
     logical                 :: write_itrfmo, is_all_syminfo_zero
     integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
@@ -152,11 +152,20 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         End do
         print *, 'end reading symmetry information2'
     end if
+
+    if (.not. is_eof(unit=unit_dfpcmo, file='DFPCMO', is_formatted=.true.)) then
+        ! KAPPA infomation
+        allocate (kappa(total_mo))
+        if (dirac_version >= 21) then
+            read (unit_dfpcmo, '(A150)') line6
+        end if
+        read (unit_dfpcmo, *) kappa
+    end if
     close (unit_dfpcmo)
 
     if (rank == 0) then
         call open_formatted_file(unit=unit_buf, file='BUF_write', status='replace', optional_action='write')
-        write(unit_buf, '(6F22.16)') BUF(:)
+        write (unit_buf, '(6F22.16)') BUF(:)
         close (unit_buf)
     end if
 
@@ -322,9 +331,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         if (dirac_version >= 21) then
             write (unit_dfpcmo, '(A150)') line3
         end if
-        Do I = 1, total_ao, 6
-            Write (unit_dfpcmo, '(6F22.16)') BUF(I:I + 5)
-        End do
+        write (unit_dfpcmo, '(6F22.16)') BUF(:)
         if (dirac_version >= 21) then
             write (unit_dfpcmo, '(A150)') line4
         end if
@@ -334,6 +341,14 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             write (unit_dfpcmo, '(A150)') line5
         end if
         write (unit_dfpcmo, '(66(X,I0))') (syminfo(i), i=1, total_mo)
+
+        if (allocated(kappa)) then
+            if (dirac_version >= 21) then
+                write (unit_dfpcmo, '(A150)') line6
+            end if
+            write (unit_dfpcmo, '(66(X,I0))') kappa
+        end if
+
         close (unit_dfpcmo)
     end if
     if (rank == 0) print *, 'fockivo end'

@@ -16,7 +16,7 @@ contains
         character(:), allocatable :: filename
         integer :: A, B
         real(8), allocatable :: evals(:), BUF(:)
-        integer, allocatable :: supersym(:)
+        integer, allocatable :: supersym(:), kappa(:)
         integer :: isym, nv_input, nv_dfpcmo, start_isym, end_isym, isym_for_supersym
         integer :: start_idx_input, end_idx_input, start_idx_dfpcmo, end_idx_dfpcmo
         integer :: i, total_mo, total_ao
@@ -78,6 +78,17 @@ contains
         read (unit_dfpcmo, *, iostat=iostat) supersym
         if (rank == 0) print *, "supersym", supersym
 
+        if (.not. is_eof(unit=unit_dfpcmo, file=filename, is_formatted=.true.)) then
+            allocate (kappa(total_mo))
+            ! Read KAPPA info
+            if (dirac_version >= 21) then
+                read (unit_dfpcmo, '(A)', iostat=iostat) line ! KAPPA
+                print *, line
+                call check_end_of_file
+            end if
+            read (unit_dfpcmo, *, iostat=iostat) kappa
+            call check_iostat(iostat, filename, end_of_file)
+        end if
         close (unit_dfpcmo) ! Close the DFPCMO file
 
         do i = 1, A
