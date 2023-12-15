@@ -260,10 +260,6 @@ pytest --all
     142
     nelec
     2
-    nroot
-    3
-    selectroot
-    2
     totsym
     3
     eshift
@@ -283,12 +279,8 @@ pytest --all
     574
     nelec
     12
-    nroot
-    10
     totsym
     33
-    selectroot
-    1
     eshift
     0.0
     diracver
@@ -313,8 +305,6 @@ Input for CASCI and CASPT2
 ninact      : the number of inactive spinors
 nact        : the number of active spinors
 nsec        : the number of secondary spinors
-nroot       : the number of roots
-selectroot  : which root do you want to obtain
 totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
 diracver    : DIRAC version
 end         : The identifier at the end of the input file
@@ -325,6 +315,8 @@ noccg       : The number of occupied spinors (gerade)
 noccu       : The number of occupied spinors (ungerade)
 
 [optional parameters]
+nroot       : the number of roots (if you don't write, it will be 10, if the number of CASCI/RASCI determinants is less than 10, it will be replaced by the number of CASCI/RASCI determinants)
+selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (if you don't write, it will be 1, the lowest root)
 eshift      : for real shift (if you don't write, it will be 0)
 ras1        : RAS1 spinor list (row 1) and the maximum number of hole allowed in ras1(row 2)
 ras2        : RAS2 spinor list
