@@ -23,8 +23,6 @@ contains
         call add_essential_input("nact")
         call add_essential_input("nsec")
         call add_essential_input("nelec")
-        call add_essential_input("nroot")
-        call add_essential_input("selectroot")
         call add_essential_input("totsym")
         call add_essential_input("diracver")
     end subroutine init_essential_variables
@@ -60,6 +58,7 @@ contains
 
         call check_all_essential_inputs_specified
         call set_global_index
+        call validate_nroot_selectroot
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
@@ -96,15 +95,13 @@ contains
             call update_esesential_input("nelec", .true.)
 
         case ("nroot")
-            call read_an_integer(unit_num, 0, input_intmax, nroot)
-            call update_esesential_input("nroot", .true.)
+            call read_an_integer(unit_num, 1, input_intmax, nroot)
 
         case ("selectroot")
-            call read_an_integer(unit_num, 0, input_intmax, selectroot)
-            call update_esesential_input("selectroot", .true.)
+            call read_an_integer(unit_num, 1, input_intmax, selectroot)
 
         case ("totsym")
-            call read_an_integer(unit_num, 0, input_intmax, totsym)
+            call read_an_integer(unit_num, 1, input_intmax, totsym)
             call update_esesential_input("totsym", .true.)
 
         case ("ncore")
@@ -731,6 +728,23 @@ contains
         end if
 
     end subroutine is_comment_line
+
+    subroutine validate_nroot_selectroot
+        use module_global_variables, only: rank, nroot, selectroot
+        implicit none
+        if (nroot < selectroot) then
+            if (rank == 0) then
+                print *, "Warning: nroot < selectroot"
+                print '(a,i0)', "nroot = ", nroot
+                print '(a,i0)', "selectroot = ", selectroot
+                print *, "this is not an error, but it is not recommended"
+                print '(a,i0,a)', "because ", selectroot, "th RASCI/CASCI energy will not be displayed to the output file."
+                print *, "Threfore, explicitly replace the number of selectroot to the number of nroot."
+                print '(a,i0)', "new nroot = ", selectroot
+            end if
+            nroot = selectroot
+        end if
+    end subroutine validate_nroot_selectroot
 
     subroutine check_ras_is_valid
         use module_global_variables

@@ -258,10 +258,6 @@ The following custom CMake build options are currently supported
     142
     nelec
     2
-    nroot
-    3
-    selectroot
-    2
     totsym
     3
     eshift
@@ -281,12 +277,8 @@ The following custom CMake build options are currently supported
     574
     nelec
     12
-    nroot
-    10
     totsym
     33
-    selectroot
-    1
     eshift
     0.0
     diracver
@@ -312,8 +304,6 @@ ninact      : the number of inactive spinors
 nact        : the number of active spinors
 nsec        : the number of secondary spinors
 nelec       : the number of active electrons in active space
-nroot       : the number of roots
-selectroot  : which root do you want to obtain
 totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
 diracver    : DIRAC version
 end         : The identifier at the end of the input file
@@ -324,18 +314,20 @@ noccg       : The number of occupied MO (gerade)
 noccu       : The number of occupied MO (ungerade)
 
 [optional parameters]
-eshift      : for real shift (if you don't write, it will be 0)
+nroot       : the number of roots (default: 10, if the number of CASCI/RASCI determinants is less than 10, it will be replaced by the number of CASCI/RASCI determinants)
+selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (default: 1, the lowest root)
+eshift      : for real shift (default: 0)
 ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
 ras2        : RAS2 spinor list
 ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
-minholeras1 : The minimum number of hole in ras1 (If you don't write, it will be 0)
+minholeras1 : The minimum number of hole in ras1 (default: 0)
 calctype    : The type of calculation. only CASCI or DMRG are currently supported. (if you don't write, it will be CASCI(default))
 
 [optional parameters (IVO)]
-nhomo       : The number of HOMO-like spinors
-nvcut       : The number of virtual cut MO (This option is for molecules without inversion center symmetry)
-nvcutg      : The number of virtual cut MO (gerade)
-nvcutu      : The number of virtual cut MO (ungerade)
+nhomo       : The number of HOMO-like spinors (default: 0)
+nvcut       : The number of virtual cut MO (default: 0, This option is for molecules without inversion center symmetry)
+nvcutg      : The number of virtual cut MO (default: 0, gerade)
+nvcutu      : The number of virtual cut MO (default: 0, ungerade)
 ```
 
 ### Input file specification
