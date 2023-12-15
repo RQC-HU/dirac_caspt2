@@ -734,14 +734,15 @@ contains
         implicit none
         if (nroot < selectroot) then
             if (rank == 0) then
-                print *, "ERROR: The number of nroot must be larger than or equal to"
-                print *, "the number of selectroot."
-                print '(a,i0)', "The number of nroot: ", nroot
-                print '(a,i0)', "The number of selectroot: ", selectroot
-                print *, "Please check your input file."
-                print *, "Exit the program."
+                print *, "Warning: nroot < selectroot"
+                print '(a,i0)', "nroot = ", nroot
+                print '(a,i0)', "selectroot = ", selectroot
+                print *, "this is not an error, but it is not recommended"
+                print '(a,i0,a)', "because ", selectroot, "th RASCI/CASCI energy will not be displayed to the output file."
+                print *, "Threfore, explicitly replace the number of selectroot to the number of nroot."
+                print '(a,i0)', "new nroot = ", selectroot
             end if
-            call stop_with_errorcode(1)
+            nroot = selectroot
         end if
     end subroutine validate_nroot_selectroot
 
