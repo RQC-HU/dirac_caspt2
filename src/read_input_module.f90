@@ -58,6 +58,7 @@ contains
 
         call check_all_essential_inputs_specified
         call set_global_index
+        call validate_nroot_selectroot
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
@@ -727,6 +728,20 @@ contains
         end if
 
     end subroutine is_comment_line
+
+    subroutine validate_nroot_selectroot
+        use module_global_variables, only: rank, nroot, selectroot
+        implicit none
+        if (nroot < selectroot) then
+            if (rank == 0) then
+                print *, "ERROR: The number of root must be larger than or equal to the number of selected root."
+                print *, "The number of root:", nroot
+                print *, "The number of selected root:", selectroot
+                print *, "Exit the program."
+            end if
+            call stop_with_errorcode(1)
+        end if
+    end subroutine validate_nroot_selectroot
 
     subroutine check_ras_is_valid
         use module_global_variables
