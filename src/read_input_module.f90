@@ -23,8 +23,6 @@ contains
         call add_essential_input("nact")
         call add_essential_input("nsec")
         call add_essential_input("nelec")
-        call add_essential_input("nroot")
-        call add_essential_input("selectroot")
         call add_essential_input("totsym")
         call add_essential_input("diracver")
     end subroutine init_essential_variables
@@ -97,11 +95,9 @@ contains
 
         case ("nroot")
             call read_an_integer(unit_num, 0, input_intmax, nroot)
-            call update_esesential_input("nroot", .true.)
 
         case ("selectroot")
             call read_an_integer(unit_num, 0, input_intmax, selectroot)
-            call update_esesential_input("selectroot", .true.)
 
         case ("totsym")
             call read_an_integer(unit_num, 0, input_intmax, totsym)
