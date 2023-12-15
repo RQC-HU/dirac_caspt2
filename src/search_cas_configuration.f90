@@ -59,6 +59,8 @@ SUBROUTINE search_cas_configuration
         print *, 'totsym = ', totsym
         print *, 'ndet   = ', ndet
     end if
+
+    call validate_ndet_and_input_parameters()
 contains
 
     function find_next_determinant() result(next_determinant)
@@ -138,4 +140,31 @@ contains
             end if
         end if
     end function is_cas_determinant
+
+    subroutine validate_ndet_and_input_parameters()
+        implicit none
+        if (ndet < selectroot) then
+            if (rank == 0) then
+                print *, "ERROR: ndet < selectroot"
+                print '(A,I0,A)', "Cannot calculate ", selectroot, "th RASCI/CASCI energy"
+                print '(A,I0,A,I0)', "because the number of CASCI determinant is ", ndet, " and it is less than ", selectroot
+                print *, "Please increase the number of active orbitals or the number of electrons"
+                print *, "or decrease the number of selected root."
+                print *, "Exit the program."
+            end if
+            call stop_with_errorcode(1)
+        end if
+
+        if (ndet < nroot) then
+            if (rank == 0) then
+                print *, "WARNING: ndet < nroot"
+                print '(A,I0,A)', "Cannot print ", nroot, "th RASCI/CASCI energy"
+                print '(A,I0,A,I0)', "because the number of CASCI determinant is ", ndet, " and it is less than ", nroot
+                print *, "Therefore, explicitly replace nroot with the number of CASCI determinant."
+                print *, "new nroot = ", ndet
+            end if
+            nroot = ndet
+        end if
+    end subroutine validate_ndet_and_input_parameters
+
 end subroutine search_cas_configuration
