@@ -94,13 +94,13 @@ contains
             call update_esesential_input("nelec", .true.)
 
         case ("nroot")
-            call read_an_integer(unit_num, 0, input_intmax, nroot)
+            call read_an_integer(unit_num, 1, input_intmax, nroot)
 
         case ("selectroot")
-            call read_an_integer(unit_num, 0, input_intmax, selectroot)
+            call read_an_integer(unit_num, 1, input_intmax, selectroot)
 
         case ("totsym")
-            call read_an_integer(unit_num, 0, input_intmax, totsym)
+            call read_an_integer(unit_num, 1, input_intmax, totsym)
             call update_esesential_input("totsym", .true.)
 
         case ("ncore")
