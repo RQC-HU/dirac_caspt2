@@ -734,9 +734,11 @@ contains
         implicit none
         if (nroot < selectroot) then
             if (rank == 0) then
-                print *, "ERROR: The number of root must be larger than or equal to the number of selected root."
-                print *, "The number of root:", nroot
-                print *, "The number of selected root:", selectroot
+                print *, "ERROR: The number of root must be larger than or equal to"
+                print *, "the number of selected root."
+                print '(a,i0)', "The number of nroot: ", nroot
+                print '(a,i0)', "The number of selectroot: ", selectroot
+                print *, "Please check your input file."
                 print *, "Exit the program."
             end if
             call stop_with_errorcode(1)
