@@ -20,7 +20,7 @@ MODULE module_global_variables
     ! eshift        : Real shift
     ! dirac_version : DIRAC version
     integer         :: ninact, nact, nsec, nelec
-    integer         :: nroot, selectroot
+    integer         :: nroot = 10, selectroot = 1
     integer         :: totsym, ncore
     real(8)         :: eshift = 0.0d+00 ! default: 0.0
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
