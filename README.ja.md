@@ -26,6 +26,7 @@
     - [Calculation](#calculation)
     - [input file](#input-file)
     - [インプットファイルの仕様](#インプットファイルの仕様)
+  - [License](#license)
 
 ## ダウンロード
 
@@ -359,3 +360,13 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
   ↓
   1,2,3,4,7,8,11,12,14
 ```
+
+## License
+
+- LGPL version 2.1 or later
+  - 詳細については [LICENSE](LICENSE) ファイルを参照ください
+- ただし以下のファイルは別のライセンスの元で配布されています
+  - MIT license
+    - [src/module_dict.f90](src/module_dict.f90)
+    - [setup](setup)
+    - [tools/dcaspt2_input](tools/dcaspt2_input)
