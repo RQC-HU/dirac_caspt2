@@ -24,6 +24,7 @@ If you want to contribute to this project (bug report, feature request, pull req
     - [Calculation](#calculation)
     - [Input file](#input-file)
     - [Input file specification](#input-file-specification)
+  - [License](#license)
 
 ## Download
 
@@ -361,3 +362,13 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
   ↓
   1,2,3,4,7,8,11,12,14
 ```
+
+## License
+
+- This program is mainly licensed under LGPL version 2.1 or later
+  - Please see [LICENSE](LICENSE) for details.
+- But some files are licensed under other licenses.
+  - MIT license
+    - [src/module_dict.f90](src/module_dict.f90)
+    - [setup](setup)
+    - [tools/dcaspt2_input](tools/dcaspt2_input)
