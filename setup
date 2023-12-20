@@ -9,6 +9,7 @@ import os
 import sys
 import shutil
 from subprocess import Popen, PIPE
+import subprocess
 
 
 def define_args() -> "argparse.Namespace":
@@ -140,13 +141,10 @@ def configure_source(cmake_flags: str, script_path: Path) -> None:
 def build(args: "argparse.Namespace") -> None:
     num_of_process = args.parallel
     if num_of_process == -1: # const value of -j option, which means the native build tool's default number is used. (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
-        process = Popen("cmake --build build -j", shell=True)
+        cmd = "cmake --build build -j"
     else:
-        process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
-    process.wait()
-    if process.returncode != 0:
-        logging.error("Failed to build the project!")
-        sys.exit(process.returncode)
+        cmd = f"cmake --build build -j {num_of_process}"
+    subprocess.run(cmd.split(), check=True)
     logging.info("Successfully built the project.")
 
 
