@@ -2,6 +2,7 @@
 
 from subprocess import PIPE, Popen
 import argparse
+from pathlib import Path
 import datetime
 import glob
 import os
@@ -88,27 +89,27 @@ Therefore, this option is recommended only you concern about disk space.)",
     return parser.parse_args()
 
 
-def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_submitted_dir: str) -> str:
+def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_submitted_dir: Path) -> Path:
     """Create a temporary directory and return the path to the directory
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
-        input_file_path (str): Path to the input file
-        user_submitted_dir (str): Path to the directory where this script is used
+        input_file_path (Path): Path to the input file
+        user_submitted_dir (Path): Path to the directory where this script is used
 
     Returns:
-        scratch_dir (str): Path to the temporary directory
+        scratch_dir (Path): Path to the temporary directory
     """
 
     # ================
     #  Sub functions
     # ================
 
-    def permission_denied_error_message(scratch_dir: str) -> None:
+    def permission_denied_error_message(scratch_dir: Path) -> None:
         """Print error message when permission denied
 
         Args:
-            scratch_dir (str): Path to the temporary directory
+            scratch_dir (Path): Path to the temporary directory
         """
         print(f"Permission denied: You do not have permission to create the directory '{scratch_dir}'.")
         print("Please specify the directory that you have permission to create.")
@@ -120,7 +121,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
 
     # If --scratchfull is specified, Use the specified directory as the scratch directory
     if args.scratchfull is not None:
-        scratch_dir: str = os.path.abspath(os.path.expanduser(args.scratchfull))
+        scratch_dir = Path(args.scratchfull).expanduser().resolve()
         try:
             os.makedirs(scratch_dir, exist_ok=True)
         except PermissionError:
@@ -129,13 +130,13 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
         return scratch_dir
 
     # --scratch option, Create the root scratch directory path
-    root_scr_dir: str = os.path.expanduser("~/dcaspt2_scratch")
+    root_scr_dir = Path("~/dcaspt2_scratch").expanduser().resolve()
     if args.scratchdir:
-        expand_root = os.path.expanduser(args.scratchdir)
-        if os.path.isabs(expand_root):  # absolute path
-            root_scr_dir = os.path.abspath(expand_root)
+        expand_root = Path(expand_root).expanduser()
+        if expand_root.is_absolute():
+            root_scr_dir = expand_root.resolve()
         else:  # relative path
-            root_scr_dir = os.path.abspath(os.path.join(user_submitted_dir, expand_root))
+            root_scr_dir = Path(user_submitted_dir, expand_root).resolve()
 
     try:
         os.makedirs(root_scr_dir, exist_ok=True)
@@ -144,7 +145,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
         sys.exit(PermissionError.errno)
 
     # Preprocess to create scratch dir name
-    input_file_name: str = os.path.splitext(os.path.basename(input_file_path))[0]  # Remove the extension (e.g. active.inp => active)
+    input_file_name =  input_file_path.stem  # Remove the extension (e.g. /path/to/active.inp => active)
     if input_file_name == "":
         input_file_name = "input"
     time_string: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -155,37 +156,41 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
     # Create a temporary directory (e.g. /home/username/dcaspt2_scratch/input_2020-01-01_12-34-56_XXXXXX)
     scratch_dir = tempfile.mkdtemp(dir=root_scr_dir, prefix=prefix)
     os.chmod(scratch_dir, 0o755)  # tempfile.mkdtemp creates a directory with 0o700 permission. So we change the permission to 0o755.
+    scratch_dir = Path(scratch_dir).resolve()
     return scratch_dir
 
 
-def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_path: str, integrals_dir: str, scratch_dir: str) -> None:
+def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_path: Path, integrals_dir: Path, scratch_dir: Path) -> None:
     """Copy input file and integral files to scratch directory
     Args:
-        input_file_path (str): Path to the input file
-        integrals_dir (str): Directory that 1-2 integrals files are stored
-        scratch_dir (str): Path to the temporary directory
+        input_file_path (Path): Path to the input file
+        integrals_dir (Path): Directory that 1-2 integrals files are stored
+        scratch_dir (Path): Path to the temporary directory
 
     Returns:
         None
     """
 
-    input_file_dir = os.path.dirname(input_file_path)  # (e.g. /home/username/active.inp => /home/username)
+    input_file_dir = input_file_path.parent  # (e.g. /home/username/active.inp => /home/username)
     if input_file_dir != scratch_dir:
         shutil.copy(input_file_path, scratch_dir)
-    os.rename(os.path.join(scratch_dir, os.path.basename(input_file_path)), os.path.join(scratch_dir, "active.inp"))  # Rename the input file to "active.inp"
+    scratch_input_file_path = scratch_dir / input_file_path.name
+    scratch_input_file_path.rename(scratch_dir / "active.inp")  # Rename the input file to "active.inp"
     if integrals_dir != scratch_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
         # Create a symbolic link to the 1-2 integrals file
-        os.symlink(os.path.join(integrals_dir, "MDCINT"), os.path.join(scratch_dir, "MDCINT"))
-        os.symlink(os.path.join(integrals_dir, "MRCONEE"), os.path.join(scratch_dir, "MRCONEE"))
+        scratch_mrconee_path = scratch_dir / "MRCONEE"
+        scratch_mrconee_path.symlink_to(integrals_dir / "MRCONEE")
         if args.ivo:
-            shutil.copy(os.path.join(integrals_dir, "DFPCMO"), scratch_dir)
-        for file in glob.glob(os.path.join(integrals_dir, "MDCINX*")):
-            os.symlink(file, os.path.join(scratch_dir, os.path.basename(file)))
+            scratch_dfpcmo_path = scratch_dir / "DFPCMO"
+            scratch_dfpcmo_path.symlink_to(integrals_dir / "DFPCMO")
+        for file in glob.glob("MDCIN*"):
+            scratch_mdcint_path = Path(scratch_dir, file)
+            scratch_mdcint_path.symlink_to(integrals_dir / file)
         print("log : Copied 1-2 integral files to the scratch directory")
     return None
 
 
-def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: Path) -> Path:
     """Set the directory to the 1-2 integrals file
 
     default: user_submitted_dir
@@ -193,39 +198,40 @@ def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: str) -> st
 
     Args:
         args ("argparse.Namespace"):User input arguments (argv)
-        user_submitted_dir (str): Path to the directory where this script is used
+        user_submitted_dir (Path): Path to the directory where this script is used
 
     Returns:
-        integrals_dir (str): Directory that 1-2 integrals files are stored
+        integrals_dir (Path): Directory that 1-2 integrals files are stored
     """
     if args.integrals is None:
-        integrals_dir: str = os.path.abspath(user_submitted_dir)
+        integrals_dir = user_submitted_dir.resolve()
     else:
-        expand_integrals = os.path.expanduser(args.integrals)
-        if os.path.isabs(expand_integrals):  # absolute path
-            integrals_dir = os.path.abspath(expand_integrals)
+        expand_integrals = Path(args.integrals).expanduser()
+        if expand_integrals.is_absolute():  # absolute path
+            integrals_dir = expand_integrals.resolve()
         else:  # relative path
-            integrals_dir = os.path.abspath(os.path.join(user_submitted_dir, expand_integrals))
+            integrals_dir = Path(user_submitted_dir, expand_integrals).resolve()
     return integrals_dir
 
 
-def check_integral_files(integrals_dir: str) -> None:
+def check_integral_files(integrals_dir: Path) -> None:
     """Check if the 1-2 integral files exist"""
     files = ["MDCINT", "MRCONEE"]
     for file in files:
-        if not os.path.exists(os.path.join(integrals_dir, file)):
+        integral_path = (integrals_dir / file).resolve()
+        if not integral_path.exists():
             raise Exception(
-                f"\n{file} file is not found under {integrals_dir}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/username/H2O/MDCINT, use the following command: dcaspt2 -i input_file_path --int /home/username/H2O/.\n For more information, please use the --help option ( dcaspt2 --help )."
+                f"\n{integral_path} file is not found under {integrals_dir}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/username/H2O/MDCINT, use the following command: dcaspt2 -i input_file_path --int /home/username/H2O/.\n For more information, please use the --help option ( dcaspt2 --help )."
             )
     return
 
 
-def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
+def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
     """Create a command to run dcaspt2
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
-        binary_dir (str): Path to the directory where the compiled binaries are stored
+        binary_dir (Path): Path to the directory where the compiled binaries are stored
 
     Returns:
         str: Created command
@@ -244,9 +250,9 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
         mpi = f"mpirun -np {args.mpi}"
 
     # Create a command
-    ivo_path = os.path.join(binary_dir, "r4divocoexe")
-    casci_path = os.path.join(binary_dir, "r4dcascicoexe")
-    caspt2_path = os.path.join(binary_dir, "r4dcaspt2ocoexe")
+    ivo_path = binary_dir / "r4divocoexe"
+    casci_path = binary_dir / "r4dcascicoexe"
+    caspt2_path = binary_dir / "r4dcaspt2ocoexe"
     if args.skipcasci and args.onlycasci:
         # --skip-casci and --only-casci cannot be used at the same time
         sys.exit("Error: --skip-casci and --only-casci cannot be used at the same time")
@@ -262,20 +268,20 @@ def create_command(args: "argparse.Namespace", binary_dir: str) -> str:
     return command
 
 
-def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user_submitted_dir: str, output_file_path: str) -> None:
+def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, user_submitted_dir: Path, output_file_path: Path) -> None:
     """Run the dcaspt2 command
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
         command (str): Command to run dcaspt2
-        scratch_dir (str): Path to the scratch directory
-        user_submitted_dir (str): Path to the directory where this script is used
-        output_file_path (str): Path to the output file
+        scratch_dir (Path): Path to the scratch directory
+        user_submitted_dir (Path): Path to the directory where this script is used
+        output_file_path (Path): Path to the output file
     """
 
     def delete_scratch_dir():
         # Delete the scratch directory if the user didn't specify the -s or --save option and --noscratch option
-        if not args.noscratch and not args.save and os.path.exists(scratch_dir):
+        if not args.noscratch and not args.save and scratch_dir.exists():
             shutil.rmtree(scratch_dir)
 
     os.chdir(scratch_dir)
@@ -319,20 +325,24 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user
 
         # Copy the specified files from the scratch directory to the user submitted directory
         if args.get is not None:  # and args.noscratch is False:
-            print(args.get)
-            get_files = str(args.get).split()  # Split the string by space
-            for file_glob in get_files:  # glob is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
-                for file in glob.glob(file_glob):
-                    print(f"Copying {file} to {user_submitted_dir}")
-                    if os.path.isfile(file):
-                        try:
-                            shutil.copy(file, user_submitted_dir)
-                        except shutil.SameFileError:
-                            print(f"File {file} already exists in {user_submitted_dir}")
-                        except PermissionError:
-                            print(f"Permission denied: {file}")
-                    else:
-                        print(f"File {file} is not found")
+            if user_submitted_dir == scratch_dir:
+                print("The scratch directory is the user submitted directory. No need to copy files.")
+            else:
+                print(args.get)
+                get_files = str(args.get).split()  # Split the string by space
+                for file_glob in get_files:  # glob is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
+                    for file in glob.glob(file_glob):
+                        scratch_dir_file = scratch_dir / file
+                        print(f"Copying {scratch_dir_file} to {user_submitted_dir}")
+                        if scratch_dir_file.exists():
+                            try:
+                                shutil.copy(scratch_dir_file, user_submitted_dir)
+                            except shutil.SameFileError:
+                                print(f"File {scratch_dir_file} already exists in {user_submitted_dir}")
+                            except PermissionError:
+                                print(f"Permission denied: {scratch_dir_file}")
+                        else:
+                            print(f"File {scratch_dir_file} is not found")
 
         # Delete the temporary directory if the user didn't specify the -s or --save option and --no-scratch option
         if not args.noscratch and not args.save and os.path.exists(scratch_dir):
@@ -345,27 +355,27 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user
         return None
 
 
-def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: Path) -> Path:
     """Set the path to the input file
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
-        user_submitted_dir (str): Path to the directory where this script is used
+        user_submitted_dir (Path): Path to the directory where this script is used
 
     Returns:
-        str: Path to the input file
+        Path: Path to the input file
     """
     if args.input is None:
-        input_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, "active.inp"))
+        input_file_path = (user_submitted_dir / "active.inp").resolve()
     else:
-        expand_input = os.path.expanduser(args.input)
-        if os.path.isabs(expand_input):  # absolute path
-            input_file_path = os.path.abspath(expand_input)
+        expand_input = Path(args.input).expanduser()
+        if expand_input.is_absolute():  # absolute path
+            input_file_path = expand_input.resolve()
         else:  # relative path
-            input_file_path = os.path.abspath(os.path.join(user_submitted_dir, expand_input))
+            input_file_path = (user_submitted_dir / expand_input).resolve()
 
     # Check if the input file exists
-    if not os.path.exists(input_file_path):
+    if not input_file_path.exists():
         print(f"Input file {input_file_path} does not exist")
         print("Please specify the input file path with -i or --input option")
         sys.exit(FileNotFoundError.errno)
@@ -373,47 +383,47 @@ def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> 
     return input_file_path
 
 
-def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: str) -> str:
+def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: Path) -> Path:
     """Set the path to the output file
 
     Args:
         args ("argparse.Namespace"): User input arguments (argv)
-        user_submitted_dir (str): Path to the directory where this script is used
+        user_submitted_dir (Path): Path to the directory where this script is used
 
     Returns:
-        str: Path to the output file
+        Path: Path to the output file
     """
     if args.output is None:
         filename = "dirac_ivo.out" if args.ivo else "dirac_caspt2.out"
-        output_file_path: str = os.path.abspath(os.path.join(user_submitted_dir, filename))
+        output_file_path = (user_submitted_dir / filename).resolve()
     else:
-        expand_output = os.path.expanduser(args.output)
-        if os.path.isabs(expand_output):  # absolute path
-            output_file_path = os.path.abspath(expand_output)
+        expand_output = Path(args.output).expanduser()
+        if expand_output.is_absolute():  # absolute path
+            output_file_path = expand_output.resolve()
         else:  # relative path
-            output_file_path = os.path.abspath(os.path.join(user_submitted_dir, expand_output))
+            output_file_path = (user_submitted_dir / expand_output).resolve()
 
     return output_file_path
 
 
 def main() -> None:
-    user_submitted_dir: str = os.getcwd()
-    script_path: str = os.path.abspath(__file__)
-    binary_dir: str = os.path.dirname(script_path)
+    user_submitted_dir: Path = Path.cwd().resolve()
+    script_path = Path(__file__).resolve()
+    binary_dir = script_path.parent
     print("Script path : ", script_path)
     print("Command submitted directory : ", user_submitted_dir)
     args: "argparse.Namespace" = parse_args()
 
-    input_file_path: str = set_input_file_path(args, user_submitted_dir)
-    output_file_path: str = set_ouput_file_path(args, user_submitted_dir)
+    input_file_path = set_input_file_path(args, user_submitted_dir)
+    output_file_path = set_ouput_file_path(args, user_submitted_dir)
 
     # 1-2 integrals directory
-    integrals_dir: str = set_integrals_dir(args, user_submitted_dir)
+    integrals_dir = set_integrals_dir(args, user_submitted_dir)
     check_integral_files(integrals_dir)
 
     # Set and create scratch directory
     if args.noscratch:
-        scratch_dir: str = user_submitted_dir
+        scratch_dir = user_submitted_dir
         print(
             f"--no-scratch option : --no-scratch option is specified. The scratch directory is the submitted directory.\n--no-scratch option : Temporary files will remain in the {user_submitted_dir} directory."
         )
