@@ -9,7 +9,8 @@ import shutil
 import signal
 import sys
 import tempfile
-import time
+from datetime import datetime
+from typing import Tuple
 
 
 class ExitWithHelpArgumentParser(argparse.ArgumentParser):
@@ -147,7 +148,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: str, user_su
     input_file_name: str = os.path.splitext(os.path.basename(input_file_path))[0]  # Remove the extension (e.g. active.inp => active)
     if input_file_name == "":
         input_file_name = "input"
-    time_string: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    time_string: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     # Set the temporary directory's prefix using the input file name and the current time (e.g. input_2020-01-01_12-34-56_)
     prefix: str = f"{input_file_name}_{time_string}_"
@@ -278,11 +279,28 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user
         if not args.noscratch and not args.save and os.path.exists(scratch_dir):
             shutil.rmtree(scratch_dir)
 
+    def get_elapsed_time(start_time: datetime, end_time: datetime) -> Tuple[int, int, int, int, float]:
+        """Get the elapsed time
+
+        Args:
+            start_time (datetime): Start time
+            end_time (datetime): End time
+
+        Returns:
+            Tuple[int, int, int, int, float]: Elapsed time (days, hours, minutes, seconds, seconds)
+        """
+        diff_time = end_time - start_time
+        time_hours = diff_time.seconds // 3600
+        time_minutes = (diff_time.seconds % 3600) // 60
+        time_seconds = diff_time.seconds % 60
+        return diff_time.days, time_hours, time_minutes, time_seconds, diff_time.microseconds
+
     os.chdir(scratch_dir)
 
     with open(output_file_path, "w") as f:
-        start_time = time.time()
-        start_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        start_time = datetime.now()
+        start_time_float = start_time.timestamp()
+        start_time_string = start_time.strftime("%Y-%m-%d %H:%M:%S")
 
         try:
             p = Popen(command, shell=True, stdout=f, stderr=PIPE)
@@ -296,17 +314,19 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: str, user
         if p.stderr is not None:
             end_message += "\n================= Standard error =================\n"
             end_message += p.stderr.read().decode("utf-8")
-        end_time = time.time()
-        end_time_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         user_command = " ".join(sys.argv)
-
+        end_time = datetime.now()
+        end_time_float = end_time.timestamp()
+        end_time_string = end_time.strftime("%Y-%m-%d %H:%M:%S")
+        days, hours, mins, secs, millisecs = get_elapsed_time(start_time, end_time)
         end_message += "\n================= Calculation finished ================\n"
         end_message += f"User Command : {user_command}\n"
         end_message += f"Auto-created Command : {command}\n"
         end_message += f"Scratch directory : {scratch_dir}\n"
         end_message += f"Output file : {output_file_path}\n"
         end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
-        end_message += f"Elapsed time: {end_time - start_time:.4f} sec\n\n"
+        end_message += f"Elapsed time (sec) : {end_time_float - start_time_float:.4f} sec\n"
+        end_message += f"Elapsed time : {days} day {hours} hour {mins} min {secs} sec {millisecs} millisecond\n"
 
         if p.returncode == 0:
             end_message += "NORMAL END OF dirac-caspt2 CALCULATION\n"
