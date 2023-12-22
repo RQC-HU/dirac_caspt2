@@ -3,10 +3,12 @@
 # SPDX-FileCopyrightText: 2022 Kohei Noda kohei-noda@hiroshima-u.ac.jp
 
 import argparse
+from pathlib import Path
 import logging
 import os
 import shutil
 from subprocess import Popen, PIPE
+import subprocess
 
 
 def define_args() -> "argparse.Namespace":
@@ -23,11 +25,12 @@ def define_args() -> "argparse.Namespace":
     return parser.parse_args()
 
 
-def preprocess(args: "argparse.Namespace", exec_path: str, script_path: str) -> str:
+def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -> str:
     def check_cmake_is_installed() -> None:
         print("Checking if CMake is installed...")
         try:
-            process = Popen("cmake --version", shell=True, stdout=PIPE, stderr=PIPE)
+            cmd = "cmake --version"
+            process = Popen(cmd.split(), stdout=PIPE, stderr=PIPE)
             stdout, stderr = process.communicate()
             cmake_version = stdout.decode("utf-8").split("\n")[0].split(" ")[2]  # (e.g.) 3.20.0-rc3
             cmake_major_version = int(cmake_version.split(".")[0])  # (e.g.) 3
@@ -36,12 +39,12 @@ def preprocess(args: "argparse.Namespace", exec_path: str, script_path: str) -> 
             if process.returncode != 0:
                 logging.error("CMake is not installed!")
                 logging.error(f"Error message : {stderr.decode('utf-8')}")
-                exit(1)
+                raise ValueError("CMake is not installed!")
             elif cmake_major_version < 3 or (cmake_major_version == 3 and cmake_minor_version < 14):
                 logging.error("Your CMake version is too old!")
                 logging.error("CMake version 3.14 or later is required.")
                 logging.error("Please install CMake 3.14 or later.")
-                exit(1)
+                raise ValueError("CMake version 3.14 or later is required.")
             logging.info(f"CMake is set up correctly! {stdout.decode('utf-8')}")
         except Exception as e:
             logging.error("CMake is not installed!, Aborting...")
@@ -51,11 +54,11 @@ def preprocess(args: "argparse.Namespace", exec_path: str, script_path: str) -> 
         logging.info("Cleaning the build directory...")
         remove_dirs_name = ["build", "bin"]
         for rmdir_name in remove_dirs_name:
-            rmdir = os.path.join(script_path, rmdir_name)
-            logging.info(f"Checking if {os.path.abspath(rmdir)} exists...")
-            if os.path.exists(rmdir):
+            rmdir = (script_path / rmdir_name).resolve()
+            logging.info(f"Checking if {rmdir} exists...")
+            if rmdir.exists():
                 shutil.rmtree(rmdir)
-                logging.info(f"Removed the directory {os.path.abspath(rmdir)}")
+                logging.info(f"Removed the directory {rmdir}")
 
     def set_compiler(cmake_flags: str) -> str:
         if args.fc is not None:
@@ -84,10 +87,11 @@ def preprocess(args: "argparse.Namespace", exec_path: str, script_path: str) -> 
         if args.prefix is None:  # User did not specify the installation directory.
             pass  # If --prefix option is not specified, the default installation directory defined in CMakeLists.txt will be used.
         else:  # User specified the installation directory.
-            if args.prefix.startswith("/"):  # Absolute path
-                prefix = os.path.abspath(args.prefix)
+            prefix_path_expanded = Path(args.prefix).expanduser()
+            if prefix_path_expanded.is_absolute():  # Absolute path
+                prefix = prefix_path_expanded.resolve()
             else:  # Relative path
-                prefix = os.path.abspath(os.path.join(exec_path, args.prefix))
+                prefix = (exec_path / prefix_path_expanded).resolve()
             logging.info(f"Installation directory is {prefix}")
             cmake_flags += f" -DCMAKE_INSTALL_PREFIX={prefix}"
         return cmake_flags
@@ -115,11 +119,11 @@ def preprocess(args: "argparse.Namespace", exec_path: str, script_path: str) -> 
     return cmake_flags
 
 
-def configure_source(cmake_flags: str, script_path: str) -> None:
+def configure_source(cmake_flags: str, script_path: Path) -> None:
     logging.info(f"CMake flags are {cmake_flags}")
-    build_dir = os.path.join(script_path, "build")
-    if not os.path.exists(build_dir):
-        os.mkdir(build_dir)
+    build_dir = (script_path / "build").resolve()
+    if not build_dir.exists():
+        build_dir.mkdir()
     command = f"cmake -B {build_dir} {cmake_flags}"
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
@@ -136,21 +140,18 @@ def configure_source(cmake_flags: str, script_path: str) -> None:
 def build(args: "argparse.Namespace") -> None:
     num_of_process = args.parallel
     if num_of_process == -1: # const value of -j option, which means the native build tool's default number is used. (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
-        process = Popen("cmake --build build -j", shell=True)
+        cmd = "cmake --build build -j"
     else:
-        process = Popen(f"cmake --build build -j {num_of_process}", shell=True)
-    process.wait()
-    if process.returncode != 0:
-        logging.error("Failed to build the project!")
-        exit(1)
+        cmd = f"cmake --build build -j {num_of_process}"
+    subprocess.run(cmd.split(), check=True)
     logging.info("Successfully built the project.")
 
 
 def main():
 
     logging.info("Start dirac_caspt2 setup script.")
-    exec_path = os.getcwd()
-    script_path = os.path.abspath(os.path.dirname(__file__))
+    exec_path = Path.cwd().resolve()
+    script_path = Path(__file__).parent.resolve()
     os.chdir(script_path)
 
     args = define_args()
