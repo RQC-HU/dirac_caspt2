@@ -1,3 +1,112 @@
+subroutine rdiagx(sr, dimn, dimm, w)
+! diagonalization of real symmetric matrix
+! but only calculate 1st-dimm th eigenvalues and eigenvectors
+    use module_error, only: stop_with_errorcode
+    use module_global_variables
+    implicit none
+    integer, intent(in) :: dimn, dimm
+    real(8), intent(inout)  :: sr(dimn, dimn)
+    real(8), intent(out)  ::  w(dimn)
+
+    integer :: info, lda, lwork, ldz, il, iu
+    character :: jobz*1, uplo*1, range*1
+    real(8) :: dummy(1), abstol
+    real(8), allocatable  ::  work(:), z(:, :)
+    integer, allocatable :: iwork(:), jfail(:)
+    integer :: n, m
+    integer, parameter :: nb = 64
+
+    n = dimn
+    m = dimm
+    abstol = 0.0d+00
+
+    w(:) = 0.0d+00
+    jobz = 'V' ! calculate eigenvectors
+    range = 'I' ! calculate 1st-mth eigenvalues
+    uplo = 'U' ! calculate upper triangle matrix
+    lda = max(1, n)
+    ldz = max(1, n)
+    allocate (iwork(5*n), jfail(n), z(ldz, m))
+    ! Calculates 1st-mth eigenvalues
+    il = 1
+    iu = m
+
+    lwork = -1
+    call dsyevx(jobz, range, uplo, n, sr, lda, 0, 0, il, iu, abstol, m, w, z, ldz, dummy, lwork, iwork, jfail, info)
+
+    lwork = max((nb + 3)*n, nint(dummy(1)))
+    allocate (work(lwork))
+
+    call dsyevx(jobz, range, uplo, n, sr, lda, 0, 0, il, iu, abstol, m, w, z, ldz, work, lwork, iwork, jfail, info)
+
+    ! Error check
+    if (info /= 0) then
+        if (rank == 0) print *, 'error in diagonalization, info = ', info
+        call stop_with_errorcode(info)
+    end if
+
+    sr(:, 1:m) = z(:, 1:m)
+
+    deallocate (work, iwork, jfail, z)
+
+end subroutine rdiagx
+
+subroutine cdiagx(c, dimn, dimm, w)
+
+    use module_error, only: stop_with_errorcode
+    use module_global_variables
+    implicit none
+
+    integer, intent(in) :: dimn, dimm
+    complex*16, intent(inout) :: c(dimn, dimn)
+    real(8), intent(out)  ::  w(dimn)
+
+    integer :: info, lda, lwork, ldz, il, iu
+    character :: jobz*1, uplo*1, range*1
+    real(8) :: abstol
+    complex*16 :: dummy(1)
+    complex*16, allocatable  ::  work(:), z(:, :)
+    integer, allocatable :: iwork(:), jfail(:)
+    real(8), allocatable :: rwork(:)
+    integer :: n, m
+    integer, parameter :: nb = 64
+
+    n = dimn
+    m = dimm
+    abstol = 0.0d+00
+
+    w(:) = 0.0d+00
+    jobz = 'V' ! calculate eigenvectors
+    range = 'I' ! calculate 1st-mth eigenvalues
+    uplo = 'U' ! calculate upper triangle matrix
+
+    lda = max(1, n)
+    ldz = max(1, n)
+    allocate (iwork(5*n), jfail(n), z(ldz, m), rwork(7*n))
+    ! Calculates 1st-mth eigenvalues
+    il = 1
+    iu = m
+
+    lwork = -1
+    call zheevx(jobz, range, uplo, n, c, lda, 0, 0, il, iu, abstol, m, w, z, ldz, dummy, lwork, rwork, iwork, jfail, info)
+
+    lwork = max((nb + 1)*n, nint(real(dummy(1))))
+    allocate (work(lwork))
+
+    call zheevx(jobz, range, uplo, n, c, lda, 0, 0, il, iu, abstol, m, w, z, ldz, work, lwork, rwork, iwork, jfail, info)
+
+    ! Error check
+    if (info /= 0) then
+        if (rank == 0) print *, 'error in diagonalization, info = ', info
+        call stop_with_errorcode(info)
+    end if
+
+    c(:, 1:m) = z(:, 1:m)
+
+    deallocate (work, iwork, jfail, z)
+
+end subroutine cdiagx
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
