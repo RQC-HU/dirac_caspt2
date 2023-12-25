@@ -32,7 +32,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel OR CMAKE_Fortran_COMPILER_ID STREQUA
   endif()
 
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DINTEL -g -traceback -cpp -i8 -I$ENV{MKLROOT}/include -pad -integer-size 64 -unroll -warn nounused -nogen-interface")
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check -debug extended -debug-parameters -warn")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check -debug extended -debug-parameters -warn -DDEBUG")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   link_libraries(-i8)
 
@@ -54,7 +54,7 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fallow-argument-mismatch")
   endif()
 
-  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -Wall -Wextra -Wimplicit-interface -fPIC -fmax-errors=1 -fcheck=all")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -Wall -Wextra -Wimplicit-interface -fPIC -fmax-errors=1 -fcheck=all -DDEBUG")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
   link_libraries(-fdefault-integer-8 -m64)
 
