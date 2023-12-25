@@ -119,6 +119,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 !                 kl                             !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 
+#ifdef DEBUG
 !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
 !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
     if (realonly%is_realonly()) then
@@ -130,6 +131,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         fock_cmplx(:, :) = 0.0d+00
         call fock_matrix_of_hf_complex
     End if
+#endif
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
@@ -140,9 +142,15 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         Call timing(date1, tsec1, date0, tsec0)
     end if
     if (realonly%is_realonly()) then
+        if (.not. allocated(fock_real)) then
+            allocate (fock_real(nmo, nmo)); call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        end if
         fock_real(:, :) = 0.0d+00
         Call fockcasci_real
     else
+        if (.not. allocated(fock_cmplx)) then
+            allocate (fock_cmplx(nmo, nmo)); call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        end if
         fock_cmplx(:, :) = 0.0d+00
         Call fockcasci_complex
     end if
@@ -153,9 +161,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
     end if
-    debug = .FALSE.
-    if (rank == 0) print *, debug, 'debug'
-    if (debug) Call prtoutfock
+
+#ifdef DEBUG
+    call prtoutfock
+#endif
 
     Allocate (eps(nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
     eps = 0.0d+00
