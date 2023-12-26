@@ -86,8 +86,8 @@ SUBROUTINE e0aftertra
         print *, 'energyHF(1)', energyHF(1)
         print *, 'energyHF(2)', energyHF(2)
         print *, 'energyHF =', sum(energyHF) + ecore
-        print *, 'energyHF from MRCONEE =', hf_energy_mrconee
-        print *, 'energyHF from MRCONEE - energyHF =', hf_energy_mrconee - (sum(energyHF) + ecore)
+        print *, 'energyHF(MRCONEE) =', hf_energy_mrconee
+        print *, 'energyHF(MRCONEE) - energyHF =', hf_energy_mrconee - (sum(energyHF) + ecore)
         print *, '-------------------------------------------------------------------------'
         print *, 'NOTE:'
         print *, 'If DIRAC HF calculation was calculated with closed shell orbitals,'
