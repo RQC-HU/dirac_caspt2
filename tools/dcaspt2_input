@@ -184,9 +184,11 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
         if args.ivo:
             scratch_dfpcmo_path = scratch_dir / "DFPCMO"
             scratch_dfpcmo_path.symlink_to(integrals_dir / "DFPCMO")
-        for file in glob.glob("MDCIN*"):
-            scratch_mdcint_path = Path(scratch_dir, file)
-            scratch_mdcint_path.symlink_to(integrals_dir / file)
+        mdcints = integrals_dir / "MDCIN*"
+        for file in glob.glob(str(mdcints)):
+            file_name = Path(file).name
+            scratch_mdcint_path = Path(scratch_dir, file_name)
+            scratch_mdcint_path.symlink_to(integrals_dir / file_name)
         print("log : Copied 1-2 integral files to the scratch directory")
     return None
 
