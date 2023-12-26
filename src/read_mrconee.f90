@@ -25,12 +25,16 @@ SUBROUTINE read_mrconee(filename)
     integer, allocatable :: irpmo(:)
     character(*), intent(in) :: filename
     integer :: i0, j0, k0, i, j, m, iostat
-    logical :: breit, is_end_of_file
-
+    logical :: breit, is_end_of_file, spinfr
+    integer :: nfsym, nz, norbt
     call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
 
-! Read the number of molecular orbitals, Breit interaction and the core energy.
-    Read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE
+    ! Read the number of molecular orbitals, Breit interaction and the core energy and HF energy.
+    ! reference: https://gitlab.com/dirac/dirac/-/blob/01878d230962146d8183020b51a97e12b080de99/src/moltra/traone.F#L815-816
+    ! NSPC and NCORE2 added in DIRAC 21 and we don't use them, so skip them.
+    ! NSPC and NCORE2 were added at the following commit.
+    ! https://gitlab.com/dirac/dirac/-/commit/d0a1beb1fc0c23b4ce89c89c05bc0d421f71aea2
+    Read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE, nfsym, nz, spinfr, norbt, hf_energy_mrconee
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
     if (is_end_of_file) then
         print *, 'Error: error in reading NMO, BREIT, ECORE (end of file reached)'

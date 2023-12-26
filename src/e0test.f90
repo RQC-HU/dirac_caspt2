@@ -86,6 +86,28 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     energyHF(2) = 0.5d+00*energyHF(2)
     energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 
+#ifdef HAVE_MPI
+    call allreduce_wrapper(mat=energyHF(:))
+#endif
+
+    if (rank == 0) then
+        print *, 'core energy =', ecore
+        print *, 'energyHF(1)', energyHF(1)
+        print *, 'energyHF(2)', energyHF(2)
+        print *, 'energyHF =', sum(energyHF) + ecore
+        print *, 'energyHF(MRCONEE) =', hf_energy_mrconee
+        print *, 'energyHF(MRCONEE) - energyHF =', hf_energy_mrconee - (sum(energyHF) + ecore)
+        print *, '-------------------------------------------------------------------------'
+        print *, 'NOTE:'
+        print *, 'If DIRAC HF calculation was calculated with closed shell orbitals,'
+        print *, 'the energyHF obtained from MRCONEE should be'
+        print *, 'approximately the same as the energyHF.'
+        print *, 'But if DIRAC HF calculation was calculated with open shell orbitals,'
+        print *, 'the two energies may be different because DIRAC calculates the HF energy'
+        print *, 'by AOC-HF method as default.'
+        print *, '-------------------------------------------------------------------------'
+    end if
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy 1            !
 !"""""""""""""""""""""""""""""!
@@ -232,13 +254,11 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     energy(iroot, 4) = 0.5d+00*energy(iroot, 4)
 
 #ifdef HAVE_MPI
-    call allreduce_wrapper(mat=energy(iroot, 1:4))
     call allreduce_wrapper(mat=energyHF(1:2))
 #endif
 
     if (rank == 0) then
         print '(a,x,i0)', 'selectroot', iroot
-        print *, 'core energy =', ecore
         print *, 'energy 1 =', energy(iroot, 1)
         print *, 'energy 2 =', energy(iroot, 2)
         print *, 'energy 3 =', energy(iroot, 3)
@@ -246,7 +266,6 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         print *, 't-energy(1-4)', sum(energy(iroot, :))
         print *, 't-energy', eigen(iroot) - ecore
         print *, 'C the error ', eigen(iroot) - ecore - sum(energy(iroot, :))
-        print *, 'energy HF  =', sum(energyHF) + ecore
     end if
     Call memminus(KIND(energy), SIZE(energy), 1); deallocate (energy)
     if (rank == 0) print *, 'e0test end'

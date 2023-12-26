@@ -99,6 +99,7 @@ MODULE module_global_variables
     ! Multiplication table for symmetry
     integer :: multb(128, 128), multb2(128, 128)
     integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :)
+    real(8) :: hf_energy_mrconee ! HF energy in MRCONEE
 
     !! ========================================
     !! Variables of IVO calculation
