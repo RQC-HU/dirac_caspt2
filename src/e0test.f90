@@ -87,7 +87,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     energyHF(2) = energyHF(2) + DCONJG(energyHF(2))
 
 #ifdef HAVE_MPI
-    call allreduce_wrapper(mat=energy(iroot, 1:4))
+    call allreduce_wrapper(mat=energyHF(:))
 #endif
 
     if (rank == 0) then
