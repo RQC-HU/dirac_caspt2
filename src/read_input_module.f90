@@ -683,7 +683,7 @@ contains
         subroutine write_error_and_stop_read_an_integer
             implicit none
             if (rank == 0) then
-                print *, "ERROR: Error in input, failed to read or validate an integer!!. Stop the program. rank:", rank
+                print *, "ERROR: Error in input, failed to read or validate an integer!!. Stop the program."
                 print *, "input: ", trim(adjustl(input))
             end if
             call stop_with_errorcode(1)
