@@ -79,33 +79,33 @@ contains
         select case (trim(adjustl(string)))
 
         case ("ninact")
-            call read_an_integer(unit_num, 0, input_intmax, ninact)
+            call read_an_integer(unit_num, "ninact", 0, input_intmax, ninact)
             call update_esesential_input("ninact", .true.)
 
         case ("nact")
-            call read_an_integer(unit_num, 0, input_intmax, nact)
+            call read_an_integer(unit_num, "nact", 0, input_intmax, nact)
             call update_esesential_input("nact", .true.)
 
         case ("nsec")
-            call read_an_integer(unit_num, 0, input_intmax, nsec)
+            call read_an_integer(unit_num, "nsec", 0, input_intmax, nsec)
             call update_esesential_input("nsec", .true.)
 
         case ("nelec")
-            call read_an_integer(unit_num, 0, input_intmax, nelec)
+            call read_an_integer(unit_num, "nelec", 0, input_intmax, nelec)
             call update_esesential_input("nelec", .true.)
 
         case ("nroot")
-            call read_an_integer(unit_num, 1, input_intmax, nroot)
+            call read_an_integer(unit_num, "nroot", 1, 500, nroot)
 
         case ("selectroot")
-            call read_an_integer(unit_num, 1, input_intmax, selectroot)
+            call read_an_integer(unit_num, "selectroot", 1, 500, selectroot)
 
         case ("totsym")
-            call read_an_integer(unit_num, 1, input_intmax, totsym)
+            call read_an_integer(unit_num, "totsym", 1, input_intmax, totsym)
             call update_esesential_input("totsym", .true.)
 
         case ("ncore")
-            call read_an_integer(unit_num, 0, input_intmax, ncore)
+            call read_an_integer(unit_num, "ncore", 0, input_intmax, ncore)
 
         case ("eshift")
             do
@@ -118,16 +118,16 @@ contains
             end do
 
         case ("diracver")
-            call read_an_integer(unit_num, 0, input_intmax, dirac_version)
+            call read_an_integer(unit_num, "diracver", 0, input_intmax, dirac_version)
             call update_esesential_input("diracver", .true.)
 
         case ("nhomo")
-            call read_an_integer(unit_num, 0, input_intmax, nhomo)
+            call read_an_integer(unit_num, "nhomo", 0, input_intmax, nhomo)
 
         case ("ras1")
             call ras_read(unit_num, ras1_list, 1)
             ras1_size = size(ras1_list, 1)
-            call read_an_integer(unit_num, 0, ras1_size, ras1_max_hole)
+            call read_an_integer(unit_num, "ras1", 0, ras1_size, ras1_max_hole)
 
         case ("ras2")
             call ras_read(unit_num, ras2_list, 2)
@@ -136,7 +136,7 @@ contains
         case ("ras3")
             call ras_read(unit_num, ras3_list, 3)
             ras3_size = size(ras3_list, 1)
-            call read_an_integer(unit_num, 0, ras3_size, ras3_max_elec)
+            call read_an_integer(unit_num, "ras3", 0, ras3_size, ras3_max_elec)
 
         case ("calctype")
             call read_a_string(unit_num, calctype)
@@ -147,39 +147,39 @@ contains
             end if
 
         case ("minholeras1")
-            call read_an_integer(unit_num, 0, input_intmax, min_hole_ras1)
+            call read_an_integer(unit_num, "minholeras1", 0, input_intmax, min_hole_ras1)
 
         case ("skip_mdcint")
             skip_mdcint = .true.
 
         case ("nocc")
             if (inversion) call err_ivo_input
-            call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(1))
+            call read_an_integer(unit_num, "nocc", 0, input_intmax, occ_mo_num(1))
             no_inversion = .true.
 
         case ("noccg")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(1))
+            call read_an_integer(unit_num, "noccg", 0, input_intmax, occ_mo_num(1))
             inversion = .true.
 
         case ("noccu")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, 0, input_intmax, occ_mo_num(2))
+            call read_an_integer(unit_num, "noccu", 0, input_intmax, occ_mo_num(2))
             inversion = .true.
 
         case ("nvcut")
             if (inversion) call err_ivo_input
-            call read_an_integer(unit_num, 0, input_intmax, vcut_mo_num(1))
+            call read_an_integer(unit_num, "nvcut", 0, input_intmax, vcut_mo_num(1))
             no_inversion = .true.
 
         case ("nvcutg")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, 0, input_intmax, vcut_mo_num(1))
+            call read_an_integer(unit_num, "nvcutg", 0, input_intmax, vcut_mo_num(1))
             inversion = .true.
 
         case ("nvcutu")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, 0, input_intmax, vcut_mo_num(2))
+            call read_an_integer(unit_num, "nvcutu", 0, input_intmax, vcut_mo_num(2))
             inversion = .true.
 
         case ("end")
@@ -645,10 +645,11 @@ contains
         end if
     end subroutine create_valid_pattern
 
-    subroutine read_an_integer(unit_num, allowed_min_int, allowed_max_int, result_int)
+    subroutine read_an_integer(unit_num, option_name, allowed_min_int, allowed_max_int, result_int)
         implicit none
         integer, intent(in) :: unit_num, allowed_min_int, allowed_max_int
         integer, intent(inout) :: result_int
+        character(*), intent(in) :: option_name
         character(:), allocatable :: pattern, invalid_input_message
         logical :: is_comment, is_subst
         character(len=max_str_length) :: input
@@ -667,13 +668,24 @@ contains
                 call write_error_and_stop_read_an_integer
             end if
             read (input, *) result_int ! read an integer
+            if (result_int < allowed_min_int .or. allowed_max_int < result_int) then
+                if (rank == 0) then
+                    print *, "ERROR: Your input is out of range. option_name: ", option_name
+                    print *, "input:", result_int
+                    print *, "minimum allowed value:", allowed_min_int
+                    print *, "maximum allowed value:", allowed_max_int
+                end if
+                call write_error_and_stop_read_an_integer
+            end if
             exit
         end do
     contains
         subroutine write_error_and_stop_read_an_integer
             implicit none
-            print *, "ERROR: Error in input, can't read a integer value!!. Stop the program. rank:", rank
-            print *, "input: ", input
+            if (rank == 0) then
+                print *, "ERROR: Error in input, failed to read or validate an integer!!. Stop the program. rank:", rank
+                print *, "input: ", trim(adjustl(input))
+            end if
             call stop_with_errorcode(1)
         end subroutine write_error_and_stop_read_an_integer
     end subroutine read_an_integer
