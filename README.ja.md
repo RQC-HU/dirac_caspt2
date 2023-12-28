@@ -316,8 +316,8 @@ noccg       : The number of occupied spinors (gerade)
 noccu       : The number of occupied spinors (ungerade)
 
 [optional parameters]
-nroot       : the number of roots (default: 10, if the number of CASCI/RASCI determinants is less than 10, it will be replaced by the number of CASCI/RASCI determinants)
-selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (default: 1, the lowest root)
+nroot       : the number of roots (default: 10, max: 500, if the number of CASCI/RASCI determinants is less than 10, it will be replaced by the number of CASCI/RASCI determinants)
+selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (default: 1, max: 500, the lowest root)
 eshift      : for real shift (default: 0)
 ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
 ras2        : RAS2 spinor list
