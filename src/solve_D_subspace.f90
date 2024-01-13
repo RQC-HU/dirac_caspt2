@@ -26,9 +26,6 @@ contains
         use module_ulambda_s_half, only: ulambda_s_half
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
 
         integer :: dimn, dimm, dammy
         integer, allocatable :: indsym(:, :)
@@ -627,9 +624,6 @@ contains
         use module_ulambda_s_half, only: ulambda_s_half
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
 
         integer :: dimn, dimm, dammy
         integer, allocatable :: indsym(:, :)

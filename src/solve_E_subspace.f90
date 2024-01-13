@@ -26,9 +26,7 @@ contains
         use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
+
         integer :: dimn, dimm, dammy
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
         real(8)               :: e2(2*nsymrpa), alpha, e
@@ -485,9 +483,7 @@ contains
         use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
+
         integer :: dimn, dimm, dammy
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
         real(8)               :: e2(2*nsymrpa), alpha, e

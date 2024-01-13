@@ -26,9 +26,6 @@ contains
         use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
 
         integer :: dimn, dimm, dammy
 
@@ -664,9 +661,6 @@ contains
         use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
 
         integer :: dimn, dimm, dammy
 

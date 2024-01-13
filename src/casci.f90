@@ -12,9 +12,7 @@ SUBROUTINE casci
     use module_global_variables
     use module_realonly, only: realonly
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-#endif
+
     integer :: j0, j, i0, irec, unit_cimat
     real(8) :: cutoff_threshold
 
