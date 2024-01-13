@@ -75,14 +75,9 @@ contains
         dima = 0
         dimn = 0
         syma = 0
-        if (rank == 0) then
-            print *, ' ENTER solv C part'
-            print *, ' nsymrpa', nsymrpa
-        end if
+        if (rank == 0) print *, 'ENTER solve C part'
         Allocate (v(nsec, nact, nact, nact))
-        if (rank == 0) print *, 'end before v matrices'
         Call vCmat_complex(v)
-        if (rank == 0) print *, 'come'
         Do isym = 1, nsymrpa
 
             ixyz = 0
@@ -144,24 +139,18 @@ contains
             if (rank == 0) print *, 'isym, dimn', isym, dimn
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sr N*N
-            if (rank == 0) print *, 'before sCmat'
             Call sCmat_complex(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            if (rank == 0) print *, 'sC matrix is obtained normally'
             Allocate (ws(dimn))
             ws = 0.0d+00
 
             Allocate (sc0(dimn, dimn))
             sc0 = 0.0d+00
             sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then
-                print *, 'after sc cdiag'
-                print *, 'after s cdiag, new dimension is', dimm
-            end if
+            if (rank == 0) print *, 'after C subspace S matrix cdiag, new dimension is', dimm
             If (dimm == 0) then
                 deallocate (indsym)
                 deallocate (sc0)
@@ -175,33 +164,25 @@ contains
                 Call checkdgc(dimn, sc0, sc, ws)
                 if (rank == 0) print *, 'Check whether U*SU is diagonal END'
             End if
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
             Allocate (bc(dimn, dimn))                                 ! br N*N
             bc = 0.0d+00
-            if (rank == 0) print *, 'before bCmat'
             Call bCmat_complex(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             deallocate (sc0)
 
-            if (rank == 0) print *, 'bC matrix is obtained normally'
             Allocate (uc(dimn, dimm))                                 ! uc N*M
             Allocate (wsnew(dimm))                                    ! wnew M
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
-            if (rank == 0) print *, 'before ccutoff'
             Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-            if (rank == 0) print *, 'OK ccutoff'
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ulambda_s_half'
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
-            if (rank == 0) print *, 'ucrams half OK'
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -232,10 +213,8 @@ contains
             Allocate (bc0(dimm, dimm))
             bc0 = 0.0d+00
             bc0 = bc1
-            if (rank == 0) print *, 'before cdiag'
             Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'end cdiag'
             If (debug) then
 
                 if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
@@ -318,6 +297,7 @@ contains
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
+        if (rank == 0) print *, 'Start C subspace S matrix'
         sc = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,it,iu,iv,a,b)
@@ -350,7 +330,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-
+        if (rank == 0) print *, 'C subspace S matrix is obtained normally'
     End subroutine sCmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -391,9 +371,9 @@ contains
         real(8)              :: e, denr, deni
         complex*16          :: den
 
+        if (rank == 0) print *, 'Start C subspace B matrix'
         bc(:, :) = 0.0d+00
 
-        if (rank == 0) print *, 'C space Bmat iroot=', iroot
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs
             ix = indsym(1, i)
@@ -433,7 +413,7 @@ contains
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
-        if (rank == 0) print *, 'bCmat is ended'
+        if (rank == 0) print *, 'C subspace B matrix is obtained normally'
     End subroutine bCmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -501,7 +481,7 @@ contains
 !
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 
-        if (rank == 0) print *, 'Enter vCmat. Please ignore timer under this line.'
+        if (rank == 0) print *, 'Start C subspace V matrix'
 
         v = 0.0d+00
         effh = 0.0d+00
@@ -540,9 +520,6 @@ contains
             End do
         End do
 !$OMP end parallel do
-        do isym = 1, nsymrpa
-            if (rank == 0) print *, 'solvC: isym, dim(isym)', isym, dim(isym)
-        end do
 
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
         Do ia = rank + 1, nsec, nprocs
@@ -665,8 +642,6 @@ contains
         End do
 !$OMP end parallel do
 
-        if (rank == 0) print *, 'vCmat_ord is ended'
-
         deallocate (indt)
         deallocate (indu)
         deallocate (indv)
@@ -675,6 +650,7 @@ contains
         call allreduce_wrapper(mat=v)
         if (rank == 0) print *, 'end Allreduce vCmat'
 #endif
+        if (rank == 0) print *, 'C subspace V matrix is obtained normally'
     end subroutine vCmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -737,14 +713,10 @@ contains
         dima = 0
         dimn = 0
         syma = 0
-        if (rank == 0) then
-            print *, ' ENTER solv C part'
-            print *, ' nsymrpa', nsymrpa
-        end if
+        if (rank == 0) print *, 'ENTER solve C part'
         Allocate (v(nsec, nact, nact, nact))
-        if (rank == 0) print *, 'end before v matrices'
+
         Call vCmat_real(v)
-        if (rank == 0) print *, 'come'
         Do isym = 1, nsymrpa
 
             ixyz = 0
@@ -806,24 +778,18 @@ contains
             if (rank == 0) print *, 'isym, dimn', isym, dimn
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sr N*N
-            if (rank == 0) print *, 'before sCmat'
             Call sCmat_real(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            if (rank == 0) print *, 'sC matrix is obtained normally'
             Allocate (ws(dimn))
             ws = 0.0d+00
 
             Allocate (sc0(dimn, dimn))
             sc0 = 0.0d+00
             sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) then
-                print *, 'after sc cdiag'
-                print *, 'after s cdiag, new dimension is', dimm
-            end if
+            if (rank == 0) print *, 'after C subspace S matrix rdiag, new dimension is', dimm
             If (dimm == 0) then
                 deallocate (indsym)
                 deallocate (sc0)
@@ -832,33 +798,25 @@ contains
                 cycle ! Go to the next isym
             End if
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
             Allocate (bc(dimn, dimn))                                 ! br N*N
             bc = 0.0d+00
-            if (rank == 0) print *, 'before bCmat'
             Call bCmat_real(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             deallocate (sc0)
 
-            if (rank == 0) print *, 'bC matrix is obtained normally'
             Allocate (uc(dimn, dimm))                                 ! uc N*M
             Allocate (wsnew(dimm))                                    ! wnew M
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
-            if (rank == 0) print *, 'before ccutoff'
             Call rcutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-            if (rank == 0) print *, 'OK ccutoff'
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ulambda_s_half'
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
-            if (rank == 0) print *, 'ucrams half OK'
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(uc), bc)
@@ -889,10 +847,8 @@ contains
             Allocate (bc0(dimm, dimm))
             bc0 = 0.0d+00
             bc0 = bc1
-            if (rank == 0) print *, 'before cdiag'
             Call rdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'end cdiag'
             deallocate (bc0)
 
             if (rank == 0) print *, 'bC1 matrix is diagonalized!'
@@ -968,6 +924,7 @@ contains
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
+        if (rank == 0) print *, 'Start C subspace S matrix'
         sc = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,it,iu,iv,a,b)
@@ -1000,7 +957,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-
+        if (rank == 0) print *, 'C subspace S matrix is obtained normally'
     End subroutine sCmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1041,9 +998,9 @@ contains
         real(8)              :: e, denr, deni
         real(8)          :: den
 
+        if (rank == 0) print *, 'Start C subspace B matrix'
         bc(:, :) = 0.0d+00
 
-        if (rank == 0) print *, 'C space Bmat iroot=', iroot
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs
             ix = indsym(1, i)
@@ -1083,7 +1040,7 @@ contains
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
-        if (rank == 0) print *, 'bCmat is ended'
+        if (rank == 0) print *, 'C subspace B matrix is obtained normally'
     End subroutine bCmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1151,7 +1108,7 @@ contains
 !
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 
-        if (rank == 0) print *, 'Enter vCmat. Please ignore timer under this line.'
+        if (rank == 0) print *, 'Start C subspace V matrix'
 
         v = 0.0d+00
         effh = 0.0d+00
@@ -1190,9 +1147,6 @@ contains
             End do
         End do
 !$OMP end parallel do
-        do isym = 1, nsymrpa
-            if (rank == 0) print *, 'solvC: isym, dim(isym)', isym, dim(isym)
-        end do
 
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,it,jt,cint1)
         Do ia = rank + 1, nsec, nprocs
@@ -1315,8 +1269,6 @@ contains
         End do
 !$OMP end parallel do
 
-        if (rank == 0) print *, 'vCmat_ord is ended'
-
         deallocate (indt)
         deallocate (indu)
         deallocate (indv)
@@ -1325,5 +1277,6 @@ contains
         call allreduce_wrapper(mat=v)
         if (rank == 0) print *, 'end Allreduce vCmat'
 #endif
+        if (rank == 0) print *, 'C subspace V matrix is obtained normally'
     end subroutine vCmat_real
 end subroutine solve_C_subspace

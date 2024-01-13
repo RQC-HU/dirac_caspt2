@@ -79,15 +79,9 @@ contains
         dimi = 0
         dimn = 0
         syma = 0
-        if (rank == 0) then
-            print *, ' ENTER solv A part'
-            print *, ' nsymrpa', nsymrpa
-        end if
-
+        if (rank == 0) print *, 'ENTER solve A part'
         Allocate (v(ninact, nact, nact, nact))
         Call memplus(KIND(v), SIZE(v), 2)
-
-        if (rank == 0) print *, 'before vAmat'
         Call vAmat_complex(v)
 !         ExjEyz
         Do isym = 1, nsymrpa
@@ -145,18 +139,15 @@ contains
             Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
             sc = 0.0d+00            ! sr N*N
-            if (rank == 0) print *, 'before sAmat'
             Call sAmat_complex(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'sc matrix is obtained normally'
             Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 
             Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
             sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after sc cdiag'
+            if (rank == 0) print *, 'after A subspace S matrix cdiag, new dimension is', dimm
 
             If (dimm == 0) then
                 Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
@@ -172,14 +163,10 @@ contains
                 if (rank == 0) print *, 'Check whether U*SU is diagonal END'
             End if
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
-
             Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
             bc = 0.0d+00
-            if (rank == 0) print *, 'before bAmat'
             Call bAmat_complex(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'bc matrix is obtained normally'
             Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
 
             Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
@@ -187,19 +174,15 @@ contains
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
 
-            if (rank == 0) print *, 'before ccutoff'
             Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'OK ccutoff'
             Call memminus(KIND(sc), SIZE(sc), 2); deallocate (sc)
             Call memminus(KIND(ws), SIZE(ws), 1); deallocate (ws)
 
-            if (rank == 0) print *, 'before ulambda_s_half'
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             Call memminus(KIND(wsnew), SIZE(wsnew), 1); deallocate (wsnew)
 
-            if (rank == 0) print *, 'ucrams half OK'
             Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -231,11 +214,9 @@ contains
 
             Allocate (bc0(dimm, dimm)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*M
             bc0 = bc1
-            if (rank == 0) print *, 'before cdiag'
 
             Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'end cdiag'
 
             If (debug) then
                 if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
@@ -318,6 +299,7 @@ contains
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
+        if (rank == 0) print *, 'Start A subspace S matrix'
 ! Initialization
         sc = 0.0d+00
 
@@ -347,7 +329,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-
+        if (rank == 0) print *, 'A subspace S matrix is obtained normally'
     End subroutine sAmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -380,10 +362,8 @@ contains
         real(8)               :: e, denr, deni
         complex*16           :: den
 
+        if (rank == 0) print *, 'Start A subspace B matrix'
         bc(:, :) = 0.0d+00
-        if (rank == 0) then
-            print *, 'bAmat loop: dimn', dimn
-        end if
 !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
             ix = indsym(1, i)
@@ -435,7 +415,7 @@ contains
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
 
-        if (rank == 0) print *, 'bAmat is ended'
+        if (rank == 0) print *, 'A subspace B matrix is obtained normally'
     End subroutine bAmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -497,7 +477,7 @@ contains
 !  effh is stored in memory while reading int2.
 !
 !  effh(p,i) = h(pi)+ SIGUMA_k:inact{(pi|kk)-(pk|ki)}
-        if (rank == 0) print *, 'Enter vAmat. Please ignore timer under this line.'
+        if (rank == 0) print *, 'Start A subspace V matrix'
         v = 0.0d+00
         dens1 = 0.0d+00
         effh = 0.0d+00
@@ -535,9 +515,6 @@ contains
             End do
         End do
 !$OMP end parallel do
-        do isym = 1, nsymrpa
-            if (rank == 0) print *, 'solvA: isym, dim(isym)', isym, dim(isym)
-        end do
         Allocate (ind2u(nact**2, nsymrpa)); Call memplus(KIND(ind2u), SIZE(ind2u), 1)
         Allocate (ind2v(nact**2, nsymrpa)); Call memplus(KIND(ind2v), SIZE(ind2v), 1)
         ind2u = 0.0d+00
@@ -685,8 +662,6 @@ contains
         End do
 !$OMP end parallel do
 
-        if (rank == 0) print *, 'vAmat_ord is ended'
-
         ! deallocate memory
         Call memminus(KIND(indt), SIZE(indt), 1); deallocate (indt)
         Call memminus(KIND(indu), SIZE(indu), 1); deallocate (indu)
@@ -698,8 +673,9 @@ contains
         call allreduce_wrapper(mat=v)
         if (rank == 0) print *, 'end allreduce vAmat'
 #endif
+        if (rank == 0) print *, 'A subspace V matrix is obtained normally'
     end subroutine vAmat_complex
-! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+    ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     SUBROUTINE solve_A_subspace_real()
@@ -763,15 +739,9 @@ contains
         dimi = 0
         dimn = 0
         syma = 0
-        if (rank == 0) then
-            print *, ' ENTER solv A part'
-            print *, ' nsymrpa', nsymrpa
-        end if
-
+        if (rank == 0) print *, 'ENTER solve A part'
         Allocate (v(ninact, nact, nact, nact))
         Call memplus(KIND(v), SIZE(v), 2)
-
-        if (rank == 0) print *, 'before vAmat'
         Call vAmat_real(v)
 !         ExjEyz
         Do isym = 1, nsymrpa
@@ -829,18 +799,15 @@ contains
             Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
             sc = 0.0d+00            ! sr N*N
-            if (rank == 0) print *, 'before sAmat'
             Call sAmat_real(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'sc matrix is obtained normally'
             Allocate (ws(dimn)); Call memplus(KIND(ws), SIZE(ws), 1)
 
             Allocate (sc0(dimn, dimn)); Call memplus(KIND(sc0), SIZE(sc0), 2)
             sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after sc cdiag'
+            if (rank == 0) print *, 'after A subspace S matrix rdiag, new dimension is', dimm
 
             If (dimm == 0) then
                 Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
@@ -850,14 +817,10 @@ contains
                 cycle ! Go to the next isym.
             End if
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
-
             Allocate (bc(dimn, dimn)); Call memplus(KIND(bc), SIZE(bc), 2)   ! br N*N
             bc = 0.0d+00
-            if (rank == 0) print *, 'before bAmat'
             Call bAmat_real(dimn, sc0, indsym, bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'bc matrix is obtained normally'
             Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
 
             Allocate (uc(dimn, dimm)); Call memplus(KIND(uc), SIZE(uc), 2)           ! uc N*M
@@ -865,19 +828,15 @@ contains
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
 
-            if (rank == 0) print *, 'before ccutoff'
             Call rcutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'OK ccutoff'
             Call memminus(KIND(sc), SIZE(sc), 2); deallocate (sc)
             Call memminus(KIND(ws), SIZE(ws), 1); deallocate (ws)
 
-            if (rank == 0) print *, 'before ulambda_s_half'
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             Call memminus(KIND(wsnew), SIZE(wsnew), 1); deallocate (wsnew)
 
-            if (rank == 0) print *, 'ucrams half OK'
             Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(uc), bc)
@@ -909,11 +868,9 @@ contains
 
             Allocate (bc0(dimm, dimm)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*M
             bc0 = bc1
-            if (rank == 0) print *, 'before cdiag'
 
             Call rdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'end cdiag'
 
             Call memminus(KIND(bc0), SIZE(bc0), 2); deallocate (bc0)
 
@@ -991,6 +948,7 @@ contains
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
+        if (rank == 0) print *, 'Start A subspace S matrix'
 ! Initialization
         sc = 0.0d+00
 
@@ -1020,7 +978,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-
+        if (rank == 0) print *, 'A subspace S matrix is obtained normally'
     End subroutine sAmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1053,10 +1011,8 @@ contains
         real(8)               :: e, denr, deni
         real(8)           :: den
 
+        if (rank == 0) print *, 'Start A subspace B matrix'
         bc(:, :) = 0.0d+00
-        if (rank == 0) then
-            print *, 'bAmat loop: dimn', dimn
-        end if
 !$OMP parallel do private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
             ix = indsym(1, i)
@@ -1108,7 +1064,7 @@ contains
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
 
-        if (rank == 0) print *, 'bAmat is ended'
+        if (rank == 0) print *, 'A subspace B matrix is obtained normally'
     End subroutine bAmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1170,7 +1126,7 @@ contains
 !  effh is stored in memory while reading int2.
 !
 !  effh(p,i) = h(pi)+ SIGUMA_k:inact{(pi|kk)-(pk|ki)}
-        if (rank == 0) print *, 'Enter vAmat. Please ignore timer under this line.'
+        if (rank == 0) print *, 'Start A subspace V matrix'
         v = 0.0d+00
         dens1 = 0.0d+00
         effh = 0.0d+00
@@ -1208,9 +1164,6 @@ contains
             End do
         End do
 !$OMP end parallel do
-        do isym = 1, nsymrpa
-            if (rank == 0) print *, 'solvA: isym, dim(isym)', isym, dim(isym)
-        end do
         Allocate (ind2u(nact**2, nsymrpa)); Call memplus(KIND(ind2u), SIZE(ind2u), 1)
         Allocate (ind2v(nact**2, nsymrpa)); Call memplus(KIND(ind2v), SIZE(ind2v), 1)
         ind2u = 0.0d+00
@@ -1358,8 +1311,6 @@ contains
         End do
 !$OMP end parallel do
 
-        if (rank == 0) print *, 'vAmat_ord is ended'
-
         ! deallocate memory
         Call memminus(KIND(indt), SIZE(indt), 1); deallocate (indt)
         Call memminus(KIND(indu), SIZE(indu), 1); deallocate (indu)
@@ -1371,5 +1322,6 @@ contains
         call allreduce_wrapper(mat=v)
         if (rank == 0) print *, 'end allreduce vAmat'
 #endif
+        if (rank == 0) print *, 'A subspace V matrix is obtained normally'
     end subroutine vAmat_real
 end SUBROUTINE solve_A_subspace

@@ -55,8 +55,8 @@ contains
 !
 ! E2h = V(aibj)/e(a,b,i,j)
         if (rank == 0) then
-            print *, ' ENTER solve H part'
-            print *, ' nsymrpa', nsymrpa
+            print *, 'ENTER solve H part'
+            print *, 'nsymrpa', nsymrpa
         end if
         e2h = 0.0d+00
         e = 0.0d+00
@@ -230,8 +230,8 @@ contains
 !
 ! E2h = V(aibj)/e(a,b,i,j)
         if (rank == 0) then
-            print *, ' ENTER solve H part'
-            print *, ' nsymrpa', nsymrpa
+            print *, 'ENTER solve H part'
+            print *, 'nsymrpa', nsymrpa
         end if
         e2h = 0.0d+00
         e = 0.0d+00
