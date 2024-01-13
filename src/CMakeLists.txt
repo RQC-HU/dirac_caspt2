@@ -63,7 +63,6 @@ add_executable(r4dcaspt2ocoexe
   cutoff.f90
   diag.f90
   density_matrix.f90
-  e0test.f90
   get_filename.f90
   mem.f90
   one_e_exct.f90
