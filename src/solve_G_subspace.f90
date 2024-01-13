@@ -40,8 +40,6 @@ contains
         integer                  :: ia, it, ib, ii, ja, jt, jb, ji
         integer, allocatable     :: ia0(:), ib0(:), ii0(:), iabi(:, :, :)
         integer                  :: nabi
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -75,10 +73,6 @@ contains
             print *, ' ENTER solv G part'
             print *, ' nsymrpa', nsymrpa
         end if
-        datetmp1 = date0; datetmp0 = date0
-
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
 
         e2 = 0.0d+00
         e2g = 0.0d+00
@@ -124,14 +118,8 @@ contains
         Allocate (v(nabi, nact))
         v = 0.0d+00
         if (rank == 0) print *, 'end before v matrices'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
         Call vGmat_complex(nabi, iabi, v)
         if (rank == 0) print *, 'end after vGmat'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
 
         Do isym = 1, nsymrpa
 
@@ -150,28 +138,16 @@ contains
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
             if (rank == 0) print *, 'before sGmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call sGmat_complex(dimn, indt(1:dimn), sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'sG matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (ws(dimn))
             Allocate (sc0(dimn, dimn))
             sc0 = sc
             if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             If (dimm == 0) then
                 deallocate (sc0)
                 deallocate (sc)
@@ -192,16 +168,10 @@ contains
             Allocate (bc(dimn, dimn))                                 ! bc N*N
             bc = 0.0d+00
             if (rank == 0) print *, 'before bGmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call bGmat_complex(dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             if (rank == 0) print *, 'bC matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (sc0)
 
             if (rank == 0) print *, 'OK cdiag', dimn, dimm
@@ -210,29 +180,17 @@ contains
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
             if (rank == 0) print *, 'before ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'OK ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
             if (rank == 0) print *, 'before ulambda_s_half'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
             if (rank == 0) print *, 'ucrams half OK'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -264,15 +222,9 @@ contains
             Allocate (bc0(dimm, dimm))
             bc0 = bc1
             if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'end cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             If (debug) then
 
                 if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
@@ -336,9 +288,6 @@ contains
             if (rank == 0) print '("e2g(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2g = e2g + e2(isym)
             if (rank == 0) print *, 'End e2(isym) add'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
         End do
 
         if (rank == 0) then
@@ -497,14 +446,9 @@ contains
 
         integer :: i, j, k, l, tabi
         integer :: it, iostat, unit_int2
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
         logical :: is_end_of_file
 
         if (rank == 0) print *, 'Enter vGmat. Please ignore timer under this line.'
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
         v = 0.0d+00
 
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
@@ -538,9 +482,6 @@ contains
         call allreduce_wrapper(mat=v)
         if (rank == 0) print *, 'end allreduce vGmat'
 #endif
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
     end subroutine vGmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -569,8 +510,6 @@ contains
         integer                  :: ia, it, ib, ii, ja, jt, jb, ji
         integer, allocatable     :: ia0(:), ib0(:), ii0(:), iabi(:, :, :)
         integer                  :: nabi
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -604,10 +543,6 @@ contains
             print *, ' ENTER solv G part'
             print *, ' nsymrpa', nsymrpa
         end if
-        datetmp1 = date0; datetmp0 = date0
-
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
 
         e2 = 0.0d+00
         e2g = 0.0d+00
@@ -653,14 +588,8 @@ contains
         Allocate (v(nabi, nact))
         v = 0.0d+00
         if (rank == 0) print *, 'end before v matrices'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
         Call vGmat_real(nabi, iabi, v)
         if (rank == 0) print *, 'end after vGmat'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
 
         Do isym = 1, nsymrpa
 
@@ -679,28 +608,16 @@ contains
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
             if (rank == 0) print *, 'before sGmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call sGmat_real(dimn, indt(1:dimn), sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'sG matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (ws(dimn))
             Allocate (sc0(dimn, dimn))
             sc0 = sc
             if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             If (dimm == 0) then
                 deallocate (sc0)
                 deallocate (sc)
@@ -711,16 +628,10 @@ contains
             Allocate (bc(dimn, dimn))                                 ! bc N*N
             bc = 0.0d+00
             if (rank == 0) print *, 'before bGmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call bGmat_real(dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
             if (rank == 0) print *, 'bC matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (sc0)
 
             if (rank == 0) print *, 'OK cdiag', dimn, dimm
@@ -729,29 +640,17 @@ contains
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
             if (rank == 0) print *, 'before ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call rcutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'OK ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
             if (rank == 0) print *, 'before ulambda_s_half'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
             if (rank == 0) print *, 'ucrams half OK'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(uc), bc)
@@ -783,15 +682,9 @@ contains
             Allocate (bc0(dimm, dimm))
             bc0 = bc1
             if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call rdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             if (rank == 0) print *, 'end cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
 
             deallocate (bc0)
 
@@ -847,9 +740,6 @@ contains
             if (rank == 0) print '("e2g(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2g = e2g + e2(isym)
             if (rank == 0) print *, 'End e2(isym) add'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
         End do
 
         if (rank == 0) then
@@ -1008,14 +898,9 @@ contains
 
         integer :: i, j, k, l, tabi
         integer :: it, iostat, unit_int2
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
         logical :: is_end_of_file
 
         if (rank == 0) print *, 'Enter vGmat. Please ignore timer under this line.'
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
         v = 0.0d+00
 
 !  V(t,iab)   =  [SIGUMA_p:active <0|Etp|0>{(ai|bp)-(ap|bi)}]       a > b
@@ -1049,9 +934,6 @@ contains
         call allreduce_wrapper(mat=v)
         if (rank == 0) print *, 'end allreduce vGmat'
 #endif
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
     end subroutine vGmat_real
 
 end subroutine solve_G_subspace
