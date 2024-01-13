@@ -17,19 +17,13 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
     integer :: kact, lact
     real(8) :: dr, di
     complex*16 :: dens
-    integer :: datetmp0, datetmp1
-    real(8) :: tsectmp0, tsectmp1
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
     if (rank == 0) print *, 'enter building fock matrix'
-    datetmp0 = initdate
-    tsectmp0 = inittime
-    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
-    datetmp0 = datetmp1
-    tsectmp0 = tsectmp1
 
 ! Initialization
     dr = 0.0d+00; di = 0.0d+00; dens = 0.0d+00
@@ -89,9 +83,6 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 !$OMP end do
 !$OMP end parallel
     if (rank == 0) print *, 'fockcasci_complex before fock_cmplx allreduce'
-    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
-    datetmp0 = datetmp1
-    tsectmp0 = tsectmp1
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_cmplx(1:nmo, 1:nmo))
 #endif
@@ -116,19 +107,13 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
     integer :: j, i, k, l
     integer :: kact, lact
     real(8) :: dr
-    integer :: datetmp0, datetmp1
-    real(8) :: tsectmp0, tsectmp1
+
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
     if (rank == 0) print *, 'enter building fock matrix'
-    datetmp0 = initdate
-    tsectmp0 = inittime
-    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
-    datetmp0 = datetmp1
-    tsectmp0 = tsectmp1
 
 ! Initialization
     dr = 0.0d+00
@@ -187,9 +172,6 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 !$OMP end do
 !$OMP end parallel
     if (rank == 0) print *, 'fockcasci_real before fock_real allreduce'
-    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
-    datetmp0 = datetmp1
-    tsectmp0 = tsectmp1
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_real(1:nmo, 1:nmo))
 #endif

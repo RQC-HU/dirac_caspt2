@@ -41,9 +41,8 @@ SUBROUTINE casci
     end if
     Allocate (ecas(ndet))
     ecas = 0.0d+00
-    datetmp1 = date0; datetmp0 = date0
+    datetmp0 = date0; tsectmp0 = tsec0
     Call timing(date0, tsec0, datetmp0, tsectmp0)
-    tsectmp1 = tsectmp0
 
     ! Diagonalize the CI matrix
     if (rank == 0) then
@@ -57,9 +56,8 @@ SUBROUTINE casci
         Call cdiagx(mat_complex, ndet, nroot, ecas)
     end if
     if (rank == 0) print *, 'End mat diagonalization'
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
+    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
+    datetmp0 = datetmp1; tsectmp0 = tsectmp1
     ! keys and vals are used to store pairs of keys and values in dict_cas_idx
     dict_cas_idx_size = get_size(dict_cas_idx)
     allocate (keys(dict_cas_idx_size), vals(dict_cas_idx_size))

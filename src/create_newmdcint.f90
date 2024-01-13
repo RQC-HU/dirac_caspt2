@@ -27,9 +27,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: unit_mdcint, unit_mdcintnew
     logical :: is_file_exist, is_end_of_file
 
-    Call timing(date1, tsec1, date0, tsec0)
-    date1 = date0
-    tsec1 = tsec0
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
@@ -205,9 +202,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     end do
     write (unit_mdcintnew) 0, 0, 0
     close (unit_mdcintnew)
-    Call timing(date1, tsec1, date0, tsec0)
-    date1 = date0
-    tsec1 = tsec0
     deallocate (indk)
     deallocate (indl)
     deallocate (rklr)

@@ -47,9 +47,9 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
         print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
 
-        totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
+        inittime = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
         initdate = val(3)
-        inittime = totalsec
+        date0 = initdate; tsec0 = inittime
 
         print *, inittime
     end if
@@ -82,8 +82,15 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
     else
-        ! Create UTChem type MDCINT file from Dirac MDCINT file
+
+        if (rank == 0) print *, "Start create_newmdcint"
+        call timing(date0, tsec0, date1, tsec1)
+        date0 = date1; tsec0 = tsec1
         call create_newmdcint
+        ! Create UTChem type MDCINT file from Dirac MDCINT file
+        if (rank == 0) print *, "End create_newmdcint"
+        call timing(date0, tsec0, date1, tsec1)
+        date0 = date1; tsec0 = tsec1
     end if
     if (rank == 0) print '(a)', 'Before readint2_casci'
 
@@ -137,9 +144,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
     if (rank == 0) then
         print *, 'before building fock'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call timing(date0, tsec0, date1, tsec1)
+        date0 = date1; tsec0 = tsec1
     end if
     if (realonly%is_realonly()) then
         if (.not. allocated(fock_real)) then
@@ -157,9 +163,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) then
         print *, 'end building fock'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call timing(date0, tsec0, date1, tsec1)
+        date0 = date1; tsec0 = tsec1
     end if
 
 #ifdef DEBUG
