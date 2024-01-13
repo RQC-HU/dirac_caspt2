@@ -7,6 +7,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use module_error, only: stop_with_errorcode
     use module_file_manager
     use module_realonly, only: realonly
     Use module_global_variables
@@ -43,30 +44,45 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 #ifdef HAVE_MPI
     ! Broadcast kr and other data that are not included in the MDCINXXX files
     call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+#ifdef DEBUG
     if (rank == 0) then
         print *, "datex broadcast"
         print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
+#endif
+    if (ierr /= 0) call stop_with_errorcode(ierr)
     call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+#ifdef DEBUG
     if (rank == 0) then
         print *, "timex broadcast"
         print *, "if ierr == 0, timex broadcast successed. ierr=", ierr
     end if
+#endif
+    if (ierr /= 0) call stop_with_errorcode(ierr)
     call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+#ifdef DEBUG
     if (rank == 0) then
         print *, "nkr broadcast"
         print *, "if ierr == 0, nkr broadcast successed. ierr=", ierr
     end if
+#endif
+    if (ierr /= 0) call stop_with_errorcode(ierr)
     call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+#ifdef DEBUG
     if (rank == 0) then
         print *, "kr broadcast"
         print *, "if ierr == 0, kr broadcast successed. ierr=", ierr
     end if
+#endif
+    if (ierr /= 0) call stop_with_errorcode(ierr)
     call MPI_Bcast(indmo_dirac_to_cas(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+#ifdef DEBUG
     if (rank == 0) then
         print *, "datex broadcast"
         print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
     end if
+#endif
+    if (ierr /= 0) call stop_with_errorcode(ierr)
 #endif
 
     cutoff = 0.25D-12
