@@ -218,10 +218,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the A subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, 'Enter solvA'
+        if (rank == 0) print *, "Start calcultion of A subspace 2nd order energy"
         Call solve_A_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcultion of A subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -233,16 +233,17 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     else
         ! Transform B subspace 2-electron integrals (active, inactive | active, inactive)
         Call intra_2(2, 1, 2, 1, bint)
-        if (rank == 0) print *, 'End intra_2 Bint'
+        if (rank == 0) print *, "End intra_2 Bint"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
 
         ! Calculate the B subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of B subspace 2nd order energy"
         Call solve_B_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcuation of B subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -276,8 +277,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the B subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of C subspace 2nd order energy"
         Call solve_C_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, "End calcuation of C subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -310,9 +313,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the D subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of D subspace 2nd order energy"
         Call solve_D_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcuation of D subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -331,9 +335,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the E subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of E subspace 2nd order energy"
         Call solve_E_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcuation of E subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -352,9 +357,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the F subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of F subspace 2nd order energy"
         Call solve_F_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcuation of F subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -373,9 +379,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the G subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of G subspace 2nd order energy"
         Call solve_G_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcuation of G subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
@@ -395,9 +402,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Calculate the H subspace 2nd order energy
         sumc2local = 0.0d+00
+        if (rank == 0) print *, "Start calcuation of H subspace 2nd order energy"
         Call solve_H_subspace(e0, e2)
         e2all = e2all + e2
-        if (rank == 0) print *, e2all
+        if (rank == 0) print *, "End calcuation of H subspace 2nd order energy"
         date1 = date0
         tsec1 = tsec0
         Call timing(date1, tsec1, date0, tsec0)
