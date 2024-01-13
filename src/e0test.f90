@@ -254,7 +254,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
     energy(iroot, 4) = 0.5d+00*energy(iroot, 4)
 
 #ifdef HAVE_MPI
-    call allreduce_wrapper(mat=energyHF(1:2))
+    call allreduce_wrapper(mat=energy(iroot, :))
 #endif
 
     if (rank == 0) then
