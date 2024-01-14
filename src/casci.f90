@@ -52,9 +52,9 @@ SUBROUTINE casci
     end if
     cutoff_threshold = 0  ! No need to resolve linear dependence
     if (realonly%is_realonly()) then
-        Call rdiag(mat_real, ndet, ndet, ecas, cutoff_threshold)
+        call rdiagx(mat_real, ndet, nroot, ecas)
     else
-        Call cdiag(mat_complex, ndet, ndet, ecas, cutoff_threshold)
+        Call cdiagx(mat_complex, ndet, nroot, ecas)
     end if
     if (rank == 0) print *, 'End mat diagonalization'
     Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
