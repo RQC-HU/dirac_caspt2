@@ -50,12 +50,23 @@ class DIRACFiles:
         shutil.copy(self.output_file_path, self.data_directory)
 
 
+def replace_template_file(template_file_path: Path, output_file_path: Path, replace_dict: dict[str, str]):
+    with open(template_file_path, "r") as f:
+        lines = f.readlines()
+    logging.info("Replacing the template python file with the correct values...")
+    with open(output_file_path, "w") as f:
+        for line in lines:
+            for key, value in replace_dict.items():
+                line = line.replace(key, value)
+            f.write(line)
+
+
 def check_test_type() -> TestType:
     # Ask for the type of the test(slow, normal, fast)
     test_speed_types: dict[str, TestType] = {
         "slow, 20↑ sec": TestType(marker="@pytest.mark.slowonly", dir="slow"),
         "normal, 10-20 sec": TestType(marker="", dir="unmarker"),
-        "fast(dev), 1-10 sec": TestType(marker="@pytest.marker.dev", dir="dev"),
+        "fast(dev), 1-10 sec": TestType(marker="@pytest.mark.dev", dir="dev"),
     }
     ref_test_speed_types = list(test_speed_types.keys())
     ref_test_type = check_type(
@@ -150,21 +161,18 @@ def main():
 
     logging.info(f"Generating {test_type}...")
 
+    # Get the test directory name
+    selected_test_type = check_test_type()
+    # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
+    test_directory_name = ask_test_directory_name()
+    dir_path = Path.joinpath(test_dir, selected_test_type.dir, test_directory_name).resolve()
+    if dir_path.is_dir():
+        logging.error(f"The test directory {dir_path} already exists. Exiting...")
+        raise FileExistsError
+
     if test_type == "CASPT2 energy test":
         # Generate CASPT2 energy test
 
-        # Ask for the type of the test(slow, normal, fast)
-        selected_test_type = check_test_type()
-
-        # Get the test directory name
-        test_directory_name = ask_test_directory_name()
-        # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
-        dir_path = Path.joinpath(test_dir, selected_test_type.dir, test_directory_name).resolve()
-        logging.info(f"Test directory path: {dir_path}")
-        # if the directory already exists, exit
-        if dir_path.exists():
-            logging.error(f"The test directory {dir_path} already exists. Exiting...")
-            raise FileExistsError
         # Ask for the path of the reference output
         ref_output_path = ask_output_file_path(program_name="DIRAC-CASPT2", default_path=user_dir)
         ref_parent_dir = ref_output_path.parent
@@ -194,21 +202,13 @@ def main():
         logging.info("Copying template python file to the test directory...")
         template_python_file_path = Path.joinpath(test_template_dir, "caspt2_energy_test", "test_template_caspt2.py")
         python_file_path = Path.joinpath(dir_path, f"test_{test_directory_name}.py")
-        shutil.copy(template_python_file_path, python_file_path)
 
         # Replace the template python file with the correct values
         replace_dict = {
             "def replace_test_template": f"def test_{test_directory_name}",
             "# @replace_marker": selected_test_type.marker,
         }
-        with open(python_file_path, "r") as f:
-            lines = f.readlines()
-        logging.info("Replacing the template python file with the correct values...")
-        with open(python_file_path, "w") as f:
-            for line in lines:
-                for key, value in replace_dict.items():
-                    line = line.replace(key, value)
-                f.write(line)
+        replace_template_file(template_python_file_path, python_file_path, replace_dict)
 
         dirac_files = DIRACFiles()
         dirac_files.ask_dirac_files(program_name="DIRAC", default_path=ref_parent_dir)
@@ -222,18 +222,6 @@ def main():
     elif test_type == "IVO test":
         # Generate IVO test
 
-        # Ask for the type of the test(slow, normal, fast)
-        selected_test_type = check_test_type()
-
-        # Get the test directory name
-        test_directory_name = ask_test_directory_name()
-        # mkdir the test directory (the name of the directory is the name of the reference output file without the extension)
-        dir_path = Path.joinpath(test_dir, selected_test_type.dir, test_directory_name).resolve()
-        logging.info(f"Test directory path: {dir_path}")
-        # if the directory already exists, exit
-        if dir_path.is_dir():
-            logging.error(f"The test directory {dir_path} already exists. Exiting...")
-            raise FileExistsError
         # Ask for the path of the reference output
         ref_output_path = ask_output_file_path(program_name="DIRAC-IVO", default_path=user_dir)
         ref_parent_dir = ref_output_path.parent
@@ -267,22 +255,14 @@ def main():
         logging.info("Copying template python file to the test directory...")
         template_python_file_path = Path.joinpath(test_template_dir, "ivo_test", "test_template_ivo.py")
         python_file_path = Path.joinpath(dir_path, f"test_{test_directory_name}.py")
-        shutil.copy(template_python_file_path, python_file_path)
 
         # Replace the template python file with the correct values
         replace_dict = {
             "def replace_test_template": f"def test_{test_directory_name}",
             "# @replace_marker": selected_test_type.marker,
         }
+        replace_template_file(template_python_file_path, python_file_path, replace_dict)
 
-        with open(python_file_path, "r") as f:
-            lines = f.readlines()
-        logging.info("Replacing the template python file with the correct values...")
-        with open(python_file_path, "w") as f:
-            for line in lines:
-                for key, value in replace_dict.items():
-                    line = line.replace(key, value)
-                f.write(line)
         dirac_files = DIRACFiles()
         dirac_files.ask_dirac_files(program_name="DIRAC", default_path=ref_parent_dir)
         dirac_files.create_dirac_dir_and_copy_files(dir_path)
