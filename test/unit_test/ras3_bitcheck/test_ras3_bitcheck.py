@@ -1,4 +1,3 @@
-import shutil
 import os
 from module_testing import (
     create_test_command,
@@ -19,14 +18,12 @@ def test_ras3_bitcheck():
 
     # input/output/executable file names
     ref_output_file = "expected"
-    result_filename = "result"
-    move_filename = "result.prev"
+    result_filename = "result.out"
     exe_filename = "ras3_bitcheck_exe"
 
     # Absolute path to input/output/executable files
     ref_output_file_path = os.path.abspath(os.path.join(test_path, ref_output_file))
     result_file_path = os.path.abspath(os.path.join(test_path, result_filename))
-    move_file_path = os.path.abspath(os.path.join(test_path, move_filename))
     exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
@@ -36,9 +33,6 @@ def test_ras3_bitcheck():
 
     string_ref = get_split_string_list_from_output_file(ref_output_file_path)
     string_result = get_split_string_list_from_output_file(result_file_path)
-
-    # Move result files to move_file_path
-    shutil.move(result_file_path, move_file_path)
 
     # Evaluate the difference between references and results
     assert string_ref == string_result
