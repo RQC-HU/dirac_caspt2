@@ -129,9 +129,10 @@ contains
                 End if
             End do
             If (mod(ielec, 2) == 0) isym = isym + nsymrpa ! even number electronic system
-
-            if (rank == 0) print '(a,i20,a,b50,a,i5)', &
-                "current_det:", current_det, "bit(current_det)", current_det, "isym:", isym
+#ifdef DEBUG
+            if (rank == 0) print '(a,i20,1x,a,b50,1x,a,i5)', &
+                "current_det:", current_det, "bit(current_det):", current_det, "isym:", isym
+#endif
             ! Check if the determinant is allowed
             if (isym == totsym) then
                 is_cas_determinant = .true.

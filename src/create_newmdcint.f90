@@ -28,6 +28,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: unit_mdcint, unit_mdcintnew
     logical :: is_file_exist, is_end_of_file
 
+    if (rank == 0) print *, 'Start create_newmdcint'
     Allocate (kr(-nmo/2:nmo/2))
     kr = 0
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
@@ -130,7 +131,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 !           lkr = llkr
 
             if (ikr == 0) then
-                if (rank == 0) print *, ikr, jkr, nz, mdcint_debug
                 exit mdcint_file_read ! End of file
             end if
 
@@ -223,7 +223,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     deallocate (rklr)
     if (allocated(rkli)) deallocate (rkli)
 
-    if (rank == 0) print *, 'end create_binmdcint.'
+    if (rank == 0) print *, 'End create_newmdcint'
     deallocate (kr)
 contains
     logical function should_write_2int_to_disk()

@@ -143,7 +143,6 @@ contains
 
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sFmat'
             Call sFmat_complex(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -278,7 +277,6 @@ contains
 
             if (rank == 0) print '("e2f(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2f = e2f + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -531,10 +529,10 @@ contains
 
         end do
         close (unit_int2)
+        if (rank == 0) print *, 'reading Fint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end allreduce vFmat'
 #endif
         if (rank == 0) print *, 'F subspace V matrix is obtained normally'
 
@@ -668,7 +666,6 @@ contains
 
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sFmat'
             Call sFmat_real(dimn, indsym, sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -788,7 +785,6 @@ contains
 
             if (rank == 0) print '("e2f(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2f = e2f + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -1041,10 +1037,10 @@ contains
 
         end do
         close (unit_int2)
+        if (rank == 0) print *, 'reading Fint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end allreduce vFmat'
 #endif
         if (rank == 0) print *, 'F subspace V matrix is obtained normally'
 

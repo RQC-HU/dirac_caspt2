@@ -138,7 +138,6 @@ contains
 
             Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
             sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sBmat'
             Call sBmat_complex(dimn, indsym, sc)
 
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -267,8 +266,6 @@ contains
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
             e2b = e2b + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
-
         End do
 
         if (rank == 0) then
@@ -580,11 +577,12 @@ contains
         end do
 
         close (unit_int2)
-        if (rank == 0) print *, 'B subspace V matrix is obtained normally'
+        if (rank == 0) print *, 'reading Bint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
+        if (rank == 0) print *, 'B subspace V matrix is obtained normally'
     end subroutine vBmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -709,7 +707,6 @@ contains
 
             Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
             sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sBmat'
             Call sBmat_real(dimn, indsym, sc)
 
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -826,7 +823,6 @@ contains
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
             e2b = e2b + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -1138,6 +1134,7 @@ contains
         end do
 
         close (unit_int2)
+        if (rank == 0) print *, 'reading Bint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)

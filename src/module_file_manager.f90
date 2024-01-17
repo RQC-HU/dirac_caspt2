@@ -44,7 +44,6 @@ contains
         if (iostat == 0) then
             end_of_file_reached = .false.
         else if (iostat < 0) then
-            print *, "END OF FILE: ", file
             end_of_file_reached = .true.
         else
             print *, "ERROR: Error occured while reading a file. file: ", file, " iostat: ", iostat

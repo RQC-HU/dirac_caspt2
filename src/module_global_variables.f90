@@ -133,8 +133,6 @@ MODULE module_global_variables
     ! rank                  : Process number of MPI (0 <= rank <= nprocs-1)
     ! mdcint_filename       : MDCINT filenames for each MPI process
     ! mdcintnew             : MDCINTNEW filenames for each MPI process (e.g. MDCINTNEW8)
-    ! mdcint_debug          : MDCINT_debug filenames for each MPI process (e.g. MDCINT_debug1)
-    ! mdcint_int            : MDCINT_int filenames for each MPI process (e.g. MDCINT_int)
     ! a1int, a2int          : A subspace filenames for each MPI process (e.g. A1int2)
     ! bint                  : B subspace filenames for each MPI process (e.g. Bint10)
     ! c1int, c2int, c3int   : C subspace filenames for each MPI process (e.g. C1int1)
@@ -144,7 +142,7 @@ MODULE module_global_variables
     ! gint                  : G subspace filenames for each MPI process (e.g. Gint11)
     ! hint                  : H subspace filenames for each MPI process (e.g. Hint12)
     integer :: ierr, nprocs, rank
-    character(:), allocatable :: mdcint_filename, mdcintnew, mdcint_debug, mdcint_int
+    character(:), allocatable :: mdcint_filename, mdcintnew
     character(:), allocatable :: a1int, a2int, bint, c1int, c2int, c3int, d1int, d2int, d3int, eint, fint, gint, hint
 
     !! ================

@@ -199,8 +199,6 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
     complex*16, allocatable  ::  work(:)
     real(8), allocatable      ::  rwork(:)
 
-    if (rank == 0) print *, 'Enter cdiagonal part'
-
     ! Prepare for diagonalization
     w(:) = 0.0d+00
     jobz = 'V' ! calculate eigenvectors
@@ -223,7 +221,6 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
     deallocate (rwork)
 
     ! Error check
-    if (rank == 0) print *, 'Finish zheev info = ', info
     if (info /= 0) then
         if (rank == 0) print *, 'error in diagonalization, info = ', info
         call stop_with_errorcode(info)
@@ -237,7 +234,6 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
         dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
 
-    if (rank == 0) print *, "end cdiag"
 end subroutine cdiag
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -280,15 +276,12 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 
     ncount(:) = 0
 
-    if (rank == 0) print *, 'nsymrpa', nsymrpa
-
     Do i = n0, n1
         isym = irpamo(i)
         ncount(isym) = ncount(isym) + 1
         ind(ncount(isym), isym) = i
     End do
 
-    if (rank == 0) print *, 'isym,ncount(isym)', (ncount(isym), isym=1, nsymrpa)
     Do isym = 1, nsymrpa
 
         dimn = ncount(isym)
@@ -319,7 +312,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     mat = MATMUL(mat, fa)
 
     if (rank == 0) then
-        print *, 'OFF DIAGONAL TERM OF U*FU'
+        print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)'
         do j = n0, n1
             do i = n0, n1
                 if (i /= j .and. (ABS(mat(i, j)) > 1.0d-10)) then
@@ -328,9 +321,11 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
             end do
         end do
 
-        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)'
         do i = n0, n1
-            print '(4E13.5)', mat(i, i), w(i), ABS(mat(i, i) - w(i))
+            if (ABS(mat(i, i) - w(i)) > 1.0d-10) then
+                print '(3E13.5)', mat(i, i), w(i), ABS(mat(i, i) - w(i))
+            end if
         end do
     end if
     deallocate (mat)
@@ -467,7 +462,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
     ! Check U*FU
     if (rank == 0) then
-        print *, 'OFF DIAGONAL TERM OF U*FU'
+        print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)'
         do j = n0, n1
             do i = n0, n1
                 if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
@@ -475,7 +470,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
                 end if
             end do
         end do
-        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE'
+        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)'
         do i = n0, n1
             if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
                 print '(4E13.5)', matc(i, i), wc(i), ABS(matc(i, i) - wc(i))

@@ -82,17 +82,13 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
     else
-
-        if (rank == 0) print *, "Start create_newmdcint"
         call timing(date0, tsec0, date1, tsec1)
         date0 = date1; tsec0 = tsec1
-        call create_newmdcint
         ! Create UTChem type MDCINT file from Dirac MDCINT file
-        if (rank == 0) print *, "End create_newmdcint"
+        call create_newmdcint
         call timing(date0, tsec0, date1, tsec1)
         date0 = date1; tsec0 = tsec1
     end if
-    if (rank == 0) print '(a)', 'Before readint2_casci'
 
     ! Read UTChem type MDCINT files and expands the 2-electron integral in memory
     Call readint2_casci(mdcintnew, nuniq)
@@ -143,7 +139,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
     if (rank == 0) then
-        print *, 'before building fock'
         call timing(date0, tsec0, date1, tsec1)
         date0 = date1; tsec0 = tsec1
     end if

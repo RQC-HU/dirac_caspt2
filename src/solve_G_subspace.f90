@@ -267,7 +267,6 @@ contains
 
             if (rank == 0) print '("e2g(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2g = e2g + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -457,10 +456,10 @@ contains
 
         end do
         close (unit_int2)
+        if (rank == 0) print *, 'reading Gint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end allreduce vGmat'
 #endif
         if (rank == 0) print *, 'G subspace V matrix is obtained normally'
     end subroutine vGmat_complex
@@ -700,7 +699,6 @@ contains
 
             if (rank == 0) print '("e2g(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2g = e2g + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -890,10 +888,10 @@ contains
 
         end do
         close (unit_int2)
+        if (rank == 0) print *, 'reading Gint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end allreduce vGmat'
 #endif
         if (rank == 0) print *, 'G subspace V matrix is obtained normally'
     end subroutine vGmat_real

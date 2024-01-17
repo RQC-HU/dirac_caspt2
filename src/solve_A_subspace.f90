@@ -8,7 +8,6 @@ SUBROUTINE solve_A_subspace(e0, e2a)
     real(8), intent(out):: e2a
 
     if (realonly%is_realonly()) then
-        if (rank == 0) print *, "NODA SOLVEA REALONLY START"
         call solve_A_subspace_real()
     else
         call solve_A_subspace_complex()
@@ -260,7 +259,6 @@ contains
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
             e2a = e2a + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -537,9 +535,6 @@ contains
         End do
 !$OMP end parallel do
 
-        Do isym = 1, nsymrpa
-            if (rank == 0) print '(2I4)', dim2(isym), isym
-        End do
 !$OMP parallel do private(ji,it,jt,cint1)
         Do ii = rank + 1, ninact, nprocs
             ji = ii
@@ -560,7 +555,6 @@ contains
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         call open_unformatted_file(unit=unit_int2, file=a1int, status='old', optional_action='read')
-        if (rank == 0) print *, 'open A1int'
         do
             read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
             call check_iostat(iostat=iostat, file=a1int, end_of_file_reached=is_end_of_file)
@@ -608,6 +602,7 @@ contains
         end do
 
         close (unit_int2)
+        if (rank == 0) print *, 'reading A1int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
         do
@@ -671,7 +666,6 @@ contains
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end allreduce vAmat'
 #endif
         if (rank == 0) print *, 'A subspace V matrix is obtained normally'
     end subroutine vAmat_complex
@@ -909,7 +903,6 @@ contains
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
             e2a = e2a + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -1186,9 +1179,6 @@ contains
         End do
 !$OMP end parallel do
 
-        Do isym = 1, nsymrpa
-            if (rank == 0) print '(2I4)', dim2(isym), isym
-        End do
 !$OMP parallel do private(ji,it,jt,cint1)
         Do ii = rank + 1, ninact, nprocs
             ji = ii
@@ -1209,7 +1199,6 @@ contains
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         call open_unformatted_file(unit=unit_int2, file=a1int, status='old', optional_action='read')
-        if (rank == 0) print *, 'open A1int'
         do
             read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
             call check_iostat(iostat=iostat, file=a1int, end_of_file_reached=is_end_of_file)
@@ -1257,6 +1246,7 @@ contains
         end do
 
         close (unit_int2)
+        if (rank == 0) print *, 'reading A1int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=a2int, status='old', optional_action='read') ! TYPE 2 integrals
         do
@@ -1320,7 +1310,6 @@ contains
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end allreduce vAmat'
 #endif
         if (rank == 0) print *, 'A subspace V matrix is obtained normally'
     end subroutine vAmat_real

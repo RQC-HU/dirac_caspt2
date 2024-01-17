@@ -258,7 +258,6 @@ contains
             Deallocate (wb)
 
             e2c = e2c + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -645,7 +644,6 @@ contains
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end Allreduce vCmat'
 #endif
         if (rank == 0) print *, 'C subspace V matrix is obtained normally'
     end subroutine vCmat_complex
@@ -882,7 +880,6 @@ contains
             Deallocate (wb)
 
             e2c = e2c + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -1269,7 +1266,6 @@ contains
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end Allreduce vCmat'
 #endif
         if (rank == 0) print *, 'C subspace V matrix is obtained normally'
     end subroutine vCmat_real

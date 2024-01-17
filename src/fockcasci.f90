@@ -29,7 +29,6 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
     dr = 0.0d+00; di = 0.0d+00; dens = 0.0d+00
     fock_cmplx(:, :) = 0.0d+00
 
-    if (rank == 0) print *, 'enter building fock matrix'
 !$OMP parallel private(i,j,k,l,dr,di,dens,kact,lact)
 !$OMP do schedule(dynamic,2)
     do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
@@ -82,7 +81,6 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
     end do
 !$OMP end do
 !$OMP end parallel
-    if (rank == 0) print *, 'fockcasci_complex before fock_cmplx allreduce'
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_cmplx(1:nmo, 1:nmo))
 #endif
@@ -119,7 +117,6 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
     dr = 0.0d+00
     fock_real(:, :) = 0.0d+00
 
-    if (rank == 0) print *, 'enter building fock matrix'
 !$OMP parallel private(i,j,k,l,dr,kact,lact)
 !$OMP do schedule(dynamic,2)
     do i = rank + 1, global_act_end, nprocs ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
@@ -171,7 +168,6 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
     end do
 !$OMP end do
 !$OMP end parallel
-    if (rank == 0) print *, 'fockcasci_real before fock_real allreduce'
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_real(1:nmo, 1:nmo))
 #endif

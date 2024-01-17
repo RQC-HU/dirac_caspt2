@@ -277,7 +277,6 @@ contains
 
             if (rank == 0) print '("e2d(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2d = e2d + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -484,8 +483,6 @@ contains
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (rank == 0) print *, 'before d1int'
-
         call open_unformatted_file(unit=unit_int2, file=d1int, status='old', optional_action='read')
         do
             read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
@@ -528,8 +525,6 @@ contains
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (rank == 0) print *, 'before d2int'
-
         call open_unformatted_file(unit=unit_int2, file=d2int, status='old', optional_action='read')
         do
             read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
@@ -556,10 +551,7 @@ contains
         end do
         close (unit_int2)
 
-        if (rank == 0) then
-            print *, 'reading D2int2 is over'
-            print *, 'before d3int'
-        end if
+        if (rank == 0) print *, 'reading D2int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=d3int, status='old', optional_action='read') ! (ai|jk) is stored
         do
@@ -606,7 +598,6 @@ contains
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end Allreduce vDmat'
 #endif
         if (rank == 0) print *, 'D subspace V matrix is obtained normally'
     end subroutine vDmat_complex
@@ -862,7 +853,6 @@ contains
 
             if (rank == 0) print '("e2d(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2d = e2d + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
         End do
 
         if (rank == 0) then
@@ -1069,8 +1059,6 @@ contains
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (rank == 0) print *, 'before d1int'
-
         call open_unformatted_file(unit=unit_int2, file=d1int, status='old', optional_action='read')
         do
             read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
@@ -1113,8 +1101,6 @@ contains
 !
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if (rank == 0) print *, 'before d2int'
-
         call open_unformatted_file(unit=unit_int2, file=d2int, status='old', optional_action='read')
         do
             read (unit_int2, iostat=iostat) i, j, k, l, cint2 !  (ij|kl)
@@ -1141,10 +1127,7 @@ contains
         end do
         close (unit_int2)
 
-        if (rank == 0) then
-            print *, 'reading D2int2 is over'
-            print *, 'before d3int'
-        end if
+        if (rank == 0) print *, 'reading D2int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=d3int, status='old', optional_action='read') ! (ai|jk) is stored
         do
@@ -1171,7 +1154,6 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=effh)
 #endif
-        if (rank == 0) print *, 'end allreduce effh'
 
 !$OMP parallel do schedule(dynamic,1) private(ia,ja,ii,ji,tai,it,jt,iu,ju,dr,di,d)
         Do ia = rank + 1, nsec, nprocs
@@ -1192,7 +1174,6 @@ contains
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end Allreduce vDmat'
 #endif
         if (rank == 0) print *, 'D subspace V matrix is obtained normally'
     end subroutine vDmat_real

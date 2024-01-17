@@ -19,7 +19,7 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
     real(8), intent(out)  :: ur(dimn, dimm), wnew(dimm)
     integer :: j0, i0
 
-    print *, 'New dimension becomes ', dimm
+    if (rank == 0) print *, 'New dimension becomes ', dimm
 
     j0 = 0
     do i0 = 1, dimn
@@ -28,12 +28,6 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
             ur(:, j0) = sr(:, i0)
             wnew(j0) = w(i0)
         end if
-    end do
-
-    print *, 'Eigenvalue and eigen vector becomes'
-    do i0 = 1, dimm
-        print *, i0, 'th state'
-        print *, wnew(i0)
     end do
 
 end subroutine rcutoff

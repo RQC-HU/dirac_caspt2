@@ -139,7 +139,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Deallocate (ecas)
 
     ! Read CI coefficients
-    if (rank == 0) print *, ' ENTER READ NEWCICOEFF', ndet
     Allocate (ci(1:ndet))
     ci = 0.0d+00
     call open_unformatted_file(unit=unit_new, file="NEWCICOEFF", status='old', optional_action="read")
@@ -150,7 +149,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
     deallocate (ci)
-    if (rank == 0) print *, ' EXIT READ NEWCICOEFF'
 
     ! Read epsilons
     call open_unformatted_file(unit=unit_new, file="EPS", status='old', optional_action="read")
@@ -202,7 +200,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 &        because the 2nd order energy of A subspace cannot be defined when ninact = 0."
     else
         ! Transform A subspace 2-electron integrals (active, inactive | active, active)
-        if (rank == 0) print *, 'A1int filename : ', trim(a1int), ' rank', rank
         Call intra_3(2, 1, 2, 2, a1int)
         if (rank == 0) print *, 'End intra3 A1int'
         date1 = date0

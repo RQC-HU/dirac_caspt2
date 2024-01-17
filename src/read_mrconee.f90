@@ -178,16 +178,13 @@ contains
             End do
         end if
         MULTB_DS = transpose(SD)
-        if (rank == 0) print *, "before deallocate SD"
         if (rank == 0) then
             print *, 'MULTB_DS'
             Do i = 1, nsymrpa
                 print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
             End do
         end if
-        if (rank == 0) print *, "before deallocate SD"
         Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
-        if (rank == 0) print *, "deallocate SD"
     end subroutine create_multiplication_table
 
     subroutine create_mo_irrep_conversion_list
