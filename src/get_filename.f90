@@ -14,6 +14,7 @@ subroutine get_mdcint_filename(count)
     else
         filename_idx = count*nprocs + rank
         mdcint_basename = "MDCIN"
+        digit_x_padding = ""
         if (filename_idx >= 100000) then!! "ERROR": over six digit(can't assign)
             print *, "ERROR: Can't assign MDCINT file to ranks of over six digits. filename_idx:", filename_idx
             call stop_with_errorcode(1)

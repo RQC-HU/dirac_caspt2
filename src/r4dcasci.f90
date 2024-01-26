@@ -163,7 +163,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 
 #ifdef DEBUG
-    call prtoutfock
+    if(rank == 0) call prtoutfock
 #endif
 
     Allocate (eps(nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
