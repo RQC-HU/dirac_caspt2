@@ -30,19 +30,19 @@ class DIRACFiles:
     output_file_path: Path
     data_directory: Path
 
-    def __init__(self):
-        pass
+    def __init__(self, data_directory: Path):
+        self.data_directory = data_directory
 
     def ask_dirac_files(self, default_answer_path: Path) -> Path:
         # DIRAC input, mol and output files
         program_name = "DIRAC"
+        self.output_file_path = ask_output_file_path(program_name=program_name, default_path=self.input_file_path.parent)
         self.input_file_path = ask_input_file_path(program_name=program_name, default_path=default_answer_path)
         self.mol_file_path = ask_mol_file_path(program_name=program_name, default_path=self.input_file_path.parent)
-        self.output_file_path = ask_output_file_path(program_name=program_name, default_path=self.input_file_path.parent)
 
-    def create_dirac_dir_and_copy_files(self, dest_copy_path: Path):
+    def create_dirac_dir_and_copy_files(self):
         # mkdir the dirac_data directory
-        dest_copy_path.mkdir(parents=True, exist_ok=True)
+        self.data_directory.mkdir(parents=True, exist_ok=True)
         # Copy the DIRAC input, mol and output files to the dirac_data directory
         logging.info("Copying DIRAC input, mol and output files to the dirac_data directory...")
         shutil.copy(self.input_file_path, self.data_directory)
@@ -103,7 +103,7 @@ def check_test_type() -> TestType:
     # Ask for the type of the test(slow, normal, fast)
     test_speed_types: dict[str, TestType] = {
         "slow, 20↑ sec": TestType(marker="@pytest.mark.slowonly", dir="slow"),
-        "normal, 10-20 sec": TestType(marker="", dir="unmarker"),
+        "normal, 10-20 sec": TestType(marker="", dir="unmarked"),
         "fast(dev), 1-10 sec": TestType(marker="@pytest.mark.dev", dir="dev"),
     }
     ref_test_speed_types = list(test_speed_types.keys())
@@ -199,9 +199,9 @@ def main():
         input_file_path = ask_input_file_path(program_name="DIRAC-CASPT2", default_path=ref_parent_dir)
 
         # Ask for the path of the integrals file
-        integral_files = IntegralFiles(default_answer_path=ref_parent_dir)
-        integral_files.ask_dirac_integrals_directory()
-        dirac_files = DIRACFiles()
+        integral_files = IntegralFiles()
+        integral_files.ask_dirac_integrals_directory(default_dir=ref_parent_dir)
+        dirac_files = DIRACFiles(data_directory=Path.joinpath(test_dir, "dirac_data"))
         dirac_files.ask_dirac_files(default_answer_path=ref_parent_dir)
 
         # mkdir the test directory
@@ -209,7 +209,7 @@ def main():
 
         # Copy the DIRAC integral files and DIRAC input, mol and output files
         integral_files.copy_files(dest_copy_path=test_dir)
-        dirac_files.create_dirac_dir_and_copy_files(dest_copy_path=Path(test_dir / "dirac_data"))
+        dirac_files.create_dirac_dir_and_copy_files()
 
         # Copy the input and output file to the test directory
         logging.info("Copying input, and output files to the test directory...")
@@ -245,9 +245,9 @@ def main():
         dfpcmo_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMO", default_path=ref_parent_dir)
         ref_dfpcmonew_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMONEW", default_path=ref_parent_dir)
         # Ask for the path of the integrals file
-        integral_files = IntegralFiles(default_answer_path=ref_parent_dir)
-        integral_files.ask_dirac_integrals_directory()
-        dirac_files = DIRACFiles()
+        integral_files = IntegralFiles()
+        integral_files.ask_dirac_integrals_directory(default_dir=ref_parent_dir)
+        dirac_files = DIRACFiles(data_directory=Path.joinpath(test_dir, "dirac_data"))
         dirac_files.ask_dirac_files(default_answer_path=ref_parent_dir)
 
         # mkdir the test directory
@@ -255,7 +255,7 @@ def main():
 
         # Copy the DIRAC integral files and DIRAC input, mol and output files
         integral_files.copy_files(dest_copy_path=test_dir)
-        dirac_files.create_dirac_dir_and_copy_files(dest_copy_path=Path(test_dir / "dirac_data"))
+        dirac_files.create_dirac_dir_and_copy_files()
 
         # Copy the input and output file to the test directory
         logging.info("Copying input, and output files to the test directory...")
