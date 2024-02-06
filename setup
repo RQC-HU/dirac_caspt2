@@ -21,7 +21,7 @@ def define_args() -> "argparse.Namespace":
     parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.[default compiler: mpiifort]")
     parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
-    parser.add_argument("--prefix", type=str, metavar="INSTALL_DIR", help="Specify the installation directory. [default: ./bin]")
+    parser.add_argument("--prefix", type=str, metavar="INSTALL_DIR", help="Specify the installation directory. [default: /usr/local/bin]")
     return parser.parse_args()
 
 
