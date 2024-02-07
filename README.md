@@ -222,6 +222,7 @@ The following custom CMake build options are currently supported
 
 ### Prerequisites for execution
 
+- Currently, this program only supports DIRAC (64bit) version. You need to build DIRAC with [--int64 option](https://gitlab.com/dirac/dirac/-/blob/ec1da0f39cc2d8b3ed14285838ddae45d8e35a6b/setup#L28). (e.g. ./setup --int64)
 - This program assumes that 1 and 2 electron integral files (MRCONEE, MDCINT, MDCINXXXX1...) are obtained by [DIRAC](http://diracprogram.org/) calculation
   - Please refer to the [**MOLTRA section of DIRAC manual](http://www.diracprogram.org/doc/master/manual/moltra.html) to obtain 1 and 2 electron integral files
   - 1 and 2 electron integral files must be in the same directory

@@ -233,6 +233,7 @@ pytest --all
 
 ### Prerequisites for execution
 
+- 現時点で、本プログラムはDIRAC(64bit)のみサポートしています。したがってDIRACを[--int64 オプション](https://gitlab.com/dirac/dirac/-/blob/ec1da0f39cc2d8b3ed14285838ddae45d8e35a6b/setup#L28)をつけてビルドする必要があります. (e.g. ./setup --int64)
 - [DIRAC](http://diracprogram.org/)の計算で1,2電子積分ファイル(MRCONEE, MDCINT, MDCINXXXX1...)が得られていることを前提としています
   - 1,2電子積分ファイルを得るには[DIRACの**MOLTRAの項](http://www.diracprogram.org/doc/master/manual/moltra.html)を参照してください
   - 1,2電子積分ファイルは同一のディレクトリ上に存在する必要があります
