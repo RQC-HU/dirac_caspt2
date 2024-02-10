@@ -20,6 +20,7 @@ If you want to contribute to this project (bug report, feature request, pull req
     - [Installation](#installation)
     - [CMake build options](#cmake-build-options)
   - [How to use](#how-to-use)
+    - [User manual](#user-manual)
     - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
     - [Input file](#input-file)
@@ -219,6 +220,11 @@ The following custom CMake build options are currently supported
     ```
 
 ## How to use
+
+### User manual
+
+- This section explains the minimum usage of the program
+- For more detailed usage of this program, please refer to the [GitHub Wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/Users-wiki).
 
 ### Prerequisites for execution
 

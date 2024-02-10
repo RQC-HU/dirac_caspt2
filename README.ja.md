@@ -22,6 +22,7 @@
     - [Install](#install)
     - [CMakeビルドオプション](#cmakeビルドオプション)
   - [How to use](#how-to-use)
+    - [User manual](#user-manual)
     - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
     - [input file](#input-file)
@@ -230,6 +231,11 @@ pytest --all
       ```
 
 ## How to use
+
+### User manual
+
+- 以下のセクションでは、最低限の使用方法について説明します
+- 本プログラムの使用方法の詳細については[GitHub Wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E5%90%91%E3%81%91wiki)を参照してください
 
 ### Prerequisites for execution
 
