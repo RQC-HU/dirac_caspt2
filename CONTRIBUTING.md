@@ -2,12 +2,12 @@
 
 First, thank you for considering contributing to this project!
 You can contribute by opening a pull request or an issue.
-Please make sure to read the [Developer's wiki](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/developers-wiki) before you start contributing.
-If you have any questions, please feel free to contact us via [GitHub discussions](https://github.com/kohei-noda-qcrg/dirac_caspt2/discussions)
+Please make sure to read the [Developer's wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/developers-wiki) before you start contributing.
+If you have any questions, please feel free to contact us via [GitHub discussions](https://github.com/RQC-HU/dirac_caspt2/discussions)
 
 ### How to contribute
 
-- If you find a bug or have a feature request, please [open an issue](https://github.com/kohei-noda-qcrg/dirac_caspt2/issues/new/choose) or [open a pull request](https://github.com/kohei-noda-qcrg/dirac_caspt2/compare)
+- If you find a bug or have a feature request, please [open an issue](https://github.com/RQC-HU/dirac_caspt2/issues/new/choose) or [open a pull request](https://github.com/RQC-HU/dirac_caspt2/compare)
 
 - You can contribute by opening a pull request the following steps below
 1. Fork the repository
@@ -29,7 +29,7 @@ So even if you don't have prerequisite softwares, you can start developing the p
   docker exec -it dirac-caspt2 /bin/bash
   ```
 
-You can find the details of the development environment in the [Developer's wiki](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/configure-dev-environment)
+You can find the details of the development environment in the [Developer's wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/configure-dev-environment)
 
 ### Building the project
 
@@ -38,4 +38,4 @@ Please refer to the build instructions at [README.md](README.md#how-to-build)
 ### How to run tests
 
 - We use pytest to run tests
-Please refer to the test instructions at [Developer's wiki](https://github.com/kohei-noda-qcrg/dirac_caspt2/wiki/about-test)
+Please refer to the test instructions at [Developer's wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/about-test)

@@ -1,5 +1,5 @@
 # DIRAC-CASPT2: A relativistic second order multi-configuration perturbation calculation program
-[![DIRAC-CASPT2-CI-test](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml)  [日本語README](README.ja.md)
+[![DIRAC-CASPT2-CI-test](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml)  [日本語README](README.ja.md)
 
 - This program performs the second order multi-configuration perturbation calculation using the IVO/CASCI/CASPT2 or IVO/RASCI/RASPT2 method with 1- and 2-electron integrals obtained from the [DIRAC](http://diracprogram.org/doku.php) calculation.
 
@@ -32,7 +32,7 @@ If you want to contribute to this project (bug report, feature request, pull req
 - Download the source code from GitHub.
 
 ```sh
-git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+git clone --depth=1 https://github.com/RQC-HU/dirac_caspt2.git
 ```
 
 ## Prerequisites for build

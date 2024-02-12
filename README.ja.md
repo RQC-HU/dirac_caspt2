@@ -1,7 +1,7 @@
 # DIRAC-CASPT2: 相対論的多配置2次摂動論プログラム
 
 
-[![DIRAC-CASPT2-CI-test](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml) [English README](README.md)
+[![DIRAC-CASPT2-CI-test](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml) [English README](README.md)
 
 - [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはRASCI/RASPT2法で2次の多配置摂動計算を行います
 
@@ -34,7 +34,7 @@
 - GitHubからソースコードをダウンロードします
 
 ```sh
-git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+git clone --depth=1 https://github.com/RQC-HU/dirac_caspt2.git
 ```
 
 ## Prerequisites for build
