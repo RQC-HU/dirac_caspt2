@@ -295,7 +295,7 @@ def main():
         replace_dict = {
             "def replace_test_template": f"def test_{test_directory_name}",
             "# @replace_marker": selected_test_type.marker,
-            "replace_test_exe": f"{test_directory_name}_test_exe",
+            "replace_test_exe": f"test_{test_directory_name}_exe",
         }
         replace_template_file(template_python_file_path, python_file_path, replace_dict)
 
