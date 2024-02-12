@@ -285,9 +285,10 @@ def main():
 
     elif test_type == "Unit test":
         # Reference output file
-        ref_output_path = ask_general_file_path(program_name="unit test", file_type="reference output", default_path=user_dir)
         test_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy(ref_output_path, Path.joinpath(test_dir, "expected"))
+        template_expected_file_path = Path.joinpath(test_template_dir, "unit_test", "expected")
+        expected_file_path = Path.joinpath(test_dir, "expected")
+        shutil.copy(template_expected_file_path, expected_file_path)
 
         # Python file
         template_python_file_path = Path.joinpath(test_template_dir, "unit_test", "test_template_unit_test.py")
@@ -316,12 +317,14 @@ def main():
         logging.info("================== NOTE ==================")
         logging.info("Then follow these steps to replace the automatically created test with the process you want to test")
         logging.info(f"1. Edit {fortran_file_path} to add the process you wish to test and write the results to result.out.")
+        logging.info(f"2. Edit {expected_file_path} to rewrite the expected result according to the process your {fortran_file_path} file is testing.")
         logging.info(
-            f"2. Edit {python_file_path} to rewrite the process after run_test according to the type of data you want to test.\
+            f"3. Edit {python_file_path} to rewrite the process after run_test according to the type of data you want to test.\
 \n\tIn the automatically created file, the process takes a single line of string as a string and checks if it matches.\
-\n\tIn the {test_dir}/module_testing.py file, there are functions that can be used to convert the output file to desired data type."
+\n\tIn the {test_template_dir.parent}/module_testing.py file, there are functions that can be used to convert the output file to desired data type."
         )
-        logging.info("That's it! Now you can run the test!")
+        logging.info(f"4. Rebuild the source code with {test_template_dir.parent.parent}/setup script.")
+        logging.info("That's it! Now you can run the test with pytest!!")
         logging.info("==========================================")
         logging.info(f"test directory: {test_dir}")
         logging.info("Before you commit a new test, please run the test to make sure it passes.")
