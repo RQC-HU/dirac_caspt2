@@ -1,19 +1,19 @@
 import os
 import shutil
+from datetime import datetime, timedelta
+from typing import List, Tuple
+
+import pytest
 from module_testing import (
     create_test_command,
     delete_scratch_files,
-    get_stripped_string_from_output_file,
-    get_split_string_list_from_output_file,
     is_binary_file_exist,
     run_test,
 )
-import pytest
 
 
 @pytest.mark.dev
 def test_time_calc():
-    from datetime import datetime
 
     def create_date_time_from_input(input_str: str) -> datetime:
         # (e.g. "2021 01 01 00 00 00 00\n")
@@ -54,9 +54,6 @@ def test_time_calc():
 
     run_test(test_command)
 
-    from datetime import datetime, timedelta
-    from typing import List, Tuple
-
     # Create reference durations
     ref_durations: List[timedelta] = []
     start_and_end_times: List[Tuple[datetime, datetime]] = []
@@ -69,7 +66,6 @@ def test_time_calc():
             start_and_end_times.append((start_time, end_time))
             ref_durations.append(end_time - start_time)
 
-
     # Get result durations
     result_durations: List[timedelta] = []
     with open(output_file_path, "r") as f:
@@ -78,7 +74,9 @@ def test_time_calc():
                 result_durations.append(create_date_time_from_output(line))
 
     for ref, res, start_and_end in zip(ref_durations, result_durations, start_and_end_times):
-        assert ref == res, f"Referecne != Result, Reference: {ref}, Result: {res}, \
+        assert (
+            ref == res
+        ), f"Referecne != Result, Reference: {ref}, Result: {res}, \
 Start time: {start_and_end[0]}, End time: {start_and_end[1]}"
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
