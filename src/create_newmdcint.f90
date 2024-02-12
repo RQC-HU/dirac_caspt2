@@ -12,6 +12,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     Use module_global_variables
     use module_realonly, only: realonly
     use module_sort_swap, only: swap
+    use module_time
     Implicit None
 #ifdef HAVE_MPI
     include 'mpif.h'

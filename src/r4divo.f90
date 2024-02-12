@@ -10,6 +10,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use module_file_manager
     use module_2integrals
     use module_realonly, only: check_realonly, realonly
+    use module_time
     use read_input_module
     use module_ivo_consistency_check
 

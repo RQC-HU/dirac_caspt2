@@ -90,6 +90,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 
     use module_error, only: stop_with_errorcode
     use module_global_variables
+    use module_time
     use module_file_manager, only: open_unformatted_file
 
     Implicit NONE

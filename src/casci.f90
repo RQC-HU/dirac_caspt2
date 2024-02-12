@@ -11,6 +11,7 @@ SUBROUTINE casci
     use module_file_manager, only: open_unformatted_file
     use module_global_variables
     use module_realonly, only: realonly
+    use module_time
     Implicit NONE
 
     integer :: j0, j, i0, irec, unit_cimat

@@ -12,6 +12,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     use module_global_variables
     use module_intra, only: intra_1, intra_2, intra_3
     use module_realonly, only: check_realonly, realonly
+    use module_time
     use read_input_module, only: read_input
     Implicit NONE
 #ifdef HAVE_MPI

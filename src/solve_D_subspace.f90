@@ -2,6 +2,7 @@ SUBROUTINE solve_D_subspace(e0, e2d)
 
     use module_global_variables
     use module_realonly, only: realonly
+    use module_time
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2d

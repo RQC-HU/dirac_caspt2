@@ -10,6 +10,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     use module_file_manager
     use module_2integrals
     use module_realonly
+    use module_time
     use read_input_module
 
     Implicit NONE

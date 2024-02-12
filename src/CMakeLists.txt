@@ -3,6 +3,7 @@ add_library(dcaspt2_module_global STATIC
   module_error.f90
   module_global_variables.f90
   module_mpi.f90
+  timing.f90
 )
 
 add_library(dcaspt2_module STATIC
@@ -51,7 +52,6 @@ add_executable(r4dcascicoexe
   r4dcasci.f90
   read_mrconee.f90
   sdet.f90
-  timing.f90
   trac.f90
   tramo.f90
 )
@@ -78,7 +78,6 @@ add_executable(r4dcaspt2ocoexe
   solve_F_subspace.f90
   solve_G_subspace.f90
   solve_H_subspace.f90
-  timing.f90
   tramo.f90
 )
 target_link_libraries(r4dcaspt2ocoexe caspt2_module)
@@ -94,7 +93,6 @@ add_executable(r4divocoexe
 	one_e_exct.f90
 	r4divo.f90
   read_mrconee.f90
-	timing.f90
 )
 target_link_libraries(r4divocoexe ivo_module)
 
