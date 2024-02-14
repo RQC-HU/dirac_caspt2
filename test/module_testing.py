@@ -1,9 +1,10 @@
 import glob
 import os
 import subprocess
+from typing import List
 
 
-def delete_scratch_files(delete_files: "list[str]", test_path: str) -> None:
+def delete_scratch_files(delete_files: List[str], test_path: str) -> None:
     for d in delete_files:
         files = glob.glob(os.path.abspath(os.path.join(test_path, d)))
         for f in files:
@@ -16,10 +17,12 @@ def is_binary_file_exist(binary_file: str) -> None:
         raise Exception(error_message)
 
 
-def create_test_command_dcaspt2(dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool, is_ivo: bool = False) -> str:
+def create_test_command_dcaspt2(
+    dcaspt2: str, mpi_num_process: int, omp_num_threads: "int|None", input_file: str, output_file: str, test_path: str, save: bool, is_ivo: bool = False
+) -> str:
     options = ""
     if is_ivo:
-        options = " --ivo --get \"DFPCMONEW\""
+        options += ' --ivo --get "DFPCMONEW"'
     if save:
         scratch_path = os.path.join(test_path, "scratch")
         options += f" --save --scratch {scratch_path}"
@@ -35,7 +38,7 @@ def create_test_command_dcaspt2(dcaspt2: str, mpi_num_process: int, omp_num_thre
     return test_command
 
 
-def create_test_command(mpi_num_process: int, binaries: "list[str]") -> str:
+def create_test_command(mpi_num_process: int, binaries: List[str]) -> str:
     test_command = ""
     if mpi_num_process > 1:  # If the number of process is greater than 1, use MPI
         for idx, binary in enumerate(binaries):
@@ -100,7 +103,7 @@ def get_stripped_string_from_output_file(file_path: str) -> str:
             raise Exception(error_message)
 
 
-def get_split_string_list_from_output_file(file_path: str) -> "list[str]":
+def get_split_string_list_from_output_file(file_path: str) -> List[str]:
     with open(file_path, encoding="utf-8", mode="r") as output_file:
         try:
             string = output_file.read()
@@ -110,7 +113,7 @@ def get_split_string_list_from_output_file(file_path: str) -> "list[str]":
             raise Exception(error_message)
 
 
-def convert_string_list_to_integer_list(string_list: "list[str]") -> "list[int]":
+def convert_string_list_to_integer_list(string_list: List[str]) -> List[int]:
     try:
         integer_list = list(map(int, string_list))
         return integer_list
@@ -119,7 +122,7 @@ def convert_string_list_to_integer_list(string_list: "list[str]") -> "list[int]"
         raise Exception(error_message)
 
 
-def convert_string_list_to_float_list(string_list: "list[str]") -> "list[float]":
+def convert_string_list_to_float_list(string_list: List[str]) -> List[float]:
     try:
         float_list = list(map(float, string_list))
         return float_list
