@@ -75,3 +75,24 @@ add_subdirectory(src)
 add_subdirectory(test)
 configure_file(${PROJECT_SOURCE_DIR}/tools/dcaspt2_input ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 COPYONLY)
 install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+# Git commit hash
+set(git_hash "unknown")  # Default value
+
+# If .git/HEAD exists, get the commit hash
+if(EXISTS "${PROJECT_SOURCE_DIR}/.git/HEAD")
+  file(STRINGS "${PROJECT_SOURCE_DIR}/.git/HEAD" git_head)
+
+  if(git_head MATCHES "ref: ")
+    string(REGEX REPLACE "ref: " "" git_head "${git_head}")
+    file(STRINGS "${PROJECT_SOURCE_DIR}/.git/${git_head}" git_hash LIMIT_COUNT 1)
+  else()
+    set(git_hash "${git_head}")
+  endif()
+
+  message(STATUS "Git commit hash: ${git_hash}")
+endif()
+
+# Save the git commit hash to a file
+file(WRITE ${EXECUTABLE_OUTPUT_PATH}/.commit_hash "${git_hash}")
+install(FILES ${EXECUTABLE_OUTPUT_PATH}/.commit_hash DESTINATION ${CMAKE_INSTALL_PREFIX})
