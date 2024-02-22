@@ -1,5 +1,5 @@
 # DIRAC-CASPT2: A relativistic second order multi-configuration perturbation calculation program
-[![DIRAC-CASPT2-CI-test](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml)  [日本語README](README.ja.md)
+[![DIRAC-CASPT2-CI-test](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml)  [日本語README](README.ja.md)
 
 - This program performs the second order multi-configuration perturbation calculation using the IVO/CASCI/CASPT2 or IVO/RASCI/RASPT2 method with 1- and 2-electron integrals obtained from the [DIRAC](http://diracprogram.org/doku.php) calculation.
 
@@ -20,6 +20,7 @@ If you want to contribute to this project (bug report, feature request, pull req
     - [Installation](#installation)
     - [CMake build options](#cmake-build-options)
   - [How to use](#how-to-use)
+    - [User manual](#user-manual)
     - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
     - [Input file](#input-file)
@@ -31,7 +32,7 @@ If you want to contribute to this project (bug report, feature request, pull req
 - Download the source code from GitHub.
 
 ```sh
-git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+git clone --depth=1 https://github.com/RQC-HU/dirac_caspt2.git
 ```
 
 ## Prerequisites for build
@@ -220,8 +221,14 @@ The following custom CMake build options are currently supported
 
 ## How to use
 
+### User manual
+
+- This section explains the minimum usage of the program
+- For more detailed usage of this program, please refer to the [GitHub Wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/Users-wiki).
+
 ### Prerequisites for execution
 
+- Currently, this program only supports DIRAC (64bit) version. You need to build DIRAC with [--int64 option](https://gitlab.com/dirac/dirac/-/blob/ec1da0f39cc2d8b3ed14285838ddae45d8e35a6b/setup#L28). (e.g. ./setup --int64)
 - This program assumes that 1 and 2 electron integral files (MRCONEE, MDCINT, MDCINXXXX1...) are obtained by [DIRAC](http://diracprogram.org/) calculation
   - Please refer to the [**MOLTRA section of DIRAC manual](http://www.diracprogram.org/doc/master/manual/moltra.html) to obtain 1 and 2 electron integral files
   - 1 and 2 electron integral files must be in the same directory

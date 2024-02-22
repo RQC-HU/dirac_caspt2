@@ -1,7 +1,7 @@
 # DIRAC-CASPT2: 相対論的多配置2次摂動論プログラム
 
 
-[![DIRAC-CASPT2-CI-test](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/kohei-noda-qcrg/dirac_caspt2/actions/workflows/ci.yml) [English README](README.md)
+[![DIRAC-CASPT2-CI-test](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml/badge.svg)](https://github.com/RQC-HU/dirac_caspt2/actions/workflows/ci.yml) [English README](README.md)
 
 - [DIRAC](http://diracprogram.org/doku.php)の計算結果のうち1,2電子積分ファイルを用いて、CASCI/CASPT2法またはRASCI/RASPT2法で2次の多配置摂動計算を行います
 
@@ -22,6 +22,7 @@
     - [Install](#install)
     - [CMakeビルドオプション](#cmakeビルドオプション)
   - [How to use](#how-to-use)
+    - [User manual](#user-manual)
     - [Prerequisites for execution](#prerequisites-for-execution)
     - [Calculation](#calculation)
     - [input file](#input-file)
@@ -33,7 +34,7 @@
 - GitHubからソースコードをダウンロードします
 
 ```sh
-git clone --depth=1 https://github.com/kohei-noda-qcrg/dirac_caspt2.git
+git clone --depth=1 https://github.com/RQC-HU/dirac_caspt2.git
 ```
 
 ## Prerequisites for build
@@ -231,8 +232,14 @@ pytest --all
 
 ## How to use
 
+### User manual
+
+- 以下のセクションでは、最低限の使用方法について説明します
+- 本プログラムの使用方法の詳細については[GitHub Wiki](https://github.com/RQC-HU/dirac_caspt2/wiki/%E3%83%A6%E3%83%BC%E3%82%B6%E5%90%91%E3%81%91wiki)を参照してください
+
 ### Prerequisites for execution
 
+- 現時点で、本プログラムはDIRAC(64bit)のみサポートしています。したがってDIRACを[--int64 オプション](https://gitlab.com/dirac/dirac/-/blob/ec1da0f39cc2d8b3ed14285838ddae45d8e35a6b/setup#L28)をつけてビルドする必要があります. (e.g. ./setup --int64)
 - [DIRAC](http://diracprogram.org/)の計算で1,2電子積分ファイル(MRCONEE, MDCINT, MDCINXXXX1...)が得られていることを前提としています
   - 1,2電子積分ファイルを得るには[DIRACの**MOLTRAの項](http://www.diracprogram.org/doc/master/manual/moltra.html)を参照してください
   - 1,2電子積分ファイルは同一のディレクトリ上に存在する必要があります
