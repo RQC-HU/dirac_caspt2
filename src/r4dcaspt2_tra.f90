@@ -49,20 +49,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     tmem = 0.0d+00
 
-    val(:) = 0
-    Call DATE_AND_TIME(VALUES=val)
-    if (rank == 0) then
-        print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-    end if
-    totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
-    initdate = val(3)
-    inittime = totalsec
-
-    if (rank == 0) then
-        print *, inittime
-        Call timing(val(3), totalsec, date0, tsec)
-    end if
+    call write_allocated_memory_size
+    call get_current_time(init_time); call print_time(init_time); start_time = init_time
 
     call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
     call read_input(unit_input)
@@ -192,9 +180,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Initialize the date, time and the 2nd order energy
     e2 = 0.0d+00
     e2all = 0.0d+00
-    date1 = initdate
-    tsec1 = totalsec
-    Call timing(date1, tsec1, date0, tsec0)
+    call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
     if (ninact == 0) then
         if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy &
@@ -203,16 +189,12 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform A subspace 2-electron integrals (active, inactive | active, active)
         Call intra_3(2, 1, 2, 2, a1int)
         if (rank == 0) print *, 'End intra3 A1int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform A subspace 2-electron integrals (active, inactive | inactive, inactive)
         Call intra_3(2, 1, 1, 1, a2int)
         if (rank == 0) print *, 'End intra_3 A2int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the A subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -220,9 +202,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_A_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcultion of A subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (ninact == 0) then
@@ -232,9 +212,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform B subspace 2-electron integrals (active, inactive | active, inactive)
         Call intra_2(2, 1, 2, 1, bint)
         if (rank == 0) print *, "End intra_2 Bint"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the B subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -242,36 +220,27 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_B_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of B subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy &
 &        because the 2nd order energy of C subspace cannot be defined when nsec = 0."
     else
-
         ! Transform C subspace 2-electron integrals (secondary, active | active, active)
         Call intra_3(3, 2, 2, 2, c1int)
         if (rank == 0) print *, 'End intra_3 C1int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform C subspace 2-electron integrals (secondary, active | inactive, inactive)
         Call intra_3(3, 2, 1, 1, c2int)
         if (rank == 0) print *, 'End intra_3 C2int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform C subspace 2-electron integrals (secondary, inactive | inactive, active)
         Call intra_1(3, 1, 1, 2, c3int)
         if (rank == 0) print *, 'End intra_1 C3int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the B subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -279,9 +248,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_C_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of C subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (ninact == 0 .or. nsec == 0) then
@@ -291,23 +258,17 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform D subspace 2-electron integrals (secondary, inactive | active, active)
         Call intra_3(3, 1, 2, 2, d1int)
         if (rank == 0) print *, 'End intra_1 D1int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform D subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 2, 2, 1, d2int)
         if (rank == 0) print *, 'End intra_1 D2int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform D subspace 2-electron integrals (secondary, inactive | inactive, inactive)
         Call intra_3(3, 1, 1, 1, d3int)
         if (rank == 0) print *, 'End intra_1 D3int'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the D subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -315,9 +276,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_D_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of D subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (ninact == 0 .or. nsec == 0) then
@@ -327,9 +286,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform E subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 1, 2, 1, eint)
         if (rank == 0) print *, 'End intra_1 Eint'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the E subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -337,9 +294,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_E_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of E subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (nsec == 0) then
@@ -349,9 +304,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform F subspace 2-electron integrals (secondary, active | secondary, active)
         Call intra_2(3, 2, 3, 2, fint)
         if (rank == 0) print *, 'End intra_1 Fint'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the F subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -359,9 +312,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_F_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of F subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (ninact == 0 .or. nsec == 0) then
@@ -371,9 +322,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform G subspace 2-electron integrals (secondary, inactive | secondary, active)
         Call intra_1(3, 1, 3, 2, gint)
         if (rank == 0) print *, 'End intra_1 Gint'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the G subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -381,9 +330,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_G_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of G subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     if (ninact == 0 .or. nsec == 0) then
@@ -394,9 +341,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, 'Enter intra_2 Hint'
         Call intra_2(3, 1, 3, 1, hint)
         if (rank == 0) print *, 'End intra_2 Hint'
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the H subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -404,9 +349,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         Call solve_H_subspace(e0, e2)
         e2all = e2all + e2
         if (rank == 0) print *, "End calcuation of H subspace 2nd order energy"
-        date1 = date0
-        tsec1 = tsec0
-        Call timing(date1, tsec1, date0, tsec0)
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
     ! Print out the total 2nd order energy
     if (rank == 0) print '("c^2 ",F30.15)', sumc2
@@ -429,7 +372,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
 
     ! Print out the total time
-    Call timing(val(3), totalsec, date0, tsec0)
+    call get_current_time_and_print_diff(init_time, end_time)
     if (rank == 0) print *, 'End r4dcaspt2_tra'
 #ifdef HAVE_MPI
     ! MPI finalization

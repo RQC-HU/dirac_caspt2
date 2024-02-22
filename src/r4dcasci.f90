@@ -38,22 +38,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, ''
     end if
     tmem = 0.0d+00
-
     if (rank == 0) then
         call write_allocated_memory_size
-
-        val = 0
-        Call DATE_AND_TIME(VALUES=val)
-
-        print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-
-        inittime = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
-        initdate = val(3)
-        date0 = initdate; tsec0 = inittime
-
-        print *, inittime
     end if
+    call get_current_time(init_time); call print_time(init_time); start_time = init_time
 
     call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
     call read_input(unit_input)
@@ -83,12 +71,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
     else
-        call timing(date0, tsec0, date1, tsec1)
-        date0 = date1; tsec0 = tsec1
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         ! Create UTChem type MDCINT file from Dirac MDCINT file
         call create_newmdcint
-        call timing(date0, tsec0, date1, tsec1)
-        date0 = date1; tsec0 = tsec1
+        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
 
     ! Read UTChem type MDCINT files and expands the 2-electron integral in memory
@@ -139,10 +125,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
-    if (rank == 0) then
-        call timing(date0, tsec0, date1, tsec1)
-        date0 = date1; tsec0 = tsec1
-    end if
+    call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     if (realonly%is_realonly()) then
         if (.not. allocated(fock_real)) then
             allocate (fock_real(nmo, nmo)); call memplus(KIND(fock_real), SIZE(fock_real), 1)
@@ -159,12 +142,11 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) then
         print *, 'end building fock'
-        call timing(date0, tsec0, date1, tsec1)
-        date0 = date1; tsec0 = tsec1
     end if
+    call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
 #ifdef DEBUG
-    if(rank == 0) call prtoutfock
+    if (rank == 0) call prtoutfock
 #endif
 
     Allocate (eps(nmo)); Call memplus(KIND(eps), SIZE(eps), 1)
@@ -261,12 +243,9 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(int2i_f2)) then
         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
-    if (rank == 0) then
-        call write_allocated_memory_size
-
-        Call timing(val(3), totalsec, date0, tsec0)
-        print *, 'End r4dcasci part'
-    end if
+    if (rank == 0) call write_allocated_memory_size
+    call get_current_time_and_print_diff(init_time, end_time) ! Print the total time
+    if (rank == 0) print *, 'End r4dcasci part'
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif

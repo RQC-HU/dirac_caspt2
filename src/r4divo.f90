@@ -37,24 +37,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #endif
 
     tmem = 0.0d+00
-    val = 0
-    Call DATE_AND_TIME(VALUES=val)
-    totalsec = val(8)*(1.0d-03) + val(7) + val(6)*(6.0d+01) + val(5)*(6.0d+01)**2
-    initdate = val(3)
-    inittime = totalsec
-    if (rank == 0) then
-        print '(A,I8,A,I8)', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
-        print *, ''
-        print *, ' ENTER R4DIVO PROGRAM written by M. Abe 2007/7/20'
-        print *, ''
-        call write_allocated_memory_size
+    call write_allocated_memory_size
+    call get_current_time(init_time); call print_time(init_time); start_time = init_time
 
-        print *, 'Year = ', val(1), 'Mon = ', val(2), 'Date = ', val(3)
-        print *, 'Hour = ', val(5), 'Min = ', val(6), 'Sec = ', val(7), '.', val(8)
-        print *, 'inittime = ', inittime
-    end if
-
-    Call timing(val(3), totalsec, date0, tsec)
     call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
     call read_input(input_unit)
     if (rank == 0) then
@@ -135,11 +120,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
     Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
 
-    if (rank == 0) then
-        print *, '("Current Memory is ",F10.2,"MB")', tmem/1024/1024
-        Call timing(val(3), totalsec, date0, tsec0)
-        print *, 'End r4divo part'
-    end if
+    call write_allocated_memory_size
+    call get_current_time_and_print_diff(init_time, end_time) ! print the total time
+    if (rank == 0) print *, 'End r4divo part'
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif
