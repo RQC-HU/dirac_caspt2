@@ -167,6 +167,6 @@ MODULE module_global_variables
     real(8)      :: smat_lin_dep_threshold = 1.0d-08  ! threshold for removing linear dependencies in S-matrix
     real(8), parameter  :: bmat_no_cutoff = 0.0d+00   ! No threshold for B-matrix (all elements are used)
     real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
-    integer      :: ndet, iroot ! ndet: the number of CAS determinant
+    integer      :: ndet, iroot ! ndet: the number of CAS configuration
     integer, parameter :: len_convert_int_to_chr = 30 ! Length of the string for converting integer to character
 end MODULE module_global_variables
