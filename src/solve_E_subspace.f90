@@ -26,9 +26,7 @@ contains
         use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
+
         integer :: dimn, dimm, dammy
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
         real(8)               :: e2(2*nsymrpa), alpha, e
@@ -40,8 +38,6 @@ contains
         integer :: i0
         integer, allocatable     :: ia0(:), ii0(:), ij0(:), iaij(:, :, :)
         integer :: naij
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -77,13 +73,7 @@ contains
         dimn = 0
         syma = 0
         indt = 0
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
-        if (rank == 0) then
-            print *, ' ENTER solv E part'
-            print *, ' nsymrpa', nsymrpa
-        end if
+        if (rank == 0) print *, 'ENTER solve E part'
 ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
         i0 = nsec*(ninact*(ninact - 1))/2
         naij = i0
@@ -109,15 +99,7 @@ contains
 
         Allocate (v(naij, nact))
         v = 0.0d+00
-        if (rank == 0) print *, 'end before v matrices'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
         Call vEmat_complex(naij, iaij, v)
-        if (rank == 0) print *, 'come'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
 
         Do isym = 1, nsymrpa
 
@@ -135,30 +117,15 @@ contains
 
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sEmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call sEmat_complex(dimn, indt(1:dimn), sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            if (rank == 0) print *, 'sc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (ws(dimn))
             Allocate (sc0(dimn, dimn))
             sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
+            if (rank == 0) print *, 'after E subspace S matrix cdiag, new dimension is', dimm
             If (dimm == 0) then
                 deallocate (sc0)
                 deallocate (sc)
@@ -176,47 +143,22 @@ contains
 
             Allocate (bc(dimn, dimn))                                 ! bc N*N
             bc = 0.0d+00
-            if (rank == 0) print *, 'before bEmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call bEmat_complex(dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'bc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (sc0)
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
             Allocate (uc(dimn, dimm))                                 ! uc N*M
             Allocate (wsnew(dimm))                                  ! wnew M
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
-            if (rank == 0) print *, 'before ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call ccutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'OK ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ulambda_s_half'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
-            if (rank == 0) print *, 'ucrams half OK'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
@@ -248,16 +190,8 @@ contains
             if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
             Allocate (bc0(dimm, dimm))
             bc0 = bc1
-            if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call cdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'end cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             If (debug) then
                 if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
                 Call checkdgc(dimm, bc0, bc1, wb)
@@ -318,10 +252,6 @@ contains
 
             if (rank == 0) print '("e2e(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2e = e2e + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
         End do
 
         if (rank == 0) then
@@ -364,6 +294,7 @@ contains
         integer :: it, iu
         integer :: i, j
 
+        if (rank == 0) print *, 'Start E subspace S matrix'
         sc = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(iu,j,it,a,b)
@@ -391,7 +322,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-
+        if (rank == 0) print *, 'E subspace S matrix is obtained normally'
     End subroutine sEmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -429,7 +360,7 @@ contains
 
         bc(:, :) = 0.0d+00
 
-        if (rank == 0) print *, 'E space Bmat iroot=', iroot
+        if (rank == 0) print *, 'Start E subspace B matrix'
 
 !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs
@@ -463,7 +394,7 @@ contains
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
-        if (rank == 0) print *, 'bEmat is ended'
+        if (rank == 0) print *, 'E subspace B matrix is obtained normally'
     End subroutine bEmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -492,14 +423,9 @@ contains
 
         integer :: i, j, k, l, taij
         integer :: it, iostat, unit_int2
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
         logical :: is_end_of_file
 
-        if (rank == 0) print *, 'Enter vEmat. Please ignore timer under this line.'
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
+        if (rank == 0) print *, 'Start E subspace V matrix'
         v = 0.0d+00
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
@@ -536,16 +462,12 @@ contains
 
         end do
         close (unit_int2)
-
-        if (rank == 0) print *, 'vEmat_ord is ended'
+        if (rank == 0) print *, 'reading Eint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end Allreduce vEmat'
 #endif
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
+        if (rank == 0) print *, 'E subspace V matrix is obtained normally'
     end subroutine vEmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -560,9 +482,7 @@ contains
         use module_index_utils, only: convert_active_to_global_idx, convert_secondary_to_global_idx
 
         Implicit NONE
-#ifdef HAVE_MPI
-        include 'mpif.h'
-#endif
+
         integer :: dimn, dimm, dammy
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
         real(8)               :: e2(2*nsymrpa), alpha, e
@@ -574,8 +494,6 @@ contains
         integer :: i0
         integer, allocatable     :: ia0(:), ii0(:), ij0(:), iaij(:, :, :)
         integer :: naij
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -611,13 +529,7 @@ contains
         dimn = 0
         syma = 0
         indt = 0
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
-        if (rank == 0) then
-            print *, ' ENTER solv E part'
-            print *, ' nsymrpa', nsymrpa
-        end if
+        if (rank == 0) print *, 'ENTER solve E part'
 ! (ninact*(ninact-1))/2 means the number of (ii,ij) pairs (ii>ij)
         i0 = nsec*(ninact*(ninact - 1))/2
         naij = i0
@@ -643,15 +555,7 @@ contains
 
         Allocate (v(naij, nact))
         v = 0.0d+00
-        if (rank == 0) print *, 'end before v matrices'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
         Call vEmat_real(naij, iaij, v)
-        if (rank == 0) print *, 'come'
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
 
         Do isym = 1, nsymrpa
 
@@ -669,30 +573,15 @@ contains
 
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sc N*N
-            if (rank == 0) print *, 'before sEmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call sEmat_real(dimn, indt(1:dimn), sc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-            if (rank == 0) print *, 'sc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (ws(dimn))
             Allocate (sc0(dimn, dimn))
             sc0 = sc
-            if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after s cdiag, new dimension is', dimm
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
+            if (rank == 0) print *, 'after E subspace S matrix rdiag, new dimension is', dimm
             If (dimm == 0) then
                 deallocate (sc0)
                 deallocate (sc)
@@ -702,47 +591,22 @@ contains
 
             Allocate (bc(dimn, dimn))                                 ! bc N*N
             bc = 0.0d+00
-            if (rank == 0) print *, 'before bEmat'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call bEmat_real(dimn, sc0, indt(1:dimn), bc)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'bc matrix is obtained normally'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (sc0)
 
-            if (rank == 0) print *, 'OK cdiag', dimn, dimm
             Allocate (uc(dimn, dimm))                                 ! uc N*M
             Allocate (wsnew(dimm))                                  ! wnew M
             uc(:, :) = 0.0d+00
             wsnew(:) = 0.0d+00
-            if (rank == 0) print *, 'before ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call rcutoff(sc, ws, dimn, dimm, smat_lin_dep_threshold, uc, wsnew)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'OK ccutoff'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             deallocate (ws)
             deallocate (sc)
-            if (rank == 0) print *, 'before ulambda_s_half'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call ulambda_s_half(uc, wsnew, dimn, dimm)    ! uc N*M matrix rewritten as uramda^(-1/2)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (wsnew)
 
-            if (rank == 0) print *, 'ucrams half OK'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
             bc0 = 0.0d+00
             bc0 = MATMUL(TRANSPOSE(uc), bc)
@@ -774,16 +638,8 @@ contains
             if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
             Allocate (bc0(dimm, dimm))
             bc0 = bc1
-            if (rank == 0) print *, 'before cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
             Call rdiag(bc1, dimm, dammy, wb, bmat_no_cutoff)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'end cdiag'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
 
             deallocate (bc0)
 
@@ -838,10 +694,6 @@ contains
 
             if (rank == 0) print '("e2e(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
             e2e = e2e + e2(isym)
-            if (rank == 0) print *, 'End e2(isym) add'
-            Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-            datetmp1 = datetmp0
-            tsectmp1 = tsectmp0
         End do
 
         if (rank == 0) then
@@ -884,6 +736,7 @@ contains
         integer :: it, iu
         integer :: i, j
 
+        if (rank == 0) print *, 'Start E subspace S matrix'
         sc = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(iu,j,it,a,b)
@@ -911,7 +764,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-
+        if (rank == 0) print *, 'E subspace S matrix is obtained normally'
     End subroutine sEmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -949,7 +802,7 @@ contains
 
         bc(:, :) = 0.0d+00
 
-        if (rank == 0) print *, 'E space Bmat iroot=', iroot
+        if (rank == 0) print *, 'Start E subspace B matrix'
 
 !$OMP parallel do schedule(dynamic,1) private(iu,ju,j,it,jt,iw,jw,denr,deni,den)
         Do i = rank + 1, dimn, nprocs
@@ -983,7 +836,7 @@ contains
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
-        if (rank == 0) print *, 'bEmat is ended'
+        if (rank == 0) print *, 'E subspace B matrix is obtained normally'
     End subroutine bEmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1012,14 +865,9 @@ contains
 
         integer :: i, j, k, l, taij
         integer :: it, iostat, unit_int2
-        integer :: datetmp0, datetmp1
-        real(8) :: tsectmp0, tsectmp1
         logical :: is_end_of_file
 
-        if (rank == 0) print *, 'Enter vEmat. Please ignore timer under this line.'
-        datetmp1 = date0; datetmp0 = date0
-        Call timing(date0, tsec0, datetmp0, tsectmp0)
-        tsectmp1 = tsectmp0
+        if (rank == 0) print *, 'Start E subspace V matrix'
         v = 0.0d+00
 
 !  V(t,ija)   =[SIGUMA_p:active <0|Ept|0>{(ai|pj) - (aj|pi)}] - (ai|tj) + (aj|ti)   i > j
@@ -1056,16 +904,12 @@ contains
 
         end do
         close (unit_int2)
-
-        if (rank == 0) print *, 'vEmat_ord is ended'
+        if (rank == 0) print *, 'reading Eint2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
-        if (rank == 0) print *, 'end Allreduce vEmat'
 #endif
-        Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-        datetmp1 = datetmp0
-        tsectmp1 = tsectmp0
+        if (rank == 0) print *, 'E subspace V matrix is obtained normally'
     end subroutine vEmat_real
 
 end subroutine solve_E_subspace

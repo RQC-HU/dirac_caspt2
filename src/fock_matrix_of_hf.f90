@@ -171,10 +171,10 @@ SUBROUTINE fock_matrix_of_hf_real ! TO CALCULATE FOCK MATRIX OF HF STATE, A TEST
         print *, ' '
         print *, 'THESE DIAGONAL ELEMENTS SHOULD BE CORESPOND TO HF SPINOR ENERGY '
         print *, ' '
-        print *, '  NO.   Spinor Energy(Re)   Spinor Energy(Im) '&
+        print *, '  NO.   Spinor Energy(Re) '&
         &, 'Spinor Energy (HF)        ERROR'
         do i = 1, global_sec_end
-            print '(I4,4E20.10)', i, fock_real(i, i), caspt2_mo_energy(i), caspt2_mo_energy(i) - dble(fock_real(i, i))
+            print '(I4,3E20.10)', i, fock_real(i, i), caspt2_mo_energy(i), caspt2_mo_energy(i) - dble(fock_real(i, i))
         end do
 
         print *, 'fockhf end'

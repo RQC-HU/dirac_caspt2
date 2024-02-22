@@ -72,8 +72,9 @@ SUBROUTINE fockdiag
         fock_cmplx(1:nmo, 1:nmo) = fac(1:nmo, 1:nmo)
         Call memminus(KIND(fac), SIZE(fac), 2); deallocate (fac)
     end if
+#ifdef DEBUG
     Call e0aftertra
-
+#endif
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         call open_unformatted_file(unit=unit_transfock, file='TRANSFOCK', status='replace', optional_action='write')
         write (unit_transfock) nmo

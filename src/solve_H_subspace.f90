@@ -54,10 +54,7 @@ contains
 !  V(aibj)   = (ai|bj) - (aj|bi)
 !
 ! E2h = V(aibj)/e(a,b,i,j)
-        if (rank == 0) then
-            print *, ' ENTER solve H part'
-            print *, ' nsymrpa', nsymrpa
-        end if
+        if (rank == 0) print *, 'ENTER solve H part'
         e2h = 0.0d+00
         e = 0.0d+00
 
@@ -141,11 +138,11 @@ contains
 
         end do
         close (unit_int2)
+        if (rank == 0) print *, 'reading Hint is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
-        if (rank == 0) print *, 'reading Hint is over'
 
         Do i0 = 1, nab
             ia = ia0(i0)
@@ -229,10 +226,7 @@ contains
 !  V(aibj)   = (ai|bj) - (aj|bi)
 !
 ! E2h = V(aibj)/e(a,b,i,j)
-        if (rank == 0) then
-            print *, ' ENTER solve H part'
-            print *, ' nsymrpa', nsymrpa
-        end if
+        if (rank == 0) print *, 'ENTER solve H part'
         e2h = 0.0d+00
         e = 0.0d+00
 
@@ -316,11 +310,11 @@ contains
 
         end do
         close (unit_int2)
+        if (rank == 0) print *, 'reading Hint is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
-        if (rank == 0) print *, 'reading Hint is over'
 
         Do i0 = 1, nab
             ia = ia0(i0)

@@ -93,9 +93,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     use module_file_manager, only: open_unformatted_file
 
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-#endif
+
     complex*16, intent(in)  :: fac(global_act_start:global_act_end, global_act_start:global_act_end)
 
     integer :: i0, j0, i, info

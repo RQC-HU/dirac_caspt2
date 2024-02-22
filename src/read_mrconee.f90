@@ -178,16 +178,13 @@ contains
             End do
         end if
         MULTB_DS = transpose(SD)
-        if (rank == 0) print *, "before deallocate SD"
         if (rank == 0) then
             print *, 'MULTB_DS'
             Do i = 1, nsymrpa
                 print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
             End do
         end if
-        if (rank == 0) print *, "before deallocate SD"
         Call memminus(KIND(SD), SIZE(SD), 1); deallocate (SD)
-        if (rank == 0) print *, "deallocate SD"
     end subroutine create_multiplication_table
 
     subroutine create_mo_irrep_conversion_list
@@ -258,12 +255,6 @@ contains
                 end if
             end do
         end do
-
-        if (rank == 0) then
-            do i0 = 1, nmo
-                print '("indmo_dirac_to_cas output",3I4)', indmo_dirac_to_cas(i0), indmo_cas_to_dirac(i0), i0
-            end do
-        end if
 
         ! irpamo is in MRCONEE order (DIRAC order)
         Allocate (tmp_mo(nmo)); Call memplus(KIND(tmp_mo), SIZE(tmp_mo), 1)

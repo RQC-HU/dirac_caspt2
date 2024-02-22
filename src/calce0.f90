@@ -30,7 +30,7 @@ SUBROUTINE calce0(e0)
     e0 = 0.0d+00
     dr = 0.0d+00
     di = 0.0d+00
-    if (rank == 0) print *, iroot, 'iroot'
+    if (rank == 0) print *, 'selectroot = ', selectroot
     Do i = 1, nact
 
         If (realonly%is_realonly()) then
@@ -45,6 +45,5 @@ SUBROUTINE calce0(e0)
 
     if (rank == 0) then
         print *, 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
-        print *, 'end'
     end if
 end subroutine calce0

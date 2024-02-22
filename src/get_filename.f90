@@ -1,6 +1,6 @@
 subroutine get_mdcint_filename(count)
     ! This subroutine is to get the filename of MDCINT.
-    use module_global_variables, only: rank, nprocs, mdcint_filename, mdcintnew, mdcint_debug, mdcint_int, len_convert_int_to_chr
+    use module_global_variables, only: rank, nprocs, mdcint_filename, mdcintnew, len_convert_int_to_chr
     use module_error, only: stop_with_errorcode
     implicit none
     integer, intent(in)         :: count
@@ -11,11 +11,10 @@ subroutine get_mdcint_filename(count)
     if (rank == 0 .and. count == 0) then
         mdcint_filename = "MDCINT"
         mdcintnew = "MDCINTNEW"
-        mdcint_debug = "MDCINT_debug"
-        mdcint_int = "MDCINT_int"
     else
         filename_idx = count*nprocs + rank
         mdcint_basename = "MDCIN"
+        digit_x_padding = ""
         if (filename_idx >= 100000) then!! "ERROR": over six digit(can't assign)
             print *, "ERROR: Can't assign MDCINT file to ranks of over six digits. filename_idx:", filename_idx
             call stop_with_errorcode(1)
@@ -37,13 +36,7 @@ subroutine get_mdcint_filename(count)
         mdcint_filename = TRIM(mdcint_baseName)//TRIM(ADJUSTL(digit_x_padding))//TRIM(ADJUSTL(chr_rank))
         if (count == 0) then
             mdcintnew = "MDCINTNEW"//TRIM(ADJUSTL(chr_rank))
-            mdcint_debug = "MDCINT_debug"//TRIM(ADJUSTL(chr_rank))
-            mdcint_int = "MDCINT_int"//TRIM(ADJUSTL(chr_rank))
         end if
-    end if
-    if (rank == 0) then
-        print *, "get filename : ", trim(mdcint_filename), " ", &
-            trim(mdcintnew), " ", trim(mdcint_debug), " ", trim(mdcint_int)
     end if
 end subroutine get_mdcint_filename
 subroutine get_subspace_filename

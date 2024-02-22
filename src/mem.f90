@@ -31,13 +31,13 @@ subroutine write_allocated_memory_size
 
     if (rank == 0) then
         if (tmem < KB) then
-            print '(A,F10.2,A)', 'Mater rank allocated memory size: ', tmem, ' bytes'
+            print '(A,F10.2,A)', 'Master rank allocated memory size: ', tmem, ' bytes'
         else if (tmem < MB) then
-            print '(A,F10.2,A)', 'Mater rank allocated memory size: ', tmem/KB, ' KB'
+            print '(A,F10.2,A)', 'Master rank allocated memory size: ', tmem/KB, ' KB'
         else if (tmem < GB) then
-            print '(A,F10.2,A)', 'Mater rank allocated memory size: ', tmem/MB, ' MB'
+            print '(A,F10.2,A)', 'Master rank allocated memory size: ', tmem/MB, ' MB'
         else
-            print '(A,F10.2,A)', 'Mater rank allocated memory size: ', tmem/GB, ' GB'
+            print '(A,F10.2,A)', 'Master rank allocated memory size: ', tmem/GB, ' GB'
         end if
     end if
 end subroutine write_allocated_memory_size

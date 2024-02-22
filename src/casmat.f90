@@ -31,7 +31,6 @@ SUBROUTINE casmat_complex(mat)
     if (rank == 0) print *, 'Cas mat enter'
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
-    if (rank == 0) print *, 'allocated oc and vi'
     ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
     Do i = rank + 1, ndet, nprocs
 
@@ -214,12 +213,10 @@ SUBROUTINE casmat_complex(mat)
 
     Deallocate (oc)
     Deallocate (vi)
-    if (rank == 0) print *, 'end casmat_complex'
 #ifdef HAVE_MPI
-    if (rank == 0) print *, 'Reduce mat(:,:)'
     call allreduce_wrapper(mat=mat)
-    if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
+    if (rank == 0) print *, 'end casmat_complex'
 end subroutine casmat_complex
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -253,7 +250,6 @@ SUBROUTINE casmat_real(mat)
     if (rank == 0) print *, 'Cas mat enter'
     Allocate (oc(nelec))
     Allocate (vi(nact - nelec))
-    if (rank == 0) print *, 'allocated oc and vi'
     ! MPI parallelization (Distributed loop: static scheduling, per nprocs)
     Do i = rank + 1, ndet, nprocs
 
@@ -412,10 +408,8 @@ SUBROUTINE casmat_real(mat)
 
     Deallocate (oc)
     Deallocate (vi)
-    if (rank == 0) print *, 'end casmat_real'
 #ifdef HAVE_MPI
-    if (rank == 0) print *, 'Allreduce mat(:,:)'
     call allreduce_wrapper(mat=mat)
-    if (rank == 0) print *, 'end allreduce mat(:,:)'
 #endif
+    if (rank == 0) print *, 'end casmat_real'
 end subroutine casmat_real
