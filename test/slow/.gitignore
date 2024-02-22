@@ -1,7 +1,7 @@
 *
-!dirac_data
-!dirac_data/**
 !.gitignore
+!**/dirac_data
+!**/dirac_data/**
 !active.inp
 !MDCINT
 !MDCINX*
