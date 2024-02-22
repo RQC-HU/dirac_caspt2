@@ -1,0 +1,10 @@
+*
+!.gitignore
+!**/dirac_data
+!**/dirac_data/**
+!active.inp
+!MDCINT
+!MDCINX*
+!MRCONEE
+!reference*out
+!test*py
