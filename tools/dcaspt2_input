@@ -21,7 +21,8 @@ class PrintVersionAction(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         binary_dir = Path(__file__).resolve().parent
-        get_version(binary_dir)
+        version = get_version(binary_dir)
+        print(f"dirac-caspt2 version (commit hash): {version}")
         parser.exit()
 
 
@@ -414,7 +415,6 @@ def get_version(binary_dir: Path) -> str:
             version = f.read().strip()
     else:
         version = "unknown"
-    print(f"dirac-caspt2 version (commit hash): {version}")
     return version
 
 
@@ -480,6 +480,7 @@ def main() -> None:
     input_file_path = set_input_file_path(args, user_submitted_dir)
     output_file_path = set_ouput_file_path(args, user_submitted_dir)
     version = get_version(binary_dir)
+    print(f"dirac-caspt2 version (commit hash): {version}")
 
     # 1-2 integrals directory
     integrals_dir = set_integrals_dir(args, user_submitted_dir)
