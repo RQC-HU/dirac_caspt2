@@ -6,7 +6,7 @@ module ras_det_check
 contains
     function satisfy_ras1_condition(i, upper_allowed_hole) result(is_det_allowed)
         ! function satisfy_ras1_condition(i,upper_allowed_hole) result(is_det_allowed)
-        ! This function returns true if the determinant (i) is allowed
+        ! This function returns true if the configuration (i) is allowed
         use module_global_variables, only: ras1_size, min_hole_ras1
         integer, intent(in) :: i, upper_allowed_hole
         integer :: num_of_electron, ras1_bit
@@ -17,7 +17,7 @@ contains
     end function satisfy_ras1_condition
     function satisfy_ras3_condition(i, upper_allowed_electron) result(is_det_allowed)
         ! function satisfy_ras3_condition(i,upper_allowed_electron) result(is_det_allowed)
-        ! This function returns true if the determinant (i) is allowed
+        ! This function returns true if the configuration (i) is allowed
         use module_global_variables, only: ras1_size, ras2_size
         integer, intent(in) :: i, upper_allowed_electron
         integer :: num_of_electron, ras3_bit, width_of_shift
@@ -45,13 +45,13 @@ contains
 
     end subroutine conunt_num_of_elec
 
-    function ras_bit_calculate(determinant, bit) result(num_of_electron)
+    function ras_bit_calculate(configuration, bit) result(num_of_electron)
         implicit none
-        integer, intent(in) :: determinant, bit
+        integer, intent(in) :: configuration, bit
         integer :: num_of_electron, multiply
 
-        ! ras_bitとdeterminantとのbit論理積
-        multiply = iand(bit, determinant)
+        ! ras_bitとconfigurationとのbit論理積
+        multiply = iand(bit, configuration)
         num_of_electron = popcnt(multiply)
 
     end function ras_bit_calculate

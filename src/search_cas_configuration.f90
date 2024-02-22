@@ -176,7 +176,7 @@ contains
                 print *, "WARNING: ndet < nroot"
                 print '(A,I0,A)', "Cannot print ", nroot, "th RASCI/CASCI energy"
                 print '(A,I0,A,I0)', "because the number of CASCI configuration is ", ndet, " and it is less than ", nroot
-                print *, "Therefore, explicitly replace nroot with the number of CASCI configuration."
+                print *, "Therefore, replace nroot with the number of CASCI configuration."
                 print *, "new nroot = ", ndet
             end if
             nroot = ndet
