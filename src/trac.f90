@@ -91,6 +91,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     use module_error, only: stop_with_errorcode
     use module_global_variables
     use module_file_manager, only: open_unformatted_file
+    use module_time
 
     Implicit NONE
 
@@ -102,17 +103,14 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 
     integer, allocatable     :: IPIV(:)
     complex*16, Allocatable  :: ds(:, :), ci(:)
-    integer :: datetmp0, datetmp1
-    real(8) :: tsectmp0, tsectmp1
+    type(time_type)          :: tmp_start_time, tmp_end_time
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     occ = 0
     if (rank == 0) print *, 'Enter TRACI'
-    datetmp1 = date0; datetmp0 = date0
+    call get_current_time(tmp_start_time)
 
-    Call timing(date0, tsec0, datetmp0, tsectmp0)
-    tsectmp1 = tsectmp0
     Do i0 = 1, ndet
         i = 0
         ok = 0
@@ -137,9 +135,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     if (rank == 0) print *, 'End detsc'
 
     ! Preparation for solving linear equations for ci matrix using zgesv
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
+    call get_current_time_and_print_diff(tmp_start_time, tmp_end_time); tmp_start_time = tmp_end_time
     Allocate (IPIV(ndet))
     Allocate (ci(ndet))
     ci = DCMPLX(cir(1:ndet, selectroot), cii(1:ndet, selectroot))
@@ -158,9 +154,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
         call stop_with_errorcode(info)
     end if
     if (rank == 0) print *, 'End zgesv', rank
-    Call timing(datetmp1, tsectmp1, datetmp0, tsectmp0)
-    datetmp1 = datetmp0
-    tsectmp1 = tsectmp0
+    call get_current_time_and_print_diff(tmp_start_time, tmp_end_time)
     ! ci is now rotated_ci and we need to rotate it back to cir and cii
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))

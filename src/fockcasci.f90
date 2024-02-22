@@ -8,6 +8,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 
     use module_global_variables
     use module_index_utils, only: convert_global_to_active_idx
+    use module_time
 #ifdef HAVE_MPI
     use module_mpi
 #endif
@@ -97,6 +98,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 
     use module_global_variables
     use module_index_utils, only: convert_global_to_active_idx
+    use module_time
 #ifdef HAVE_MPI
     use module_mpi
 #endif

@@ -11,6 +11,7 @@ SUBROUTINE casci
     use module_file_manager, only: open_unformatted_file
     use module_global_variables
     use module_realonly, only: realonly
+    use module_time
     Implicit NONE
 
     integer :: j0, j, i0, irec, unit_cimat
@@ -21,9 +22,9 @@ SUBROUTINE casci
     real(8), allocatable    :: ecas(:)
     character(:), allocatable  :: filename
     character(len=len_convert_int_to_chr) :: chr_root
-    integer :: datetmp0, datetmp1, dict_cas_idx_size, dict_cas_idx_reverse_size, idx
+    integer :: dict_cas_idx_size, dict_cas_idx_reverse_size, idx
     integer, allocatable :: keys(:), vals(:), keys_rev(:), vals_rev(:)
-    real(8) :: tsectmp0, tsectmp1
+    type(time_type) :: tmp_start_time, tmp_end_time
 
     Call search_cas_configuration
 
@@ -37,8 +38,7 @@ SUBROUTINE casci
     end if
     Allocate (ecas(ndet))
     ecas = 0.0d+00
-    datetmp0 = date0; tsectmp0 = tsec0
-    Call timing(date0, tsec0, datetmp0, tsectmp0)
+    call get_current_time(tmp_start_time)
 
     ! Diagonalize the CI matrix
     if (rank == 0) then
@@ -52,8 +52,7 @@ SUBROUTINE casci
         Call cdiagx(mat_complex, ndet, nroot, ecas)
     end if
     if (rank == 0) print *, 'End mat diagonalization'
-    call timing(datetmp0, tsectmp0, datetmp1, tsectmp1)
-    datetmp0 = datetmp1; tsectmp0 = tsectmp1
+    call get_current_time_and_print_diff(tmp_start_time, tmp_end_time)
     ! keys and vals are used to store pairs of keys and values in dict_cas_idx
     dict_cas_idx_size = get_size(dict_cas_idx)
     allocate (keys(dict_cas_idx_size), vals(dict_cas_idx_size))

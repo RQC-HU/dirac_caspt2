@@ -3,6 +3,7 @@ SUBROUTINE solve_E_subspace(e0, e2e)
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
+    use module_time
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2e
