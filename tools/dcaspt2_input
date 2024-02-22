@@ -13,6 +13,19 @@ from subprocess import PIPE, Popen
 from typing import Tuple
 
 
+class PrintVersionAction(argparse.Action):
+    """Print the version of the dirac-caspt2 program"""
+
+    def __init__(self, option_strings, dest=argparse.SUPPRESS, default=argparse.SUPPRESS, help="Show the version of dirac-caspt2 program", **kwargs):
+        super(PrintVersionAction, self).__init__(option_strings=option_strings, dest=dest, default=default, nargs=0, help=help)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        binary_dir = Path(__file__).resolve().parent
+        version = get_version(binary_dir)
+        print(f"dirac-caspt2 version (commit hash): {version}")
+        parser.exit()
+
+
 class ExitWithHelpArgumentParser(argparse.ArgumentParser):
     """A custom ArgumentParser class that exits with help message when the unrecognized arguments are specified"""
 
@@ -91,6 +104,9 @@ Therefore, this option is recommended only you concern about disk space.)",
         action="store_true",
     )
     parser.add_argument("-s", "--save", "--keep_scratch", dest="save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
+    parser.add_argument("-v", "--version", action=PrintVersionAction, dest="version", help="Show the version of dirac-caspt2 program")
+
+    # If version is specified, print the version and exit
 
     return parser.parse_args()
 
@@ -276,7 +292,7 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
     return command
 
 
-def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, user_submitted_dir: Path, output_file_path: Path) -> None:
+def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, user_submitted_dir: Path, output_file_path: Path, version: str) -> None:
     """Run the dcaspt2 command
 
     Args:
@@ -285,6 +301,7 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
         scratch_dir (Path): Path to the scratch directory
         user_submitted_dir (Path): Path to the directory where this script is used
         output_file_path (Path): Path to the output file
+        version (str): Version of the dirac-caspt2 binary
     """
 
     def delete_scratch_dir():
@@ -340,6 +357,7 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
         end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
         end_message += f"Elapsed time (sec) : {end_time_float - start_time_float:.4f} sec\n"
         end_message += f"Elapsed time : {days} day {hours} hour {mins} min {secs} sec {millisecs} millisecond\n"
+        end_message += f"dirac-caspt2 version (commit hash) : {version}\n"
 
         if p.returncode == 0:
             end_message += "NORMAL END OF dirac-caspt2 CALCULATION\n"
@@ -380,6 +398,24 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
             sys.exit(p.returncode)
 
         return None
+
+
+def get_version(binary_dir: Path) -> str:
+    """Get the version of the dirac-caspt2 binary
+
+    Args:
+        binary_dir (Path): Path to the directory where the compiled binaries are stored
+
+    Returns:
+        str: Version of the dirac-caspt2 binary
+    """
+    version_file = binary_dir / ".commit_hash"
+    if version_file.exists():
+        with open(version_file, "r", encoding="utf-8") as f:
+            version = f.read().strip()
+    else:
+        version = "unknown"
+    return version
 
 
 def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: Path) -> Path:
@@ -437,12 +473,14 @@ def main() -> None:
     user_submitted_dir: Path = Path.cwd().resolve()
     script_path = Path(__file__).resolve()
     binary_dir = script_path.parent
+    args: "argparse.Namespace" = parse_args()
     print("Script path : ", script_path)
     print("Command submitted directory : ", user_submitted_dir)
-    args: "argparse.Namespace" = parse_args()
 
     input_file_path = set_input_file_path(args, user_submitted_dir)
     output_file_path = set_ouput_file_path(args, user_submitted_dir)
+    version = get_version(binary_dir)
+    print(f"dirac-caspt2 version (commit hash): {version}")
 
     # 1-2 integrals directory
     integrals_dir = set_integrals_dir(args, user_submitted_dir)
@@ -461,9 +499,7 @@ def main() -> None:
 
     # Create command to execute and run it
     command = create_command(args, binary_dir)
-    run_command(args, command, scratch_dir, user_submitted_dir, output_file_path)
-
-    return None
+    run_command(args, command, scratch_dir, user_submitted_dir, output_file_path, version)
 
 
 if __name__ == "__main__":
