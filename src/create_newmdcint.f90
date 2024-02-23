@@ -31,8 +31,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: nkr, nz, file_idx, iostat
     integer :: unit_mdcint, unit_mdcintnew
     logical :: is_file_exist, is_end_of_file
-    character(*), parameter :: fmt_filename = "dcas_MDCINT"
-    integer :: unit_fmt_filename
 
     if (rank == 0) print *, 'Start create_newmdcint'
     Allocate (kr(-nmo/2:nmo/2))
@@ -98,8 +96,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     ! Initialization
     file_idx = 0
 
-    call open_formatted_file(unit=unit_fmt_filename, file=fmt_filename, status="replace", optional_action="write")
-    write (unit_fmt_filename, *) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
     ! First, All process write header information to MDCINTNEWrank
     call get_mdcint_filename(file_idx)
     call open_unformatted_file(unit=unit_mdcintnew, file=mdcintNew, status="replace", optional_action="write")
@@ -212,10 +208,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                         if (should_write_2int_to_disk()) then
                             if (realonly%is_realonly()) then
                                 write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, cur_int2_real
-                                write (unit_fmt_filename, '(4i6, e20.7)') cur_i, cur_j, cur_k, cur_l, cur_int2_real
                             else
                                 write (unit_mdcintnew) iiit, jjjt, nnz, kkkt, lllt, cur_int2_real, -cur_int2_imag
-                                write (unit_fmt_filename, '(4i6, 2e20.7)') cur_i, cur_j, cur_k, cur_l, cur_int2_real, -cur_int2_imag
                             end if
                         end if
                     end do
