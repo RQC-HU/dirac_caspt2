@@ -76,23 +76,18 @@ add_subdirectory(test)
 configure_file(${PROJECT_SOURCE_DIR}/tools/dcaspt2_input ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 COPYONLY)
 install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-# Git commit hash
-set(git_hash "unknown")  # Default value
+# Create a custom target named commit_hash
+add_custom_target(commit_hash ALL)
 
-# If .git/HEAD exists, get the commit hash
-if(EXISTS "${PROJECT_SOURCE_DIR}/.git/HEAD")
-  file(STRINGS "${PROJECT_SOURCE_DIR}/.git/HEAD" git_head)
-
-  if(git_head MATCHES "ref: ")
-    string(REGEX REPLACE "ref: " "" git_head "${git_head}")
-    file(STRINGS "${PROJECT_SOURCE_DIR}/.git/${git_head}" git_hash LIMIT_COUNT 1)
-  else()
-    set(git_hash "${git_head}")
-  endif()
-
-  message(STATUS "Git commit hash: ${git_hash}")
-endif()
-
-# Save the git commit hash to a file
-file(WRITE ${EXECUTABLE_OUTPUT_PATH}/.commit_hash "${git_hash}")
+# Add a custom command to the target (commit_hash)
+add_custom_command(
+  TARGET commit_hash
+  PRE_BUILD
+  COMMAND ${CMAKE_COMMAND}
+  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+  -DEXECUTABLE_OUTPUT_PATH=${EXECUTABLE_OUTPUT_PATH}
+  -DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+  -P ${PROJECT_SOURCE_DIR}/cmake/commit_hash.cmake
+  ALWAYS
+)
 install(FILES ${EXECUTABLE_OUTPUT_PATH}/.commit_hash DESTINATION ${CMAKE_INSTALL_PREFIX})
