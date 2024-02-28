@@ -141,7 +141,7 @@ contains
             If (mod(ielec, 2) == 0) ret_isym = ret_isym + nsymrpa ! even number electronic system
 #ifdef DEBUG
             if (rank == 0) print '(a,i20,1x,a,b50,1x,a,i5)', &
-                "current_det:", current_det, " bit(current_det):", current_det, " isym:", isym
+                "current_det:", current_det, " bit(current_det):", current_det, " isym:", ret_isym
 #endif
         end if
     end function cas_configuation_totsym
