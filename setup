@@ -60,13 +60,13 @@ def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -
             stderr_decoded = e.stderr.decode("utf-8") if isinstance(e.stderr, bytes) else e.stderr
             logging.error(f"Failed command : {cmd}")
             logging.error(f"Error message : {stderr_decoded}")
-            raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output, e.stderr)
+            raise  # raise the CalledProcessError exception to exit the script with an error code.
 
         except FileNotFoundError as e:
             # cmake command could not be found.
             logging.error("CMake is not installed!")
             logging.error(f"Error message : {e}")
-            raise FileNotFoundError(e)
+            raise  # raise the FileNotFoundError exception to exit the script with an error code.
 
     def clean_dir() -> None:
         """Remove build and bin directories before configuring the source code."""
