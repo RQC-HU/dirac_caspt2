@@ -3,12 +3,11 @@
 # SPDX-FileCopyrightText: 2022 Kohei Noda kohei-noda@hiroshima-u.ac.jp
 
 import argparse
-from pathlib import Path
 import logging
 import os
 import shutil
-from subprocess import Popen, PIPE
 import subprocess
+from pathlib import Path
 
 
 def define_args() -> "argparse.Namespace":
@@ -17,7 +16,15 @@ def define_args() -> "argparse.Namespace":
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
     parser.add_argument("--flags", type=str, help="The compiler flags.(If not specified, the default flags will be used.)")
-    parser.add_argument("-j", "--parallel", type=int, nargs="?", const=-1, default=1, help="The maximum number of concurrent processes to use when building. This option is used only when the --build option is specified. If [Parallel] is omitted the native build tool's default number is used. [default: 1]")
+    parser.add_argument(
+        "-j",
+        "--parallel",
+        type=int,
+        nargs="?",  # 0 or 1 argument (https://docs.python.org/3/library/argparse.html#nargs)
+        const=-1,
+        default=1,
+        help="The maximum number of concurrent processes to use when building. This option is used only when the --build option is specified. If [Parallel] is omitted the native build tool's default number is used. [default: 1]",
+    )
     parser.add_argument("--mpi", action="store_true", help="Enable MPI support. The path to the MPI compiler should be specified in the --fc option.[default compiler: mpiifort]")
     parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
@@ -26,31 +33,43 @@ def define_args() -> "argparse.Namespace":
 
 
 def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -> str:
-    def check_cmake_is_installed() -> None:
-        print("Checking if CMake is installed...")
+    def check_cmake_version() -> None:
+        logging.info("Checking if CMake is installed and the version is 3.14 or later...")
         try:
+            # Run the CMake command.
             cmd = "cmake --version"
-            process = Popen(cmd.split(), stdout=PIPE, stderr=PIPE)
-            stdout, stderr = process.communicate()
-            cmake_version = stdout.decode("utf-8").split("\n")[0].split(" ")[2]  # (e.g.) 3.20.0-rc3
+            process = subprocess.run(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+            # Get the stdout of the process.
+            stdout_decoded = process.stdout.decode("utf-8")
+
+            # Check if the CMake version is 3.14 or later.
+            cmake_version = stdout_decoded.split("\n")[0].split(" ")[2]  # (e.g.) 3.20.0-rc3
             cmake_major_version = int(cmake_version.split(".")[0])  # (e.g.) 3
             cmake_minor_version = int(cmake_version.split(".")[1])  # (e.g.) 20
             logging.info(f"Your CMake version is {cmake_version}")
-            if process.returncode != 0:
-                logging.error("CMake is not installed!")
-                logging.error(f"Error message : {stderr.decode('utf-8')}")
-                raise ValueError("CMake is not installed!")
-            elif cmake_major_version < 3 or (cmake_major_version == 3 and cmake_minor_version < 14):
+            if cmake_major_version < 3 or (cmake_major_version == 3 and cmake_minor_version < 14):
                 logging.error("Your CMake version is too old!")
                 logging.error("CMake version 3.14 or later is required.")
                 logging.error("Please install CMake 3.14 or later.")
                 raise ValueError("CMake version 3.14 or later is required.")
-            logging.info(f"CMake is set up correctly! {stdout.decode('utf-8')}")
-        except Exception as e:
-            logging.error("CMake is not installed!, Aborting...")
-            raise Exception(e)
+            logging.info(f"CMake is set up correctly! {stdout_decoded}")
+
+        except subprocess.CalledProcessError as e:
+            # If the cmake --version command fails, print the error message and exit the script with an error code.
+            stderr_decoded = e.stderr.decode("utf-8") if isinstance(e.stderr, bytes) else e.stderr
+            logging.error(f"Failed command : {cmd}")
+            logging.error(f"Error message : {stderr_decoded}")
+            raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output, e.stderr)
+
+        except FileNotFoundError as e:
+            # cmake command could not be found.
+            logging.error("CMake is not installed!")
+            logging.error(f"Error message : {e}")
+            raise FileNotFoundError(e)
 
     def clean_dir() -> None:
+        """Remove build and bin directories before configuring the source code."""
         logging.info("Cleaning the build directory...")
         remove_dirs_name = ["build", "bin"]
         for rmdir_name in remove_dirs_name:
@@ -60,61 +79,58 @@ def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -
                 shutil.rmtree(rmdir)
                 logging.info(f"Removed the directory {rmdir}")
 
-    def set_compiler(cmake_flags: str) -> str:
+    def set_compiler() -> str:
         if args.fc is not None:
             # CMAKE_<LANG>_COMPILER: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER.html#variable:CMAKE_%3CLANG%3E_COMPILER
-            cmake_flags += f" -DCMAKE_Fortran_COMPILER={args.fc}"
-        if args.mpi:
-            if args.fc is None:
-                cmake_flags += " -DCMAKE_Fortran_COMPILER=mpiifort"
-        return cmake_flags
+            return f" -DCMAKE_Fortran_COMPILER={args.fc}"
+        if args.mpi and args.fc is None:
+            return " -DCMAKE_Fortran_COMPILER=mpiifort"
+        return ""  # If --fc option is not specified, the first Fortran compiler that CMake finds will be used.
 
-    def set_build_type(cmake_flags: str) -> str:
-        if args.build_type is None:  # If --build-type option is not specified, set it to release.
+    def set_build_type() -> str:
+        # If --build-type option is not specified, set it to release.
+        if args.build_type is None:
             logging.info('Build type is "release"')
-            cmake_flags += " -DCMAKE_BUILD_TYPE=release"
+            return " -DCMAKE_BUILD_TYPE=release"
+
+        # --build-type option is specified.
+        build_type: str = args.build_type.lower()
+        if build_type == "release" or build_type == "debug":
+            logging.info(f'Build type is "{build_type}"')
+            return f" -DCMAKE_BUILD_TYPE={build_type}"
         else:
-            build_type = args.build_type.lower()
-            if build_type == "release" or build_type == "debug":
-                logging.info(f'Build type is "{build_type}"')
-                cmake_flags += f" -DCMAKE_BUILD_TYPE={build_type}"
-            else:
-                logging.error('Invalid build type. The build type should be "release" or "debug".')
-                exit(1)
-        return cmake_flags
+            msg = f'Invalid build type "{build_type}". The build type must be "release" or "debug".'
+            logging.error(msg)
+            raise ValueError(msg)
 
-    def set_install_dir(cmake_flags: str) -> str:
-        if args.prefix is None:  # User did not specify the installation directory.
-            pass  # If --prefix option is not specified, the default installation directory defined in CMakeLists.txt will be used.
-        else:  # User specified the installation directory.
-            prefix_path_expanded = Path(args.prefix).expanduser()
-            if prefix_path_expanded.is_absolute():  # Absolute path
-                prefix = prefix_path_expanded.resolve()
-            else:  # Relative path
-                prefix = (exec_path / prefix_path_expanded).resolve()
+    def set_install_dir() -> str:
+        if args.prefix is not None:  # User specified the installation directory.
+            prefix = Path(args.prefix).expanduser().resolve()
             logging.info(f"Installation directory is {prefix}")
-            cmake_flags += f" -DCMAKE_INSTALL_PREFIX={prefix}"
+            return f" -DCMAKE_INSTALL_PREFIX={prefix}"
+
+        # User did not specify the installation directory.
+        # If --prefix option is not specified, the default installation directory defined in CMakeLists.txt will be used.
+        return ""
+
+    def set_cmake_flags() -> str:
+        cmake_flags = set_compiler() + set_build_type() + set_install_dir()
+        if args.flags is not None:
+            # Additional compiler flags specified by the user.
+            # CMAKE_<LANG>_FLAGS: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html#variable:CMAKE_%3CLANG%3E_FLAGS
+            cmake_flags += f" -DCMAKE_Fortran_FLAGS='{args.flags}'"
+        if args.no_mkl:
+            cmake_flags += " -DMKL=off"
+        if args.mpi:
+            cmake_flags += " -DMPI=ON"
+        if args.omp:
+            cmake_flags += " -DOPENMP=ON"
         return cmake_flags
 
-    check_cmake_is_installed()
+    check_cmake_version()
     clean_dir()
-
     logging.info("Configuring cmake build flags...")
-
-    cmake_flags = ""
-    cmake_flags = set_compiler(cmake_flags)
-    cmake_flags = set_build_type(cmake_flags)
-    cmake_flags = set_install_dir(cmake_flags)
-
-    if args.flags is not None:
-        # CMAKE_<LANG>_FLAGS: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_FLAGS.html#variable:CMAKE_%3CLANG%3E_FLAGS
-        cmake_flags += f" -DCMAKE_Fortran_FLAGS='{args.flags}'"
-    if args.no_mkl:
-        cmake_flags += " -DMKL=off"
-    if args.mpi:
-        cmake_flags += " -DMPI=ON"
-    if args.omp:
-        cmake_flags += " -DOPENMP=ON"
+    cmake_flags = set_cmake_flags()
 
     return cmake_flags
 
@@ -122,24 +138,21 @@ def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -
 def configure_source(cmake_flags: str, script_path: Path) -> None:
     logging.info(f"CMake flags are {cmake_flags}")
     build_dir = (script_path / "build").resolve()
-    if not build_dir.exists():
-        build_dir.mkdir()
+    build_dir.mkdir(exist_ok=True)
     command = f"cmake -B {build_dir} {cmake_flags}"
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
     logging.info(f"BUILD COMMAND is {command}")
     logging.info(f"Build command is saved in {script_path}/cmake_build_command.log")
-    process = Popen(command, shell=True)
-    process.wait()
-    if process.returncode != 0:
-        logging.error("Failed to configure the source code!")
-        exit(1)
+    subprocess.run(command.split(), check=True)
     logging.info("Successfully configured the source code.")
 
 
 def build(args: "argparse.Namespace") -> None:
     num_of_process = args.parallel
-    if num_of_process == -1: # const value of -j option, which means the native build tool's default number is used. (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
+    if num_of_process == -1:
+        # const value of -j option, which means the native build tool's default number is used.
+        # (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
         cmd = "cmake --build build -j"
     else:
         cmd = f"cmake --build build -j {num_of_process}"
