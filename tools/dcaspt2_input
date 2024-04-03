@@ -467,9 +467,8 @@ def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: Path) ->
 
     # Check if the input file exists
     if not input_file_path.exists():
-        print(f"Input file {input_file_path} does not exist")
-        print("Please specify the input file path with -i or --input option")
-        raise FileNotFoundError(f"Input file {input_file_path} does not exist")
+        msg = f"Input file {input_file_path} does not exist.\nPlease specify the input file path with -i or --input option."
+        raise FileNotFoundError(msg)
 
     return input_file_path
 
