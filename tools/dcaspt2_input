@@ -308,6 +308,10 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
         if args.get is None:
             return  # No files to copy
 
+        if args.noscratch:
+            print("--no-scratch option is specified. No scratch directory is used, so no need to copy files.")
+            return  # No scratch directory is used so no need to copy files
+
         if user_submitted_dir == scratch_dir:
             print("The scratch directory is the user submitted directory. No need to copy files.")
             return  # No need to copy files
