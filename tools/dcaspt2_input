@@ -489,6 +489,16 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: Path) ->
     else:
         output_file_path = Path(args.output).expanduser().resolve()
 
+    # Does output_file_path have w+ permission?
+    try:
+        with open(output_file_path, "w"):
+            pass
+    except PermissionError:
+        msg = f"Permission denied: You do not have write permission to the file '{output_file_path}'.\n\
+Please specify the output file that you have permission to write.\nExiting..."
+        print(msg)
+        raise
+
     return output_file_path
 
 
