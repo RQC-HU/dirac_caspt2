@@ -445,11 +445,9 @@ def get_version(binary_dir: Path) -> str:
     """
     version_file = binary_dir / ".commit_hash"
     if version_file.exists():
-        with open(version_file, "r", encoding="utf-8") as f:
-            version = f.read().strip()
-    else:
-        version = "unknown"
-    return version
+        versions = version_file.read_text(encoding="utf-8").splitlines()
+        return "unknown" if len(versions) == 0 else versions[0].strip()
+    return "unknown"
 
 
 def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: Path) -> Path:
