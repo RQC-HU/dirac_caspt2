@@ -4,7 +4,6 @@ import argparse
 import glob
 import os
 import shutil
-import signal
 import sys
 import tempfile
 from datetime import datetime
@@ -152,13 +151,11 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_s
         return scratch_dir
 
     # --scratch option, Create the root scratch directory path
-    root_scr_dir = Path("~/dcaspt2_scratch").expanduser().resolve()
     if args.scratchdir:
-        expand_root = Path(args.scratchdir).expanduser()
-        if expand_root.is_absolute():
-            root_scr_dir = expand_root.resolve()
-        else:  # relative path
-            root_scr_dir = Path(user_submitted_dir, expand_root).resolve()
+        root_scr_dir = Path(args.scratchdir).expanduser().resolve()
+    else:
+        # Use the default scratch directory if --scratch option is not specified
+        root_scr_dir = Path("~/dcaspt2_scratch").expanduser().resolve()
 
     try:
         os.makedirs(root_scr_dir, exist_ok=True)
@@ -230,11 +227,7 @@ def set_integrals_dir(args: "argparse.Namespace", user_submitted_dir: Path) -> P
     if args.integrals is None:
         integrals_dir = user_submitted_dir.resolve()
     else:
-        expand_integrals = Path(args.integrals).expanduser()
-        if expand_integrals.is_absolute():  # absolute path
-            integrals_dir = expand_integrals.resolve()
-        else:  # relative path
-            integrals_dir = Path(user_submitted_dir, expand_integrals).resolve()
+        integrals_dir = Path(args.integrals).expanduser().resolve()
     return integrals_dir
 
 
@@ -269,9 +262,7 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
         os.environ["OMP_NUM_THREADS"] = str(args.threads)
 
     # --mpi option
-    mpi = ""
-    if args.mpi > 1:
-        mpi = f"mpirun -np {args.mpi}"
+    mpi = f"mpirun -np {args.mpi}" if args.mpi > 1 else ""
 
     # Create a command
     ivo_path = binary_dir / "r4divocoexe"
@@ -309,7 +300,47 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
         if not args.noscratch and not args.save and scratch_dir.exists():
             shutil.rmtree(scratch_dir)
 
-    def get_elapsed_time(start_time: datetime, end_time: datetime) -> Tuple[int, int, int, int, float]:
+    def copy_specified_files_to_user_submitted_dir() -> None:
+        """Copy the specified files from the scratch directory to the user submitted directory.
+        If --save option is not specified, move the files instead of copying them.
+        """
+
+        if args.get is None:
+            return  # No files to copy
+
+        if args.noscratch:
+            print("--no-scratch option is specified. No scratch directory is used, so no need to copy files.")
+            return  # No scratch directory is used so no need to copy files
+
+        if user_submitted_dir == scratch_dir:
+            print("The scratch directory is the user submitted directory. No need to copy files.")
+            return  # No need to copy files
+
+        print(args.get)
+        get_files = str(args.get).split()  # Split the string by space
+        for file_glob in get_files:  # glob is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
+            for file in glob.glob(file_glob):
+                scratch_dir_file = scratch_dir / file
+                print(f"Copying {scratch_dir_file} to {user_submitted_dir}")
+                if scratch_dir_file.exists():
+                    if args.save:
+                        try:
+                            shutil.copy(scratch_dir_file, user_submitted_dir)
+                        except shutil.SameFileError:
+                            print(f"File {scratch_dir_file} already exists in {user_submitted_dir}")
+                        except PermissionError:
+                            print(f"Permission denied: {scratch_dir_file}")
+                    else:
+                        try:
+                            shutil.move(scratch_dir_file, user_submitted_dir)
+                        except shutil.Error:
+                            print(f"File {scratch_dir_file} already exists in {user_submitted_dir}")
+                        except PermissionError:
+                            print(f"Permission denied: {scratch_dir_file}")
+                else:
+                    print(f"File {scratch_dir_file} is not found")
+
+    def get_elapsed_time(start_time: datetime, end_time: datetime) -> Tuple[int, int, int, int, int]:
         """Get the elapsed time
 
         Args:
@@ -317,81 +348,84 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
             end_time (datetime): End time
 
         Returns:
-            Tuple[int, int, int, int, float]: Elapsed time (days, hours, minutes, seconds, seconds)
+            Tuple[int, int, int, int, int]: Elapsed time (days, hours, minutes, seconds, milliseconds)
         """
         diff_time = end_time - start_time
         time_hours = diff_time.seconds // 3600
         time_minutes = (diff_time.seconds % 3600) // 60
         time_seconds = diff_time.seconds % 60
-        return diff_time.days, time_hours, time_minutes, time_seconds, diff_time.microseconds
+        time_milliseconds = diff_time.microseconds // 1000
+        return diff_time.days, time_hours, time_minutes, time_seconds, time_milliseconds
+
+    def generate_end_message(p: Popen[str], start_time: datetime, end_time: datetime) -> str:
+        """Generate the end message
+
+        Args:
+            p (Popen): Popen object
+
+        Returns:
+            str: End message
+        """
+
+        def generate_err_message() -> str:
+            """Generate the error message"""
+            err_msg = "\n================= Standard error =================\n"
+            if p.stderr is None:
+                return err_msg
+            else:
+                return f"{err_msg}{p.stderr.read()}"
+
+        def generate_finished_message(start_time: datetime, end_time: datetime) -> str:
+            """Generate the finished message"""
+            start_time_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
+            end_time_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
+            user_command = " ".join(sys.argv)
+            days, hours, mins, secs, millisecs = get_elapsed_time(start_time, end_time)
+            finished_message = f"\n================= Calculation finished ================\n\
+User Command : {user_command}\n\
+Auto-created Command : {command}\n\
+Scratch directory : {scratch_dir}\n\
+Output file : {output_file_path}\n\
+Calculation started at : {start_time_str}\nCalculation finished at : {end_time_str}\n\
+Elapsed time (sec) : {(end_time - start_time).total_seconds():.4f} sec\n\
+Elapsed time : {days} day {hours} hour {mins} min {secs} sec {millisecs} millisecond\n\
+dirac-caspt2 version (commit hash) : {version}\n"
+            return finished_message
+
+        def generate_returncode_condition_message() -> str:
+            """Generate the return code condition message"""
+            if p.returncode == 0:
+                return "NORMAL END OF dirac-caspt2 CALCULATION\n"
+            return f"ERROR: dirac-caspt2 calculation failed with return code {p.returncode}\n"
+
+        end_message = generate_err_message() + generate_finished_message(start_time, end_time) + generate_returncode_condition_message()
+
+        return end_message
 
     os.chdir(scratch_dir)
 
     with open(output_file_path, "w") as f:
         start_time = datetime.now()
-        start_time_float = start_time.timestamp()
-        start_time_string = start_time.strftime("%Y-%m-%d %H:%M:%S")
 
         try:
-            p = Popen(command, shell=True, stdout=f, stderr=PIPE)
+            p = Popen(command, shell=True, stdout=f, stderr=PIPE, text=True, encoding="utf-8")
             p.wait()
         except KeyboardInterrupt:
             delete_scratch_dir()
-            print("Calculation was interrupted by the user.(ctrl+c, SIGINT)")
-            sys.exit(signal.SIGINT)
+            end_message = "\nProcess is interrupted by the user.(ctrl+c, SIGINT)\nExiting..."
+            print(end_message)
+            f.write(end_message)
+            raise  # Raise the KeyboardInterrupt to exit the script
 
-        end_message = ""
-        if p.stderr is not None:
-            end_message += "\n================= Standard error =================\n"
-            end_message += p.stderr.read().decode("utf-8")
-        user_command = " ".join(sys.argv)
         end_time = datetime.now()
-        end_time_float = end_time.timestamp()
-        end_time_string = end_time.strftime("%Y-%m-%d %H:%M:%S")
-        days, hours, mins, secs, millisecs = get_elapsed_time(start_time, end_time)
-        end_message += "\n================= Calculation finished ================\n"
-        end_message += f"User Command : {user_command}\n"
-        end_message += f"Auto-created Command : {command}\n"
-        end_message += f"Scratch directory : {scratch_dir}\n"
-        end_message += f"Output file : {output_file_path}\n"
-        end_message += f"Calculation started at : {start_time_string}\nCalculation finished at : {end_time_string}\n"
-        end_message += f"Elapsed time (sec) : {end_time_float - start_time_float:.4f} sec\n"
-        end_message += f"Elapsed time : {days} day {hours} hour {mins} min {secs} sec {millisecs} millisecond\n"
-        end_message += f"dirac-caspt2 version (commit hash) : {version}\n"
-
-        if p.returncode == 0:
-            end_message += "NORMAL END OF dirac-caspt2 CALCULATION\n"
-        else:
-            end_message += f"ERROR: dirac-caspt2 calculation failed with return code {p.returncode}\n"
+        end_message = generate_end_message(p, start_time, end_time)
 
         # Write the end message to the output file and stdout
         print(end_message)
         f.write(end_message)
 
-        # Copy the specified files from the scratch directory to the user submitted directory
-        if args.get is not None:  # and args.noscratch is False:
-            if user_submitted_dir == scratch_dir:
-                print("The scratch directory is the user submitted directory. No need to copy files.")
-            else:
-                print(args.get)
-                get_files = str(args.get).split()  # Split the string by space
-                for file_glob in get_files:  # glob is allowed (e.g.) MDCINTNEW* => MDCINTNEW, MDCINTNEW1, MDCINTNEW2, ...)
-                    for file in glob.glob(file_glob):
-                        scratch_dir_file = scratch_dir / file
-                        print(f"Copying {scratch_dir_file} to {user_submitted_dir}")
-                        if scratch_dir_file.exists():
-                            try:
-                                shutil.copy(scratch_dir_file, user_submitted_dir)
-                            except shutil.SameFileError:
-                                print(f"File {scratch_dir_file} already exists in {user_submitted_dir}")
-                            except PermissionError:
-                                print(f"Permission denied: {scratch_dir_file}")
-                        else:
-                            print(f"File {scratch_dir_file} is not found")
-
-        # Delete the temporary directory if the user didn't specify the -s or --save option and --no-scratch option
-        if not args.noscratch and not args.save and os.path.exists(scratch_dir):
-            shutil.rmtree(scratch_dir)
+        copy_specified_files_to_user_submitted_dir()
+        delete_scratch_dir()
 
         # When the calculation failed, exit with the return code of the calculation
         if p.returncode != 0:
@@ -411,11 +445,9 @@ def get_version(binary_dir: Path) -> str:
     """
     version_file = binary_dir / ".commit_hash"
     if version_file.exists():
-        with open(version_file, "r", encoding="utf-8") as f:
-            version = f.read().strip()
-    else:
-        version = "unknown"
-    return version
+        versions = version_file.read_text(encoding="utf-8").splitlines()
+        return "unknown" if len(versions) == 0 else versions[0].strip()
+    return "unknown"
 
 
 def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: Path) -> Path:
@@ -431,17 +463,12 @@ def set_input_file_path(args: "argparse.Namespace", user_submitted_dir: Path) ->
     if args.input is None:
         input_file_path = (user_submitted_dir / "active.inp").resolve()
     else:
-        expand_input = Path(args.input).expanduser()
-        if expand_input.is_absolute():  # absolute path
-            input_file_path = expand_input.resolve()
-        else:  # relative path
-            input_file_path = (user_submitted_dir / expand_input).resolve()
+        input_file_path = Path(args.input).expanduser().resolve()
 
     # Check if the input file exists
     if not input_file_path.exists():
-        print(f"Input file {input_file_path} does not exist")
-        print("Please specify the input file path with -i or --input option")
-        sys.exit(FileNotFoundError.errno)
+        msg = f"Input file {input_file_path} does not exist.\nPlease specify the input file path with -i or --input option."
+        raise FileNotFoundError(msg)
 
     return input_file_path
 
@@ -460,11 +487,17 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: Path) ->
         filename = "dirac_ivo.out" if args.ivo else "dirac_caspt2.out"
         output_file_path = (user_submitted_dir / filename).resolve()
     else:
-        expand_output = Path(args.output).expanduser()
-        if expand_output.is_absolute():  # absolute path
-            output_file_path = expand_output.resolve()
-        else:  # relative path
-            output_file_path = (user_submitted_dir / expand_output).resolve()
+        output_file_path = Path(args.output).expanduser().resolve()
+
+    # Does output_file_path have w+ permission?
+    try:
+        with open(output_file_path, "w"):
+            pass
+    except PermissionError:
+        msg = f"Permission denied: You do not have write permission to the file '{output_file_path}'.\n\
+Please specify the output file that you have permission to write.\nExiting..."
+        print(msg)
+        raise
 
     return output_file_path
 
