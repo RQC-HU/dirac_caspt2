@@ -1,3 +1,224 @@
+subroutine check_dirac_integer_size(filename)
+    use module_global_variables
+    use module_error, only: stop_with_errorcode
+    use module_file_manager
+    use module_sort_swap
+    Implicit NONE
+
+    integer :: unit_mrconee
+    character(*), intent(in) :: filename
+    integer :: iostat, record_size
+    logical :: is_end_of_file
+    integer :: nsymrp
+    integer(4) :: leading_rec_marker, trailing_rec_marker, record_offset, seek_st
+    nsymrp = 0
+    record_offset = 0
+    seek_st = 0
+
+    ! Get an unused unit
+    call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
+    rewind (unit_mrconee)
+    close (unit_mrconee)
+
+    ! Open MRCONEE (access="stream")
+    open (unit_mrconee, file=trim(filename), form="unformatted", status="old", access="stream")
+
+    ! =============================================================================================
+    ! SKIP: 1st line (the number of molecular orbitals, Breit interaction and the core energy...)
+    ! read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE, nfsym, spinfr, norbt, hf_energy_mrconee
+    ! =============================================================================================
+
+    ! 1st line leading record_marker
+    read (unit_mrconee, iostat=iostat) leading_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    record_offset = leading_rec_marker
+
+    ! seek
+    call seek(unit_mrconee, record_offset, seek_st)
+    call check_fseek_status(status=seek_st)
+
+    ! 1st line trailing record_marker
+    read (unit_mrconee, iostat=iostat) trailing_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    if (leading_rec_marker /= trailing_rec_marker) then
+        if (rank == 0) print *, "Values of leading and trailing record markers are not same. Exiting..."
+        call stop_with_errorcode(1)
+    end if
+
+    ! =============================================================================================
+    ! SKIP: 2nd line (nsymrp and irpmo)
+    ! read (unit_mrconee, iostat=iostat) nsymrp, (REPN(IRP),IRP=1,NSYMRP)
+    ! =============================================================================================
+
+    ! 2nd line leading record_marker
+    read (unit_mrconee, iostat=iostat) leading_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    record_offset = leading_rec_marker
+
+    ! seek
+    call seek(unit_mrconee, record_offset, seek_st)
+    call check_fseek_status(status=seek_st)
+
+    ! 2nd line trailing record_marker
+    read (unit_mrconee, iostat=iostat) trailing_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    if (leading_rec_marker /= trailing_rec_marker) then
+        if (rank == 0) print *, "Values of leading and trailing record markers are not same. Exiting..."
+        call stop_with_errorcode(1)
+    end if
+
+    ! ========================================================================
+    ! 3rd line (nsymrpa and repna)
+    ! Read (unit_mrconee, iostat=iostat) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+    ! ========================================================================
+
+    ! 3rd line leading record_marker
+    read (unit_mrconee, iostat=iostat) leading_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+
+    ! nsymrpa
+    Read (unit_mrconee, iostat=iostat) nsymrpa
+    ! nsymrpa: 8byte integer if DIRAC is 64bit integer version.
+    ! Read (unit_mrconee, iostat=iostat) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+    record_size = kind(nsymrpa) + len(repna(1))*nsymrpa*2
+    if (record_size /= leading_rec_marker) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! seek
+    record_offset = record_size - kind(nsymrpa)
+    call seek(unit_mrconee, record_offset, seek_st)
+    if (seek_st /= 0) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! 3rd line trailing record_marker
+    read (unit_mrconee, iostat=iostat) trailing_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    if (leading_rec_marker /= trailing_rec_marker) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! ======================================================================================
+    ! 4th line (multiplication table)
+    ! multiplication table for the irreducible representations.
+    ! Read (unit_mrconee, iostat=iostat) ((multb(i0, j0), i0=1, 2*nsymrpa), j0=1, 2*nsymrpa)
+    ! ======================================================================================
+
+    ! 4th line leading record_marker
+    read (unit_mrconee, iostat=iostat) leading_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+
+    ! MULTB
+    ! Read (unit_mrconee, iostat=iostat) ((multb(i0, j0), i0=1, 2*nsymrpa), j0=1, 2*nsymrpa)
+    record_size = kind(multb)*(2*nsymrpa)**2
+    if (record_size /= leading_rec_marker) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! seek
+    record_offset = record_size
+    call seek(unit_mrconee, record_offset, seek_st)
+    if (seek_st > 0) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! 4th line trailing record_marker
+    read (unit_mrconee, iostat=iostat) trailing_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    if (leading_rec_marker /= trailing_rec_marker) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! ===================================================================
+    ! SKIP: 5th line (MO info)
+    ! WRITE (LUMLF1) (IRPMO(I),IRPAMO(I),ORBMO(I),I=1,NSTRT*2),
+    ! &               (IBSPI(I),I=1,2*NSTRT),(NORB(I),I=1,NFSYM),NBSYMRP
+    ! ===================================================================
+
+    ! 5th line leading record_marker
+    read (unit_mrconee, iostat=iostat) leading_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    record_offset = leading_rec_marker
+
+    ! seek
+    call seek(unit_mrconee, record_offset, seek_st)
+    call check_fseek_status(status=seek_st)
+
+    ! 5th line trailing record_marker
+    read (unit_mrconee, iostat=iostat) trailing_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    if (leading_rec_marker /= trailing_rec_marker) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    ! ===================================================================
+    ! SKIP: 6th line (1-elec integrals)
+    ! WRITE (LUMLF1) ((FMOM(I,J,1),FMOM(I,J,2),
+    !  &                 I=1,NSTRT*2),J=1,NSTRT*2)
+    ! ===================================================================
+
+    ! 6th line leading record_marker
+    read (unit_mrconee, iostat=iostat) leading_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    record_offset = leading_rec_marker
+
+    ! seek
+    call seek(unit_mrconee, record_offset, seek_st)
+    call check_fseek_status(status=seek_st)
+
+    ! 6th line trailing record_marker
+    read (unit_mrconee, iostat=iostat) trailing_rec_marker
+    call check_iostat(iostat, trim(filename), is_end_of_file)
+    if (leading_rec_marker /= trailing_rec_marker) then
+        call dirac_32bit_integer
+        close (unit_mrconee)
+        return
+    end if
+
+    if (rank == 0) print *, "DIRAC seems to be compiled with 64-bit integer."
+    close (unit_mrconee)
+contains
+
+    subroutine seek(unit, offset, seek_status)
+        implicit none
+        integer, intent(in) :: unit
+        integer(kind=4), intent(in) :: offset
+        integer(kind=4), intent(out) :: seek_status
+        call fseek(unit, offset, 1, seek_status) ! 1: seek from current position
+    end subroutine seek
+
+    subroutine check_fseek_status(status)
+        implicit none
+        integer(kind=4) :: status
+
+        if (status /= 0) then
+            if (rank == 0) print *, "fseek failed. exiting..."
+            call stop_with_errorcode(1)
+        end if
+    end subroutine check_fseek_status
+
+    subroutine dirac_32bit_integer
+        implicit none
+        if (rank == 0) print *, "DIRAC seems to be compiled with 32-bit integer."
+        dirac_32bit_build = .true.
+    end subroutine dirac_32bit_integer
+end subroutine check_dirac_integer_size
+
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 SUBROUTINE read_mrconee(filename)
@@ -22,7 +243,8 @@ SUBROUTINE read_mrconee(filename)
     Implicit NONE
 
     integer :: unit_mrconee, IMO, IRP
-    integer, allocatable :: irpmo(:)
+    integer(4) :: nmo_32bit, nfsym_32bit, nz_32bit, norbt_32bit
+    logical(4) :: breit_32bit, spinfr_32bit
     character(*), intent(in) :: filename
     integer :: i0, j0, k0, i, j, m, iostat
     logical :: breit, is_end_of_file, spinfr
@@ -34,7 +256,13 @@ SUBROUTINE read_mrconee(filename)
     ! NSPC and NCORE2 added in DIRAC 21 and we don't use them, so skip them.
     ! NSPC and NCORE2 were added at the following commit.
     ! https://gitlab.com/dirac/dirac/-/commit/d0a1beb1fc0c23b4ce89c89c05bc0d421f71aea2
-    Read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE, nfsym, nz, spinfr, norbt, hf_energy_mrconee
+    if (dirac_32bit_build) then
+        read (unit_mrconee, iostat=iostat) nmo_32bit, breit_32bit, ecore, &
+            nfsym_32bit, nz_32bit, spinfr_32bit, norbt_32bit, hf_energy_mrconee
+        nmo = nmo_32bit; breit = breit_32bit; nfsym = nfsym_32bit; nz = nz_32bit; spinfr = spinfr_32bit; norbt = norbt_32bit
+    else
+        read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE, nfsym, nz, spinfr, norbt, hf_energy_mrconee
+    end if
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
     if (is_end_of_file) then
         print *, 'Error: error in reading NMO, BREIT, ECORE (end of file reached)'
@@ -83,9 +311,15 @@ contains
     subroutine read_irreducible_representation_infomation
         implicit none
         integer :: nsymrp
+        integer(4) :: nsymrp_32bit, nsymrpa_32bit
         character :: repn(64)*14
         ! Read the number of irreducible representations and irreducible representation labels for each molecular orbital.
-        Read (unit_mrconee, iostat=iostat) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)
+        if (dirac_32bit_build) then
+            read (unit_mrconee, iostat=iostat) nsymrp_32bit, (REPN(IRP), IRP=1, nsymrp_32bit)
+            nsymrp = nsymrp_32bit
+        else
+            read (unit_mrconee, iostat=iostat) NSYMRP, (REPN(IRP), IRP=1, NSYMRP)
+        end if
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             print *, 'Error: error in reading NSYMRP, REPN (end of file reached)'
@@ -98,7 +332,12 @@ contains
         end if
 
         ! Read the number of irreducible representations and irreducible representation labels for each molecular orbital. (abelian group)
-        Read (unit_mrconee, iostat=iostat) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+        if (dirac_32bit_build) then
+            read (unit_mrconee, iostat=iostat) nsymrpa_32bit, (repna(i0), i0=1, nsymrpa_32bit*2)
+            nsymrpa = nsymrpa_32bit
+        else
+            read (unit_mrconee, iostat=iostat) nsymrpa, (repna(i0), i0=1, nsymrpa*2)
+        end if
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             print *, 'Error: error in reading nsymrpa, repna (end of file reached)'
@@ -115,6 +354,7 @@ contains
         ! create multiplication table
         ! MULTB, MULTB2, MULTB_S, MULTB_D, MULTB_DS
         implicit none
+        integer(4) :: multb_32bit(128, 128)
         integer, allocatable :: SD(:, :)
 
         allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
@@ -125,7 +365,12 @@ contains
         Call memplus(size(SD), kind(SD), 1)
 
         ! Read the multiplication table for the irreducible representations.
-        Read (unit_mrconee, iostat=iostat) ((multb(i0, j0), i0=1, 2*nsymrpa), j0=1, 2*nsymrpa)
+        if (dirac_32bit_build) then
+            read (unit_mrconee, iostat=iostat) ((multb_32bit(i0, j0), i0=1, 2*nsymrpa), j0=1, 2*nsymrpa)
+            multb = multb_32bit
+        else
+            read (unit_mrconee, iostat=iostat) ((multb(i0, j0), i0=1, 2*nsymrpa), j0=1, 2*nsymrpa)
+        end if
         call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
         if (is_end_of_file) then
             print *, 'Error: error in reading multb (end of file reached)'
@@ -190,7 +435,8 @@ contains
     subroutine create_mo_irrep_conversion_list
         implicit none
         integer, allocatable :: tmp_mo(:)
-
+        integer, allocatable :: irpmo(:)
+        integer(4), allocatable :: irpmo_32bit(:), irpamo_32bit(:)
         ! Define the space index for each molecular orbital.
         Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
         space_idx(1:ninact) = 1 ! inactive = 1
@@ -198,16 +444,23 @@ contains
         space_idx(global_sec_start:global_sec_end) = 3 ! secondary = 3
         space_idx(global_sec_end + 1:nmo) = 4 ! virtual = 4
 
-        allocate (IRPMO(1:NMO)); call memplus(size(IRPMO), kind(IRPMO), 1)
+        allocate (irpmo(nmo)); call memplus(size(irpmo), kind(irpmo), 1)
+        allocate (irpmo_32bit(nmo)); call memplus(size(irpmo_32bit), kind(irpmo_32bit), 1)
+        allocate (irpamo_32bit(nmo)); call memplus(size(irpamo_32bit), kind(irpamo_32bit), 1)
         Allocate (irpamo(nmo)); Call memplus(KIND(irpamo), SIZE(irpamo), 1)
-        allocate (dirac_mo_energy(1:NMO)); call memplus(size(dirac_mo_energy), kind(dirac_mo_energy), 1)
+        allocate (dirac_mo_energy(nmo)); call memplus(size(dirac_mo_energy), kind(dirac_mo_energy), 1)
         irpmo(:) = 0
         irpamo(:) = 0
         ! Read the irpmo, irpamo, dirac_mo_enegy.
         ! irpmo: irreducible representation number of each molecular orbital.
         ! irpamo: irreducible representation number of each molecular orbital. (abelian group)
         ! dirac_mo_energy: orbital energies of each molecular orbital.
-        Read (unit_mrconee, iostat=iostat) (IRPMO(IMO), IRPAMO(IMO), dirac_mo_energy(IMO), IMO=1, NMO)
+        if (dirac_32bit_build) then
+            read (unit_mrconee, iostat=iostat) (irpmo_32bit(i0), irpamo_32bit(i0), dirac_mo_energy(i0), i0=1, nmo)
+            irpmo = irpmo_32bit; irpamo = irpamo_32bit
+        else
+            read (unit_mrconee, iostat=iostat) (IRPMO(IMO), IRPAMO(IMO), dirac_mo_energy(IMO), IMO=1, NMO)
+        end if
         if (iostat .ne. 0) then
             print *, 'Error in reading orbital energies'
             print *, 'iostat = ', iostat

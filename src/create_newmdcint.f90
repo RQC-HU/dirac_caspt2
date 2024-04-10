@@ -21,9 +21,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: i0, inz, nnz, n, dirac23_int_amp_factor, idx_amp_factor
     integer :: ikr, jkr
     integer :: cur_i, cur_j, cur_k, cur_l
+    integer(4) :: ikr_32bit, jkr_32bit, nz_32bit, nkr_32bit
     integer :: ii, jj, kk, ll
     integer :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
     integer, allocatable :: indk(:), indl(:), kr(:)
+    integer(4), allocatable :: indk_32bit(:), indl_32bit(:), kr_32bit(:)
     double precision, allocatable  :: rklr(:), rkli(:)
     double precision :: cur_int2_real, cur_int2_imag
     real(8) :: cutoff
@@ -34,16 +36,25 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     if (rank == 0) print *, 'Start create_newmdcint'
     Allocate (kr(-nmo/2:nmo/2))
+    if (dirac_32bit_build) allocate (kr_32bit(-nmo/2:nmo/2))
     kr = 0
     ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
     if (rank == 0) then
         call open_unformatted_file(unit=unit_mdcint, file="MDCINT", status="old", optional_action="read")
-        read (unit_mdcint) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+        if (dirac_32bit_build) then
+            read (unit_mdcint, iostat=iostat) datex, timex, nkr_32bit, (kr_32bit(i0), kr_32bit(-1*i0), i0=1, nkr_32bit)
+            nkr = nkr_32bit; kr = kr_32bit
+            deallocate (kr_32bit)
+        else
+            read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+        end if
+        call check_iostat(iostat, "MDCINT", end_of_file_reached=is_end_of_file)
         close (unit_mdcint)
     end if
     Allocate (indk(nmo**2))
     Allocate (indl(nmo**2))
     Allocate (rklr(nmo**2))
+    if (dirac_32bit_build) allocate (indk_32bit(nmo**2), indl_32bit(nmo**2))
     if (.not. realonly%is_realonly()) Allocate (rkli(nmo**2))
 
 #ifdef HAVE_MPI
@@ -100,7 +111,6 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     call get_mdcint_filename(file_idx)
     call open_unformatted_file(unit=unit_mdcintnew, file=mdcintNew, status="replace", optional_action="write")
     write (unit_mdcintnew) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-
     is_file_exist = .true.
     do while (is_file_exist) ! Continue reading 2-electron integrals until mdcint_filename doesn't exist.
 
@@ -112,10 +122,26 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
         ! Continue to read 2-electron integrals until mdcint_filename reaches the end of file.
         mdcint_file_read: do
-            if (realonly%is_realonly()) then
-                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), inz=1, nz)
+            if (dirac_32bit_build) then
+                if (realonly%is_realonly()) then
+                    read (unit_mdcint, iostat=iostat) ikr_32bit, jkr_32bit, nz_32bit, &
+                        (indk_32bit(inz), indl_32bit(inz), inz=1, nz_32bit), &
+                        (rklr(inz), inz=1, nz_32bit)
+                else
+                    read (unit_mdcint, iostat=iostat) ikr_32bit, jkr_32bit, nz_32bit, &
+                        (indk_32bit(inz), indl_32bit(inz), inz=1, nz_32bit), &
+                        (rklr(inz), rkli(inz), inz=1, nz_32bit)
+                end if
+                ikr = ikr_32bit; jkr = jkr_32bit; nz = nz_32bit
+                indk = indk_32bit; indl = indl_32bit
             else
-                read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+                if (realonly%is_realonly()) then
+                    read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), inz=1, nz), &
+                        (rklr(inz), inz=1, nz)
+                else
+                    read (unit_mdcint, iostat=iostat) ikr, jkr, nz, (indk(inz), indl(inz), inz=1, nz), &
+                        (rklr(inz), rkli(inz), inz=1, nz)
+                end if
             end if
 
             call check_iostat(iostat=iostat, file=mdcint_filename, end_of_file_reached=is_end_of_file)
@@ -238,6 +264,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     deallocate (indk)
     deallocate (indl)
     deallocate (rklr)
+    if (dirac_32bit_build) deallocate (indk_32bit, indl_32bit)
     if (allocated(rkli)) deallocate (rkli)
 
     if (rank == 0) print *, 'End create_newmdcint'

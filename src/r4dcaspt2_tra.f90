@@ -79,6 +79,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     if (rank == 0) print *, ' ENTER READ MRCONEE'
     filename = 'MRCONEE'
+    call check_dirac_integer_size(filename)
     call read_mrconee(filename)
     call check_realonly()
 

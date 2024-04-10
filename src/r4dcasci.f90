@@ -64,6 +64,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     filename = 'MRCONEE'
+    call check_dirac_integer_size(filename)
     call read_mrconee(filename)
 
     ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
