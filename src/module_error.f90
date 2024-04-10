@@ -12,11 +12,10 @@ contains
         integer, intent(in) :: errorcode
         integer :: ierr
         ierr = 0
-#ifdef HAVE_MPI
-        call MPI_Barrier(MPI_COMM_WORLD, ierr)
-#endif
 #ifdef INTEL
         call TRACEBACKQQ("Exit with error", errorcode)
+#elif GNU
+        call backtrace()
 #endif
         call exit(errorcode)
     end subroutine stop_with_errorcode

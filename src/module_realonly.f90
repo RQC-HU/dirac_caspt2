@@ -33,22 +33,35 @@ contains
 
         integer :: unit_mdcint
         integer :: i, j, nz, inz, iostat
+        integer(4) :: i_32bit, j_32bit, nz_32bit
         integer, allocatable :: k(:), l(:)
+        integer(4), allocatable :: k_32bit(:), l_32bit(:)
         real(8), allocatable :: rklr(:), rkli(:)
         character(6), parameter :: filename = "MDCINT"
 
         allocate (k(nmo**2), l(nmo**2), rklr(nmo**2), rkli(nmo**2))
+        if (dirac_32bit_build) allocate (k_32bit(nmo**2), l_32bit(nmo**2))
 
         call open_unformatted_file(unit_mdcint, filename, "old")
         rewind (unit_mdcint)
         read (unit_mdcint) ! Skip header
-        read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+        if (dirac_32bit_build) then
+            read (unit_mdcint, iostat=iostat) i_32bit, j_32bit, nz_32bit, (k_32bit(inz), l_32bit(inz), inz=1, nz_32bit), &
+                (rklr(inz), rkli(inz), inz=1, nz_32bit)
+        else
+            read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), inz=1, nz), (rklr(inz), rkli(inz), inz=1, nz)
+        end if
         if (iostat == 0) then ! Complex
             call set_is_realonly(realonly, .false.)
         else ! Realonly or Error
             rewind (unit_mdcint) ! Go back to the beginning of the file
             read (unit_mdcint) ! Skip header
-            read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), inz=1, nz), (rklr(inz), inz=1, nz)
+            if (dirac_32bit_build) then
+                read (unit_mdcint, iostat=iostat) i_32bit, j_32bit, nz_32bit, (k_32bit(inz), l_32bit(inz), inz=1, nz_32bit), &
+                    (rklr(inz), inz=1, nz_32bit)
+            else
+                read (unit_mdcint, iostat=iostat) i, j, nz, (k(inz), l(inz), inz=1, nz), (rklr(inz), inz=1, nz)
+            end if
             if (iostat == 0) then ! Realonly
                 call set_is_realonly(realonly, .true.)
             else ! Error
@@ -58,6 +71,7 @@ contains
         end if
         if (rank == 0) print *, "MDCINT realonly = ", realonly%is_realonly()
         deallocate (k, l, rklr, rkli)
+        if (dirac_32bit_build) deallocate (k_32bit, l_32bit)
         close (unit_mdcint)
     end subroutine check_realonly
 
