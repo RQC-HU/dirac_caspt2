@@ -388,7 +388,7 @@ Scratch directory : {scratch_dir}\n\
 Output file : {output_file_path}\n\
 Calculation started at : {start_time_str}\nCalculation finished at : {end_time_str}\n\
 Elapsed time (sec) : {(end_time - start_time).total_seconds():.4f} sec\n\
-Elapsed time : {days} day {hours} hour {mins} min {secs} sec {millisecs} millisecond\n\
+Elapsed time : {days} day {hours} hour {mins} min {secs} sec {millisecs:03} millisecond\n\
 dirac-caspt2 version (commit hash) : {version}\n"
             return finished_message
 
