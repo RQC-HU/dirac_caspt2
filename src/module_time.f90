@@ -173,7 +173,7 @@ contains
         m = month_to_day(time%month, is_leap_year(time%year))
         d = time%date - 1
 
-        ymd2day = year_to_day(time%year) + month_to_day(time%month, is_leap_year(time%year)) + time%date - 1
+        ymd2day = y + m + d
     end function ymd2day
 
     function year_to_day(year)
