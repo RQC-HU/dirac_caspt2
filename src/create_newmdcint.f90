@@ -36,71 +36,12 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
     if (rank == 0) print *, 'Start create_newmdcint'
     Allocate (kr(-nmo/2:nmo/2))
-    if (dirac_32bit_build) allocate (kr_32bit(-nmo/2:nmo/2))
-    kr = 0
-    ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
-    if (rank == 0) then
-        call open_unformatted_file(unit=unit_mdcint, file="MDCINT", status="old", optional_action="read")
-        if (dirac_32bit_build) then
-            read (unit_mdcint, iostat=iostat) datex, timex, nkr_32bit, (kr_32bit(i0), kr_32bit(-1*i0), i0=1, nkr_32bit)
-            nkr = nkr_32bit; kr = kr_32bit
-            deallocate (kr_32bit)
-        else
-            read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
-        end if
-        call check_iostat(iostat, "MDCINT", end_of_file_reached=is_end_of_file)
-        close (unit_mdcint)
-    end if
-    Allocate (indk(nmo**2))
-    Allocate (indl(nmo**2))
-    Allocate (rklr(nmo**2))
-    if (dirac_32bit_build) allocate (indk_32bit(nmo**2), indl_32bit(nmo**2))
+    if (dirac_32bit_build) allocate (kr_32bit(-nmo/2:nmo/2), indk_32bit(nmo**2), indl_32bit(nmo**2))
+    Allocate (indk(nmo**2), indl(nmo**2), rklr(nmo**2))
     if (.not. realonly%is_realonly()) Allocate (rkli(nmo**2))
 
-#ifdef HAVE_MPI
-    ! Broadcast kr and other data that are not included in the MDCINXXX files
-    call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
-#ifdef DEBUG
-    if (rank == 0) then
-        print *, "datex broadcast"
-        print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
-    end if
-#endif
-    if (ierr /= 0) call stop_with_errorcode(ierr)
-    call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
-#ifdef DEBUG
-    if (rank == 0) then
-        print *, "timex broadcast"
-        print *, "if ierr == 0, timex broadcast successed. ierr=", ierr
-    end if
-#endif
-    if (ierr /= 0) call stop_with_errorcode(ierr)
-    call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
-#ifdef DEBUG
-    if (rank == 0) then
-        print *, "nkr broadcast"
-        print *, "if ierr == 0, nkr broadcast successed. ierr=", ierr
-    end if
-#endif
-    if (ierr /= 0) call stop_with_errorcode(ierr)
-    call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
-#ifdef DEBUG
-    if (rank == 0) then
-        print *, "kr broadcast"
-        print *, "if ierr == 0, kr broadcast successed. ierr=", ierr
-    end if
-#endif
-    if (ierr /= 0) call stop_with_errorcode(ierr)
-    call MPI_Bcast(indmo_dirac_to_cas(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
-#ifdef DEBUG
-    if (rank == 0) then
-        print *, "datex broadcast"
-        print *, "if ierr == 0, datex broadcast successed. ierr=", ierr
-    end if
-#endif
-    if (ierr /= 0) call stop_with_errorcode(ierr)
-#endif
-
+    kr = 0
+    call read_mdcint_header
     cutoff = 0.25D-12
     nnz = 1
 
@@ -270,6 +211,37 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     if (rank == 0) print *, 'End create_newmdcint'
     deallocate (kr)
 contains
+
+    subroutine read_mdcint_header
+        implicit none
+        ! Get datex, timex, nkr, and kr from MDCINT becasuse there is no kr information in the MDCINXXX files.
+        if (rank == 0) then
+            call open_unformatted_file(unit=unit_mdcint, file="MDCINT", status="old", optional_action="read")
+            if (dirac_32bit_build) then
+                read (unit_mdcint, iostat=iostat) datex, timex, nkr_32bit, (kr_32bit(i0), kr_32bit(-1*i0), i0=1, nkr_32bit)
+                nkr = nkr_32bit; kr = kr_32bit
+                deallocate (kr_32bit)
+            else
+                read (unit_mdcint, iostat=iostat) datex, timex, nkr, (kr(i0), kr(-1*i0), i0=1, nkr)
+            end if
+            call check_iostat(iostat, "MDCINT", end_of_file_reached=is_end_of_file)
+            close (unit_mdcint)
+        end if
+
+#ifdef HAVE_MPI
+        ! Broadcast kr and other data that are not included in the MDCINXXX files
+        call MPI_Bcast(datex, sizeof(datex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+        if (ierr /= 0) call stop_with_errorcode(ierr)
+        call MPI_Bcast(timex, sizeof(timex), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+        if (ierr /= 0) call stop_with_errorcode(ierr)
+        call MPI_Bcast(nkr, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+        if (ierr /= 0) call stop_with_errorcode(ierr)
+        call MPI_Bcast(kr(-nmo/2), nmo + 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+        if (ierr /= 0) call stop_with_errorcode(ierr)
+        call MPI_Bcast(indmo_dirac_to_cas(1), nmo, MPI_INTEGER8, 0, MPI_COMM_WORLD, ierr)
+        if (ierr /= 0) call stop_with_errorcode(ierr)
+#endif
+    end subroutine read_mdcint_header
 
     logical function is_type2_or_3()
         implicit none
