@@ -72,6 +72,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
+        call get_mdcint_filename(0)
     else
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         ! Create UTChem type MDCINT file from Dirac MDCINT file
