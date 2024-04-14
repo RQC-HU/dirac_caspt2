@@ -36,8 +36,8 @@ class DIRACFiles:
     def ask_dirac_files(self, default_answer_path: Path) -> Path:
         # DIRAC input, mol and output files
         program_name = "DIRAC"
-        self.output_file_path = ask_output_file_path(program_name=program_name, default_path=self.input_file_path.parent)
-        self.input_file_path = ask_input_file_path(program_name=program_name, default_path=default_answer_path)
+        self.output_file_path = ask_output_file_path(program_name=program_name, default_path=default_answer_path)
+        self.input_file_path = ask_input_file_path(program_name=program_name, default_path=self.output_file_path.parent)
         self.mol_file_path = ask_mol_file_path(program_name=program_name, default_path=self.input_file_path.parent)
 
     def create_dirac_dir_and_copy_files(self):
@@ -200,9 +200,9 @@ def main():
 
         # Ask for the path of the integrals file
         integral_files = IntegralFiles()
-        integral_files.ask_dirac_integrals_directory(default_dir=ref_parent_dir)
+        integral_files.ask_dirac_integrals_directory(default_dir=input_file_path.parent)
         dirac_files = DIRACFiles(data_directory=Path.joinpath(test_dir, "dirac_data"))
-        dirac_files.ask_dirac_files(default_answer_path=ref_parent_dir)
+        dirac_files.ask_dirac_files(default_answer_path=integral_files.integrals_file_path)
 
         # mkdir the test directory
         test_dir.mkdir(parents=True, exist_ok=True)
@@ -242,13 +242,13 @@ def main():
         input_file_path = ask_input_file_path(program_name="DIRAC-IVO", default_path=ref_parent_dir)
 
         # Ask for the DFPCMO and DFPCMONEW files
-        dfpcmo_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMO", default_path=ref_parent_dir)
-        ref_dfpcmonew_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMONEW", default_path=ref_parent_dir)
+        dfpcmo_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMO", default_path=input_file_path.parent)
+        ref_dfpcmonew_file_path = ask_general_file_path(program_name="DIRAC-IVO", file_type="DFPCMONEW", default_path=dfpcmo_file_path.parent)
         # Ask for the path of the integrals file
         integral_files = IntegralFiles()
-        integral_files.ask_dirac_integrals_directory(default_dir=ref_parent_dir)
+        integral_files.ask_dirac_integrals_directory(default_dir=ref_dfpcmonew_file_path.parent)
         dirac_files = DIRACFiles(data_directory=Path.joinpath(test_dir, "dirac_data"))
-        dirac_files.ask_dirac_files(default_answer_path=ref_parent_dir)
+        dirac_files.ask_dirac_files(default_answer_path=integral_files.integrals_file_path)
 
         # mkdir the test directory
         test_dir.mkdir(parents=True, exist_ok=True)
