@@ -139,14 +139,6 @@ contains
             ras3_size = size(ras3_list, 1)
             call read_an_integer(unit_num, "ras3", 0, ras3_size, ras3_max_elec)
 
-        case ("calctype")
-            call read_a_string(unit_num, calctype)
-            call uppercase(calctype)
-            if (calctype /= "CASCI" .and. calctype /= "DMRG ") then
-                if (rank == 0) print *, "ERROR: calctype must be CASCI or DMRG"
-                call stop_with_errorcode(1)
-            end if
-
         case ("minholeras1")
             call read_an_integer(unit_num, "minholeras1", 0, input_intmax, min_hole_ras1)
 
