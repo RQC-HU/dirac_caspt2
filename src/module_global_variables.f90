@@ -19,12 +19,14 @@ MODULE module_global_variables
     ! ncore         : The number of core orbitals
     ! eshift        : Real shift
     ! dirac_version : DIRAC version
+    ! mdcint_scheme : MDCINT **MOLTRA>.SCHEME value (https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot = 10, selectroot = 1
     integer         :: totsym, ncore
     real(8)         :: eshift = 0.0d+00 ! default: 0.0
     character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
+    integer         :: mdcint_scheme = 0
     integer         :: ras1_start, ras2_start, ras3_start
     integer         :: ras1_size = 0, ras2_size = 0, ras3_size = 0
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
@@ -35,7 +37,8 @@ MODULE module_global_variables
     ! vcut_mo_num: The number of virtual orbitals in each fermion irreducible representation
     ! occ_mo_num: The number of occupied orbitals in each fermion irreducible representation
     integer         :: vcut_mo_num(2) = 0, occ_mo_num(2) = 0
-    logical         :: inversion = .false., no_inversion = .false.
+    logical         :: inversion = .false., no_inversion = .false., is_scheme_set = .false.
+    integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
 
     !! =================================================
     !! Variables of CI

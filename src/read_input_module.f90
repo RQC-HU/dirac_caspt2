@@ -59,6 +59,7 @@ contains
         call check_all_essential_inputs_specified
         call set_global_index
         call validate_nroot_selectroot
+        call set_mdcint_scheme
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
@@ -181,6 +182,10 @@ contains
             if (no_inversion) call err_ivo_input
             call read_an_integer(unit_num, "nvcutu", 0, input_intmax, vcut_mo_num(2))
             inversion = .true.
+
+        case ("scheme")
+            call read_an_integer(unit_num, "scheme", 1, input_intmax, mdcint_scheme)
+            is_scheme_set = .true.
 
         case ("end")
             is_end = .true.
@@ -757,6 +762,33 @@ contains
             nroot = selectroot
         end if
     end subroutine validate_nroot_selectroot
+
+    subroutine set_mdcint_scheme
+        use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, &
+                                           default_scheme_dirac22_or_earlier, default_scheme_dirac23_or_later
+        implicit none
+
+        ! If scheme option in active.inp is not set, set the default value.
+        if (.not. is_scheme_set) then
+            if (dirac_version <= 22) then
+                mdcint_scheme = default_scheme_dirac22_or_earlier
+            else
+                mdcint_scheme = default_scheme_dirac23_or_later
+            end if
+        end if
+        is_scheme_set = .true.
+        ! Validate mdcint_scheme value
+        if (mdcint_scheme < 1) then
+            ! Invalid mdcint_scheme input
+            if (rank == 0) then
+                print *, "Faild to validate the mdcint scheme value."
+                print *, "mdcint_scheme must be larger than 1, but actual value:", mdcint_scheme
+                print *, "Exit the program..."
+            end if
+            call stop_with_errorcode(1)
+        end if
+
+    end subroutine set_mdcint_scheme
 
     subroutine check_ras_is_valid
         use module_global_variables

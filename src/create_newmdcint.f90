@@ -173,7 +173,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                 end if
                 !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
                 dirac23_int_amp_factor = 1
-                if (dirac_version >= 23 .and. abs(ikr) /= abs(jkr)) dirac23_int_amp_factor = 2  ! https://github.com/RQC-HU/dirac_caspt2/issues/139#issuecomment-1906140334
+                if (mdcint_scheme /= 6 .and. abs(ikr) /= abs(jkr)) dirac23_int_amp_factor = 2  ! https://github.com/RQC-HU/dirac_caspt2/issues/139#issuecomment-1906140334
                 Do inz = 1, nz
 
                     do idx_amp_factor = 1, dirac23_int_amp_factor
