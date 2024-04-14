@@ -59,7 +59,9 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         if (.not. is_file_exist) exit ! Exit do while loop if mdcint_filename doesn't exist.
         call open_unformatted_file(unit=unit_mdcint, file=mdcint_filename, status="old", optional_action="read")
         rewind (unit_mdcint)
-        read (unit_mdcint)
+        read (unit_mdcint, iostat=iostat)
+        call check_iostat(iostat=iostat, file=mdcint_filename, end_of_file_reached=is_end_of_file)
+        if (is_end_of_file) exit ! Seems to SCHEME4 MDCINX* files. SCHEME4 MDCIN* files are 0 byte, so skip them to read
 
         ! Continue to read 2-electron integrals until mdcint_filename reaches the end of file.
         mdcint_file_read: do
