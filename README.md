@@ -329,6 +329,7 @@ ras2        : RAS2 spinor list
 ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 minholeras1 : The minimum number of hole in ras1 (default: 0)
 calctype    : The type of calculation. only CASCI or DMRG are currently supported. (if you don't write, it will be CASCI(default))
+scheme      : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
 
 [optional parameters (IVO)]
 nhomo       : The number of HOMO-like spinors (default: 0)

@@ -56,7 +56,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'selectroot    =', selectroot
         print *, 'totsym        =', totsym
         print *, 'eshift        =', eshift
-        print *, 'dirac_version =', dirac_version
+        print *, 'diracver      =', dirac_version
+        print *, 'scheme        =', mdcint_scheme
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list
         if (ras2_size /= 0) print *, "RAS2 =", ras2_list
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
@@ -71,6 +72,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
+        call get_mdcint_filename(0)
     else
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         ! Create UTChem type MDCINT file from Dirac MDCINT file
