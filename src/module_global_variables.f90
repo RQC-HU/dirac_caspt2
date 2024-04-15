@@ -24,7 +24,6 @@ MODULE module_global_variables
     integer         :: nroot = 10, selectroot = 1
     integer         :: totsym, ncore
     real(8)         :: eshift = 0.0d+00 ! default: 0.0
-    character       :: calctype*5 = "casci" ! dmrg or casci(default)
     integer         :: dirac_version
     integer         :: mdcint_scheme = 0
     integer         :: ras1_start, ras2_start, ras3_start
