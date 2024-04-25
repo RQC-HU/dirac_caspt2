@@ -34,7 +34,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (rank == 0) then
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
+!        print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
+        print *, ' ENTER R4DCASCI PROGRAM 2024 version'
         print *, ''
     end if
     tmem = 0.0d+00
