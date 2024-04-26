@@ -285,7 +285,7 @@ SUBROUTINE read_mrconee(filename)
     call create_mo_irrep_conversion_list
 
     if (rank == 0) then
-        print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
+        if(debug) print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
 
         print *, 'inactive'
         do i0 = 1, ninact
@@ -390,11 +390,13 @@ contains
             Do i0 = 1, 2*nsymrpa
                 print '(400I3)', (MULTB(i0, j0), j0=1, 2*nsymrpa)
             End do
-            print *, 'MULTB2'
-            Do i0 = 1, 2*nsymrpa
-                print '(400I3)', (MULTB2(i0, j0), j0=1, 2*nsymrpa)
-            End do
-            print *, 'end multb1,2'
+            If (debug) then 
+                print *, 'MULTB2'
+                Do i0 = 1, 2*nsymrpa
+                    print '(400I3)', (MULTB2(i0, j0), j0=1, 2*nsymrpa)
+                End do
+                print *, 'end multb1,2'
+            end if
         end if
 
         ! create MULTB_S, MULTB_D and MULTB_DS
@@ -402,7 +404,7 @@ contains
         MULTB_S(:, :) = MULTB(1 + nsymrpa:2*nsymrpa, 1 + nsymrpa:2*nsymrpa) - nsymrpa
         ! MULTB_D is the upper left block of MULTB2 - nsymrpa
         MULTB_D(:, :) = MULTB2(1:nsymrpa, 1:nsymrpa) - nsymrpa
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'MULTB_S'
 
             Do i0 = 1, nsymrpa
@@ -416,14 +418,14 @@ contains
             End do
         end if
         SD(:, :) = MULTB(nsymrpa + 1:2*nsymrpa, 1:nsymrpa)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'MULTB_SD'
             Do i = 1, nsymrpa
                 print '(50I3)', (SD(i, j), j=1, nsymrpa)
             End do
         end if
         MULTB_DS = transpose(SD)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'MULTB_DS'
             Do i = 1, nsymrpa
                 print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
@@ -469,11 +471,11 @@ contains
         CLOSE (unit_mrconee)
 
         ! Print irpmo and irpamo
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
         end if
         if (allocated(irpmo)) Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
         end if
 

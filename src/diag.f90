@@ -163,7 +163,7 @@ SUBROUTINE rdiag(sr, dimn, dimm, w, cutoff_threshold)
     if (cutoff_threshold == 0.0d+00) then
         dimm = dimn
     else ! cutoff process is performed
-        if (rank == 0) print *, 'cut off threshold is ', cutoff_threshold
+        if (debug .and. rank == 0) print *, 'cut off threshold is ', cutoff_threshold
         dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
 
@@ -312,18 +312,18 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     mat = MATMUL(mat, fa)
 
     if (rank == 0) then
-        print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)'
+        print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-08)'
         do j = n0, n1
             do i = n0, n1
-                if (i /= j .and. (ABS(mat(i, j)) > 1.0d-10)) then
-                    print '(E13.5,2I3)', mat(i, j), i, j
+                if (i /= j .and. (ABS(mat(i, j)) > 1.0d-08)) then
+                    print '(E13.5,2I8)', mat(i, j), i, j
                 end if
             end do
         end do
 
-        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)'
+        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-08)'
         do i = n0, n1
-            if (ABS(mat(i, i) - w(i)) > 1.0d-10) then
+            if (ABS(mat(i, i) - w(i)) > 1.0d-08) then
                 print '(3E13.5)', mat(i, i), w(i), ABS(mat(i, i) - w(i))
             end if
         end do
@@ -424,13 +424,13 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
             Do j = 1, dimn
                 Do i = 1, dimn
                     If (i /= j .and. ABS(facsymo(i, j)) > 1.0d-10) then
-                        print '("sym=",3I4,2E20.10)', sym, i, j, facsymo(i, j)
+                        print '("sym=",3I8,2E20.10)', sym, i, j, facsymo(i, j)
                     End if
                 End do
             End do
             Do i = 1, dimn
                 If (ABS(facsymo(i, i) - wcsym(i)) > 1.0d-10) then
-                    print '("sym=",2I4,3E20.10)', sym, i, facsymo(i, i), wcsym(i)
+                    print '("sym=",2I8,3E20.10)', sym, i, facsymo(i, i), wcsym(i)
                 End if
             End do
         end if
@@ -462,17 +462,17 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
     ! Check U*FU
     if (rank == 0) then
-        print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)'
+        print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-08)'
         do j = n0, n1
             do i = n0, n1
-                if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-10)) then
-                    print '(2E13.5,2I3)', matc(i, j), i, j
+                if ((i /= j) .and. (ABS(matc(i, j)) > 1.0d-08)) then
+                    print '(2E13.5,2I8)', matc(i, j), i, j
                 end if
             end do
         end do
-        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)'
+        print *, 'DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-08)'
         do i = n0, n1
-            if (ABS(matc(i, i) - wc(i)) > 1.0d-10) then
+            if (ABS(matc(i, i) - wc(i)) > 1.0d-08) then
                 print '(4E13.5)', matc(i, i), wc(i), ABS(matc(i, i) - wc(i))
             End if
         end do

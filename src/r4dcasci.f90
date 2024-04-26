@@ -32,10 +32,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
+        call print_head
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-!        print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
-        print *, ' ENTER R4DCASCI PROGRAM 2024 version'
+        print *, ' ENTER R4DCASCI PROGRAM'
         print *, ''
     end if
     tmem = 0.0d+00
@@ -160,11 +160,14 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     Call fockdiag
 
     ! Print orbital energies
+#ifdef DEBUG
     if (rank == 0) then
+        print *, debug, "debug"
         Do i0 = 1, nmo
-            print *, 'eps(', i0, ')=', eps(i0)
+             print *, 'eps(', i0, ')=', eps(i0)
         End do
     end if
+#endif
 
     ! Store orbital energies in EPS file
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.

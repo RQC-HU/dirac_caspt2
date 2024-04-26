@@ -25,7 +25,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     debug = .FALSE.
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 #ifdef HAVE_MPI
@@ -35,6 +34,12 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #else
     rank = 0; nprocs = 1
 #endif
+
+    if (rank == 0) then
+        call print_head
+        print *, ''
+        print *, 'START RELATIVISTIC IVO PROGRAM'
+    endif
 
     tmem = 0.0d+00
     call write_allocated_memory_size
@@ -123,7 +128,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
     call write_allocated_memory_size
     call get_current_time_and_print_diff(init_time, end_time) ! print the total time
-    if (rank == 0) print *, 'End r4divo part'
+    if (rank == 0) print *, 'END OF RELATIVISTIC IVO PROGRAM'
 #ifdef HAVE_MPI
     call MPI_FINALIZE(ierr)
 #endif

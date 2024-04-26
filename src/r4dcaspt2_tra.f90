@@ -42,9 +42,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
+        call print_head 
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DCASPT2_TRA PROGRAM written by M. Abe 2007.7.23'
+        print *, ' START RELATIVISIC CASPT2 PROGRAM'
         print *, ''
     end if
     tmem = 0.0d+00
@@ -375,7 +376,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     ! Print out the total time
     call get_current_time_and_print_diff(init_time, end_time)
-    if (rank == 0) print *, 'End r4dcaspt2_tra'
+    if (rank == 0) print *, 'END OF RELATIVISTIC CASPT2 PROGRAM'
 #ifdef HAVE_MPI
     ! MPI finalization
     time1 = MPI_Wtime()
