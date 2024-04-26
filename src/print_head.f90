@@ -7,8 +7,6 @@ SUBROUTINE print_head
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
-    use module_realonly, only: realonly
-    use module_index_utils, only: convert_active_to_global_idx
 
     Implicit NONE
 
