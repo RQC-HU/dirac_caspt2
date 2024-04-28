@@ -88,7 +88,7 @@ contains
 
         if (rank == 0) then
             print *, datex, timex
-            if(debug) then
+            if (debug) then
                 print *, 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
             end if
         end if
@@ -350,7 +350,7 @@ contains
 
         if (rank == 0) then
             print *, datex, timex
-            if(debug) print *, 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
+            if (debug) print *, 'readint2', 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
         end if
         do while (continue_read)
             read (unit_mdcint, iostat=iostat) i, j, nz, &

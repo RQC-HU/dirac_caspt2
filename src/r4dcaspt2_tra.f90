@@ -30,8 +30,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    debug = .FALSE.
-
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
 #ifdef HAVE_MPI
     call MPI_INIT(ierr)
@@ -42,7 +40,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
-        call print_head 
+        call print_head
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
         print *, ' START RELATIVISIC CASPT2 PROGRAM'
@@ -68,6 +66,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, 'eshift        =', eshift
         print *, 'diracver      =', dirac_version
         print *, 'scheme        =', mdcint_scheme
+        print *, 'debugprint    =', debug
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list
         if (ras2_size /= 0) print *, "RAS2 =", ras2_list
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list

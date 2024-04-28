@@ -59,6 +59,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'eshift        =', eshift
         print *, 'diracver      =', dirac_version
         print *, 'scheme        =', mdcint_scheme
+        print *, 'debugprint    =', debug
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list
         if (ras2_size /= 0) print *, "RAS2 =", ras2_list
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
@@ -164,7 +165,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (rank == 0) then
         print *, debug, "debug"
         Do i0 = 1, nmo
-             print *, 'eps(', i0, ')=', eps(i0)
+            print *, 'eps(', i0, ')=', eps(i0)
         End do
     end if
 #endif

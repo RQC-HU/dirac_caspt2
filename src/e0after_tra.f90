@@ -38,7 +38,6 @@ SUBROUTINE e0aftertra
     oneeff = 0.0d+00
     cmplxint = 0.0d+00
     dens = 0.0d+00
-    debug = .FALSE.
     if (rank == 0) print *, 'iroot = ', iroot
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!

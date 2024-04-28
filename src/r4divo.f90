@@ -39,7 +39,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         call print_head
         print *, ''
         print *, 'START RELATIVISTIC IVO PROGRAM'
-    endif
+    end if
 
     tmem = 0.0d+00
     call write_allocated_memory_size
@@ -68,6 +68,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         end if
         print *, 'diracver   =', dirac_version
         print *, 'scheme     =', mdcint_scheme
+        print *, 'debugprint    =', debug
     end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
