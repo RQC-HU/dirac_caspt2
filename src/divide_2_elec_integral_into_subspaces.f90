@@ -80,9 +80,7 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
 
     if (rank == 0) then
         print *, datex, timex
-        if(debug) then
-           print *, 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
-        end if
+        if(debug) print *, 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
     end if
 
     ! Continue to read the file until the end of the file is reached
