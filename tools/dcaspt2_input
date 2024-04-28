@@ -9,7 +9,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Tuple
+from typing import Set, Tuple
 
 
 class PrintVersionAction(argparse.Action):
@@ -124,6 +124,30 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_s
         print("Please specify the directory that you have permission to create.")
         print("Error: Failed to create the temporary directory.\nExiting...")
 
+    def validate_scratchfull_option(scratch_full_dir: Path) -> None:
+        """--scratchfull is not allowed to specify ~ or upper paths.
+        So we need to validate whether the user specified --scratchfull option is valid
+        """
+
+        def create_banned_dirs() -> Set[Path]:
+            home_dir = Path("~").expanduser().resolve()
+            banned_dirs: Set[Path] = set()
+            tmp_dir = home_dir
+            while True:
+                banned_dirs.add(tmp_dir)
+                if tmp_dir == tmp_dir.parent:
+                    break
+                tmp_dir = tmp_dir.parent
+            return banned_dirs
+
+        banned_dirs = create_banned_dirs()
+        if scratch_full_dir in banned_dirs:
+            # Validation error
+            msg = "Invalid --scratchfull. The --scratchfull option can't be set for the $HOME directory and its parent directories.\n\
+Because if these directories are removed after calcuation, it can cause serious problems such as the OS not booting.\n\
+Please specify the valid path and try again."
+            raise ValueError(msg)
+
     # ================
     #  Main process
     # ================
@@ -131,6 +155,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_s
     # If --scratchfull is specified, Use the specified directory as the scratch directory
     if args.scratchfull is not None:
         scratch_dir = Path(args.scratchfull).expanduser().resolve()
+        validate_scratchfull_option(scratch_dir)
         try:
             os.makedirs(scratch_dir, exist_ok=True)
         except PermissionError:
