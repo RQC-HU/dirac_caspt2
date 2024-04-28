@@ -160,7 +160,7 @@ Please specify the valid path and try again."
             os.makedirs(scratch_dir, exist_ok=True)
         except PermissionError:
             permission_denied_error_message(scratch_dir)
-            sys.exit(PermissionError.errno)
+            raise
         return scratch_dir
 
     # --scratch option, Create the root scratch directory path
@@ -174,7 +174,7 @@ Please specify the valid path and try again."
         os.makedirs(root_scr_dir, exist_ok=True)
     except PermissionError:
         permission_denied_error_message(root_scr_dir)
-        sys.exit(PermissionError.errno)
+        raise
 
     # Preprocess to create scratch dir name
     input_file_name = input_file_path.stem  # Remove the extension (e.g. /path/to/active.inp => active)
@@ -284,7 +284,8 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
     caspt2_path = binary_dir / "r4dcaspt2ocoexe"
     if args.skipcasci and args.onlycasci:
         # --skip-casci and --only-casci cannot be used at the same time
-        sys.exit("Error: --skip-casci and --only-casci cannot be used at the same time")
+        msg = "--skip-casci and --only-casci cannot be used at the same time"
+        raise ValueError(msg)
     if args.ivo:
         command = f"{mpi} {ivo_path}"
     elif args.onlycasci:
