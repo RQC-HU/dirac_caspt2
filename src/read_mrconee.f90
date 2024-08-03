@@ -284,22 +284,26 @@ SUBROUTINE read_mrconee(filename)
 ! Create mo_energy list and irreducible representation mapping list.
     call create_mo_irrep_conversion_list
 
+!   1   1     -0.1336324989E+02     1   1g
+!   2 232     -0.1336324989E+02     2  -1g
     if (rank == 0) then
-        if(debug) print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
-
-        print *, 'inactive'
+        if (debug) print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
+        print '(87A)', ' Inactive  Energy-order index     Dirac index      Orbtal energy (a.u.) Irrep ID  Irrep'
         do i0 = 1, ninact
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(18X,I4,8X,8X,I4,8X,E22.10,3X,I4,3X,6A)', &
+            & i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
 
-        print *, 'active'
+        print '(87A)', '  Active   Energy-order index     Dirac index      Orbtal energy (a.u.) Irrep ID  Irrep'
         do i0 = global_act_start, global_act_end
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(18X,I4,8X,8X,I4,8X,E22.10,3X,I4,3X,6A)', &
+            & i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
 
-        print *, 'secondary'
+        print '(87A)', 'Secondary  Energy-order index     Dirac index      Orbtal energy (a.u.) Irrep ID  Irrep'
         do i0 = global_sec_start, global_sec_end
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(18X,I4,8X,8X,I4,8X,E22.10,3X,I4,3X,6A)', &
+            & i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
     end if
 
@@ -390,7 +394,7 @@ contains
             Do i0 = 1, 2*nsymrpa
                 print '(400I3)', (MULTB(i0, j0), j0=1, 2*nsymrpa)
             End do
-            If (debug) then 
+            If (debug) then
                 print *, 'MULTB2'
                 Do i0 = 1, 2*nsymrpa
                     print '(400I3)', (MULTB2(i0, j0), j0=1, 2*nsymrpa)

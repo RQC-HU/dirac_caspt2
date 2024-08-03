@@ -139,6 +139,9 @@ contains
             ras3_size = size(ras3_list, 1)
             call read_an_integer(unit_num, "ras3", 0, ras3_size, ras3_max_elec)
 
+        case ("restart_index")
+            call read_an_integer(unit_num, "restart_index", 0, input_intmax, restart_index)
+
         case ("minholeras1")
             call read_an_integer(unit_num, "minholeras1", 0, input_intmax, min_hole_ras1)
 

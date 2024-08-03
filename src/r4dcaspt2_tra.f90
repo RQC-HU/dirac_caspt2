@@ -24,6 +24,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     complex*16, allocatable         :: ci(:)
     real(8), allocatable            :: ecas(:)
     character(:), allocatable       :: filename
+    character*1                     :: restart_charcter(8) = (/'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'/)
     integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
     integer                 :: idx, dict_key, dict_val
 
@@ -56,6 +57,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     close (unit_input)
 
     if (rank == 0) then
+        restart_charcter(1) = "A"; 
         print *, 'ninact        =', ninact
         print *, 'nact          =', nact
         print *, 'nsec          =', nsec
@@ -66,11 +68,21 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, 'eshift        =', eshift
         print *, 'diracver      =', dirac_version
         print *, 'scheme        =', mdcint_scheme
+        if (ras1_size /= 0) print *, "RAS1          =", ras1_list
+        if (ras2_size /= 0) print *, "RAS2          =", ras2_list
+        if (ras3_size /= 0) print *, "RAS3          =", ras3_list
+        print *, 'ras1_max_hole =', ras1_max_hole
+        print *, 'ras3_max_elec =', ras3_max_elec
+        print *, 'minholeras1   =', min_hole_ras1
+        if (restart_index /= 0) print *, 'restart_index = ', restart_index
+        if (restart_index > 8 .or. restart_index < 1) &
+        &   print *, 'Warning, restart_index should be 1~8. No restart calculation will be invoked.'
+        if (restart_index > 0 .and. restart_index < 9) print *, 'restart from  = ', restart_charcter(restart_index), ' space'
+        if (restart_index == 0) print *, 'no restart, full calculation of A-H spaces'
         print *, 'debugprint    =', debug
-        if (ras1_size /= 0) print *, "RAS1 =", ras1_list
-        if (ras2_size /= 0) print *, "RAS2 =", ras2_list
-        if (ras3_size /= 0) print *, "RAS3 =", ras3_list
     end if
+
+    if (restart_index > 8 .or. restart_index < 0) restart_index = 0 ! Wrong input and norestart calculation is invoked.
 
     if (ninact == 0 .and. nsec == 0) then
         if (rank == 0) print *, "The CASPT2 energy cannot be defined when ninact = 0 and nsec = 0."
@@ -187,6 +199,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (ninact == 0) then
         if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy &
 &        because the 2nd order energy of A subspace cannot be defined when ninact = 0."
+    elseif (restart_index > 1) then
+        if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform A subspace 2-electron integrals (active, inactive | active, active)
         Call intra_3(2, 1, 2, 2, a1int)
@@ -210,6 +225,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (ninact == 0) then
         if (rank == 0) print *, "Skip the calculation of B subspace 2nd order energy &
 &        because the 2nd order energy of B subspace cannot be defined when ninact = 0."
+    elseif (restart_index > 2) then
+        if (rank == 0) print *, "Skip the calculation of B subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform B subspace 2-electron integrals (active, inactive | active, inactive)
         Call intra_2(2, 1, 2, 1, bint)
@@ -228,6 +246,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy &
 &        because the 2nd order energy of C subspace cannot be defined when nsec = 0."
+    elseif (restart_index > 3) then
+        if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform C subspace 2-electron integrals (secondary, active | active, active)
         Call intra_3(3, 2, 2, 2, c1int)
@@ -244,7 +265,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, 'End intra_1 C3int'
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
-        ! Calculate the B subspace 2nd order energy
+        ! Calculate the C subspace 2nd order energy
         sumc2local = 0.0d+00
         if (rank == 0) print *, "Start calcuation of C subspace 2nd order energy"
         Call solve_C_subspace(e0, e2)
@@ -256,6 +277,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of D subspace 2nd order energy &
 &        because the 2nd order energy of D subspace cannot be defined when ninact = 0 or nsec = 0."
+    elseif (restart_index > 4) then
+        if (rank == 0) print *, "Skip the calculation of D subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform D subspace 2-electron integrals (secondary, inactive | active, active)
         Call intra_3(3, 1, 2, 2, d1int)
@@ -284,6 +308,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of E subspace 2nd order energy &
 &        because the 2nd order energy of E subspace cannot be defined when ninact = 0 or nsec = 0."
+    elseif (restart_index > 5) then
+        if (rank == 0) print *, "Skip the calculation of E subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform E subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 1, 2, 1, eint)
@@ -302,6 +329,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of F subspace 2nd order energy &
 &        because the 2nd order energy of F subspace cannot be defined when nsec = 0."
+    elseif (restart_index > 6) then
+        if (rank == 0) print *, "Skip the calculation of F subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform F subspace 2-electron integrals (secondary, active | secondary, active)
         Call intra_2(3, 2, 3, 2, fint)
@@ -320,6 +350,9 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of G subspace 2nd order energy &
 &        because the 2nd order energy of G subspace cannot be defined when ninact = 0 or nsec = 0."
+    elseif (restart_index > 7) then
+        if (rank == 0) print *, "Skip the calculation of G subspace 2nd order energy &
+&        because of the restart command"
     else
         ! Transform G subspace 2-electron integrals (secondary, inactive | secondary, active)
         Call intra_1(3, 1, 3, 2, gint)
@@ -354,16 +387,23 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
     end if
     ! Print out the total 2nd order energy
-    if (rank == 0) print '("c^2 ",F30.15)', sumc2
-    ! Calculate and print the weight of the 0th wave function
-    weight0 = 1.0d+00/(1.0d+00 + sumc2)
-    if (rank == 0) then
-        print '("weight of 0th wave function is",F30.15)', weight0
-
-        print '("Total second order energy is ",F30.15," a.u.")', e2all - eshift*sumc2
-        print '("Total energy is ",F30.15," a.u.")', e2all + eigen(iroot) - eshift*sumc2
+    if (restart_index == 0) then
+        if (rank == 0) print '("c^2 ",F30.15)', sumc2
+        ! Calculate and print the weight of the 0th wave function
+        weight0 = 1.0d+00/(1.0d+00 + sumc2)
+        if (rank == 0) then
+            print '("weight of 0th wave function is",F30.15)', weight0
+            print '("Total second order energy is ",F30.15," a.u.")', e2all - eshift*sumc2
+            print '("Total energy is ",F30.15," a.u.")', e2all + eigen(iroot) - eshift*sumc2
+        end if
+    else
+        if (rank == 0) then
+            print *, 'Cation. This is a restart calculation. Please add the other E2 energies manually by yourself.'
+            print *, 'The weight of the reference wave function cannot be calculated in this restart calculation.'
+            print '("Sum of the partial second order energies is ",F30.15," a.u.")', e2all
+            print '("Total energy (CASCI energy + restart E2 energies) is ",F30.15," a.u.")', e2all + eigen(iroot)
+        end if
     end if
-
     ! Deallocate the memory
     if (allocated(cir)) Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
     if (allocated(cii)) Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)

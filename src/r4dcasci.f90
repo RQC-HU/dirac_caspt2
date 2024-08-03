@@ -59,10 +59,13 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'eshift        =', eshift
         print *, 'diracver      =', dirac_version
         print *, 'scheme        =', mdcint_scheme
-        print *, 'debugprint    =', debug
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list
         if (ras2_size /= 0) print *, "RAS2 =", ras2_list
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
+        print *, 'ras1_max_hole =', ras1_max_hole
+        print *, 'ras3_max_elec =', ras3_max_elec
+        print *, 'minholeras1   =', min_hole_ras1
+        print *, 'debugprint    =', debug
     end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
