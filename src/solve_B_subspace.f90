@@ -116,7 +116,7 @@ contains
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
+            if (rank == 0) print '("isym =",I6,"dimn =",I6)', isym, dimn
             If (dimn == 0) cycle ! Go to the next isym.
 
             Allocate (indsym(2, dimn)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -148,7 +148,7 @@ contains
             sc0 = sc
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after B subspace S matrix cdiag, new dimension is', dimm
+            !if (rank == 0) print *, 'after B subspace S matrix cdiag, new dimension is', dimm
             If (dimm == 0) then
                 Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
                 Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
@@ -685,7 +685,7 @@ contains
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
+            if (rank == 0) print '("isym =",I6,"dimn =",I6)', isym, dimn
             If (dimn == 0) cycle ! Go to the next isym.
 
             Allocate (indsym(2, dimn)); Call memplus(KIND(indsym), SIZE(indsym), 1)
@@ -717,7 +717,7 @@ contains
             sc0 = sc
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after B subspace S matrix rdiag, new dimension is', dimm
+!            if (rank == 0) print *, 'after B subspace S matrix rdiag, new dimension is', dimm
             If (dimm == 0) then
                 Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
                 Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)

@@ -33,7 +33,7 @@ contains
         integer, allocatable :: indsym(:, :)
 
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(2*nsymrpa), alpha
+        real(8)               :: e2(2*nsymrpa), e2_save(2*nsymrpa), alpha
 
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
@@ -135,7 +135,6 @@ contains
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
             Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
             sc = 0.0d+00            ! sr N*N
@@ -147,8 +146,8 @@ contains
             sc0 = sc
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after A subspace S matrix cdiag, new dimension is', dimm
-
+            !if (rank == 0) print *, 'after A subspace S matrix cdiag, new dimension is', dimm
+            if (rank == 0) print '("isym =",I6,4X,"new dim =",I6)', isym, dimm
             If (dimm == 0) then
                 Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
                 Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
@@ -225,10 +224,10 @@ contains
             End if
             Call memminus(KIND(bc0), SIZE(bc0), 2); deallocate (bc0)
 
-            if (rank == 0) print *, 'bC1 matrix is diagonalized!'
+            if (rank == 0) print *, 'bC1 matrix is diagonalized.'
 
             e2 = 0.0d+00
-
+            e2_save = 0.0d+00
             Do ii = 1, ninact
                 sym1 = irpamo(ii)
                 if (nsymrpa == 1 .or. (nsymrpa /= 1 .and. sym1 == isym)) then
@@ -252,8 +251,8 @@ contains
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
                 End if
             End do
-            if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
-
+!            if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
+            e2_save(isym) = e2(isym)
             Call memminus(KIND(bc1), SIZE(bc1), 2); Deallocate (bc1)
             Call memminus(KIND(uc), SIZE(uc), 2); Deallocate (uc)
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
@@ -263,15 +262,25 @@ contains
         End do
 
         if (rank == 0) then
+            print '(50A)', ' '
+            print '(50A)', '--------------------------------------------------'
+            Do isym = 1, nsymrpa
+                print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2_save(isym)
+            End do
+            print '(50A)', ' '
             print '("e2a      = ",E20.10," a.u.")', e2a
-
+            print '(50A)', ' '
             print '("sumc2,a  = ",E20.10)', sumc2local
+            print '(50A)', '--------------------------------------------------'
         end if
+
         sumc2 = sumc2 + sumc2local
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 
-        if (rank == 0) print *, 'end solve_A_subspace'
+        if (rank == 0) then
+            print *, 'end solve_A_subspace'
+        end if
     end subroutine solve_A_subspace_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -688,7 +697,7 @@ contains
         integer, allocatable :: indsym(:, :)
 
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(2*nsymrpa), alpha
+        real(8)               :: e2(2*nsymrpa), e2_save(2*nsymrpa), alpha
 
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
@@ -730,6 +739,7 @@ contains
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
 
         e2 = 0.0d+00
+        e2_save = 0.0d+00
         e2a = 0.0d+00
         dimi = 0
         dimn = 0
@@ -790,7 +800,6 @@ contains
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
             Allocate (sc(dimn, dimn)); Call memplus(KIND(sc), SIZE(sc), 2)
 
             sc = 0.0d+00            ! sr N*N
@@ -802,8 +811,8 @@ contains
             sc0 = sc
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after A subspace S matrix rdiag, new dimension is', dimm
-
+!            if (rank == 0) print *, 'after A subspace S matrix rdiag, new dimension is', dimm
+            if (rank == 0) print '("isym =",I6,4X,"new dim =",I6)', isym, dimm
             If (dimm == 0) then
                 Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
                 Call memminus(KIND(sc0), SIZE(sc0), 2); deallocate (sc0)
@@ -896,7 +905,8 @@ contains
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
                 End if
             End do
-            if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
+!            if (rank == 0) print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
+            e2_save(isym) = e2(isym)
 
             Call memminus(KIND(bc1), SIZE(bc1), 2); Deallocate (bc1)
             Call memminus(KIND(uc), SIZE(uc), 2); Deallocate (uc)
@@ -907,15 +917,24 @@ contains
         End do
 
         if (rank == 0) then
+            print '(50A)', ' '
+            print '(50A)', '--------------------------------------------------'
+            Do isym = 1, nsymrpa
+                print '("e2a(",I3,") = ",E20.10," a.u.")', isym, e2_save(isym)
+            End do
+            print '(50A)', ' '
             print '("e2a      = ",E20.10," a.u.")', e2a
-
+            print '(50A)', ' '
             print '("sumc2,a  = ",E20.10)', sumc2local
+            print '(50A)', '--------------------------------------------------'
+            print '(50A)', ' '
         end if
+
         sumc2 = sumc2 + sumc2local
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 
-        if (rank == 0) print *, 'end solve_A_subspace'
+        if (debug .and. rank == 0) print *, 'end solve_A_subspace'
     end subroutine solve_A_subspace_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

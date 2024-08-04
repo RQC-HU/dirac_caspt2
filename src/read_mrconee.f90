@@ -288,23 +288,25 @@ SUBROUTINE read_mrconee(filename)
 !   2 232     -0.1336324989E+02     2  -1g
     if (rank == 0) then
         if (debug) print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
-        print '(87A)', ' Inactive  Energy-order index     Dirac index      Orbtal energy (a.u.) Irrep ID  Irrep'
+        print *, ' '
+        print '(64A)', '----------------------------------------------------------------'
+        print '(64A)', '        energy-order    Dirac     orbtal energy    irrep  irrep '
+        print '(64A)', '           index        index         (a.u.)       index  string'
+        print '(64A)', '----------------------------------------------------------------'
+!        print '(64A)', ' inact      2000         4000   -0.1336324989E+02     20   -1g  '
         do i0 = 1, ninact
-            print '(18X,I4,8X,8X,I4,8X,E22.10,3X,I4,3X,6A)', &
-            & i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(X,"inactive",I7,I13,E20.10,I7,4X,4A)', &
+            &  i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
-
-        print '(87A)', '  Active   Energy-order index     Dirac index      Orbtal energy (a.u.) Irrep ID  Irrep'
         do i0 = global_act_start, global_act_end
-            print '(18X,I4,8X,8X,I4,8X,E22.10,3X,I4,3X,6A)', &
-            & i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(X,"active  ",I7,I13,E20.10,I7,4X,4A)', &
+            &  i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
-
-        print '(87A)', 'Secondary  Energy-order index     Dirac index      Orbtal energy (a.u.) Irrep ID  Irrep'
         do i0 = global_sec_start, global_sec_end
-            print '(18X,I4,8X,8X,I4,8X,E22.10,3X,I4,3X,6A)', &
-            & i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(X,"secondary ",I5,I13,E20.10,I7,4X,4A)', &
+            &  i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
+        print *, ' '
     end if
 
 ! Read 1 electron integrals to the variables one_elec_int_r and one_elec_int_i

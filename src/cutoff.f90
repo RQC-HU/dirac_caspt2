@@ -19,8 +19,7 @@ SUBROUTINE rcutoff(sr, w, dimn, dimm, threshold, ur, wnew)
     real(8), intent(out)  :: ur(dimn, dimm), wnew(dimm)
     integer :: j0, i0
 
-    if (rank == 0) print *, 'New dimension becomes ', dimm
-
+    if (rank == 0) print '("New dimension becomes ",I6)', dimm
     j0 = 0
     do i0 = 1, dimn
         if (w(i0) >= threshold) then
@@ -55,7 +54,7 @@ SUBROUTINE ccutoff(sc, w, dimn, dimm, threshold, uc, wnew)
     complex*16, intent(in)   :: sc(dimn, dimn)
     complex*16, intent(out)  :: uc(dimn, dimm)
     integer :: j0, i0
-    if (rank == 0) print *, 'New dimension becomes ', dimm
+    if (rank == 0) print '("New dimension becomes ",I6)', dimm
     uc = 0.0d+00
     wnew = 0.0d+00
 
