@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+from collections import OrderedDict
+from pathlib import Path
+from typing import OrderedDict as ODict
+
+
+def read_input(input_file) -> ODict[str, float]:  # ODict[subspace, energy]
+
+    caspt2_energies: ODict[str, float] = {}
+
+    with open(input_file, "r") as f:
+        lines = f.readlines()
+
+    # e2[a-h].+E.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
+    energy_pattern = re.compile(r"e2[a-h] +=.+a\.u\.")
+
+    for line in lines:
+        if energy_pattern.match(line):
+            subspace = str(line.split(" ")[0][-1]).upper()  # e.g. e2a -> A
+            subspace_energy = float(line.split("=")[1].split("a.u.")[0])  # e.g. -1.73748326489E-09
+            caspt2_energies[subspace] = subspace_energy
+
+    return caspt2_energies
+
+
+def next_subspace(subspace: str) -> str:
+    return chr(ord(subspace) + 1)
+
+
+def main():
+    user_dir = Path.cwd().resolve()
+    output_file = user_dir / "caspt2_restart"
+
+    parser = argparse.ArgumentParser(description="Generate a restart file (caspt2_restart) for a CASPT2 calculation")
+    parser.add_argument("input_file", help="The input file for the CASPT2 calculation")
+    args = parser.parse_args()
+    input_file = Path(args.input_file).expanduser().resolve()
+
+    caspt2_energies = read_input(input_file)
+    caspt2_energies = OrderedDict(sorted(caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
+
+    last_subspace = next(reversed(caspt2_energies))
+    output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [f"Subspace: {subspace}, Energy: {energy}\n" for subspace, energy in caspt2_energies.items()]
+
+    with open(output_file, "w") as f:
+        f.writelines(output_lines)
+    for line in output_lines:
+        print(line, end="")
+
+
+if __name__ == "__main__":
+    main()
