@@ -3,25 +3,46 @@
 import argparse
 import re
 from collections import OrderedDict
+from math import inf
 from pathlib import Path
 from typing import OrderedDict as ODict
 
 
-def read_input(input_file) -> ODict[str, float]:  # ODict[subspace, energy]
+class SubSpaceInfo:
+    def __init__(self):
+        self.energy = inf
+        self.sumc2 = inf
 
-    caspt2_energies: ODict[str, float] = {}
+
+def read_input(input_file) -> ODict[str, SubSpaceInfo]:  # ODict[subspace, SubSpaceInfo]
+
+    caspt2_energies: ODict[str, SubSpaceInfo] = {}
 
     with open(input_file, "r") as f:
         lines = f.readlines()
 
-    # e2[a-h].+E.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
+    # e2[a-h] +=.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
     energy_pattern = re.compile(r"e2[a-h] +=.+a\.u\.")
+    # sumc2,[a-h] +=.+ (e.g. sumc2,a  =     0.9132513754E-04)
+    sumc2_pattern = re.compile(r"sumc2,[a-h] +=.+")
 
     for line in lines:
         if energy_pattern.match(line):
             subspace = str(line.split(" ")[0][-1]).upper()  # e.g. e2a -> A
             subspace_energy = float(line.split("=")[1].split("a.u.")[0])  # e.g. -1.73748326489E-09
-            caspt2_energies[subspace] = subspace_energy
+            if subspace not in caspt2_energies:
+                caspt2_energies[subspace] = SubSpaceInfo()
+            elif caspt2_energies[subspace].energy != inf:
+                raise ValueError(f"Energy for subspace {subspace} already found")
+            caspt2_energies[subspace].energy = subspace_energy
+        elif sumc2_pattern.match(line):
+            subspace = str(line.split(",")[1].split(" ")[0]).upper()  # e.g. sumc2,a -> A
+            sumc2 = float(line.split("=")[1])  # e.g. 0.9132513754E-04
+            if subspace not in caspt2_energies:
+                caspt2_energies[subspace] = SubSpaceInfo()
+            elif caspt2_energies[subspace].sumc2 != inf:
+                raise ValueError(f"Sumc2 for subspace {subspace} already found")
+            caspt2_energies[subspace].sumc2 = sumc2
 
     return caspt2_energies
 
@@ -41,9 +62,16 @@ def main():
 
     caspt2_energies = read_input(input_file)
     caspt2_energies = OrderedDict(sorted(caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
+    for subspace, info in caspt2_energies.items():
+        if info.energy == inf:
+            raise ValueError(f"Energy for subspace {subspace} not found")
+        if info.sumc2 == inf:
+            raise ValueError(f"Sumc2 for subspace {subspace} not found")
 
     last_subspace = next(reversed(caspt2_energies))
-    output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [f"Subspace: {subspace}, Energy: {energy}\n" for subspace, energy in caspt2_energies.items()]
+    output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [
+        f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy} \n" for subspace, info in caspt2_energies.items()
+    ]
 
     with open(output_file, "w") as f:
         f.writelines(output_lines)
