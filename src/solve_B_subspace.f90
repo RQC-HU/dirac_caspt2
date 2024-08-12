@@ -1,5 +1,6 @@
 SUBROUTINE solve_B_subspace(e0, e2b)
 
+    use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
@@ -7,9 +8,9 @@ SUBROUTINE solve_B_subspace(e0, e2b)
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2b
-    real(8) :: sumc2local
+    integer :: subspace_idx
 
-    sumc2local = 0.0d+00
+    subspace_idx = get_subspace_idx('B')
     if (realonly%is_realonly()) then
         call solve_B_subspace_real()
     else
@@ -255,7 +256,8 @@ contains
                     & MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm)) ! v~ => v~~
 
                     Do j = 1, dimm
-                        sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
+                                                       (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                         e = (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                         e2(isym) = e2(isym) - e
                     End do
@@ -276,10 +278,8 @@ contains
 
         if (rank == 0) then
             print '(" e2b       = ",E25.15," a.u.")', e2b
-            print '(" sumc2,b   = ",E25.15)', sumc2local
+            print '(" sumc2,b   = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-
-        sumc2 = sumc2 + sumc2local
 
         Call memminus(KIND(iij), SIZE(iij), 1); deallocate (iij)
         Call memminus(KIND(ii0), SIZE(ii0), 1); deallocate (ii0)
@@ -816,7 +816,8 @@ contains
                     & MATMUL(TRANSPOSE(bc1(1:dimm, 1:dimm)), vc1(1:dimm)) ! v~ => v~~
 
                     Do j = 1, dimm
-                        sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
+                                                       (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                         e = (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                         e2(isym) = e2(isym) - e
                     End do
@@ -844,10 +845,8 @@ contains
         end if
         if (rank == 0) then
             print '(" e2b       = ",E25.15," a.u.")', e2b
-            print '(" sumc2,b   = ",E25.15)', sumc2local
+            print '(" sumc2,b   = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-
-        sumc2 = sumc2 + sumc2local
 
         Call memminus(KIND(iij), SIZE(iij), 1); deallocate (iij)
         Call memminus(KIND(ii0), SIZE(ii0), 1); deallocate (ii0)

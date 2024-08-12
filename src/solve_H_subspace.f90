@@ -1,13 +1,14 @@
 SUBROUTINE solve_H_subspace(e0, e2h)
 
+    use dcaspt2_restart_file, only: get_subspace_idx
     use module_global_variables
     use module_realonly, only: realonly
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2h
-    real(8) :: sumc2local
+    integer :: subspace_idx
 
-    sumc2local = 0.0d+00
+    subspace_idx = get_subspace_idx('H')
     if (realonly%is_realonly()) then
         call solve_H_subspace_real()
     else
@@ -166,7 +167,7 @@ contains
                     e = eps(ia) + eps(ib) - eps(ii) - eps(ij) + eshift  ! For Level Shift (2007/2/9)
 
                     coeff1 = v(i0, j0)/e
-                    sumc2local = sumc2local + ABS(coeff1)**2
+                    sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + ABS(coeff1)**2
 
                     e2h = e2h - DBLE(DCONJG(v(i0, j0))*v(i0, j0)/e)
                 end if
@@ -175,9 +176,8 @@ contains
 
         if (rank == 0) then
             print '(" e2h      = ",E25.15," a.u.")', e2h
-            print '(" sumc2,h  = ",E25.15)', sumc2local
+            print '(" sumc2,h  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         deallocate (v)
         deallocate (iab)
@@ -341,7 +341,7 @@ contains
                     e = eps(ia) + eps(ib) - eps(ii) - eps(ij) + eshift  ! For Level Shift (2007/2/9)
 
                     coeff1 = v(i0, j0)/e
-                    sumc2local = sumc2local + ABS(coeff1)**2
+                    sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + ABS(coeff1)**2
 
                     e2h = e2h - DBLE(v(i0, j0)**2.0d+00/e)
                 end if
@@ -350,9 +350,8 @@ contains
 
         if (rank == 0) then
             print '(" e2h      = ",E25.15," a.u.")', e2h
-            print '(" sumc2,h  = ",E25.15)', sumc2local
+            print '(" sumc2,h  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         deallocate (v)
         deallocate (iab)

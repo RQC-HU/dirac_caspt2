@@ -1,5 +1,6 @@
 SUBROUTINE solve_E_subspace(e0, e2e)
 
+    use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
@@ -7,9 +8,9 @@ SUBROUTINE solve_E_subspace(e0, e2e)
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2e
-    real(8) :: sumc2local
+    integer :: subspace_idx
 
-    sumc2local = 0.0d+00
+    subspace_idx = get_subspace_idx('E')
     if (realonly%is_realonly()) then
         call solve_E_subspace_real()
     else
@@ -242,7 +243,7 @@ contains
 
                     Do j = 1, dimm
                         e = DBLE(DCONJG(vc1(j))*vc1(j)/(alpha + wb(j)))
-                        sumc2local = sumc2local + e/(alpha + wb(j))
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + e/(alpha + wb(j))
                         e2(isym) = e2(isym) - e
                     End do
 
@@ -262,9 +263,8 @@ contains
 
         if (rank == 0) then
             print '(" e2e      = ",E25.15," a.u.")', e2e
-            print '(" sumc2,e  = ",E25.15)', sumc2local
+            print '(" sumc2,e  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         deallocate (iaij)
         deallocate (ia0)
@@ -687,7 +687,7 @@ contains
 
                     Do j = 1, dimm
                         e = DBLE(vc1(j)**2.0d+00/(alpha + wb(j)))
-                        sumc2local = sumc2local + e/(alpha + wb(j))
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + e/(alpha + wb(j))
                         e2(isym) = e2(isym) - e
                     End do
 
@@ -707,9 +707,8 @@ contains
 
         if (rank == 0) then
             print '(" e2e      = ",E25.15," a.u.")', e2e
-            print '(" sumc2,e  = ",E25.15)', sumc2local
+            print '(" sumc2,e  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         deallocate (iaij)
         deallocate (ia0)
