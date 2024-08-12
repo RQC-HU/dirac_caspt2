@@ -81,7 +81,9 @@ contains
 
             ! Read subspace
             idx = index(buf, key_subspace) + len(key_subspace)
-            read (buf(idx:), *) buf_internal
+            if (idx == 0) call error_restart_file("Error reading subspace info in caspt2_restart")
+            read (buf(idx:), *, iostat=iostat) buf_internal
+            if (iostat /= 0) call error_restart_file("Error reading subspace info in caspt2_restart")
             buf_internal = trim(adjustl(buf_internal))
             read (buf_internal, *, iostat=iostat) subspace
             if (iostat /= 0) call error_restart_file("Error reading subspace info in caspt2_restart")
@@ -89,6 +91,7 @@ contains
 
             ! Read sumc2
             idx = index(buf, key_sumc2) + len(key_sumc2)
+            if (idx == 0) call error_restart_file("Error reading sumc2 info in caspt2_restart")
             read (buf(idx:), *, iostat=iostat) buf_internal
             if (iostat /= 0) call error_restart_file("Error reading sumc2 info in caspt2_restart")
             read (buf_internal, *, iostat=iostat) read_sumc2
@@ -98,6 +101,7 @@ contains
 
             ! Read energy
             idx = index(buf, key_energy) + len(key_energy)
+            if (idx == 0) call error_restart_file("Error reading energy info in caspt2_restart")
             read (buf(idx:), *, iostat=iostat) buf_internal
             if (iostat /= 0) call error_restart_file("Error reading energy info in caspt2_restart")
             read (buf_internal, *, iostat=iostat) read_energy
