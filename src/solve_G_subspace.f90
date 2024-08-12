@@ -1,4 +1,4 @@
-SUBROUTINE solve_G_subspace(e0, e2g)
+SUBROUTINE solve_G_subspace(e0)
 
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
@@ -7,7 +7,6 @@ SUBROUTINE solve_G_subspace(e0, e2g)
     use module_time
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2g
     integer :: subspace_idx
 
     subspace_idx = get_subspace_idx('G')
@@ -75,7 +74,6 @@ contains
         if (rank == 0) print '(10A)', ' e2g(isym)'
 
         e2 = 0.0d+00
-        e2g = 0.0d+00
         dimn = 0
         indt = 0
 
@@ -272,11 +270,11 @@ contains
             Deallocate (bc1)
 
             if (rank == 0) print '(" e2g(",I3,") = ",E25.15," a.u.")', isym, e2(isym)
-            e2g = e2g + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2g      = ",E25.15," a.u.")', e2g
+            print '(" e2g      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,g  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
@@ -526,7 +524,6 @@ contains
         if (rank == 0) print '(10A)', ' e2g(isym)'
 
         e2 = 0.0d+00
-        e2g = 0.0d+00
         dimn = 0
         indt = 0
 
@@ -705,11 +702,11 @@ contains
             Deallocate (bc1)
 
             if (rank == 0) print '(" e2g(",I3,") = ",E25.15," a.u.")', isym, e2(isym)
-            e2g = e2g + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2g      = ",E25.15," a.u.")', e2g
+            print '(" e2g      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,g  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 

@@ -1,4 +1,4 @@
-SUBROUTINE solve_C_subspace(e0, e2c)
+SUBROUTINE solve_C_subspace(e0)
 
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
@@ -7,7 +7,6 @@ SUBROUTINE solve_C_subspace(e0, e2c)
     use module_time
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2c
     integer :: subspace_idx
 
     subspace_idx = get_subspace_idx('C')
@@ -72,7 +71,6 @@ contains
 !  E2 = SIGUMA_a, dimm |V1(dimm,a)|^2|/{(a(a) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2c = 0.0d+00
         dima = 0
         dimn = 0
         syma = 0
@@ -265,11 +263,11 @@ contains
             Deallocate (uc)
             Deallocate (wb)
 
-            e2c = e2c + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2c      = ",E25.15," a.u.")', e2c
+            print '(" e2c      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,c  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
@@ -708,7 +706,6 @@ contains
 !  E2 = SIGUMA_a, dimm |V1(dimm,a)|^2|/{(a(a) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2c = 0.0d+00
         dima = 0
         dimn = 0
         syma = 0
@@ -890,11 +887,11 @@ contains
             Deallocate (uc)
             Deallocate (wb)
 
-            e2c = e2c + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2c      = ",E25.15," a.u.")', e2c
+            print '(" e2c      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,c  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 

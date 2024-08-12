@@ -1,4 +1,4 @@
-SUBROUTINE solve_B_subspace(e0, e2b)
+SUBROUTINE solve_B_subspace(e0)
 
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
@@ -7,7 +7,6 @@ SUBROUTINE solve_B_subspace(e0, e2b)
     use module_time
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2b
     integer :: subspace_idx
 
     subspace_idx = get_subspace_idx('B')
@@ -76,7 +75,6 @@ contains
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2b = 0.0d+00
         dimn = 0
         if (debug .and. rank == 0) print *, 'ENTER solve B part'
         if (rank == 0) print '(10A)', '  '
@@ -273,11 +271,11 @@ contains
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
-            e2b = e2b + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2b       = ",E25.15," a.u.")', e2b
+            print '(" e2b       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,b   = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
@@ -648,7 +646,6 @@ contains
 !  E2 = SIGUMA_a,i, dimm |V1(dimm,ai)|^2|/{(alpha(ai) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2b = 0.0d+00
         dimn = 0
         if (debug .and. rank == 0) print *, 'ENTER solve B part'
         if (rank == 0) print '(10A)', '  '
@@ -833,7 +830,7 @@ contains
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
-            e2b = e2b + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (debug .and. rank == 0) then
@@ -844,7 +841,7 @@ contains
             End do
         end if
         if (rank == 0) then
-            print '(" e2b       = ",E25.15," a.u.")', e2b
+            print '(" e2b       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,b   = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 

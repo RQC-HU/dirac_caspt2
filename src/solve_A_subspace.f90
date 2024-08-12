@@ -1,4 +1,4 @@
-SUBROUTINE solve_A_subspace(e0, e2a)
+SUBROUTINE solve_A_subspace(e0)
 
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
@@ -7,7 +7,6 @@ SUBROUTINE solve_A_subspace(e0, e2a)
     use module_time
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2a
     integer :: subspace_idx
 
     subspace_idx = get_subspace_idx('A')
@@ -36,7 +35,7 @@ contains
         integer, allocatable :: indsym(:, :)
 
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(2*nsymrpa), e2_save(2*nsymrpa), alpha
+        real(8)               :: e2(2*nsymrpa), alpha
 
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
@@ -78,7 +77,6 @@ contains
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2a = 0.0d+00
         dimi = 0
         dimn = 0
         syma = 0
@@ -264,11 +262,11 @@ contains
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
-            e2a = e2a + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2a       = ",E25.15," a.u.")', e2a
+            print '(" e2a       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,a  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
@@ -693,7 +691,7 @@ contains
         integer, allocatable :: indsym(:, :)
 
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(2*nsymrpa), e2_save(2*nsymrpa), alpha
+        real(8)               :: e2(2*nsymrpa), alpha
 
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
@@ -735,8 +733,6 @@ contains
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2_save = 0.0d+00
-        e2a = 0.0d+00
         dimi = 0
         dimn = 0
         syma = 0
@@ -914,11 +910,11 @@ contains
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
-            e2a = e2a + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2a       = ",E25.15," a.u.")', e2a
+            print '(" e2a       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,a   = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
