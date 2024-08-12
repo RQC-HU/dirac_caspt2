@@ -6,7 +6,9 @@ SUBROUTINE solve_D_subspace(e0, e2d)
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2d
+    real(8) :: sumc2local
 
+    sumc2local = 0.0d+00
     if (realonly%is_realonly()) then
         call solve_D_subspace_real()
     else

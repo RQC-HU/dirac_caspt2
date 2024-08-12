@@ -6,6 +6,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use dcaspt2_restart_file, only: read_and_validate_restart_file
     use module_global_variables
     use module_file_manager
     use module_2integrals
@@ -47,6 +48,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
     call read_input(unit_input)
     close (unit_input)
+    if (enable_restart) call read_and_validate_restart_file
 
     if (rank == 0) then
         print *, 'ninact        =', ninact

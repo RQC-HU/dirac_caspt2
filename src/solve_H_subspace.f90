@@ -5,7 +5,9 @@ SUBROUTINE solve_H_subspace(e0, e2h)
     implicit none
     real(8), intent(in) :: e0
     real(8), intent(out):: e2h
+    real(8) :: sumc2local
 
+    sumc2local = 0.0d+00
     if (realonly%is_realonly()) then
         call solve_H_subspace_real()
     else
