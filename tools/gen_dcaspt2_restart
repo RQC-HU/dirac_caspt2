@@ -70,7 +70,7 @@ def main():
 
     last_subspace = next(reversed(caspt2_energies))
     output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [
-        f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy} \n" for subspace, info in caspt2_energies.items()
+        f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy}\n" for subspace, info in caspt2_energies.items()
     ]
 
     with open(output_file, "w") as f:
