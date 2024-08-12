@@ -194,7 +194,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy &
 &        because the 2nd order energy of A subspace cannot be defined when ninact = 0."
     else if (is_skip_restart_file_subspace("A")) then
-        if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of A subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2a      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,a  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of A subspace 2nd order energy"
@@ -229,7 +233,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of B subspace 2nd order energy &
 &        because the 2nd order energy of B subspace cannot be defined when ninact = 0."
     else if (is_skip_restart_file_subspace("B")) then
-        if (rank == 0) print *, "Skip the calculation of B subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of B subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2b      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,b  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of B subspace 2nd order energy"
@@ -256,7 +264,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy &
 &        because the 2nd order energy of C subspace cannot be defined when nsec = 0."
     else if (is_skip_restart_file_subspace("C")) then
-        if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of C subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2c      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,c  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of C subspace 2nd order energy"
@@ -293,7 +305,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of D subspace 2nd order energy &
 &        because the 2nd order energy of D subspace cannot be defined when ninact = 0 or nsec = 0."
     else if (is_skip_restart_file_subspace("D")) then
-        if (rank == 0) print *, "Skip the calculation of D subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of D subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2d      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,d  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of D subspace 2nd order energy"
@@ -330,7 +346,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of E subspace 2nd order energy &
 &        because the 2nd order energy of E subspace cannot be defined when ninact = 0 or nsec = 0."
     else if (is_skip_restart_file_subspace("E")) then
-        if (rank == 0) print *, "Skip the calculation of E subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of E subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2e      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,e  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of E subspace 2nd order energy"
@@ -357,7 +377,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of F subspace 2nd order energy &
 &        because the 2nd order energy of F subspace cannot be defined when nsec = 0."
     else if (is_skip_restart_file_subspace("F")) then
-        if (rank == 0) print *, "Skip the calculation of F subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of F subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2f      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,f  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of F subspace 2nd order energy"
@@ -384,7 +408,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of G subspace 2nd order energy &
 &        because the 2nd order energy of G subspace cannot be defined when ninact = 0 or nsec = 0."
     else if (is_skip_restart_file_subspace("G")) then
-        if (rank == 0) print *, "Skip the calculation of G subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of G subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2e      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,e  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of G subspace 2nd order energy"
@@ -411,7 +439,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "Skip the calculation of H subspace 2nd order energy &
 &        because the 2nd order energy of H subspace cannot be defined when ninact = 0 or nsec = 0."
     else if (is_skip_restart_file_subspace("H")) then
-        if (rank == 0) print *, "Skip the calculation of H subspace 2nd order energy because of the caspt2_restart file."
+        if (rank == 0) then
+            print *, "Skip the calculation of H subspace 2nd order energy because of the caspt2_restart file."
+            print '("e2h      = ",E25.15," a.u.")', e2_subspace(cur_subspace)
+            print '("sumc2,h  = ",E25.15)', sumc2_subspace(cur_subspace)
+        end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Start calcultion of H subspace 2nd order energy"
