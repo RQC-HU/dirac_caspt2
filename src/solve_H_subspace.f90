@@ -13,7 +13,8 @@ SUBROUTINE solve_H_subspace(e0)
     else
         call solve_H_subspace_complex()
     end if
-
+    e2all = e2all + e2_subspace(subspace_idx)
+    sumc2 = sumc2 + sumc2_subspace(subspace_idx)
 contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
