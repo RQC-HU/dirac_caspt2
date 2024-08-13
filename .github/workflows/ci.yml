@@ -98,11 +98,15 @@ jobs:
 
   test-linux-gfortran:
     timeout-minutes: 60 # Max execution time (min)
-    runs-on: ubuntu-20.04 # gfortran-7 is not supported on ubuntu-latest
     strategy:
       matrix:
-        compiler: [gcc]
-        version: [7, 8, 9, 10, 11] # If you want to build multiple version, you can add version number at this line.
+        toolchain:
+          - { compiler: gcc, version: 7, image: ubuntu-20.04 }
+          - { compiler: gcc, version: 8, image: ubuntu-20.04 }
+          - { compiler: gcc, version: 9, image: ubuntu-22.04 }
+          - { compiler: gcc, version: 10, image: ubuntu-22.04 }
+          - { compiler: gcc, version: 11, image: ubuntu-22.04 }
+    runs-on: ${{ matrix.toolchain.image }}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
       FC: gfortran
@@ -114,7 +118,7 @@ jobs:
         with:
           path: |
             /opt/intel/oneapi
-          key: ${{ runner.os }}-install-${{ matrix.version }}-${{ env.KEYVERSION }}
+          key: ${{ runner.os }}-install-${{ matrix.toolchain.version }}-${{ env.KEYVERSION }}
       - name: Update packages
         run: |
           sudo apt-get update
@@ -136,11 +140,11 @@ jobs:
         run: |
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
-      - uses: fortran-lang/setup-fortran@v1.3
+      - uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
         id: setup-fortran
         with:
-          compiler: ${{ matrix.compiler }}
-          version: ${{ matrix.version }}
+          compiler: ${{ matrix.toolchain.compiler }}
+          version: ${{ matrix.toolchain.version }}
       - run: ${{ env.FC }} --version
         env:
           FC: ${{ steps.setup-fortran.outputs.fc }}
