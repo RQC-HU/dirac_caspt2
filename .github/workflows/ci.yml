@@ -76,7 +76,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           architecture: "x64"
       - name: Install pytest for unit test
         run: python -m pip install pytest
@@ -152,7 +152,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
           architecture: "x64"
       - name: Install pytest for unit test
         run: python -m pip install pytest
