@@ -43,10 +43,10 @@ jobs:
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: cache install
         id: cache-install
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             /opt/intel/oneapi
@@ -112,10 +112,10 @@ jobs:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
       FC: gfortran
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: cache install (MKL)
         id: cache-install
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             /opt/intel/oneapi
