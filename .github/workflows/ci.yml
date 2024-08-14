@@ -61,10 +61,14 @@ jobs:
           sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
           sudo apt-get update
-      - name: Install Intel Fortran compiler
+      - name: Install MKL
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl
+          sudo apt-get install -y intel-oneapi-mkl
+      - name: Install MPI Intel Fortran compiler
+        if: steps.cache-install.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh --force
