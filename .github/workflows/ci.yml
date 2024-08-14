@@ -112,6 +112,12 @@ jobs:
           - { compiler: gcc, version: 10, image: ubuntu-22.04 }
           - { compiler: gcc, version: 11, image: ubuntu-22.04 }
           - { compiler: gcc, version: 12, image: ubuntu-22.04 }
+        exclude:
+          - mpi: "openmpi"
+            toolchain:
+              compiler: gcc
+              version: 7
+              image: ubuntu-20.04
     runs-on: ${{ matrix.toolchain.image }}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
