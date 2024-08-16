@@ -73,7 +73,10 @@ contains
         dima = 0
         dimn = 0
         syma = 0
-        if (rank == 0) print *, 'ENTER solve C part'
+        if (debug .and. rank == 0) print *, 'ENTER solve C part'
+        if (rank == 0) print '(10A)', '  '
+        if (rank == 0) print '(10A)', ' e2c(isym)'
+
         Allocate (v(nsec, nact, nact, nact))
         Call vCmat_complex(v)
         Do isym = 1, nsymrpa
@@ -134,7 +137,7 @@ contains
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
+            if (debug .and. rank == 0) print *, 'isym, dimn', isym, dimn
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sr N*N
             Call sCmat_complex(dimn, indsym, sc)
@@ -148,7 +151,7 @@ contains
             sc0 = sc
             Call cdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after C subspace S matrix cdiag, new dimension is', dimm
+            if (debug .and. rank == 0) print *, 'after C subspace S matrix cdiag, new dimension is', dimm
             If (dimm == 0) then
                 deallocate (indsym)
                 deallocate (sc0)
@@ -158,9 +161,9 @@ contains
             End if
 
             If (debug) then
-                if (rank == 0) print *, 'Check whether U*SU is diagonal'
+                if (debug .and. rank == 0) print *, 'Check whether U*SU is diagonal'
                 Call checkdgc(dimn, sc0, sc, ws)
-                if (rank == 0) print *, 'Check whether U*SU is diagonal END'
+                if (debug .and. rank == 0) print *, 'Check whether U*SU is diagonal END'
             End if
             Allocate (bc(dimn, dimn))                                 ! br N*N
             bc = 0.0d+00
@@ -207,7 +210,7 @@ contains
 
             Allocate (wb(dimm))
             wb = 0.0d+00
-            if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
+            if (debug .and. rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
             Allocate (bc0(dimm, dimm))
             bc0 = 0.0d+00
             bc0 = bc1
@@ -215,14 +218,14 @@ contains
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             If (debug) then
 
-                if (rank == 0) print *, 'Check whether bc is really diagonalized or not'
+                if (debug .and. rank == 0) print *, 'Check whether bc is really diagonalized or not'
                 Call checkdgc(dimm, bc0, bc1, wb)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                if (rank == 0) print *, 'Check whether bc is really diagonalized or not END'
+                if (debug .and. rank == 0) print *, 'Check whether bc is really diagonalized or not END'
             End if
             deallocate (bc0)
 
-            if (rank == 0) print *, 'bC1 matrix is diagonalized!'
+            if (debug .and. rank == 0) print *, 'bC1 matrix is diagonalized!'
             Do ia = 1, nsec
                 ja = convert_secondary_to_global_idx(ia)
 
@@ -252,7 +255,7 @@ contains
 
             End do
 
-            if (rank == 0) print '("e2c(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
+            if (rank == 0) print '(" e2c(",I3,") = ",E25.15," a.u.")', isym, e2(isym)
             deallocate (bc1)
             deallocate (indsym)
             Deallocate (uc)
@@ -262,13 +265,13 @@ contains
         End do
 
         if (rank == 0) then
-            print '("e2c      = ",E20.10," a.u.")', e2c
-            print '("sumc2,c  = ",E20.10)', sumc2local
+            print '(" e2c      = ",E25.15," a.u.")', e2c
+            print '(" sumc2,c  = ",E20.10)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
         continue
-        if (rank == 0) print *, 'end solve_C_subspace'
+        if (debug .and. rank == 0) print *, 'end solve_C_subspace'
     end subroutine solve_C_subspace_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -294,7 +297,7 @@ contains
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
-        if (rank == 0) print *, 'Start C subspace S matrix'
+        if (debug .and. rank == 0) print *, 'Start C subspace S matrix'
         sc = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,it,iu,iv,a,b)
@@ -327,7 +330,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-        if (rank == 0) print *, 'C subspace S matrix is obtained normally'
+        if (debug .and. rank == 0) print *, 'C subspace S matrix is obtained normally'
     End subroutine sCmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -368,7 +371,7 @@ contains
         real(8)              :: e, denr, deni
         complex*16          :: den
 
-        if (rank == 0) print *, 'Start C subspace B matrix'
+        if (debug .and. rank == 0) print *, 'Start C subspace B matrix'
         bc(:, :) = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
@@ -410,7 +413,7 @@ contains
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
-        if (rank == 0) print *, 'C subspace B matrix is obtained normally'
+        if (debug .and. rank == 0) print *, 'C subspace B matrix is obtained normally'
     End subroutine bCmat_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -478,7 +481,7 @@ contains
 !
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 
-        if (rank == 0) print *, 'Start C subspace V matrix'
+        if (debug .and. rank == 0) print *, 'Start C subspace V matrix'
 
         v = 0.0d+00
         effh = 0.0d+00
@@ -561,7 +564,7 @@ contains
             end if
         end do
         close (unit_int2)
-        if (rank == 0) print *, 'reading C1int2 is over'
+        if (debug .and. rank == 0) print *, 'reading C1int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=c2int, status='old', optional_action='read')
         do ! Read TYPE 2 integrals C2int until EOF
@@ -582,7 +585,7 @@ contains
         end do
         close (unit_int2)
 
-        if (rank == 0) print *, 'reading C2int2 is over'
+        if (debug .and. rank == 0) print *, 'reading C2int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=c3int, status='old', optional_action='read') ! TYPE 3 integrals
         do ! Read TYPE 3 integrals C3int until EOF
@@ -603,7 +606,7 @@ contains
         end do
         close (unit_int2)
 
-        if (rank == 0) print *, 'reading C3int2 is over'
+        if (debug .and. rank == 0) print *, 'reading C3int2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=effh)
@@ -646,7 +649,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
-        if (rank == 0) print *, 'C subspace V matrix is obtained normally'
+        if (debug .and. rank == 0) print *, 'C subspace V matrix is obtained normally'
     end subroutine vCmat_complex
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -706,7 +709,10 @@ contains
         dima = 0
         dimn = 0
         syma = 0
-        if (rank == 0) print *, 'ENTER solve C part'
+        if (debug .and. rank == 0) print *, 'ENTER solve C part'
+        if (rank == 0) print '(10A)', '  '
+        if (rank == 0) print '(10A)', ' e2c(isym)'
+
         Allocate (v(nsec, nact, nact, nact))
 
         Call vCmat_real(v)
@@ -768,7 +774,7 @@ contains
                 End do
             End do
 
-            if (rank == 0) print *, 'isym, dimn', isym, dimn
+            if (debug .and. rank == 0) print *, 'isym, dimn', isym, dimn
             Allocate (sc(dimn, dimn))
             sc = 0.0d+00            ! sr N*N
             Call sCmat_real(dimn, indsym, sc)
@@ -782,7 +788,7 @@ contains
             sc0 = sc
             Call rdiag(sc, dimn, dimm, ws, smat_lin_dep_threshold)
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if (rank == 0) print *, 'after C subspace S matrix rdiag, new dimension is', dimm
+            if (debug .and. rank == 0) print *, 'after C subspace S matrix rdiag, new dimension is', dimm
             If (dimm == 0) then
                 deallocate (indsym)
                 deallocate (sc0)
@@ -836,7 +842,7 @@ contains
 
             Allocate (wb(dimm))
             wb = 0.0d+00
-            if (rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
+            if (debug .and. rank == 0) print *, 'bC matrix is transrated to bc1(M*M matrix)!'
             Allocate (bc0(dimm, dimm))
             bc0 = 0.0d+00
             bc0 = bc1
@@ -844,7 +850,7 @@ contains
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             deallocate (bc0)
 
-            if (rank == 0) print *, 'bC1 matrix is diagonalized!'
+            if (debug .and. rank == 0) print *, 'bC1 matrix is diagonalized!'
             Do ia = 1, nsec
                 ja = convert_secondary_to_global_idx(ia)
 
@@ -874,7 +880,7 @@ contains
 
             End do
 
-            if (rank == 0) print '("e2c(",I3,") = ",E20.10," a.u.")', isym, e2(isym)
+            if (rank == 0) print '(" e2c(",I3,") = ",E25.15," a.u.")', isym, e2(isym)
             deallocate (bc1)
             deallocate (indsym)
             Deallocate (uc)
@@ -884,13 +890,13 @@ contains
         End do
 
         if (rank == 0) then
-            print '("e2c      = ",E20.10," a.u.")', e2c
-            print '("sumc2,c  = ",E20.10)', sumc2local
+            print '(" e2c      = ",E25.15," a.u.")', e2c
+            print '(" sumc2,c  = ",E20.10)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
         continue
-        if (rank == 0) print *, 'end solve_C_subspace'
+        if (debug .and. rank == 0) print *, 'end solve_C_subspace'
     end subroutine solve_C_subspace_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -916,7 +922,7 @@ contains
         integer :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
-        if (rank == 0) print *, 'Start C subspace S matrix'
+        if (debug .and. rank == 0) print *, 'Start C subspace S matrix'
         sc = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,it,iu,iv,a,b)
@@ -949,7 +955,7 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=sc)
 #endif
-        if (rank == 0) print *, 'C subspace S matrix is obtained normally'
+        if (debug .and. rank == 0) print *, 'C subspace S matrix is obtained normally'
     End subroutine sCmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -990,7 +996,7 @@ contains
         real(8)              :: e, denr, deni
         real(8)          :: den
 
-        if (rank == 0) print *, 'Start C subspace B matrix'
+        if (debug .and. rank == 0) print *, 'Start C subspace B matrix'
         bc(:, :) = 0.0d+00
 
 !$OMP parallel do schedule(dynamic,1) private(ix,iy,iz,jx,jy,jz,it,iu,iv,jt,ju,jv,e,j,iw,jw,denr,deni,den)
@@ -1032,7 +1038,7 @@ contains
 #ifdef HAVE_MPI
         call reduce_wrapper(mat=bc, root_rank=0)
 #endif
-        if (rank == 0) print *, 'C subspace B matrix is obtained normally'
+        if (debug .and. rank == 0) print *, 'C subspace B matrix is obtained normally'
     End subroutine bCmat_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -1100,7 +1106,7 @@ contains
 !
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
 
-        if (rank == 0) print *, 'Start C subspace V matrix'
+        if (debug .and. rank == 0) print *, 'Start C subspace V matrix'
 
         v = 0.0d+00
         effh = 0.0d+00
@@ -1183,7 +1189,7 @@ contains
             end if
         end do
         close (unit_int2)
-        if (rank == 0) print *, 'reading C1int2 is over'
+        if (debug .and. rank == 0) print *, 'reading C1int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=c2int, status='old', optional_action='read')
         do ! Read TYPE 2 integrals C2int until EOF
@@ -1204,7 +1210,7 @@ contains
         end do
         close (unit_int2)
 
-        if (rank == 0) print *, 'reading C2int2 is over'
+        if (debug .and. rank == 0) print *, 'reading C2int2 is over'
 
         call open_unformatted_file(unit=unit_int2, file=c3int, status='old', optional_action='read') ! TYPE 3 integrals
         do ! Read TYPE 3 integrals C3int until EOF
@@ -1225,7 +1231,7 @@ contains
         end do
         close (unit_int2)
 
-        if (rank == 0) print *, 'reading C3int2 is over'
+        if (debug .and. rank == 0) print *, 'reading C3int2 is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=effh)
@@ -1268,6 +1274,6 @@ contains
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
 #endif
-        if (rank == 0) print *, 'C subspace V matrix is obtained normally'
+        if (debug .and. rank == 0) print *, 'C subspace V matrix is obtained normally'
     end subroutine vCmat_real
 end subroutine solve_C_subspace

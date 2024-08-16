@@ -22,7 +22,7 @@ SUBROUTINE fockdiag
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    if (rank == 0) print *, 'fockdiag start'
+    if (debug .and. rank == 0) print *, 'fockdiag start'
 
     If (realonly%is_realonly()) then          ! real(8)
         Allocate (fa(nmo, nmo)); Call memplus(KIND(fa), SIZE(fa), 1)
@@ -50,7 +50,7 @@ SUBROUTINE fockdiag
         n0 = nspace(1, i0)
         n1 = nspace(2, i0)
         n = nspace(3, i0)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             if (i0 == 1) print *, 'FOR INACTIVE-INACTIVE ROTATION !'
             if (i0 == 2) print *, 'FOR ACTIVE-ACTIVE ROTATION !'
             if (i0 == 3) print *, 'FOR SECONDARY-SECONDARY ROTATION !'
@@ -86,5 +86,5 @@ SUBROUTINE fockdiag
         close (unit_transfock)
     end if
 
-    if (rank == 0) print *, 'fockdiag end'
+    if (debug .and. rank == 0) print *, 'fockdiag end'
 end subroutine fockdiag

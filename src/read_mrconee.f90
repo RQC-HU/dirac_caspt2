@@ -270,6 +270,7 @@ SUBROUTINE read_mrconee(filename)
         call stop_with_errorcode(iostat)
     end if
     if (rank == 0) then
+        print *, 'Information from MRCONEE'
         print *, 'NMO, BREIT, ECORE'
         print *, NMO, BREIT, ECORE
     end if
@@ -543,7 +544,7 @@ contains
         integer :: isp, nmom
         double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'Enter read_1_elec_integrals'
         end if
 

@@ -230,7 +230,7 @@ SUBROUTINE cdiag(c, dimn, dimm, w, cutoff_threshold)
     if (cutoff_threshold == 0.0d+00) then
         dimm = dimn
     else ! cutoff process is performed
-        if (rank == 0) print *, 'cut off threshold is ', cutoff_threshold
+        if (debug .and. rank == 0) print *, 'cut off threshold is ', cutoff_threshold
         dimm = count(w(1:dimn) >= cutoff_threshold)
     end if
 
@@ -264,7 +264,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
 !  DAIAGONALIZATION OF A COMPLEX HERMITIAN MATRIX
-    if (rank == 0) print *, 'rdiag0 start'
+    if (debug .and. rank == 0) print *, 'rdiag0 start'
     w(:) = 0.0d+00
 
     fa(n0:n1, n0:n1) = 0.0d+00
@@ -311,7 +311,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     mat = MATMUL(mat, fock_real(n0:n1, n0:n1))
     mat = MATMUL(mat, fa)
 
-    if (rank == 0) then
+    if (debug .and. rank == 0) then
         print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-08)'
         do j = n0, n1
             do i = n0, n1
@@ -330,7 +330,7 @@ SUBROUTINE rdiag0(n, n0, n1, fa, w)
     end if
     deallocate (mat)
 
-    if (rank == 0) print *, 'rdiag0 end'
+    if (debug .and. rank == 0) print *, 'rdiag0 end'
 end subroutine rdiag0
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -374,7 +374,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
         fi = .FALSE.
     end if
 
-    if (rank == 0) print *, 'fi', fi
+    if (debug .and. rank == 0) print *, 'fi', fi
 
     fac(n0:n1, n0:n1) = 0.0d+00
 
@@ -461,7 +461,7 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
     matc = MATMUL(matc, fac)
 
     ! Check U*FU
-    if (rank == 0) then
+    if (debug .and. rank == 0) then
         print *, 'OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-08)'
         do j = n0, n1
             do i = n0, n1
@@ -480,5 +480,5 @@ SUBROUTINE cdiag0(n, n0, n1, fac, wc)
 
     deallocate (matc)
 
-    if (rank == 0) print *, 'cdiag0 end'
+    if (debug .and. rank == 0) print *, 'cdiag0 end'
 end subroutine cdiag0

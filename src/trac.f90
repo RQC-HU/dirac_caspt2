@@ -26,7 +26,7 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     occ = 0
-    if (rank == 0) print *, 'Enter TRACI'
+    if (debug .and. rank == 0) print *, 'Enter TRACI'
 
     Do i0 = 1, ndet
         i = 0
@@ -58,11 +58,11 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     ! dgesv: https://netlib.org/lapack/explore-html/d7/d3b/group__double_g_esolve_ga5ee879032a8365897c3ba91e3dc8d512.html
     ! ds is overwritten by its LU decomposition
     ! cir is overwritten by rotated_ci
-    if (rank == 0) print *, 'Solve linear equations for ci matrix using dgesv'
+    if (debug .and. rank == 0) print *, 'Solve linear equations for ci matrix using dgesv'
     Call dgesv(ndet, 1, ds, ndet, IPIV, cir(1:ndet, selectroot), ndet, info)
     Deallocate (IPIV)
     if (info /= 0) then
-        if (rank == 0) print *, 'Error in dgesv, info = ', info
+        if (debug .and. rank == 0) print *, 'Error in dgesv, info = ', info
         call stop_with_errorcode(info)
     end if
 
@@ -108,7 +108,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     occ = 0
-    if (rank == 0) print *, 'Enter TRACI'
+    if (debug .and. rank == 0) print *, 'Enter TRACI'
     call get_current_time(tmp_start_time)
 
     Do i0 = 1, ndet
@@ -132,7 +132,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
                        occ(1:nelec, i0), occ(1:nelec, j0), ds(i0, j0))
         End do
     End do
-    if (rank == 0) print *, 'End detsc'
+    if (debug .and. rank == 0) print *, 'End detsc'
 
     ! Preparation for solving linear equations for ci matrix using zgesv
     call get_current_time_and_print_diff(tmp_start_time, tmp_end_time); tmp_start_time = tmp_end_time
@@ -146,14 +146,14 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     ! zgesv: https://netlib.org/lapack/explore-html/d6/d10/group__complex16_g_esolve_ga531713dfc62bc5df387b7bb486a9deeb.html
     ! ds is overwritten by its LU decomposition
     ! ci is overwritten by rotated_ci
-    if (rank == 0) print *, 'Solve linear equations for ci matrix using zgesv'
+    if (debug .and. rank == 0) print *, 'Solve linear equations for ci matrix using zgesv'
     Call zgesv(ndet, 1, ds, ndet, IPIV, ci, ndet, info) ! ds is overwritten by its LU decomposition, ci is overwritten by rotated_ci
     Deallocate (IPIV)
     if (info /= 0) then
-        if (rank == 0) print *, 'Error in zgesv, info = ', info
+        if (debug .and. rank == 0) print *, 'Error in zgesv, info = ', info
         call stop_with_errorcode(info)
     end if
-    if (rank == 0) print *, 'End zgesv', rank
+    if (debug .and. rank == 0) print *, 'End zgesv', rank
     call get_current_time_and_print_diff(tmp_start_time, tmp_end_time)
     ! ci is now rotated_ci and we need to rotate it back to cir and cii
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))

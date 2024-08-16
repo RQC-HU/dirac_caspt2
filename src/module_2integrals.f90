@@ -257,7 +257,7 @@ contains
         call reduce_wrapper(mat=nuniq, root_rank=0)
         call reduce_wrapper(mat=totalint, root_rank=0)
 #endif
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, nuniq, totalint
         end if
 
@@ -561,7 +561,7 @@ contains
         call reduce_wrapper(mat=nuniq, root_rank=0)
         call reduce_wrapper(mat=totalint, root_rank=0)
 #endif
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, nuniq, totalint
         end if
 

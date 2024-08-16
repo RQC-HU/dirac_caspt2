@@ -31,7 +31,7 @@ add_library(ivo_module STATIC
 target_link_libraries(ivo_module dcaspt2_module)
 
 add_executable(r4dcascicoexe
-  print_head.f90
+  print_head_casci.f90
   calce0.f90
   casci.f90
   casmat.f90
@@ -59,7 +59,7 @@ add_executable(r4dcascicoexe
 target_link_libraries(r4dcascicoexe dcaspt2_module)
 
 add_executable(r4dcaspt2ocoexe
-  print_head.f90
+  print_head_caspt2.f90
   calce0.f90
   checkdgc.f90
   cutoff.f90
@@ -85,7 +85,7 @@ add_executable(r4dcaspt2ocoexe
 target_link_libraries(r4dcaspt2ocoexe caspt2_module)
 
 add_executable(r4divocoexe
-  print_head.f90
+  print_head_ivo.f90
   create_newmdcint.f90
 	diag.f90
 	density_matrix.f90

@@ -1308,7 +1308,7 @@ contains
         call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         close (unit_int2_subspace)
 
-        if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
+        if (debug .and. rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
         Call memminus(KIND(traint2), SIZE(traint2), 2); deallocate (traint2)
         Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
         Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)
@@ -1578,7 +1578,7 @@ contains
         call write_traint2_to_disk_fourth(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         close (unit_int2_subspace)
 
-        if (rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
+        if (debug .and. rank == 0) print *, 'read and write file properly. filename : ', trim(fname)
         Call memminus(KIND(traint2), SIZE(traint2), 1); deallocate (traint2)
         Call memminus(KIND(indsym), SIZE(indsym), 1); deallocate (indsym)
         Call memminus(KIND(nsym), SIZE(nsym), 1); deallocate (nsym)

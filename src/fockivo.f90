@@ -43,7 +43,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     fock_cmplx = 0.0d+00
     positronic_mo(:) = 0; electronic_mo(:) = 0; basis_ao(:) = 0; basis_all(:) = 0; mo(:) = 0
 
-    if (rank == 0) print *, 'enter building fock matrix for IVO'
+    if (debug .and. rank == 0) print *, 'enter building fock matrix for IVO'
 
     if (nhomo == 0) then
         numh = count(ABS(caspt2_mo_energy(1:global_act_end) - caspt2_mo_energy(nelec + ninact)) < 1.0d-01)
@@ -109,7 +109,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     end if
     read (unit_dfpcmo, '(A150)') line2
 
-    if (rank == 0) print *, 'end reading information, symmetry information and energy'
+    if (debug .and. rank == 0) print *, 'end reading information, symmetry information and energy'
 
     basis_all = (positronic_mo + electronic_mo)*basis_ao
     mo = positronic_mo + electronic_mo
@@ -128,7 +128,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     write_itrfmo = .true.
     read (unit_dfpcmo, *, iostat=iostat) BUF
 
-    if (rank == 0) print *, 'end reading MO coefficient'
+    if (debug .and. rank == 0) print *, 'end reading MO coefficient'
 
     if (dirac_version >= 21) then
         read (unit_dfpcmo, '(A150)') line4
@@ -351,7 +351,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
         close (unit_dfpcmo)
     end if
-    if (rank == 0) print *, 'fockivo end'
+    if (debug .and. rank == 0) print *, 'fockivo end'
     deallocate (BUF)
     deallocate (eval, syminfo)
 contains

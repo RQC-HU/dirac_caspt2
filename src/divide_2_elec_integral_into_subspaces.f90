@@ -43,7 +43,7 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
     Allocate (indl((nmo/2)**2)); Call memplus(KIND(indl), SIZE(indl), 1)
     Allocate (rklr((nmo/2)**2)); Call memplus(KIND(rklr), SIZE(rklr), 1)
     Allocate (rkli((nmo/2)**2)); Call memplus(KIND(rkli), SIZE(rkli), 1)
-    if (rank == 0) then
+    if (debug .and. rank == 0) then
         print *, "enter divide_2_elec_integral_into_subspaces"
         call write_allocated_memory_size
     end if
@@ -78,9 +78,9 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
         return ! Return to main program
     end if
 
-    if (rank == 0) then
+    if (debug .and. rank == 0) then
         print *, datex, timex
-        if(debug) print *, 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
+        print *, 'nkr', nkr, 'kr(+),kr(-)', (kr(i0), kr(-1*i0), i0=1, nkr)
     end if
 
     ! Continue to read the file until the end of the file is reached
@@ -405,6 +405,6 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
     if (allocated(rklr)) Call memminus(KIND(rklr), SIZE(rklr), 1); deallocate (rklr)
     if (allocated(rkli)) Call memminus(KIND(rkli), SIZE(rkli), 1); deallocate (rkli)
     if (allocated(kr)) Call memminus(KIND(kr), SIZE(kr), 1); deallocate (kr)
-    if (rank == 0) print *, "end divide_2_elec_integral_into_subspaces"
+    if (debug .and. rank == 0) print *, "end divide_2_elec_integral_into_subspaces"
 
 end subroutine divide_2_elec_integral_into_subspaces

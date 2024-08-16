@@ -36,7 +36,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #endif
 
     if (rank == 0) then
-        call print_head
+        call print_head_ivo
         print *, ''
         print *, 'START RELATIVISTIC IVO PROGRAM'
     end if

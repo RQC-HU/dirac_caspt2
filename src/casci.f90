@@ -93,7 +93,7 @@ SUBROUTINE casci
         print '("CASCI ENERGY FOR ",I2," STATE")', totsym
         Do irec = 1, nroot
             write (chr_root, '(I4)') irec
-            print '("CASCI Total Energy ROOT",a,F30.15," a.u.")', trim(adjustl(chr_root)), eigen(irec)
+            print '("CASCI Total Energy ROOT",a,F30.20," a.u.")', trim(adjustl(chr_root)), eigen(irec)
         End do
     end if
     if (realonly%is_realonly()) then

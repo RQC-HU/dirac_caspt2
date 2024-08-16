@@ -32,7 +32,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
-        call print_head
+        call print_head_casci
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
         print *, ' ENTER R4DCASCI PROGRAM'
@@ -97,7 +97,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, ' '
         print *, '*******************************'
         print *, ' '
-        print *, 'IREP IS ', repna(totsym)
+        print '(" IREP IS ",A6)', repna(totsym)
         print *, ' '
         print *, '*******************************'
         print *, ' '

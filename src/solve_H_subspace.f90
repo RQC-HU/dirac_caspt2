@@ -54,7 +54,10 @@ contains
 !  V(aibj)   = (ai|bj) - (aj|bi)
 !
 ! E2h = V(aibj)/e(a,b,i,j)
-        if (rank == 0) print *, 'ENTER solve H part'
+        if (debug .and. rank == 0) print *, 'ENTER solve H part'
+        if (rank == 0) print '(10A)', '  '
+        if (rank == 0) print '(10A)', ' e2h(isym)'
+
         e2h = 0.0d+00
         e = 0.0d+00
 
@@ -138,7 +141,7 @@ contains
 
         end do
         close (unit_int2)
-        if (rank == 0) print *, 'reading Hint is over'
+        if (debug .and. rank == 0) print *, 'reading Hint is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
@@ -169,8 +172,8 @@ contains
         End do
 
         if (rank == 0) then
-            print '("e2h      = ",E20.10," a.u.")', e2h
-            print '("sumc2,h  = ",E20.10)', sumc2local
+            print '(" e2h      = ",E25.15," a.u.")', e2h
+            print '(" sumc2,h  = ",E20.10)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
@@ -182,7 +185,7 @@ contains
         deallocate (ii0)
         deallocate (ij0)
 
-        if (rank == 0) print *, 'end solve_H_subspace'
+        if (debug .and. rank == 0) print *, 'end solve_H_subspace'
     End SUBROUTINE solve_H_subspace_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -226,7 +229,10 @@ contains
 !  V(aibj)   = (ai|bj) - (aj|bi)
 !
 ! E2h = V(aibj)/e(a,b,i,j)
-        if (rank == 0) print *, 'ENTER solve H part'
+        if (debug .and. rank == 0) print *, 'ENTER solve H part'
+        if (rank == 0) print '(10A)', '  '
+!        if (rank == 0) print '(10A)', ' e2h(isym)'
+
         e2h = 0.0d+00
         e = 0.0d+00
 
@@ -310,7 +316,7 @@ contains
 
         end do
         close (unit_int2)
-        if (rank == 0) print *, 'reading Hint is over'
+        if (debug .and. rank == 0) print *, 'reading Hint is over'
 
 #ifdef HAVE_MPI
         call allreduce_wrapper(mat=v)
@@ -341,8 +347,8 @@ contains
         End do
 
         if (rank == 0) then
-            print '("e2h      = ",E20.10," a.u.")', e2h
-            print '("sumc2,h  = ",E20.10)', sumc2local
+            print '(" e2h      = ",E25.15," a.u.")', e2h
+            print '(" sumc2,h  = ",E20.10)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
@@ -354,7 +360,7 @@ contains
         deallocate (ii0)
         deallocate (ij0)
 
-        if (rank == 0) print *, 'end solve_H_subspace'
+        if (debug .and. rank == 0) print *, 'end solve_H_subspace'
     End SUBROUTINE solve_H_subspace_real
 
 end subroutine solve_H_subspace

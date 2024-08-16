@@ -267,5 +267,5 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
         print *, 'C the error ', eigen(iroot) - ecore - sum(energy(iroot, :))
     end if
     Call memminus(KIND(energy), SIZE(energy), 1); deallocate (energy)
-    if (rank == 0) print *, 'e0test end'
+    if (debug .and. rank == 0) print *, 'e0test end'
 End subroutine e0test

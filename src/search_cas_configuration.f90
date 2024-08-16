@@ -15,7 +15,7 @@ SUBROUTINE search_cas_configuration
     integer :: idx, t, allow_det_num, current_det, cur_sym
     integer, allocatable :: det_cnt(:)
 
-    if (rank == 0) print *, 'Enter search_cas_configuration'
+    if (debug .and. rank == 0) print *, 'Enter search_cas_configuration'
     allocate (det_cnt(2*nsymrpa))
     det_cnt(:) = 0
     allow_det_num = 0
