@@ -266,7 +266,7 @@ contains
 
         if (rank == 0) then
             print '(" e2c      = ",E25.15," a.u.")', e2c
-            print '(" sumc2,c  = ",E20.10)', sumc2local
+            print '(" sumc2,c  = ",E25.15)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
@@ -321,7 +321,7 @@ contains
                 sc(j, i) = DCMPLX(a, -b)
                 if (rank == 0) then
                     If (ABS(sc(i, j)) > 1.0d+00) then
-                        print '(2I4,2E20.10)', i, j, sc(i, j)
+                        print '(2I4,2E25.15)', i, j, sc(i, j)
                     End if
                 end if
             End do
@@ -891,7 +891,7 @@ contains
 
         if (rank == 0) then
             print '(" e2c      = ",E25.15," a.u.")', e2c
-            print '(" sumc2,c  = ",E20.10)', sumc2local
+            print '(" sumc2,c  = ",E25.15)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
@@ -946,7 +946,7 @@ contains
                 sc(j, i) = a
                 if (rank == 0) then
                     If (ABS(sc(i, j)) > 1.0d+00) then
-                        print '(2I4,2E20.10)', i, j, sc(i, j)
+                        print '(2I4,2E25.15)', i, j, sc(i, j)
                     End if
                 end if
             End do

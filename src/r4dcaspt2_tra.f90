@@ -195,17 +195,14 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
         ! Transform A subspace 2-electron integrals (active, inactive | active, active)
         Call intra_3(2, 1, 2, 2, a1int)
-        if (debug) then
-            if (debug .and. rank == 0) print *, 'End intra3 A1int'
-            call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
-        end if
+
+        if (debug .and. rank == 0) print *, 'End intra3 A1int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform A subspace 2-electron integrals (active, inactive | inactive, inactive)
         Call intra_3(2, 1, 1, 1, a2int)
-        if (debug) then
-            if (debug .and. rank == 0) print *, 'End intra_3 A2int'
-            call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
-        end if
+        if (debug .and. rank == 0) print *, 'End intra_3 A2int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the A subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -253,17 +250,17 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform C subspace 2-electron integrals (secondary, active | active, active)
         Call intra_3(3, 2, 2, 2, c1int)
         if (debug .and. rank == 0) print *, 'End intra_3 C1int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform C subspace 2-electron integrals (secondary, active | inactive, inactive)
         Call intra_3(3, 2, 1, 1, c2int)
         if (debug .and. rank == 0) print *, 'End intra_3 C2int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform C subspace 2-electron integrals (secondary, inactive | inactive, active)
         Call intra_1(3, 1, 1, 2, c3int)
         if (debug .and. rank == 0) print *, 'End intra_1 C3int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the C subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -286,17 +283,17 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform D subspace 2-electron integrals (secondary, inactive | active, active)
         Call intra_3(3, 1, 2, 2, d1int)
         if (debug .and. rank == 0) print *, 'End intra_1 D1int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform D subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 2, 2, 1, d2int)
         if (debug .and. rank == 0) print *, 'End intra_1 D2int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform D subspace 2-electron integrals (secondary, inactive | inactive, inactive)
         Call intra_3(3, 1, 1, 1, d3int)
         if (debug .and. rank == 0) print *, 'End intra_1 D3int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the D subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -319,7 +316,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform E subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 1, 2, 1, eint)
         if (debug .and. rank == 0) print *, 'End intra_1 Eint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the E subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -342,7 +339,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform F subspace 2-electron integrals (secondary, active | secondary, active)
         Call intra_2(3, 2, 3, 2, fint)
         if (debug .and. rank == 0) print *, 'End intra_1 Fint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the F subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -365,7 +362,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         ! Transform G subspace 2-electron integrals (secondary, inactive | secondary, active)
         Call intra_1(3, 1, 3, 2, gint)
         if (debug .and. rank == 0) print *, 'End intra_1 Gint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the G subspace 2nd order energy
         sumc2local = 0.0d+00
@@ -389,7 +386,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug .and. rank == 0) print *, 'Enter intra_2 Hint'
         Call intra_2(3, 1, 3, 1, hint)
         if (debug .and. rank == 0) print *, 'End intra_2 Hint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the H subspace 2nd order energy
         sumc2local = 0.0d+00

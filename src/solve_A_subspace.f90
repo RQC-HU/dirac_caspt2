@@ -273,8 +273,7 @@ contains
 
         if (rank == 0) then
             print '(" e2a total = ",E25.15," a.u.")', e2a
-            print '(" sumc2,a  = ",E20.10)', sumc2local
-            print '(50A)', ' '
+            print '(" sumc2,a  = ",E25.15)', sumc2local
         end if
 
         sumc2 = sumc2 + sumc2local
@@ -923,18 +922,10 @@ contains
             e2a = e2a + e2(isym)
         End do
 
-!        if (debug .and. rank == 0) then
-!            print '(50A)', ' '
-!            print '(50A)', '--------------------------------------------------'
-!            Do isym = 1, nsymrpa
-!                print '(" e2a(",I3,")  = ",E25.15," a.u.")', isym, e2(isym)
-!            End do
-!        end if
-!        if (rank == 0) then
-!            print '(" e2a total = ",E25.15," a.u.")', e2a
-!            print '(" sumc2,a   = ",E20.10)', sumc2local
-!            print '(50A)', ' '
-!        end if
+        if (rank == 0) then
+            print '(" e2a       = ",E25.15," a.u.")', e2a
+            print '(" sumc2,a   = ",E25.15)', sumc2local
+        end if
 
         sumc2 = sumc2 + sumc2local
 

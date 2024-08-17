@@ -272,18 +272,10 @@ contains
             e2b = e2b + e2(isym)
         End do
 
-!        if (debug .and. rank == 0) then
-!            print '(50A)', ' '
-!            print '(50A)', '--------------------------------------------------'
-!            Do isym = 1, nsymrpa
-!                print '(" e2b(",I3,")  = ",E25.15," a.u.")', isym, e2(isym)
-!            End do
-!        end if
-!        if (rank == 0) then
-!            print '(" e2b total = ",E25.15," a.u.")', e2b
-!            print '(" sumc2,b   = ",E20.10)', sumc2local
-!            print '(50A)', ' '
-!        end if
+        if (rank == 0) then
+            print '(" e2b       = ",E25.15," a.u.")', e2b
+            print '(" sumc2,b   = ",E25.15)', sumc2local
+        end if
 
         sumc2 = sumc2 + sumc2local
 
@@ -658,7 +650,7 @@ contains
         dimn = 0
         if (debug .and. rank == 0) print *, 'ENTER solve B part'
         if (rank == 0) print '(10A)', '  '
-        if (rank == 0) print '(10A)', 'e2b(isym)'
+        if (rank == 0) print '(10A)', ' e2b(isym)'
 
         Allocate (iij(ninact, ninact)); Call memplus(KIND(iij), SIZE(iij), 1)
         iij = 0
@@ -832,7 +824,7 @@ contains
                 End if
 
             End do
-            if (rank == 0) print '("e2b(",I3,")  = ",E25.15," a.u.")', isym, e2(isym)
+            if (rank == 0) print '(" e2b(",I3,")  = ",E25.15," a.u.")', isym, e2(isym)
             Call memminus(KIND(bc1), SIZE(bc1), 2); Deallocate (bc1)
             Call memminus(KIND(uc), SIZE(uc), 2); Deallocate (uc)
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
@@ -845,13 +837,12 @@ contains
             print '(50A)', ' '
             print '(50A)', '--------------------------------------------------'
             Do isym = 1, nsymrpa
-                print '("e2b(",I3,")  = ",E25.15," a.u.")', isym, e2(isym)
+                print '(" e2b(",I3,")  = ",E25.15," a.u.")', isym, e2(isym)
             End do
         end if
         if (rank == 0) then
-            print '("e2b total = ",E25.15," a.u.")', e2b
-            print '("sumc2,b   = ",E20.10)', sumc2local
-            print '(50A)', ' '
+            print '(" e2b       = ",E25.15," a.u.")', e2b
+            print '(" sumc2,b   = ",E25.15)', sumc2local
         end if
 
         sumc2 = sumc2 + sumc2local

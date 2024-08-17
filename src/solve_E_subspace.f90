@@ -260,7 +260,7 @@ contains
 
         if (rank == 0) then
             print '(" e2e      = ",E25.15," a.u.")', e2e
-            print '(" sumc2,e  = ",E20.10)', sumc2local
+            print '(" sumc2,e  = ",E25.15)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
@@ -705,7 +705,7 @@ contains
 
         if (rank == 0) then
             print '(" e2e      = ",E25.15," a.u.")', e2e
-            print '(" sumc2,e  = ",E20.10)', sumc2local
+            print '(" sumc2,e  = ",E25.15)', sumc2local
         end if
         sumc2 = sumc2 + sumc2local
 
