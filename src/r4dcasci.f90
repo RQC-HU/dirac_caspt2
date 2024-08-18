@@ -32,9 +32,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
+        call print_head_casci
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19'
+        print *, ' ENTER R4DCASCI PROGRAM'
         print *, ''
     end if
     tmem = 0.0d+00
@@ -61,6 +62,10 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list
         if (ras2_size /= 0) print *, "RAS2 =", ras2_list
         if (ras3_size /= 0) print *, "RAS3 =", ras3_list
+        print *, 'ras1_max_hole =', ras1_max_hole
+        print *, 'ras3_max_elec =', ras3_max_elec
+        print *, 'minholeras1   =', min_hole_ras1
+        print *, 'debugprint    =', debug
     end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
@@ -92,7 +97,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, ' '
         print *, '*******************************'
         print *, ' '
-        print *, 'IREP IS ', repna(totsym)
+        print '(" IREP IS ",A6)', repna(totsym)
         print *, ' '
         print *, '*******************************'
         print *, ' '
@@ -159,11 +164,14 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     Call fockdiag
 
     ! Print orbital energies
+#ifdef DEBUG
     if (rank == 0) then
+        print *, debug, "debug"
         Do i0 = 1, nmo
             print *, 'eps(', i0, ')=', eps(i0)
         End do
     end if
+#endif
 
     ! Store orbital energies in EPS file
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.

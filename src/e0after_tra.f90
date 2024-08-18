@@ -38,8 +38,7 @@ SUBROUTINE e0aftertra
     oneeff = 0.0d+00
     cmplxint = 0.0d+00
     dens = 0.0d+00
-    debug = .FALSE.
-    if (rank == 0) print *, 'iroot = ', iroot
+!    if (rank == 0) print *, 'iroot = ', iroot
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCC!
 !         energy HF1          !
@@ -224,7 +223,7 @@ SUBROUTINE e0aftertra
     call allreduce_wrapper(mat=energy(iroot, :))
 #endif
 
-    if (rank == 0) then
+    if (debug .and. rank == 0) then
         print '(a,x,i0)', 'selectroot =', iroot
         print *, 'energy 1 =', energy(iroot, 1)
         print *, 'energy 2 =', energy(iroot, 2)
@@ -236,5 +235,5 @@ SUBROUTINE e0aftertra
         print *, 'C the error ', eigen(iroot) - ecore - sum(energy(iroot, :))
     end if
     deallocate (energy)
-    if (rank == 0) print *, 'e0aftertra end'
+    if (debug .and. rank == 0) print *, 'e0aftertra end'
 End subroutine e0aftertra

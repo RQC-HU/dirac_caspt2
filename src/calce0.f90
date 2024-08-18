@@ -43,7 +43,7 @@ SUBROUTINE calce0(e0)
 
     End do
 
-    if (rank == 0) then
+    if (debug .and. rank == 0) then
         print *, 'e0 = Siguma_w(w:active) eps(w)Dww is ', e0
     end if
 end subroutine calce0

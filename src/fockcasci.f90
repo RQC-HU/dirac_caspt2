@@ -24,7 +24,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
-    if (rank == 0) print *, 'enter building fock matrix'
+    if (debug .and. rank == 0) print *, 'enter building fock matrix'
 
 ! Initialization
     dr = 0.0d+00; di = 0.0d+00; dens = 0.0d+00
@@ -85,7 +85,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_cmplx(1:nmo, 1:nmo))
 #endif
-    if (rank == 0) print *, 'fockcasci_complex end'
+    if (debug .and. rank == 0) print *, 'fockcasci_complex end'
 end subroutine fockcasci_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -113,7 +113,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 
 !! NOW MAKE FOCK MATRIX FOR CASCI STATE
 !! fij = hij + SIGUMA_kl[<0|Ekl|0>{(ij|kl)-(il|kj)}
-    if (rank == 0) print *, 'enter building fock matrix'
+    if (debug .and. rank == 0) print *, 'enter building fock matrix'
 
 ! Initialization
     dr = 0.0d+00
@@ -173,5 +173,5 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 #ifdef HAVE_MPI
     call allreduce_wrapper(mat=fock_real(1:nmo, 1:nmo))
 #endif
-    if (rank == 0) print *, 'fockcasci_real end'
+    if (debug .and. rank == 0) print *, 'fockcasci_real end'
 end subroutine fockcasci_real

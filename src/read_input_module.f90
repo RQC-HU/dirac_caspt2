@@ -179,6 +179,9 @@ contains
             call read_an_integer(unit_num, "scheme", 1, input_intmax, mdcint_scheme)
             is_scheme_set = .true.
 
+        case ("debugprint")
+            debug = .true.
+
         case ("end")
             is_end = .true.
 

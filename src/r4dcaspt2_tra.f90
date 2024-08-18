@@ -30,8 +30,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    debug = .FALSE.
-
 !   MPI initialization and get the number of MPI processes (nprocs) and own process number.
 #ifdef HAVE_MPI
     call MPI_INIT(ierr)
@@ -42,9 +40,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     rank = 0; nprocs = 1
 #endif
     if (rank == 0) then
+        call print_head_caspt2
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DCASPT2_TRA PROGRAM written by M. Abe 2007.7.23'
+        print *, ' START RELATIVISIC CASPT2 PROGRAM'
         print *, ''
     end if
     tmem = 0.0d+00
@@ -67,9 +66,13 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, 'eshift        =', eshift
         print *, 'diracver      =', dirac_version
         print *, 'scheme        =', mdcint_scheme
-        if (ras1_size /= 0) print *, "RAS1 =", ras1_list
-        if (ras2_size /= 0) print *, "RAS2 =", ras2_list
-        if (ras3_size /= 0) print *, "RAS3 =", ras3_list
+        if (ras1_size /= 0) print *, "RAS1          =", ras1_list
+        if (ras2_size /= 0) print *, "RAS2          =", ras2_list
+        if (ras3_size /= 0) print *, "RAS3          =", ras3_list
+        print *, 'ras1_max_hole =', ras1_max_hole
+        print *, 'ras3_max_elec =', ras3_max_elec
+        print *, 'minholeras1   =', min_hole_ras1
+        print *, 'debugprint    =', debug
     end if
 
     if (ninact == 0 .and. nsec == 0) then
@@ -78,16 +81,14 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    if (rank == 0) print *, ' ENTER READ MRCONEE'
+    if (rank == 0) print *, ' '
+    if (rank == 0) print *, 'Reading MRCONEE (1-e integrals)'
     filename = 'MRCONEE'
     call check_dirac_integer_size(filename)
     call read_mrconee(filename)
     call check_realonly()
 
-    if (rank == 0) then
-        print *, ' EXIT READ MRCONEE'
-        print *, ' ENTER READ MDCINT'
-    end if
+    if (rank == 0) print *, 'Reading MDCINT (2-e integrals)'
 
     ! Get MDCINTNEWx's filename and subspace filename
     call get_mdcint_filename(0)
@@ -169,7 +170,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, ' '
         print *, '*******************************'
         print *, ' '
-        print *, 'IREP IS ', repna(totsym)
+        print '("IRREP = ",6A)', repna(totsym)
         print *, ' '
         print *, '*******************************'
         print *, ' '
@@ -186,182 +187,227 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     if (ninact == 0) then
         if (rank == 0) print *, "Skip the calculation of A subspace 2nd order energy &
-&        because the 2nd order energy of A subspace cannot be defined when ninact = 0."
+& because the 2nd order energy of A subspace cannot be defined when ninact = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of A subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+
         ! Transform A subspace 2-electron integrals (active, inactive | active, active)
         Call intra_3(2, 1, 2, 2, a1int)
-        if (rank == 0) print *, 'End intra3 A1int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+
+        if (debug .and. rank == 0) print *, 'End intra3 A1int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform A subspace 2-electron integrals (active, inactive | inactive, inactive)
         Call intra_3(2, 1, 1, 1, a2int)
-        if (rank == 0) print *, 'End intra_3 A2int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_3 A2int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the A subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcultion of A subspace 2nd order energy"
         Call solve_A_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcultion of A subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (ninact == 0) then
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         if (rank == 0) print *, "Skip the calculation of B subspace 2nd order energy &
 &        because the 2nd order energy of B subspace cannot be defined when ninact = 0."
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of B subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform B subspace 2-electron integrals (active, inactive | active, inactive)
         Call intra_2(2, 1, 2, 1, bint)
-        if (rank == 0) print *, "End intra_2 Bint"
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, "End intra_2 Bint"
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the B subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of B subspace 2nd order energy"
         Call solve_B_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of B subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of C subspace 2nd order energy &
 &        because the 2nd order energy of C subspace cannot be defined when nsec = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of C subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform C subspace 2-electron integrals (secondary, active | active, active)
         Call intra_3(3, 2, 2, 2, c1int)
-        if (rank == 0) print *, 'End intra_3 C1int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_3 C1int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform C subspace 2-electron integrals (secondary, active | inactive, inactive)
         Call intra_3(3, 2, 1, 1, c2int)
-        if (rank == 0) print *, 'End intra_3 C2int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_3 C2int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform C subspace 2-electron integrals (secondary, inactive | inactive, active)
         Call intra_1(3, 1, 1, 2, c3int)
-        if (rank == 0) print *, 'End intra_1 C3int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 C3int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
-        ! Calculate the B subspace 2nd order energy
+        ! Calculate the C subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of C subspace 2nd order energy"
         Call solve_C_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of C subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of D subspace 2nd order energy &
 &        because the 2nd order energy of D subspace cannot be defined when ninact = 0 or nsec = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of D subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform D subspace 2-electron integrals (secondary, inactive | active, active)
         Call intra_3(3, 1, 2, 2, d1int)
-        if (rank == 0) print *, 'End intra_1 D1int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 D1int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform D subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 2, 2, 1, d2int)
-        if (rank == 0) print *, 'End intra_1 D2int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 D2int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Transform D subspace 2-electron integrals (secondary, inactive | inactive, inactive)
         Call intra_3(3, 1, 1, 1, d3int)
-        if (rank == 0) print *, 'End intra_1 D3int'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 D3int'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the D subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of D subspace 2nd order energy"
         Call solve_D_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of D subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of E subspace 2nd order energy &
 &        because the 2nd order energy of E subspace cannot be defined when ninact = 0 or nsec = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of E subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform E subspace 2-electron integrals (secondary, active | active, inactive)
         Call intra_1(3, 1, 2, 1, eint)
-        if (rank == 0) print *, 'End intra_1 Eint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 Eint'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the E subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of E subspace 2nd order energy"
         Call solve_E_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of E subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of F subspace 2nd order energy &
 &        because the 2nd order energy of F subspace cannot be defined when nsec = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of F subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform F subspace 2-electron integrals (secondary, active | secondary, active)
         Call intra_2(3, 2, 3, 2, fint)
-        if (rank == 0) print *, 'End intra_1 Fint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 Fint'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the F subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of F subspace 2nd order energy"
         Call solve_F_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of F subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of G subspace 2nd order energy &
 &        because the 2nd order energy of G subspace cannot be defined when ninact = 0 or nsec = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of G subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform G subspace 2-electron integrals (secondary, inactive | secondary, active)
         Call intra_1(3, 1, 3, 2, gint)
-        if (rank == 0) print *, 'End intra_1 Gint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_1 Gint'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the G subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of G subspace 2nd order energy"
         Call solve_G_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of G subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
 
     if (ninact == 0 .or. nsec == 0) then
         if (rank == 0) print *, "Skip the calculation of H subspace 2nd order energy &
-&        because the 2nd order energy of H subspace cannot be defined when ninact = 0 or nsec = 0."
+&because the 2nd order energy of H subspace cannot be defined when ninact = 0 or nsec = 0."
     else
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, "Start calcultion of H subspace 2nd order energy"
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
         ! Transform H subspace 2-electron integrals (secondary, inactive | secondary, inactive)
-        if (rank == 0) print *, 'Enter intra_2 Hint'
+        if (debug .and. rank == 0) print *, 'Enter intra_2 Hint'
         Call intra_2(3, 1, 3, 1, hint)
-        if (rank == 0) print *, 'End intra_2 Hint'
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (debug .and. rank == 0) print *, 'End intra_2 Hint'
+        if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the H subspace 2nd order energy
         sumc2local = 0.0d+00
-        if (rank == 0) print *, "Start calcuation of H subspace 2nd order energy"
         Call solve_H_subspace(e0, e2)
         e2all = e2all + e2
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of H subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+        if (rank == 0) print '(64A)', '----------------------------------------------------------------'
+        if (rank == 0) print *, " "
     end if
-    ! Print out the total 2nd order energy
-    if (rank == 0) print '("c^2 ",F30.15)', sumc2
+
     ! Calculate and print the weight of the 0th wave function
     weight0 = 1.0d+00/(1.0d+00 + sumc2)
-    if (rank == 0) then
-        print '("weight of 0th wave function is",F30.15)', weight0
+    ! Print out the total 2nd order energy
 
-        print '("Total second order energy is ",F30.15," a.u.")', e2all - eshift*sumc2
-        print '("Total energy is ",F30.15," a.u.")', e2all + eigen(iroot) - eshift*sumc2
+    if (rank == 0) then
+        print '(" c^2 is                         ",F30.20)', sumc2
+        print '(" weight of 0th wave function is ",F30.20)', weight0
+        print '(" Total second order energy is   ",F30.20," a.u.")', e2all - eshift*sumc2
+        print '(" Total energy is                ",F30.20," a.u.")', e2all + eigen(iroot) - eshift*sumc2
     end if
 
     ! Deallocate the memory
@@ -373,9 +419,10 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(MULTB_D)) Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
     if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
 
+    if (rank == 0) print *, ' '
+    if (rank == 0) print *, 'END OF RELATIVISTIC CASPT2 PROGRAM'
     ! Print out the total time
-    call get_current_time_and_print_diff(init_time, end_time)
-    if (rank == 0) print *, 'End r4dcaspt2_tra'
+!    call get_current_time_and_print_diff(init_time, end_time)
 #ifdef HAVE_MPI
     ! MPI finalization
     time1 = MPI_Wtime()

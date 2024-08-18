@@ -270,6 +270,7 @@ SUBROUTINE read_mrconee(filename)
         call stop_with_errorcode(iostat)
     end if
     if (rank == 0) then
+        print *, 'Information from MRCONEE'
         print *, 'NMO, BREIT, ECORE'
         print *, NMO, BREIT, ECORE
     end if
@@ -284,23 +285,29 @@ SUBROUTINE read_mrconee(filename)
 ! Create mo_energy list and irreducible representation mapping list.
     call create_mo_irrep_conversion_list
 
+!   1   1     -0.1336324989E+02     1   1g
+!   2 232     -0.1336324989E+02     2  -1g
     if (rank == 0) then
-        print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
-
-        print *, 'inactive'
+        if (debug) print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
+        print *, ' '
+        print '(64A)', '----------------------------------------------------------------'
+        print '(64A)', '        energy-order    Dirac     orbtal energy    irrep  irrep '
+        print '(64A)', '           index        index         (a.u.)       index  string'
+        print '(64A)', '----------------------------------------------------------------'
+!        print '(64A)', ' inact      2000         4000   -0.1336324989E+02     20   -1g  '
         do i0 = 1, ninact
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(X,"inactive",I7,I13,E20.10,I7,4X,4A)', &
+            &  i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
-
-        print *, 'active'
         do i0 = global_act_start, global_act_end
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(X,"active  ",I7,I13,E20.10,I7,4X,4A)', &
+            &  i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
-
-        print *, 'secondary'
         do i0 = global_sec_start, global_sec_end
-            print '(2I4,2X,E20.10,2X,I4,1X,A)', i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
+            print '(X,"secondary ",I5,I13,E20.10,I7,4X,4A)', &
+            &  i0, indmo_cas_to_dirac(i0), caspt2_mo_energy(i0), irpamo(i0), repna(irpamo(i0))
         end do
+        print *, ' '
     end if
 
 ! Read 1 electron integrals to the variables one_elec_int_r and one_elec_int_i
@@ -390,11 +397,13 @@ contains
             Do i0 = 1, 2*nsymrpa
                 print '(400I3)', (MULTB(i0, j0), j0=1, 2*nsymrpa)
             End do
-            print *, 'MULTB2'
-            Do i0 = 1, 2*nsymrpa
-                print '(400I3)', (MULTB2(i0, j0), j0=1, 2*nsymrpa)
-            End do
-            print *, 'end multb1,2'
+            If (debug) then
+                print *, 'MULTB2'
+                Do i0 = 1, 2*nsymrpa
+                    print '(400I3)', (MULTB2(i0, j0), j0=1, 2*nsymrpa)
+                End do
+                print *, 'end multb1,2'
+            end if
         end if
 
         ! create MULTB_S, MULTB_D and MULTB_DS
@@ -402,7 +411,7 @@ contains
         MULTB_S(:, :) = MULTB(1 + nsymrpa:2*nsymrpa, 1 + nsymrpa:2*nsymrpa) - nsymrpa
         ! MULTB_D is the upper left block of MULTB2 - nsymrpa
         MULTB_D(:, :) = MULTB2(1:nsymrpa, 1:nsymrpa) - nsymrpa
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'MULTB_S'
 
             Do i0 = 1, nsymrpa
@@ -416,14 +425,14 @@ contains
             End do
         end if
         SD(:, :) = MULTB(nsymrpa + 1:2*nsymrpa, 1:nsymrpa)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'MULTB_SD'
             Do i = 1, nsymrpa
                 print '(50I3)', (SD(i, j), j=1, nsymrpa)
             End do
         end if
         MULTB_DS = transpose(SD)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'MULTB_DS'
             Do i = 1, nsymrpa
                 print '(50I3)', (MULTB_DS(i, j), j=1, nsymrpa)
@@ -469,11 +478,11 @@ contains
         CLOSE (unit_mrconee)
 
         ! Print irpmo and irpamo
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
         end if
         if (allocated(irpmo)) Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
         end if
 
@@ -535,7 +544,7 @@ contains
         integer :: isp, nmom
         double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
-        if (rank == 0) then
+        if (debug .and. rank == 0) then
             print *, 'Enter read_1_elec_integrals'
         end if
 

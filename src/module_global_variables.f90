@@ -29,6 +29,7 @@ MODULE module_global_variables
     integer         :: ras1_start, ras2_start, ras3_start
     integer         :: ras1_size = 0, ras2_size = 0, ras3_size = 0
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
+    integer         :: restart_index
     logical         :: skip_mdcint = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
@@ -37,6 +38,7 @@ MODULE module_global_variables
     ! occ_mo_num: The number of occupied orbitals in each fermion irreducible representation
     integer         :: vcut_mo_num(2) = 0, occ_mo_num(2) = 0
     logical         :: inversion = .false., no_inversion = .false., is_scheme_set = .false.
+    logical         :: debug = .false. ! debugprint option
     integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
 
     !! =================================================
@@ -159,7 +161,6 @@ MODULE module_global_variables
     ! global_act_start = ninact + 1, global_act_end = ninact + nact
     ! global_sec_start = ninact + nact + 1, global_sec_end = ninact + nact + nsec
     integer    :: global_inact_start, global_inact_end, global_act_start, global_act_end, global_sec_start, global_sec_end
-    logical :: debug
     ! Epsilon
     real(8), allocatable :: eps(:)
     ! Fock matrix
