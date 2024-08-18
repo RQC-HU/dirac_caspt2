@@ -272,7 +272,7 @@ contains
         !       end if
 
         if (rank == 0) then
-            print '(" e2a total = ",E25.15," a.u.")', e2a
+            print '(" e2a       = ",E25.15," a.u.")', e2a
             print '(" sumc2,a  = ",E25.15)', sumc2local
         end if
 
