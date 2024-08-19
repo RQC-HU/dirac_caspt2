@@ -148,12 +148,14 @@ jobs:
         id: setenv
         run: |
           if [ "${{ matrix.mpi }}" = "openmpi" ]; then
-            echo "MPI_BUILD_OPTION= --mpi " >> "$GITHUB_OUTPUT"
+            echo "BUILD_OPTION= --mpi " >> "$GITHUB_OUTPUT"
             echo "MPI_TEST_OPTION=  --mpi=2 " >> "$GITHUB_OUTPUT"
+            echo "OPENMP_TEST_OPTION= " >> "$GITHUB_OUTPUT"
             echo "FC=mpifort " >> "$GITHUB_OUTPUT"
           else
-            echo "MPI_BUILD_OPTION= " >> "$GITHUB_OUTPUT"
+            echo "BUILD_OPTION= --omp " >> "$GITHUB_OUTPUT"
             echo "MPI_TEST_OPTION= " >> "$GITHUB_OUTPUT"
+            echo "OPENMP_TEST_OPTION= --omp 2" >> "$GITHUB_OUTPUT"
             echo "FC=gfortran-${{ matrix.toolchain.version }} " >> "$GITHUB_OUTPUT"
           fi
       - name: Install cmake
@@ -183,16 +185,16 @@ jobs:
         run: python -m pip install pytest
       - name: Build source code
         run: |
-          ./setup --fc ${{ steps.setenv.outputs.FC }} --omp ${{ steps.setenv.outputs.MPI_BUILD_OPTION }} -j --build
-      - name: Run unittest(serial, run slowonly tests, pull_request)
+          ./setup --fc ${{ steps.setenv.outputs.FC }} ${{ steps.setenv.outputs.BUILD_OPTION }} -j --build
+      - name: Run unittest(run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           pytest --slowonly ${{ steps.setenv.outputs.MPI_TEST_OPTION }}
-      - name: Run unittest(serial, run normal and slow tests, push to other than main branch)
+      - name: Run unittest(run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
-          pytest --omp=2 ${{ steps.setenv.outputs.MPI_TEST_OPTION }}
-      - name: Run unittest(serial, run all tests, push to main branch)
+          pytest ${{ steps.setenv.outputs.MPI_TEST_OPTION }} ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }}
+      - name: Run unittest(run all tests, push to main branch)
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
           pytest --all ${{ steps.setenv.outputs.MPI_TEST_OPTION }}
