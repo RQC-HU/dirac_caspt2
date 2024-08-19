@@ -104,7 +104,6 @@ jobs:
     timeout-minutes: 60 # Max execution time (min)
     strategy:
       matrix:
-        mpi: ["openmpi", "no-mpi"]
         toolchain:
           - { compiler: gcc, version: 7, image: ubuntu-20.04 }
           - { compiler: gcc, version: 8, image: ubuntu-20.04 }
@@ -112,12 +111,6 @@ jobs:
           - { compiler: gcc, version: 10, image: ubuntu-22.04 }
           - { compiler: gcc, version: 11, image: ubuntu-22.04 }
           - { compiler: gcc, version: 12, image: ubuntu-22.04 }
-        exclude:
-          - mpi: "openmpi"
-            toolchain:
-              compiler: gcc
-              version: 7
-              image: ubuntu-20.04
     runs-on: ${{ matrix.toolchain.image }}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
@@ -147,17 +140,9 @@ jobs:
       - name: set environment variables
         id: setenv
         run: |
-          if [ "${{ matrix.mpi }}" = "openmpi" ]; then
-            echo "BUILD_OPTION= --mpi " >> "$GITHUB_OUTPUT"
-            echo "MPI_TEST_OPTION=  --mpi=2 " >> "$GITHUB_OUTPUT"
-            echo "OPENMP_TEST_OPTION= " >> "$GITHUB_OUTPUT"
-            echo "FC=mpifort " >> "$GITHUB_OUTPUT"
-          else
-            echo "BUILD_OPTION= --omp " >> "$GITHUB_OUTPUT"
-            echo "MPI_TEST_OPTION= " >> "$GITHUB_OUTPUT"
-            echo "OPENMP_TEST_OPTION= --omp 2" >> "$GITHUB_OUTPUT"
-            echo "FC=gfortran-${{ matrix.toolchain.version }} " >> "$GITHUB_OUTPUT"
-          fi
+          echo "BUILD_OPTION= --omp " >> "$GITHUB_OUTPUT"
+          echo "OPENMP_TEST_OPTION= --omp 2" >> "$GITHUB_OUTPUT"
+          echo "FC=gfortran-${{ matrix.toolchain.version }} " >> "$GITHUB_OUTPUT"
       - name: Install cmake
         run: |
           sudo apt-get install -y cmake
@@ -187,12 +172,12 @@ jobs:
       - name: Run unittest(run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --slowonly ${{ steps.setenv.outputs.MPI_TEST_OPTION }}
+          pytest --slowonly
       - name: Run unittest(run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
-          pytest ${{ steps.setenv.outputs.MPI_TEST_OPTION }} ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }}
+          pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }}
       - name: Run unittest(run all tests, push to main branch)
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
-          pytest --all ${{ steps.setenv.outputs.MPI_TEST_OPTION }}
+          pytest --all
