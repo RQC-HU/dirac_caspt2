@@ -172,9 +172,7 @@ jobs:
           version: ${{ matrix.toolchain.version }}
       - name: Setup MPI
         if: matrix.mpi == 'openmpi'
-        uses: mpi4py/setup-mpi@f0e148f66e25caf037ef5aab014bafe5ba299040 # v1.2.4
-        with:
-          mpi: ${{ matrix.mpi }}
+        run: sudo apt install -y openmpi-bin libopenmpi-dev
       - run: ${{ steps.setenv.outputs.FC }} --version
       - name: Install python
         uses: actions/setup-python@v5
