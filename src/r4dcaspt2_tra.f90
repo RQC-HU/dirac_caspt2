@@ -216,8 +216,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the A subspace 2nd order energy
-        if (rank == 0) print *, "Start calcultion of A subspace 2nd order energy"
         Call solve_A_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcultion of A subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -246,8 +246,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the B subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of B subspace 2nd order energy"
         Call solve_B_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of B subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -285,8 +285,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the B subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of C subspace 2nd order energy"
         Call solve_C_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of C subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -324,8 +324,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the D subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of D subspace 2nd order energy"
         Call solve_D_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of D subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -353,8 +353,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the E subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of E subspace 2nd order energy"
         Call solve_E_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of E subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -382,8 +382,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the F subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of F subspace 2nd order energy"
         Call solve_F_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of F subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -411,8 +411,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the G subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of G subspace 2nd order energy"
         Call solve_G_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of G subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
@@ -441,8 +441,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (debug) call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
         ! Calculate the H subspace 2nd order energy
-        if (rank == 0) print *, "Start calcuation of H subspace 2nd order energy"
         Call solve_H_subspace(e0)
+        if (rank == 0) print *, " "
         if (rank == 0) print *, "End calcuation of H subspace 2nd order energy"
         call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
