@@ -155,9 +155,6 @@ jobs:
         with:
           compiler: ${{ matrix.toolchain.compiler }}
           version: ${{ matrix.toolchain.version }}
-      - name: Setup MPI
-        if: matrix.mpi == 'openmpi'
-        run: sudo apt install -y openmpi-bin libopenmpi-dev
       - run: ${{ steps.setenv.outputs.FC }} --version
       - name: Install python
         uses: actions/setup-python@v5
