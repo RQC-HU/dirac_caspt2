@@ -110,6 +110,19 @@ def env_setup_ivo(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_
     )
 
 
+@pytest.fixture(scope="function")
+def env_setup_gen_restart_file(request: pytest.FixtureRequest) -> Tuple[Path, Path]:
+    caller_name = request.function.__name__
+    caller_path = Path(request.node.path).expanduser().resolve().parent
+
+    root_path = Path(__file__).parent.parent
+    gen_restart_path = root_path / "bin/gen_dcaspt2_restart"
+    test_path = Path(request.node.path).parent
+    input_path = caller_path / f"{caller_name}.in"
+    expected_path = caller_path / f"expected_{caller_name}"
+    return (gen_restart_path, test_path, input_path, expected_path)
+
+
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "slowonly: mark test as slow to run")
     config.addinivalue_line("markers", "dev: mark test as for development")
