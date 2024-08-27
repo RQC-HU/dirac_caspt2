@@ -63,11 +63,12 @@ def main():
 
     caspt2_energies = read_input(input_file)
     caspt2_energies = OrderedDict(sorted(caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
+    remove = False
     for subspace, info in caspt2_energies.items():
-        if info.energy == inf:
-            raise ValueError(f"Energy for subspace {subspace} not found")
-        if info.sumc2 == inf:
-            raise ValueError(f"Sumc2 for subspace {subspace} not found")
+        if info.energy == inf or info.sumc2 == inf:
+            remove = True  # Remove the current and following subspaces because the energy or/and sumc2 are missing, it means that the subspace and the following calculations are not finished
+        if remove:
+            caspt2_energies.pop(subspace)
 
     last_subspace = next(reversed(caspt2_energies))
     output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [
