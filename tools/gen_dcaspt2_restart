@@ -22,13 +22,13 @@ def read_input(input_file) -> ODict[str, SubSpaceInfo]:  # ODict[subspace, SubSp
         lines = f.readlines()
 
     # e2[a-h] +=.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
-    energy_pattern = re.compile(r"e2[a-h] +=.+a\.u\.")
+    energy_pattern = re.compile(r" e2[a-h] +=.+a\.u\.")
     # sumc2,[a-h] +=.+ (e.g. sumc2,a  =     0.9132513754E-04)
-    sumc2_pattern = re.compile(r"sumc2,[a-h] +=.+")
+    sumc2_pattern = re.compile(r" sumc2,[a-h] +=.+")
 
     for line in lines:
         if energy_pattern.match(line):
-            subspace = str(line.split(" ")[0][-1]).upper()  # e.g. e2a -> A
+            subspace = str(line.strip().split(" ")[0][-1]).upper()  # e.g. e2a -> A
             subspace_energy = float(line.split("=")[1].split("a.u.")[0])  # e.g. -1.73748326489E-09
             if subspace not in caspt2_energies:
                 caspt2_energies[subspace] = SubSpaceInfo()
@@ -36,8 +36,8 @@ def read_input(input_file) -> ODict[str, SubSpaceInfo]:  # ODict[subspace, SubSp
                 raise ValueError(f"Energy for subspace {subspace} already found")
             caspt2_energies[subspace].energy = subspace_energy
         elif sumc2_pattern.match(line):
-            subspace = str(line.split(",")[1].split(" ")[0]).upper()  # e.g. sumc2,a -> A
-            sumc2 = float(line.split("=")[1])  # e.g. 0.9132513754E-04
+            subspace = str(line.strip().split(",")[1].split(" ")[0]).upper()  # e.g. sumc2,a -> A
+            sumc2 = float(line.strip().split("=")[1])  # e.g. 0.9132513754E-04
             if subspace not in caspt2_energies:
                 caspt2_energies[subspace] = SubSpaceInfo()
             elif caspt2_energies[subspace].sumc2 != inf:
@@ -52,6 +52,7 @@ def next_subspace(subspace: str) -> str:
 
 
 def main():
+    print("Generating a restart file for a CASPT2 calculation")
     user_dir = Path.cwd().resolve()
     output_file = user_dir / "caspt2_restart"
 
