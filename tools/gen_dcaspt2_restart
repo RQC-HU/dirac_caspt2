@@ -61,14 +61,16 @@ def main():
     args = parser.parse_args()
     input_file = Path(args.input_file).expanduser().resolve()
 
-    caspt2_energies = read_input(input_file)
-    caspt2_energies = OrderedDict(sorted(caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
-    remove = False
-    for subspace, info in caspt2_energies.items():
+    tmp_caspt2_energies = read_input(input_file)
+    tmp_caspt2_energies = OrderedDict(sorted(tmp_caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
+
+    caspt2_energies = OrderedDict()
+    for subspace, info in tmp_caspt2_energies.items():
         if info.energy == inf or info.sumc2 == inf:
-            remove = True  # Remove the current and following subspaces because the energy or/and sumc2 are missing, it means that the subspace and the following calculations are not finished
-        if remove:
-            caspt2_energies.pop(subspace)
+            # Remove the current and following subspaces because the energy or/and sumc2 are missing
+            # it means that the subspace and the following calculations are not finished
+            break
+        caspt2_energies[subspace] = info
 
     if not caspt2_energies:
         raise ValueError("No CASPT2 energies and sumc2 found in the input file")
