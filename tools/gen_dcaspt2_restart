@@ -70,6 +70,9 @@ def main():
         if remove:
             caspt2_energies.pop(subspace)
 
+    if not caspt2_energies:
+        raise ValueError("No CASPT2 energies and sumc2 found in the input file")
+
     last_subspace = next(reversed(caspt2_energies))
     output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [
         f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy}\n" for subspace, info in caspt2_energies.items()
