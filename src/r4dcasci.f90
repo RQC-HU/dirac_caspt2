@@ -21,6 +21,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     integer                    :: i0, nuniq, unit_eps, unit_input
     character(:), allocatable  :: filename
     character(*), parameter    :: int_input_form = '(1x,a,1x,i0)'
+    character(len=30)          :: real_str
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -59,7 +60,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print int_input_form, 'nroot         =', nroot
         print int_input_form, 'selectroot    =', selectroot
         print int_input_form, 'totsym        =', totsym
-        print '(1x,a,1x,E0.10)', 'eshift        =', eshift
+        write (real_str, '(E20.10)') eshift
+        print '(1x,a,1x,a)', 'eshift        =', trim(adjustl(real_str))
         print int_input_form, 'diracver      =', dirac_version
         print int_input_form, 'scheme        =', mdcint_scheme
         if (ras1_size /= 0) print *, "RAS1 =", ras1_list

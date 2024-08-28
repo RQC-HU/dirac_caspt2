@@ -26,6 +26,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     real(8), allocatable            :: ecas(:)
     character(:), allocatable       :: filename
     character(*), parameter         :: int_input_form = '(1x,a,1x,i0)'
+    character(len=30)               :: real_str
     integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
     integer                 :: idx, dict_key, dict_val
 
@@ -66,7 +67,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print int_input_form, 'nroot         =', nroot
         print int_input_form, 'selectroot    =', selectroot
         print int_input_form, 'totsym        =', totsym
-        print '(1x,a,1x,E0.10)', 'eshift        =', eshift
+        write (real_str, '(E20.10)') eshift
+        print '(1x,a,1x,a)', 'eshift        =', trim(adjustl(real_str))
         print int_input_form, 'diracver      =', dirac_version
         print int_input_form, 'scheme        =', mdcint_scheme
         if (ras1_size /= 0) print *, "RAS1          =", ras1_list

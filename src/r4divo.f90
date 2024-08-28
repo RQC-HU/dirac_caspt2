@@ -21,6 +21,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     integer                     :: input_unit, nuniq
     character(:), allocatable   :: filename
     character(*), parameter     :: int_input_form = '(1x,a,1x,i0)'
+    character(len=30)           :: real_str
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -56,7 +57,8 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print int_input_form, 'nroot      =', nroot
         print int_input_form, 'selectroot =', selectroot
         print int_input_form, 'totsym     =', totsym
-        print '(1x,a,1x,E0.10)', 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
+        write (real_str, '(E20.10)') eshift
+        print '(1x,a,1x,a)', 'eshift     =', trim(adjustl(real_str))          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
         print int_input_form, 'nhomo      =', nhomo
         if (inversion) then
             print int_input_form, "noccg      =", occ_mo_num(1)
