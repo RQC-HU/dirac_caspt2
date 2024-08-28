@@ -25,6 +25,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     complex*16, allocatable         :: ci(:)
     real(8), allocatable            :: ecas(:)
     character(:), allocatable       :: filename
+    character(*), parameter         :: int_input_form = '(1x,a,1x,i0)'
     integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
     integer                 :: idx, dict_key, dict_val
 
@@ -58,24 +59,24 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (enable_restart) call read_and_validate_restart_file
 
     if (rank == 0) then
-        print *, 'ninact        =', ninact
-        print *, 'nact          =', nact
-        print *, 'nsec          =', nsec
-        print *, 'nelec         =', nelec
-        print *, 'nroot         =', nroot
-        print *, 'selectroot    =', selectroot
-        print *, 'totsym        =', totsym
-        print *, 'eshift        =', eshift
-        print *, 'diracver      =', dirac_version
-        print *, 'scheme        =', mdcint_scheme
+        print int_input_form, 'ninact        =', ninact
+        print int_input_form, 'nact          =', nact
+        print int_input_form, 'nsec          =', nsec
+        print int_input_form, 'nelec         =', nelec
+        print int_input_form, 'nroot         =', nroot
+        print int_input_form, 'selectroot    =', selectroot
+        print int_input_form, 'totsym        =', totsym
+        print '(1x,a,1x,E0.10)', 'eshift        =', eshift
+        print int_input_form, 'diracver      =', dirac_version
+        print int_input_form, 'scheme        =', mdcint_scheme
         if (ras1_size /= 0) print *, "RAS1          =", ras1_list
         if (ras2_size /= 0) print *, "RAS2          =", ras2_list
         if (ras3_size /= 0) print *, "RAS3          =", ras3_list
-        print *, 'ras1_max_hole =', ras1_max_hole
-        print *, 'ras3_max_elec =', ras3_max_elec
-        print *, 'minholeras1   =', min_hole_ras1
+        print int_input_form, 'ras1_max_hole =', ras1_max_hole
+        print int_input_form, 'ras3_max_elec =', ras3_max_elec
+        print int_input_form, 'minholeras1   =', min_hole_ras1
         print *, 'debugprint    =', debug
-        print *, "restart       =", enable_restart
+        if (enable_restart) print *, "restart       =", enable_restart
         print *, ''
     end if
 

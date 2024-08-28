@@ -20,6 +20,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 #endif
     integer                     :: input_unit, nuniq
     character(:), allocatable   :: filename
+    character(*), parameter     :: int_input_form = '(1x,a,1x,i0)'
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -48,28 +49,28 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
     call read_input(input_unit)
     if (rank == 0) then
-        print *, 'ninact     =', ninact
-        print *, 'nact       =', nact
-        print *, 'nsec       =', nsec
-        print *, 'nelec      =', nelec
-        print *, 'nroot      =', nroot
-        print *, 'selectroot =', selectroot
-        print *, 'totsym     =', totsym
-        print *, 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
-        print *, 'nhomo      =', nhomo
+        print int_input_form, 'ninact     =', ninact
+        print int_input_form, 'nact       =', nact
+        print int_input_form, 'nsec       =', nsec
+        print int_input_form, 'nelec      =', nelec
+        print int_input_form, 'nroot      =', nroot
+        print int_input_form, 'selectroot =', selectroot
+        print int_input_form, 'totsym     =', totsym
+        print '(1x,a,1x,E0.10)', 'eshift     =', eshift          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
+        print int_input_form, 'nhomo      =', nhomo
         if (inversion) then
-            print *, "noccg      =", occ_mo_num(1)
-            print *, "noccu      =", occ_mo_num(2)
-            print *, "nvcutg     =", vcut_mo_num(1)
-            print *, "nvcutu     =", vcut_mo_num(2)
+            print int_input_form, "noccg      =", occ_mo_num(1)
+            print int_input_form, "noccu      =", occ_mo_num(2)
+            print int_input_form, "nvcutg     =", vcut_mo_num(1)
+            print int_input_form, "nvcutu     =", vcut_mo_num(2)
         else
-            print *, "nocc      =", occ_mo_num(1)
-            print *, "nvcut     =", vcut_mo_num(1)
+            print int_input_form, "nocc       =", occ_mo_num(1)
+            print int_input_form, "nvcut      =", vcut_mo_num(1)
         end if
-        print *, 'diracver   =', dirac_version
-        print *, 'scheme     =', mdcint_scheme
-        print *, 'debugprint    =', debug
-        print *, "restart       =", enable_restart
+        print int_input_form, 'diracver   =', dirac_version
+        print int_input_form, 'scheme     =', mdcint_scheme
+        print *, 'debugprint =', debug
+        if (enable_restart) print *, "restart    =", enable_restart
         print *, ''
     end if
 
