@@ -27,6 +27,26 @@ contains
         call add_essential_input("diracver")
     end subroutine init_essential_variables
 
+    subroutine print_input_file(unit_num)
+        implicit none
+        integer, intent(in) :: unit_num
+        character(len=max_str_length) :: line
+        integer :: iostat
+
+        if (rank == 0) then
+            print *, ""
+            print *, "Input file:"
+            print *, "```inp"
+            do while (.true.)
+                read (unit_num, '(A)', iostat=iostat) line
+                if (iostat /= 0) exit
+                print *, trim(adjustl(line))
+            end do
+            print *, "```"
+            print *, ""
+        end if
+    end subroutine print_input_file
+
     subroutine read_input(unit_num)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
@@ -40,6 +60,8 @@ contains
         logical :: is_comment
         is_end = .false.
 
+        call print_input_file(unit_num)
+        rewind(unit_num)
         call init_essential_variables
 
         do while (.not. is_end) ! Read the input file until the "end" is found
