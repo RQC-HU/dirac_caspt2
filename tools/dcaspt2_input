@@ -9,7 +9,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Tuple
+from typing import Set, Tuple
 
 
 class PrintVersionAction(argparse.Action):
@@ -90,18 +90,6 @@ Wildcard is available.\n\
         action="store_true",
         help="Skip the CASCI calculation. [default: False]\nThis option cannot be used at the same time with --only-casci option.",
     )
-    parser.add_argument(
-        "--no-scratch",
-        dest="noscratch",
-        help="Force not to use the scratch directory.\n\
-Calculate at the current directory.\n\
-[default: False]\n\
-(Note: Temporary files will remain in the current directory.\n\
-You can prevent file copying if there are 1 or 2 electronic integral files and input files\n\
-in the current directory in advance.\n\
-Therefore, this option is recommended only you concern about disk space.)",
-        action="store_true",
-    )
     parser.add_argument("-s", "--save", "--keep_scratch", dest="save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
     parser.add_argument("-v", "--version", action=PrintVersionAction, dest="version", help="Show the version of dirac-caspt2 program")
 
@@ -136,6 +124,30 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_s
         print("Please specify the directory that you have permission to create.")
         print("Error: Failed to create the temporary directory.\nExiting...")
 
+    def validate_scratchfull_option(scratch_full_dir: Path) -> None:
+        """--scratchfull is not allowed to specify ~ or upper paths.
+        So we need to validate whether the user specified --scratchfull option is valid
+        """
+
+        def create_banned_dirs() -> Set[Path]:
+            home_dir = Path("~").expanduser().resolve()
+            banned_dirs: Set[Path] = set()
+            tmp_dir = home_dir
+            while True:
+                banned_dirs.add(tmp_dir)
+                if tmp_dir == tmp_dir.parent:
+                    break
+                tmp_dir = tmp_dir.parent
+            return banned_dirs
+
+        banned_dirs = create_banned_dirs()
+        if scratch_full_dir in banned_dirs:
+            # Validation error
+            msg = "Invalid --scratchfull. The --scratchfull option can't be set for the $HOME directory and its parent directories.\n\
+Because if these directories are removed after calcuation, it can cause serious problems such as the OS not booting.\n\
+Please specify the valid path and try again."
+            raise ValueError(msg)
+
     # ================
     #  Main process
     # ================
@@ -143,11 +155,12 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_s
     # If --scratchfull is specified, Use the specified directory as the scratch directory
     if args.scratchfull is not None:
         scratch_dir = Path(args.scratchfull).expanduser().resolve()
+        validate_scratchfull_option(scratch_dir)
         try:
             os.makedirs(scratch_dir, exist_ok=True)
         except PermissionError:
             permission_denied_error_message(scratch_dir)
-            sys.exit(PermissionError.errno)
+            raise
         return scratch_dir
 
     # --scratch option, Create the root scratch directory path
@@ -161,7 +174,7 @@ def create_scratch_dir(args: "argparse.Namespace", input_file_path: Path, user_s
         os.makedirs(root_scr_dir, exist_ok=True)
     except PermissionError:
         permission_denied_error_message(root_scr_dir)
-        sys.exit(PermissionError.errno)
+        raise
 
     # Preprocess to create scratch dir name
     input_file_name = input_file_path.stem  # Remove the extension (e.g. /path/to/active.inp => active)
@@ -192,13 +205,13 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
 
     input_file_dir = input_file_path.parent  # (e.g. /home/username/active.inp => /home/username)
     if input_file_dir != scratch_dir:
-        shutil.copy(input_file_path, scratch_dir)
+        scratch_input_file_path = scratch_dir / "active.inp"  # The name of input file is fixed to active.inp in the scratch directory.
+        scratch_input_file_path.symlink_to(input_file_path)
         restart_file = input_file_dir / "caspt2_restart"
         if restart_file.exists():
-            shutil.copy(restart_file, scratch_dir)
-    scratch_input_file_path = scratch_dir / input_file_path.name
-    scratch_input_file_path.rename(scratch_dir / "active.inp")  # Rename the input file to "active.inp"
-    if integrals_dir != scratch_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory
+            scratch_restart_file_path = scratch_dir / "caspt2_restart"
+            scratch_restart_file_path.symlink_to(restart_file)
+    if integrals_dir != scratch_dir:
         # Create a symbolic link to the 1-2 integrals file
         scratch_mrconee_path = scratch_dir / "MRCONEE"
         scratch_mrconee_path.symlink_to(integrals_dir / "MRCONEE")
@@ -210,7 +223,6 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
             file_name = Path(file).name
             scratch_mdcint_path = Path(scratch_dir, file_name)
             scratch_mdcint_path.symlink_to(integrals_dir / file_name)
-        print("log : Copied 1-2 integral files to the scratch directory")
     return None
 
 
@@ -273,7 +285,8 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
     caspt2_path = binary_dir / "r4dcaspt2ocoexe"
     if args.skipcasci and args.onlycasci:
         # --skip-casci and --only-casci cannot be used at the same time
-        sys.exit("Error: --skip-casci and --only-casci cannot be used at the same time")
+        msg = "--skip-casci and --only-casci cannot be used at the same time"
+        raise ValueError(msg)
     if args.ivo:
         command = f"{mpi} {ivo_path}"
     elif args.onlycasci:
@@ -299,8 +312,8 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
     """
 
     def delete_scratch_dir():
-        # Delete the scratch directory if the user didn't specify the -s or --save option and --noscratch option
-        if not args.noscratch and not args.save and scratch_dir.exists():
+        # Delete the scratch directory if the user didn't specify the -s or --save option
+        if not args.save and scratch_dir.exists():
             shutil.rmtree(scratch_dir)
 
     def copy_specified_files_to_user_submitted_dir() -> None:
@@ -310,10 +323,6 @@ def run_command(args: "argparse.Namespace", command: str, scratch_dir: Path, use
 
         if args.get is None:
             return  # No files to copy
-
-        if args.noscratch:
-            print("--no-scratch option is specified. No scratch directory is used, so no need to copy files.")
-            return  # No scratch directory is used so no need to copy files
 
         if user_submitted_dir == scratch_dir:
             print("The scratch directory is the user submitted directory. No need to copy files.")
@@ -523,14 +532,8 @@ def main() -> None:
     check_integral_files(integrals_dir)
 
     # Set and create scratch directory
-    if args.noscratch:
-        scratch_dir = user_submitted_dir
-        print(
-            f"--no-scratch option : --no-scratch option is specified. The scratch directory is the submitted directory.\n--no-scratch option : Temporary files will remain in the {user_submitted_dir} directory."
-        )
-    else:
-        scratch_dir = create_scratch_dir(args, input_file_path, user_submitted_dir)
-        print(f"Scratch directory : {scratch_dir}")
+    scratch_dir = create_scratch_dir(args, input_file_path, user_submitted_dir)
+    print(f"Scratch directory : {scratch_dir}")
     copy_essential_files_to_scratch_dir(args, input_file_path, integrals_dir, scratch_dir)
 
     # Create command to execute and run it
