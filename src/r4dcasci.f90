@@ -69,6 +69,7 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         print *, 'minholeras1   =', min_hole_ras1
         print *, 'debugprint    =', debug
         print *, "restart       =", enable_restart
+        print *, ''
     end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
