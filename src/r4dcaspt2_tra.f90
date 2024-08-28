@@ -75,6 +75,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print *, 'ras3_max_elec =', ras3_max_elec
         print *, 'minholeras1   =', min_hole_ras1
         print *, 'debugprint    =', debug
+        print *, "restart       =", enable_restart
     end if
 
     if (ninact == 0 .and. nsec == 0) then

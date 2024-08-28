@@ -69,6 +69,7 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, 'diracver   =', dirac_version
         print *, 'scheme     =', mdcint_scheme
         print *, 'debugprint    =', debug
+        print *, "restart       =", enable_restart
     end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
