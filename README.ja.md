@@ -331,6 +331,7 @@ ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ra
 minholeras1 : The minimum number of hole in ras1 (default: 0)
 scheme      : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
 debugprint  : This keyword invokes printing of additional information in the output file
+restart     : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
 
 [optional parameters (IVO)]
 nhomo       : The number of HOMO-like spinors (default: 0)

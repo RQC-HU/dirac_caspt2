@@ -1,19 +1,22 @@
-SUBROUTINE solve_A_subspace(e0, e2a)
+SUBROUTINE solve_A_subspace(e0)
 
+    use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
     use module_time
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2a
+    integer :: subspace_idx
 
+    subspace_idx = get_subspace_idx('A')
     if (realonly%is_realonly()) then
         call solve_A_subspace_real()
     else
         call solve_A_subspace_complex()
     end if
-
+    e2all = e2all + e2_subspace(subspace_idx)
+    sumc2 = sumc2 + sumc2_subspace(subspace_idx)
 contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -33,7 +36,7 @@ contains
         integer, allocatable :: indsym(:, :)
 
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(2*nsymrpa), e2_save(2*nsymrpa), alpha
+        real(8)               :: e2(2*nsymrpa), alpha
 
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
@@ -75,7 +78,6 @@ contains
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2a = 0.0d+00
         dimi = 0
         dimn = 0
         syma = 0
@@ -248,7 +250,8 @@ contains
                     vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm))
 
                     Do j = 1, dimm
-                        sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
+                                                       (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                         e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                     End do
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
@@ -260,23 +263,13 @@ contains
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
-            e2a = e2a + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
-        !       if (debug .and. rank == 0) then
-        !           print '(50A)', ' '
-        !           print '(50A)', '--------------------------------------------------'
-        !           Do isym = 1, nsymrpa
-        !               print '("e2a(",I3,") = ",E25.15," a.u.")', isym, e2(isym)
-        !           End do
-        !       end if
-
         if (rank == 0) then
-            print '(" e2a       = ",E25.15," a.u.")', e2a
-            print '(" sumc2,a  = ",E25.15)', sumc2local
+            print '(" e2a       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,a  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-
-        sumc2 = sumc2 + sumc2local
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 
@@ -699,7 +692,7 @@ contains
         integer, allocatable :: indsym(:, :)
 
         real(8), allocatable  :: wsnew(:), ws(:), wb(:)
-        real(8)               :: e2(2*nsymrpa), e2_save(2*nsymrpa), alpha
+        real(8)               :: e2(2*nsymrpa), alpha
 
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
@@ -741,8 +734,6 @@ contains
 !  E2 = SIGUMA_i, dimm |Vc1(dimm,i)|^2|/{(alpha(i) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2_save = 0.0d+00
-        e2a = 0.0d+00
         dimi = 0
         dimn = 0
         syma = 0
@@ -905,7 +896,8 @@ contains
                     vc1(1:dimm) = MATMUL(TRANSPOSE(bc1(1:dimm, 1:dimm)), vc1(1:dimm))
 
                     Do j = 1, dimm
-                        sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
+                                                       (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                         e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                     End do
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
@@ -919,15 +911,13 @@ contains
             Call memminus(KIND(wb), SIZE(wb), 1); Deallocate (wb)
             Call memminus(KIND(indsym), SIZE(indsym), 2); Deallocate (indsym)
 
-            e2a = e2a + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2a       = ",E25.15," a.u.")', e2a
-            print '(" sumc2,a   = ",E25.15)', sumc2local
+            print '(" e2a       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,a   = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-
-        sumc2 = sumc2 + sumc2local
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
 

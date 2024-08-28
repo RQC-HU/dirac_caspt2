@@ -1,0 +1,516 @@
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                         ____    _    ____   ____ ___                             @
+@                        / ___|  / \  / ___| / ___|_ _|                            @
+@                       | |     / _ \ \___ \| |    | |                             @
+@                       | |___ / ___ \ ___) | |___ | |                             @
+@                        \____/_/   \_\____/ \____|___|                            @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please site the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       "xxx, xxx, xxx      "                                                      @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+initialization of mpi, rank : 0 nprocs : 1
+
+  ENTER R4DCASCI PROGRAM
+
+Master rank allocated memory size:       0.00 bytes
+Present time is
+YEAR  = 2024 MONTH = 8 DATE  = 28
+HOUR  = 0 MIN  = 55 SEC  = 16.852
+ ninact        =                    6
+ nact          =                    6
+ nsec          =                   26
+ nelec         =                    4
+ nroot         =                    3
+ selectroot    =                    1
+ totsym        =                    3
+ eshift        =   0.0000000000000000
+ diracver      =                   21
+ scheme        =                    6
+ ras1_max_hole =                    0
+ ras3_max_elec =                    0
+ minholeras1   =                    0
+ debugprint    = F
+ DIRAC seems to be compiled with 64-bit integer.
+ Information from MRCONEE
+ NMO, BREIT, ECORE
+                   38 F   9.1895337626396856
+  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)
+                    2    E  1E         E  2E
+  NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)
+                    2   1E  2E   a   b
+ MULTB
+  4  3  1  2
+  3  4  2  1
+  1  2  3  4
+  2  1  4  3
+
+----------------------------------------------------------------
+        energy-order    Dirac     orbtal energy    irrep  irrep
+           index        index         (a.u.)       index  string
+----------------------------------------------------------------
+ inactive      1            1   -0.2057717389E+02      1      1E
+ inactive      2           20   -0.2057717389E+02      2      2E
+ inactive      3            2   -0.1358577125E+01      1      1E
+ inactive      4           21   -0.1358577125E+01      2      2E
+ inactive      5            3   -0.7096400708E+00      1      1E
+ inactive      6           22   -0.7096400708E+00      2      2E
+ active        7            4   -0.5622939989E+00      1      1E
+ active        8           23   -0.5622939989E+00      2      2E
+ active        9            5   -0.5016264948E+00      1      1E
+ active       10           24   -0.5016264948E+00      2      2E
+ active       11            6    0.2017445280E+00      1      1E
+ active       12           25    0.2017445280E+00      2      2E
+ secondary    13            7    0.2976096987E+00      1      1E
+ secondary    14           26    0.2976096987E+00      2      2E
+ secondary    15            8    0.8250856955E+00      1      1E
+ secondary    16           27    0.8250856955E+00      2      2E
+ secondary    17            9    0.9488667933E+00      1      1E
+ secondary    18           28    0.9488667933E+00      2      2E
+ secondary    19           10    0.1085600701E+01      1      1E
+ secondary    20           29    0.1085600701E+01      2      2E
+ secondary    21           11    0.1120058216E+01      1      1E
+ secondary    22           30    0.1120058216E+01      2      2E
+ secondary    23           12    0.1284767870E+01      1      1E
+ secondary    24           31    0.1284767870E+01      2      2E
+ secondary    25           13    0.1490105002E+01      1      1E
+ secondary    26           32    0.1490105002E+01      2      2E
+ secondary    27           14    0.4743130834E+01      1      1E
+ secondary    28           33    0.4743130834E+01      2      2E
+ secondary    29           15    0.4850161651E+01      1      1E
+ secondary    30           34    0.4850161651E+01      2      2E
+ secondary    31           16    0.5805430880E+01      1      1E
+ secondary    32           35    0.5805430880E+01      2      2E
+ secondary    33           17    0.5934138559E+01      1      1E
+ secondary    34           36    0.5934138559E+01      2      2E
+ secondary    35           18    0.6066238721E+01      1      1E
+ secondary    36           37    0.6066238721E+01      2      2E
+ secondary    37           19    0.7721313362E+01      1      1E
+ secondary    38           38    0.7721313362E+01      2      2E
+
+ MDCINT realonly =  T
+computational time = 0 day 0 h 0 min 0.000 sec
+ Start create_newmdcint
+ End create_newmdcint
+computational time = 0 day 0 h 0 min 0.036 sec
+ Enter readint2_casci subroutine (realonly)
+Master rank allocated memory size:       1.70 MB
+ end Read mdcint normal
+ nmo        =                   38
+Master rank allocated memory size:       1.67 MB
+
+ *******************************
+
+ IREP IS      a
+
+ *******************************
+
+ Number of candidates for configuration of CASCI =                    15
+ total symmetry of CASCI configuration =                     3
+ Number of CASCI configuration =                     9
+ Cas mat enter
+ end casmat_real
+ Start mat diagonalization
+ ndet before diagonalization                    9
+ End mat diagonalization
+computational time = 0 day 0 h 0 min 0.003 sec
+CASCI ENERGY FOR  3 STATE
+CASCI Total Energy ROOT1      -76.04462754192469731152 a.u.
+CASCI Total Energy ROOT2      -75.71296963914109312555 a.u.
+CASCI Total Energy ROOT3      -75.71296875894610423074 a.u.
+Root =    1
+ T T T T F F
+   1   -0.9996892E+00 Weights  0.9993785E+00
+Root =    2
+ T T F T T F
+   2    0.7038874E+00 Weights  0.4954574E+00
+ T T T F F T
+   4    0.7038874E+00 Weights  0.4954574E+00
+Root =    3
+ T T F T T F
+   2    0.7038831E+00 Weights  0.4954514E+00
+ T T T F F T
+   4   -0.7038830E+00 Weights  0.4954513E+00
+ enter e0test
+ core energy =   9.1895337626396856
+ energyHF(1)              (-123.04825792170526,0.0000000000000000)
+ energyHF(2)               (37.814817330659764,0.0000000000000000)
+ energyHF =              (-76.043906828405810,0.0000000000000000)
+ energyHF(MRCONEE) =  -76.043906828394199
+ energyHF(MRCONEE) - energyHF =         (1.16102683023200370E-011,0.0000000000000000)
+ -------------------------------------------------------------------------
+ NOTE:
+ If DIRAC HF calculation was calculated with closed shell orbitals,
+ the energyHF obtained from MRCONEE should be
+ approximately the same as the energyHF.
+ But if DIRAC HF calculation was calculated with open shell orbitals,
+ the two energies may be different because DIRAC calculates the HF energy
+ by AOC-HF method as default.
+ -------------------------------------------------------------------------
+selectroot 1
+ energy 1 =              (-95.067851748728927,0.0000000000000000)
+ energy 2 =               (16.027306323074576,0.0000000000000000)
+ energy 3 =              (-10.253424651112496,0.0000000000000000)
+ energy 4 =               (4.0598087722024214,0.0000000000000000)
+ t-energy(1-4)              (-85.234161304564438,0.0000000000000000)
+ t-energy  -85.234161304564381
+ C the error          (5.68434188608080149E-014,0.0000000000000000)
+Master rank allocated memory size:       1.67 MB
+computational time = 0 day 0 h 0 min 0.014 sec
+ end building fock
+computational time = 0 day 0 h 0 min 0.001 sec
+Master rank allocated memory size:       1.49 KB
+computational time = 0 day 0 h 0 min 0.051 sec
+ End r4dcasci part
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                       / ___|  / \  / ___||  _ \_   _|___ \                       @
+@                      | |     / _ \ \___ \| |_) || |   __) |                      @
+@                      | |___ / ___ \ ___) |  __/ | |  / __/                       @
+@                       \____/_/   \_\____/|_|    |_| |_____|                      @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please site the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       "xxx, xxx, xxx      "                                                      @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+initialization of mpi, rank : 0 nprocs : 1
+
+  START RELATIVISIC CASPT2 PROGRAM
+
+Master rank allocated memory size:       0.00 bytes
+Present time is
+YEAR  = 2024 MONTH = 8 DATE  = 28
+HOUR  = 0 MIN  = 55 SEC  = 16.907
+ ninact        =                    6
+ nact          =                    6
+ nsec          =                   26
+ nelec         =                    4
+ nroot         =                    3
+ selectroot    =                    1
+ totsym        =                    3
+ eshift        =   0.0000000000000000
+ diracver      =                   21
+ scheme        =                    6
+ ras1_max_hole =                    0
+ ras3_max_elec =                    0
+ minholeras1   =                    0
+ debugprint    = F
+
+ Reading MRCONEE (1-e integrals)
+ DIRAC seems to be compiled with 64-bit integer.
+ Information from MRCONEE
+ NMO, BREIT, ECORE
+                   38 F   9.1895337626396856
+  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)
+                    2    E  1E         E  2E
+  NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)
+                    2   1E  2E   a   b
+ MULTB
+  4  3  1  2
+  3  4  2  1
+  1  2  3  4
+  2  1  4  3
+
+----------------------------------------------------------------
+        energy-order    Dirac     orbtal energy    irrep  irrep
+           index        index         (a.u.)       index  string
+----------------------------------------------------------------
+ inactive      1            1   -0.2057717389E+02      1      1E
+ inactive      2           20   -0.2057717389E+02      2      2E
+ inactive      3            2   -0.1358577125E+01      1      1E
+ inactive      4           21   -0.1358577125E+01      2      2E
+ inactive      5            3   -0.7096400708E+00      1      1E
+ inactive      6           22   -0.7096400708E+00      2      2E
+ active        7            4   -0.5622939989E+00      1      1E
+ active        8           23   -0.5622939989E+00      2      2E
+ active        9            5   -0.5016264948E+00      1      1E
+ active       10           24   -0.5016264948E+00      2      2E
+ active       11            6    0.2017445280E+00      1      1E
+ active       12           25    0.2017445280E+00      2      2E
+ secondary    13            7    0.2976096987E+00      1      1E
+ secondary    14           26    0.2976096987E+00      2      2E
+ secondary    15            8    0.8250856955E+00      1      1E
+ secondary    16           27    0.8250856955E+00      2      2E
+ secondary    17            9    0.9488667933E+00      1      1E
+ secondary    18           28    0.9488667933E+00      2      2E
+ secondary    19           10    0.1085600701E+01      1      1E
+ secondary    20           29    0.1085600701E+01      2      2E
+ secondary    21           11    0.1120058216E+01      1      1E
+ secondary    22           30    0.1120058216E+01      2      2E
+ secondary    23           12    0.1284767870E+01      1      1E
+ secondary    24           31    0.1284767870E+01      2      2E
+ secondary    25           13    0.1490105002E+01      1      1E
+ secondary    26           32    0.1490105002E+01      2      2E
+ secondary    27           14    0.4743130834E+01      1      1E
+ secondary    28           33    0.4743130834E+01      2      2E
+ secondary    29           15    0.4850161651E+01      1      1E
+ secondary    30           34    0.4850161651E+01      2      2E
+ secondary    31           16    0.5805430880E+01      1      1E
+ secondary    32           35    0.5805430880E+01      2      2E
+ secondary    33           17    0.5934138559E+01      1      1E
+ secondary    34           36    0.5934138559E+01      2      2E
+ secondary    35           18    0.6066238721E+01      1      1E
+ secondary    36           37    0.6066238721E+01      2      2E
+ secondary    37           19    0.7721313362E+01      1      1E
+ secondary    38           38    0.7721313362E+01      2      2E
+
+ MDCINT realonly =  T
+ Reading MDCINT (2-e integrals)
+Master rank allocated memory size:      24.70 KB
+ nmo        =                   38
+
+ *******************************
+
+IRREP =    a
+
+ *******************************
+
+ selectroot =                     1
+computational time = 0 day 0 h 0 min 0.014 sec
+----------------------------------------------------------------
+ Start calcultion of A subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:      70.33 KB
+Master rank allocated memory size:      70.33 KB
+
+ e2a(isym)
+ e2a(  1)  =    -0.337343104107319E-03 a.u.
+ e2a(  2)  =    -0.337343104107365E-03 a.u.
+ e2a       =    -0.674686208214684E-03 a.u.
+ sumc2,a   =     0.290176077845299E-03
+
+ End calcultion of A subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.031 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of B subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:      65.27 KB
+
+ e2b(isym)
+ e2b(  1)  =    -0.828681042777347E-03 a.u.
+ e2b       =    -0.828681042777347E-03 a.u.
+ sumc2,b   =     0.338022991004886E-03
+
+ End calcuation of B subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.002 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of C subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:      98.88 KB
+Master rank allocated memory size:      98.88 KB
+Master rank allocated memory size:      98.88 KB
+
+ e2c(isym)
+ e2c(  1) =    -0.170401831256101E-02 a.u.
+ e2c(  2) =    -0.170401831256116E-02 a.u.
+ e2c      =    -0.340803662512217E-02 a.u.
+ sumc2,c  =     0.139410942194814E-02
+
+ End calcuation of C subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.025 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of D subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:      98.88 KB
+Master rank allocated memory size:      98.88 KB
+Master rank allocated memory size:      98.88 KB
+
+ e2d(isym)
+ e2d(  1) =    -0.689080780563967E-02 a.u.
+ e2d(  2) =    -0.328934369109738E-02 a.u.
+ e2d      =    -0.101801514967371E-01 a.u.
+ sumc2,d  =     0.359805186737113E-02
+
+ End calcuation of D subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.023 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of E subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:      98.88 KB
+
+ e2e(isym)
+ e2e(  1) =    -0.311793039970262E-02 a.u.
+ e2e(  2) =    -0.311793039970271E-02 a.u.
+ e2e      =    -0.623586079940533E-02 a.u.
+ sumc2,e  =     0.186489942300309E-02
+
+ End calcuation of E subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.007 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of F subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:     245.12 KB
+
+ e2f(isym)
+ e2f(  1) =    -0.268987889536148E-01 a.u.
+ e2f(  2) =    -0.967051754371594E-02 a.u.
+ e2f      =    -0.365693064973307E-01 a.u.
+ sumc2,f  =     0.954007505779124E-02
+
+ End calcuation of F subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.034 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of G subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:     245.12 KB
+
+ e2g(isym)
+ e2g(  1) =    -0.278090060670179E-01 a.u.
+ e2g(  2) =    -0.278090060670179E-01 a.u.
+ e2g      =    -0.556180121340358E-01 a.u.
+
+ End calcuation of G subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.023 sec
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+ Start calcultion of H subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:     245.12 KB
+
+ e2h      =    -0.344317246441464E-01 a.u.
+ sumc2,h  =     0.765060391648297E-02
+
+ End calcuation of H subspace 2nd order energy
+computational time = 0 day 0 h 0 min 0.015 sec
+----------------------------------------------------------------
+
+ c^2 is                                 0.03827753757827983411
+ weight of 0th wave function is         0.96313361679040088159
+ Total second order energy is          -0.14794645944776951829 a.u.
+ Total energy is                      -76.19257400137246349914 a.u.
+
+ END OF RELATIVISTIC CASPT2 PROGRAM
+
+================= Standard error =================
+
+================= Calculation finished ================
+User Command : /home/noda/test/dirac_caspt2/bin/dcaspt2 -i /home/noda/test/dirac_caspt2/test/dev/c2_h2o_dev/active.inp -o /home/noda/test/dirac_caspt2/test/dev/c2_h2o_dev/c2_h2o_dev.caspt2.out --omp 5
+Auto-created Command :  /home/noda/test/dirac_caspt2/bin/r4dcascicoexe &&  /home/noda/test/dirac_caspt2/bin/r4dcaspt2ocoexe
+Scratch directory : /home/noda/dcaspt2_scratch/active_2024-08-28_00-55-16_bas63w4z
+Output file : /home/noda/test/dirac_caspt2/test/dev/c2_h2o_dev/c2_h2o_dev.caspt2.out
+Calculation started at : 2024-08-28 00:55:16
+Calculation finished at : 2024-08-28 00:55:17
+Elapsed time (sec) : 0.2349 sec
+Elapsed time : 0 day 0 hour 0 min 0 sec 234 millisecond
+dirac-caspt2 version (commit hash) : e1243df8578b691b67c232740cf200376cc3837b
+NORMAL END OF dirac-caspt2 CALCULATION

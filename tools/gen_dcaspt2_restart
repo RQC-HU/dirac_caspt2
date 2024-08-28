@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+from collections import OrderedDict
+from math import inf
+from pathlib import Path
+from typing import OrderedDict as ODict
+
+
+class SubSpaceInfo:
+    def __init__(self):
+        self.energy = inf
+        self.sumc2 = inf
+
+
+def read_input(input_file) -> ODict[str, SubSpaceInfo]:  # ODict[subspace, SubSpaceInfo]
+
+    caspt2_energies: ODict[str, SubSpaceInfo] = {}
+
+    with open(input_file, "r") as f:
+        lines = f.readlines()
+
+    # e2[a-h] +=.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
+    energy_pattern = re.compile(r" e2[a-h] +=.+a\.u\.")
+    # sumc2,[a-h] +=.+ (e.g. sumc2,a  =     0.9132513754E-04)
+    sumc2_pattern = re.compile(r" sumc2,[a-h] +=.+")
+
+    for line in lines:
+        if energy_pattern.match(line):
+            subspace = str(line.strip().split(" ")[0][-1]).upper()  # e.g. e2a -> A
+            subspace_energy = float(line.split("=")[1].split("a.u.")[0])  # e.g. -1.73748326489E-09
+            if subspace not in caspt2_energies:
+                caspt2_energies[subspace] = SubSpaceInfo()
+            elif caspt2_energies[subspace].energy != inf:
+                raise ValueError(f"Energy for subspace {subspace} already found")
+            caspt2_energies[subspace].energy = subspace_energy
+        elif sumc2_pattern.match(line):
+            subspace = str(line.strip().split(",")[1].split(" ")[0]).upper()  # e.g. sumc2,a -> A
+            sumc2 = float(line.strip().split("=")[1])  # e.g. 0.9132513754E-04
+            if subspace not in caspt2_energies:
+                caspt2_energies[subspace] = SubSpaceInfo()
+            elif caspt2_energies[subspace].sumc2 != inf:
+                raise ValueError(f"Sumc2 for subspace {subspace} already found")
+            caspt2_energies[subspace].sumc2 = sumc2
+
+    return caspt2_energies
+
+
+def next_subspace(subspace: str) -> str:
+    return chr(ord(subspace) + 1)
+
+
+def main():
+    print("Generating a restart file for a CASPT2 calculation")
+    user_dir = Path.cwd().resolve()
+    output_file = user_dir / "caspt2_restart"
+
+    parser = argparse.ArgumentParser(description="Generate a restart file (caspt2_restart) for a CASPT2 calculation")
+    parser.add_argument("input_file", help="The input file for the CASPT2 calculation")
+    args = parser.parse_args()
+    input_file = Path(args.input_file).expanduser().resolve()
+
+    tmp_caspt2_energies = read_input(input_file)
+    tmp_caspt2_energies = OrderedDict(sorted(tmp_caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
+
+    caspt2_energies = OrderedDict()
+    for subspace, info in tmp_caspt2_energies.items():
+        if info.energy == inf or info.sumc2 == inf:
+            # Remove the current and following subspaces because the energy or/and sumc2 are missing
+            # it means that the subspace and the following calculations are not finished
+            break
+        caspt2_energies[subspace] = info
+
+    if not caspt2_energies:
+        raise ValueError("No CASPT2 energies and sumc2 found in the input file")
+
+    last_subspace = next(reversed(caspt2_energies))
+    output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [
+        f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy}\n" for subspace, info in caspt2_energies.items()
+    ]
+
+    with open(output_file, "w") as f:
+        f.writelines(output_lines)
+    for line in output_lines:
+        print(line, end="")
+
+
+if __name__ == "__main__":
+    main()

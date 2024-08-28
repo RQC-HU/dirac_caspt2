@@ -74,7 +74,9 @@ endif()
 add_subdirectory(src)
 add_subdirectory(test)
 configure_file(${PROJECT_SOURCE_DIR}/tools/dcaspt2_input ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 COPYONLY)
+configure_file(${PROJECT_SOURCE_DIR}/tools/gen_dcaspt2_restart ${EXECUTABLE_OUTPUT_PATH}/gen_dcaspt2_restart COPYONLY)
 install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/gen_dcaspt2_restart DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # Create a custom target named commit_hash
 add_custom_target(commit_hash ALL)

@@ -1,19 +1,22 @@
-SUBROUTINE solve_C_subspace(e0, e2c)
+SUBROUTINE solve_C_subspace(e0)
 
+    use dcaspt2_restart_file, only: get_subspace_idx
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
     use module_time
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2c
+    integer :: subspace_idx
 
+    subspace_idx = get_subspace_idx('C')
     if (realonly%is_realonly()) then
         call solve_C_subspace_real()
     else
         call solve_C_subspace_complex()
     end if
-
+    e2all = e2all + e2_subspace(subspace_idx)
+    sumc2 = sumc2 + sumc2_subspace(subspace_idx)
 contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -69,7 +72,6 @@ contains
 !  E2 = SIGUMA_a, dimm |V1(dimm,a)|^2|/{(a(a) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2c = 0.0d+00
         dima = 0
         dimn = 0
         syma = 0
@@ -246,7 +248,8 @@ contains
                     vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm))
 
                     Do j = 1, dimm
-                        sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
+                                                       (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                         e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                     End do
                     Deallocate (vc1)
@@ -261,14 +264,13 @@ contains
             Deallocate (uc)
             Deallocate (wb)
 
-            e2c = e2c + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2c      = ",E25.15," a.u.")', e2c
-            print '(" sumc2,c  = ",E25.15)', sumc2local
+            print '(" e2c      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,c  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         continue
         if (debug .and. rank == 0) print *, 'end solve_C_subspace'
@@ -705,7 +707,6 @@ contains
 !  E2 = SIGUMA_a, dimm |V1(dimm,a)|^2|/{(a(a) + wb(dimm)}
 
         e2 = 0.0d+00
-        e2c = 0.0d+00
         dima = 0
         dimn = 0
         syma = 0
@@ -871,7 +872,8 @@ contains
                     vc1(1:dimm) = MATMUL(TRANSPOSE(bc1(1:dimm, 1:dimm)), vc1(1:dimm))
 
                     Do j = 1, dimm
-                        sumc2local = sumc2local + (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
+                        sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
+                                                       (ABS(vc1(j))**2.0d+00)/((alpha + wb(j))**2.0d+00)
                         e2(isym) = e2(isym) - (ABS(vc1(j))**2.0d+00)/(alpha + wb(j))
                     End do
                     Deallocate (vc1)
@@ -886,14 +888,13 @@ contains
             Deallocate (uc)
             Deallocate (wb)
 
-            e2c = e2c + e2(isym)
+            e2_subspace(subspace_idx) = e2_subspace(subspace_idx) + e2(isym)
         End do
 
         if (rank == 0) then
-            print '(" e2c      = ",E25.15," a.u.")', e2c
-            print '(" sumc2,c  = ",E25.15)', sumc2local
+            print '(" e2c      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,c  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         continue
         if (debug .and. rank == 0) print *, 'end solve_C_subspace'

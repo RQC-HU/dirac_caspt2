@@ -29,8 +29,7 @@ MODULE module_global_variables
     integer         :: ras1_start, ras2_start, ras3_start
     integer         :: ras1_size = 0, ras2_size = 0, ras3_size = 0
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
-    integer         :: restart_index
-    logical         :: skip_mdcint = .false.
+    logical         :: skip_mdcint = .false., enable_restart = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
@@ -82,8 +81,14 @@ MODULE module_global_variables
     ! sumc2     : Second pertubation energy(total) / a.u.
     ! sumclocal : Second pertubation energy(each subspace) / a.u.
     ! coeff1    : The coefficient for solvH (sumclocal = sumclocal + abs(coeff1)^2)
-    real(8)      ::  sumc2, sumc2local
+    real(8)     :: sumc2 = 0.0d+00, e2all = 0.0d+00
+    real(8)     :: sumc2_subspace(8) = 0.0d+00, e2_subspace(8) = 0.0d+00
     complex*16  ::  coeff1
+
+    !! ========================================
+    !! Variables of restart file
+    !! ========================================
+    character(len=1) :: next_subspace ! A-H is the valid subspace (if not, the program will stop with error message)
 
     !! ====================================================================================================================================
     !! Variables of MRCONEE (A file stores 1-electron integrals, symmetry information, multiplication table etc. that is created by DIRAC)

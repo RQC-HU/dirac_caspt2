@@ -193,6 +193,9 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
     input_file_dir = input_file_path.parent  # (e.g. /home/username/active.inp => /home/username)
     if input_file_dir != scratch_dir:
         shutil.copy(input_file_path, scratch_dir)
+        restart_file = input_file_dir / "caspt2_restart"
+        if restart_file.exists():
+            shutil.copy(restart_file, scratch_dir)
     scratch_input_file_path = scratch_dir / input_file_path.name
     scratch_input_file_path.rename(scratch_dir / "active.inp")  # Rename the input file to "active.inp"
     if integrals_dir != scratch_dir:  # If the 1-2 integrals file is not in the temporary directory, copy the 1-2 integrals file to the temporary directory

@@ -1,17 +1,20 @@
-SUBROUTINE solve_H_subspace(e0, e2h)
+SUBROUTINE solve_H_subspace(e0)
 
+    use dcaspt2_restart_file, only: get_subspace_idx
     use module_global_variables
     use module_realonly, only: realonly
     implicit none
     real(8), intent(in) :: e0
-    real(8), intent(out):: e2h
+    integer :: subspace_idx
 
+    subspace_idx = get_subspace_idx('H')
     if (realonly%is_realonly()) then
         call solve_H_subspace_real()
     else
         call solve_H_subspace_complex()
     end if
-
+    e2all = e2all + e2_subspace(subspace_idx)
+    sumc2 = sumc2 + sumc2_subspace(subspace_idx)
 contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -56,9 +59,7 @@ contains
 ! E2h = V(aibj)/e(a,b,i,j)
         if (debug .and. rank == 0) print *, 'ENTER solve H part'
         if (rank == 0) print '(10A)', '  '
-        if (rank == 0) print '(10A)', ' e2h(isym)'
 
-        e2h = 0.0d+00
         e = 0.0d+00
 
         i0 = 0
@@ -164,18 +165,17 @@ contains
                     e = eps(ia) + eps(ib) - eps(ii) - eps(ij) + eshift  ! For Level Shift (2007/2/9)
 
                     coeff1 = v(i0, j0)/e
-                    sumc2local = sumc2local + ABS(coeff1)**2
+                    sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + ABS(coeff1)**2
 
-                    e2h = e2h - DBLE(DCONJG(v(i0, j0))*v(i0, j0)/e)
+                    e2_subspace(subspace_idx) = e2_subspace(subspace_idx) - DBLE(DCONJG(v(i0, j0))*v(i0, j0)/e)
                 end if
             End do
         End do
 
         if (rank == 0) then
-            print '(" e2h      = ",E25.15," a.u.")', e2h
-            print '(" sumc2,h  = ",E25.15)', sumc2local
+            print '(" e2h      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,h  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         deallocate (v)
         deallocate (iab)
@@ -231,9 +231,7 @@ contains
 ! E2h = V(aibj)/e(a,b,i,j)
         if (debug .and. rank == 0) print *, 'ENTER solve H part'
         if (rank == 0) print '(10A)', '  '
-!        if (rank == 0) print '(10A)', ' e2h(isym)'
 
-        e2h = 0.0d+00
         e = 0.0d+00
 
         i0 = 0
@@ -339,18 +337,17 @@ contains
                     e = eps(ia) + eps(ib) - eps(ii) - eps(ij) + eshift  ! For Level Shift (2007/2/9)
 
                     coeff1 = v(i0, j0)/e
-                    sumc2local = sumc2local + ABS(coeff1)**2
+                    sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + ABS(coeff1)**2
 
-                    e2h = e2h - DBLE(v(i0, j0)**2.0d+00/e)
+                    e2_subspace(subspace_idx) = e2_subspace(subspace_idx) - DBLE(v(i0, j0)**2.0d+00/e)
                 end if
             End do
         End do
 
         if (rank == 0) then
-            print '(" e2h      = ",E25.15," a.u.")', e2h
-            print '(" sumc2,h  = ",E25.15)', sumc2local
+            print '(" e2h      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,h  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
-        sumc2 = sumc2 + sumc2local
 
         deallocate (v)
         deallocate (iab)

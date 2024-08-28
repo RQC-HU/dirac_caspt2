@@ -1,0 +1,415 @@
+MPI startup(): shm:tcp fabric is unknown or has been removed from the product, please use ofi or shm:ofi instead.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                         ____    _    ____   ____ ___                             @
+@                        / ___|  / \  / ___| / ___|_ _|                            @
+@                       | |     / _ \ \___ \| |    | |                             @
+@                       | |___ / ___ \ ___) | |___ | |                             @
+@                        \____/_/   \_\____/ \____|___|                            @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please site the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       "xxx, xxx, xxx      "                                                      @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+initialization of mpi, rank : 0 nprocs : 1
+
+  ENTER R4DCASCI PROGRAM
+
+Master rank allocated memory size:       0.00 bytes
+Present time is
+YEAR  = 2024 MONTH = 8 DATE  = 27
+HOUR  = 22 MIN  = 53 SEC  = 55.363
+ ninact        =                     6
+ nact          =                    10
+ nsec          =                    38
+ nelec         =                     4
+ nroot         =                     1
+ selectroot    =                     1
+ totsym        =                     2
+ eshift        =  0.000000000000000E+000
+ diracver      =                    22
+ scheme        =                     6
+ ras1_max_hole =                     0
+ ras3_max_elec =                     0
+ minholeras1   =                     0
+ debugprint    = F
+ DIRAC seems to be compiled with 64-bit integer.
+ Information from MRCONEE
+ NMO, BREIT, ECORE
+                    54 F   25.8634067154006
+  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)
+                     2   1A            2A
+  NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)
+                     1    A   a
+ MULTB
+  2  1
+  1  2
+
+----------------------------------------------------------------
+        energy-order    Dirac     orbtal energy    irrep  irrep
+           index        index         (a.u.)       index  string
+----------------------------------------------------------------
+ inactive      1            1   -0.1100682004E+02      1       A
+ inactive      2           28   -0.1100682004E+02      1       A
+ inactive      3            2   -0.1191936185E+01      1       A
+ inactive      4           29   -0.1191936185E+01      1       A
+ inactive      5            3   -0.7234750572E+00      1       A
+ inactive      6           30   -0.7234750572E+00      1       A
+ active        7            4   -0.7203933063E+00      1       A
+ active        8           31   -0.7203933063E+00      1       A
+ active        9            5   -0.7173558079E+00      1       A
+ active       10           32   -0.7173558079E+00      1       A
+ active       11            6    0.3046855456E+00      1       A
+ active       12           33    0.3046855456E+00      1       A
+ active       13            7    0.4186752325E+00      1       A
+ active       14           34    0.4186752325E+00      1       A
+ active       15            8    0.4195384658E+00      1       A
+ active       16           35    0.4195384658E+00      1       A
+ secondary    17            9    0.4203929727E+00      1       A
+ secondary    18           36    0.4203929727E+00      1       A
+ secondary    19           10    0.8120615863E+00      1       A
+ secondary    20           37    0.8120615863E+00      1       A
+ secondary    21           11    0.8133938274E+00      1       A
+ secondary    22           38    0.8133938274E+00      1       A
+ secondary    23           12    0.8147261074E+00      1       A
+ secondary    24           39    0.8147261074E+00      1       A
+ secondary    25           13    0.1390065531E+01      1       A
+ secondary    26           40    0.1390065531E+01      1       A
+ secondary    27           14    0.1587227266E+01      1       A
+ secondary    28           41    0.1587227266E+01      1       A
+ secondary    29           15    0.1588760069E+01      1       A
+ secondary    30           42    0.1588760069E+01      1       A
+ secondary    31           16    0.1590250901E+01      1       A
+ secondary    32           43    0.1590250901E+01      1       A
+ secondary    33           17    0.2285562490E+01      1       A
+ secondary    34           44    0.2285562490E+01      1       A
+ secondary    35           18    0.4460186159E+01      1       A
+ secondary    36           45    0.4460186159E+01      1       A
+ secondary    37           19    0.4467991045E+01      1       A
+ secondary    38           46    0.4467991045E+01      1       A
+ secondary    39           20    0.4475979108E+01      1       A
+ secondary    40           47    0.4475979108E+01      1       A
+ secondary    41           21    0.5918148553E+01      1       A
+ secondary    42           48    0.5918148553E+01      1       A
+ secondary    43           22    0.6041941561E+01      1       A
+ secondary    44           49    0.6041941561E+01      1       A
+ secondary    45           23    0.6050361094E+01      1       A
+ secondary    46           50    0.6050361094E+01      1       A
+ secondary    47           24    0.6059358126E+01      1       A
+ secondary    48           51    0.6059358126E+01      1       A
+ secondary    49           25    0.7586417059E+01      1       A
+ secondary    50           52    0.7586417059E+01      1       A
+ secondary    51           26    0.2374963020E+02      1       A
+ secondary    52           53    0.2374963020E+02      1       A
+ secondary    53           27    0.1070653371E+03      1       A
+ secondary    54           54    0.1070653371E+03      1       A
+
+ MDCINT realonly =  F
+computational time = 0 day 0 h 0 min 0.001 sec
+ Start create_newmdcint
+ End create_newmdcint
+computational time = 0 day 0 h 0 min 1.124 sec
+ Enter readint2_casci
+Master rank allocated memory size:      12.42 MB
+ end Read mdcint normal
+ End MPI_Allreduce inttwr, inttwi, int2r_f1, int2i_f1, int2r_f2, int2i_f2
+ nmo        =                    54
+Master rank allocated memory size:      12.33 MB
+
+ *******************************
+
+ IREP IS      a
+
+ *******************************
+
+ Number of candidates for configuration of CASCI =                    210
+ total symmetry of CASCI configuration =                      2
+ Number of CASCI configuration =                    210
+ Cas mat enter
+ end casmat_complex
+ Start mat diagonalization
+ ndet before diagonalization                   210
+ End mat diagonalization
+computational time = 0 day 0 h 0 min 0.042 sec
+CASCI ENERGY FOR  2 STATE
+CASCI Total Energy ROOT1      -37.46097389213808526165 a.u.
+Root =    1
+ T T T T F F F F F F
+   1   -0.9998371E+00    0.1626942E-14 Weights  0.9996742E+00
+ enter e0test
+ core energy =   25.8634067154006
+ energyHF(1) (-97.9274853330861,0.000000000000000E+000)
+ energyHF(2) (34.6037416909788,0.000000000000000E+000)
+ energyHF = (-37.4603369267067,0.000000000000000E+000)
+ energyHF(MRCONEE) =  -37.4603369255855
+ energyHF(MRCONEE) - energyHF = (1.121200909892650E-009,0.000000000000000E+000)
+ -------------------------------------------------------------------------
+ NOTE:
+ If DIRAC HF calculation was calculated with closed shell orbitals,
+ the energyHF obtained from MRCONEE should be
+ approximately the same as the energyHF.
+ But if DIRAC HF calculation was calculated with open shell orbitals,
+ the two energies may be different because DIRAC calculates the HF energy
+ by AOC-HF method as default.
+ -------------------------------------------------------------------------
+selectroot 1
+ energy 1 = (-70.8028120498445,0.000000000000000E+000)
+ energy 2 = (14.1848638777700,0.000000000000000E+000)
+ energy 3 = (-10.5332205918542,0.000000000000000E+000)
+ energy 4 = (3.82678815638996,3.490411017398158E-018)
+ t-energy(1-4) (-63.3243806075387,3.490411017398158E-018)
+ t-energy  -63.3243806075387
+ C the error  (2.131628207280301E-014,-3.490411017398158E-018)
+Master rank allocated memory size:      12.33 MB
+computational time = 0 day 0 h 0 min 0.366 sec
+ end building fock
+computational time = 0 day 0 h 0 min 1.432 sec
+ cdiag0 start
+ nsymrpa                     1
+ cdiag0 start
+ nsymrpa                     1
+ cdiag0 start
+ nsymrpa                     1
+computational time = 0 day 0 h 0 min 0.011 sec
+computational time = 0 day 0 h 0 min 0.003 sec
+Master rank allocated memory size:       1.26 KB
+computational time = 0 day 0 h 0 min 2.937 sec
+ End r4dcasci part
+MPI startup(): shm:tcp fabric is unknown or has been removed from the product, please use ofi or shm:ofi instead.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                       / ___|  / \  / ___||  _ \_   _|___ \                       @
+@                      | |     / _ \ \___ \| |_) || |   __) |                      @
+@                      | |___ / ___ \ ___) |  __/ | |  / __/                       @
+@                       \____/_/   \_\____/|_|    |_| |_____|                      @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please site the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       "xxx, xxx, xxx      "                                                      @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+initialization of mpi, rank : 0 nprocs : 1
+
+  START RELATIVISIC CASPT2 PROGRAM
+
+Master rank allocated memory size:       0.00 bytes
+Present time is
+YEAR  = 2024 MONTH = 8 DATE  = 27
+HOUR  = 22 MIN  = 53 SEC  = 58.598
+ ninact        =                     6
+ nact          =                    10
+ nsec          =                    38
+ nelec         =                     4
+ nroot         =                     1
+ selectroot    =                     1
+ totsym        =                     2
+ eshift        =  0.000000000000000E+000
+ diracver      =                    22
+ scheme        =                     6
+ ras1_max_hole =                     0
+ ras3_max_elec =                     0
+ minholeras1   =                     0
+ debugprint    = F
+
+ Reading MRCONEE (1-e integrals)
+ DIRAC seems to be compiled with 64-bit integer.
+ Information from MRCONEE
+ NMO, BREIT, ECORE
+                    54 F   25.8634067154006
+  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)
+                     2   1A            2A
+  NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)
+                     1    A   a
+ MULTB
+  2  1
+  1  2
+
+----------------------------------------------------------------
+        energy-order    Dirac     orbtal energy    irrep  irrep
+           index        index         (a.u.)       index  string
+----------------------------------------------------------------
+ inactive      1            1   -0.1100682004E+02      1       A
+ inactive      2           28   -0.1100682004E+02      1       A
+ inactive      3            2   -0.1191936185E+01      1       A
+ inactive      4           29   -0.1191936185E+01      1       A
+ inactive      5            3   -0.7234750572E+00      1       A
+ inactive      6           30   -0.7234750572E+00      1       A
+ active        7            4   -0.7203933063E+00      1       A
+ active        8           31   -0.7203933063E+00      1       A
+ active        9            5   -0.7173558079E+00      1       A
+ active       10           32   -0.7173558079E+00      1       A
+ active       11            6    0.3046855456E+00      1       A
+ active       12           33    0.3046855456E+00      1       A
+ active       13            7    0.4186752325E+00      1       A
+ active       14           34    0.4186752325E+00      1       A
+ active       15            8    0.4195384658E+00      1       A
+ active       16           35    0.4195384658E+00      1       A
+ secondary    17            9    0.4203929727E+00      1       A
+ secondary    18           36    0.4203929727E+00      1       A
+ secondary    19           10    0.8120615863E+00      1       A
+ secondary    20           37    0.8120615863E+00      1       A
+ secondary    21           11    0.8133938274E+00      1       A
+ secondary    22           38    0.8133938274E+00      1       A
+ secondary    23           12    0.8147261074E+00      1       A
+ secondary    24           39    0.8147261074E+00      1       A
+ secondary    25           13    0.1390065531E+01      1       A
+ secondary    26           40    0.1390065531E+01      1       A
+ secondary    27           14    0.1587227266E+01      1       A
+ secondary    28           41    0.1587227266E+01      1       A
+ secondary    29           15    0.1588760069E+01      1       A
+ secondary    30           42    0.1588760069E+01      1       A
+ secondary    31           16    0.1590250901E+01      1       A
+ secondary    32           43    0.1590250901E+01      1       A
+ secondary    33           17    0.2285562490E+01      1       A
+ secondary    34           44    0.2285562490E+01      1       A
+ secondary    35           18    0.4460186159E+01      1       A
+ secondary    36           45    0.4460186159E+01      1       A
+ secondary    37           19    0.4467991045E+01      1       A
+ secondary    38           46    0.4467991045E+01      1       A
+ secondary    39           20    0.4475979108E+01      1       A
+ secondary    40           47    0.4475979108E+01      1       A
+ secondary    41           21    0.5918148553E+01      1       A
+ secondary    42           48    0.5918148553E+01      1       A
+ secondary    43           22    0.6041941561E+01      1       A
+ secondary    44           49    0.6041941561E+01      1       A
+ secondary    45           23    0.6050361094E+01      1       A
+ secondary    46           50    0.6050361094E+01      1       A
+ secondary    47           24    0.6059358126E+01      1       A
+ secondary    48           51    0.6059358126E+01      1       A
+ secondary    49           25    0.7586417059E+01      1       A
+ secondary    50           52    0.7586417059E+01      1       A
+ secondary    51           26    0.2374963020E+02      1       A
+ secondary    52           53    0.2374963020E+02      1       A
+ secondary    53           27    0.1070653371E+03      1       A
+ secondary    54           54    0.1070653371E+03      1       A
+
+ MDCINT realonly =  F
+ Reading MDCINT (2-e integrals)
+Master rank allocated memory size:      48.53 KB
+ nmo        =                    54
+
+ *******************************
+
+IRREP =    a
+
+ *******************************
+
+ selectroot =                      1
+computational time = 0 day 0 h 0 min 0.279 sec
+----------------------------------------------------------------
+ Start calcultion of A subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:     190.83 KB
+Master rank allocated memory size:     130.83 KB
+
+ e2a(isym)
+ e2a(  1) =    -0.146013144438255E-02 a.u.
+ e2a       =    -0.146013144438255E-02 a.u.
+
+Process is interrupted by the user.(ctrl+c, SIGINT)
+Exiting...

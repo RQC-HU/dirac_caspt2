@@ -182,6 +182,9 @@ contains
         case ("debugprint")
             debug = .true.
 
+        case ("restart")
+            enable_restart = .true.
+
         case ("end")
             is_end = .true.
 
