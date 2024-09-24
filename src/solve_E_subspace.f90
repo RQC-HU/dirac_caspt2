@@ -1,6 +1,7 @@
 SUBROUTINE solve_E_subspace(e0)
 
     use dcaspt2_restart_file, only: get_subspace_idx
+    use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
@@ -166,11 +167,9 @@ contains
             deallocate (wsnew)
 
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
-            bc0 = 0.0d+00
-            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
+            call gemm(transpose(DCONJG(uc)), bc, bc0)
             Allocate (bc1(dimm, dimm))                      ! bc1 M*M
-            bc1 = 0.0d+00
-            bc1 = MATMUL(bc0, uc)
+            call gemm(bc0, uc, bc1)
 
             If (debug) then
 
@@ -615,11 +614,9 @@ contains
             deallocate (wsnew)
 
             Allocate (bc0(dimm, dimn))                       ! bc0 M*N
-            bc0 = 0.0d+00
-            bc0 = MATMUL(TRANSPOSE(uc), bc)
+            call gemm(transpose(uc), bc, bc0)
             Allocate (bc1(dimm, dimm))                      ! bc1 M*M
-            bc1 = 0.0d+00
-            bc1 = MATMUL(bc0, uc)
+            call gemm(bc0, uc, bc1)
 
             If (debug) then
 
