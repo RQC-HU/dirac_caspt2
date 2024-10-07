@@ -1,6 +1,7 @@
 SUBROUTINE solve_B_subspace(e0)
 
     use dcaspt2_restart_file, only: get_subspace_idx
+    use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
     use module_global_variables
     use module_realonly, only: realonly
@@ -38,7 +39,7 @@ contains
         real(8)               :: e2(2*nsymrpa), e, alpha
         complex*16, allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         complex*16, allocatable  :: bc(:, :)
-        complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
+        complex*16, allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc0(:), vc1(:)
         integer, allocatable     :: ii0(:), ij0(:), iij(:, :)
         integer                  :: nij
         integer :: j, i, syma, isym, i0
@@ -186,12 +187,10 @@ contains
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             Call memminus(KIND(wsnew), SIZE(wsnew), 1); deallocate (wsnew)
             Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
-            bc0 = 0.0d+00
-            bc0 = MATMUL(TRANSPOSE(DCONJG(uc)), bc)
+            call gemm(transpose(DCONJG(uc)), bc, bc0)
 
             Allocate (bc1(dimm, dimm)); Call memplus(KIND(bc1), SIZE(bc1), 2) ! bc1 M*M
-            bc1 = 0.0d+00
-            bc1 = MATMUL(bc0, uc)
+            call gemm(bc0, uc, bc1)
 
             If (debug) then
 
@@ -243,16 +242,14 @@ contains
                         vc(it) = v(i0, indsym(1, it), indsym(2, it))
                     End do
 
-                    Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
-                    vc1 = 0.0d+00
-
-                    vc1(1:dimm) = MATMUL(TRANSPOSE(DCONJG(uc(1:dimn, 1:dimm))), vc(1:dimn)) ! v => v~
+                    allocate (vc0(dimm)); Call memplus(KIND(vc0), SIZE(vc0), 2)
+                    allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
+                    call gemv(transpose(DCONJG(uc)), vc, vc0) ! v => v~
                     Call memminus(KIND(vc), SIZE(vc), 2); Deallocate (vc)
 
                     alpha = -eps(ji) - eps(jj) - e0 + eshift   ! For Level Shift (2007/2/9)
 
-                    vc1(1:dimm) = &
-                    & MATMUL(TRANSPOSE(DCONJG(bc1(1:dimm, 1:dimm))), vc1(1:dimm)) ! v~ => v~~
+                    call gemv(transpose(DCONJG(bc1)), vc0, vc1)
 
                     Do j = 1, dimm
                         sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
@@ -261,6 +258,7 @@ contains
                         e2(isym) = e2(isym) - e
                     End do
 
+                    Call memminus(KIND(vc0), SIZE(vc0), 2); Deallocate (vc0)
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
 
                 End if
@@ -609,7 +607,7 @@ contains
         real(8)               :: e2(2*nsymrpa), e, alpha
         real(8), allocatable  :: sc(:, :), uc(:, :), sc0(:, :)
         real(8), allocatable  :: bc(:, :)
-        real(8), allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc1(:)
+        real(8), allocatable  :: bc0(:, :), bc1(:, :), v(:, :, :), vc(:), vc0(:), vc1(:)
         integer, allocatable     :: ii0(:), ij0(:), iij(:, :)
         integer                  :: nij
         integer :: j, i, syma, isym, i0
@@ -752,12 +750,10 @@ contains
 !      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             Call memminus(KIND(wsnew), SIZE(wsnew), 1); deallocate (wsnew)
             Allocate (bc0(dimm, dimn)); Call memplus(KIND(bc0), SIZE(bc0), 2) ! bc0 M*N
-            bc0 = 0.0d+00
-            bc0 = MATMUL(TRANSPOSE(uc), bc)
+            call gemm(transpose(uc), bc, bc0)
 
             Allocate (bc1(dimm, dimm)); Call memplus(KIND(bc1), SIZE(bc1), 2) ! bc1 M*M
-            bc1 = 0.0d+00
-            bc1 = MATMUL(bc0, uc)
+            call gemm(bc0, uc, bc1)
 
             If (debug) then
 
@@ -802,16 +798,14 @@ contains
                         vc(it) = v(i0, indsym(1, it), indsym(2, it))
                     End do
 
-                    Allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
-                    vc1 = 0.0d+00
-
-                    vc1(1:dimm) = MATMUL(TRANSPOSE(uc(1:dimn, 1:dimm)), vc(1:dimn)) ! v => v~
+                    allocate (vc0(dimm)); Call memplus(KIND(vc0), SIZE(vc0), 2)
+                    allocate (vc1(dimm)); Call memplus(KIND(vc1), SIZE(vc1), 2)
+                    call gemv(transpose(uc), vc, vc0) ! v => v~
                     Call memminus(KIND(vc), SIZE(vc), 2); Deallocate (vc)
 
                     alpha = -eps(ji) - eps(jj) - e0 + eshift   ! For Level Shift (2007/2/9)
 
-                    vc1(1:dimm) = &
-                    & MATMUL(TRANSPOSE(bc1(1:dimm, 1:dimm)), vc1(1:dimm)) ! v~ => v~~
+                    call gemv(transpose(bc1), vc0, vc1)
 
                     Do j = 1, dimm
                         sumc2_subspace(subspace_idx) = sumc2_subspace(subspace_idx) + &
@@ -820,6 +814,7 @@ contains
                         e2(isym) = e2(isym) - e
                     End do
 
+                    Call memminus(KIND(vc0), SIZE(vc0), 2); Deallocate (vc0)
                     Call memminus(KIND(vc1), SIZE(vc1), 2); Deallocate (vc1)
 
                 End if
