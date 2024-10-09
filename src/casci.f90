@@ -83,11 +83,9 @@ SUBROUTINE casci
         end do
         close (unit_cimat)
     end if
-    Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
+    Allocate (cir(ndet, nroot)); Call memplus(KIND(cir), SIZE(cir), 1)
     Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
-    cir(:, :) = 0.0d+00
-    eigen(:) = 0.0d+00
     eigen(1:nroot) = ecas(1:nroot) + ecore
     if (rank == 0) then
         print '("CASCI ENERGY FOR ",I2," STATE")', totsym
@@ -97,7 +95,7 @@ SUBROUTINE casci
         End do
     end if
     if (realonly%is_realonly()) then
-        cir(1:ndet, selectroot) = mat_real(1:ndet, selectroot)
+        cir(1:ndet, 1:nroot) = mat_real(1:ndet, 1:nroot)
         if (rank == 0) then
             do irec = 1, nroot
                 print '("Root = ",I4)', irec
@@ -113,11 +111,10 @@ SUBROUTINE casci
             end do
         end if
     else
-        Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
+        Allocate (cii(ndet, nroot)); Call memplus(KIND(cii), SIZE(cii), 1)
         ! Print out the results
-        cii(:, :) = 0.0d+00
-        cir(1:ndet, selectroot) = DBLE(mat_complex(1:ndet, selectroot))
-        cii(1:ndet, selectroot) = DIMAG(mat_complex(1:ndet, selectroot))
+        cir(1:ndet, 1:nroot) = DBLE(mat_complex(1:ndet, 1:nroot))
+        cii(1:ndet, 1:nroot) = DIMAG(mat_complex(1:ndet, 1:nroot))
         if (rank == 0) then
             do irec = 1, nroot
                 print '("Root = ",I4)', irec
