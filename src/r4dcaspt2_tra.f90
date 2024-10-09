@@ -116,8 +116,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
             ",selectroot =", selectroot
         call stop_with_errorcode(1)
     end if
-    Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
-    read (unit_new) ecas(1:ndet)
+    Allocate (ecas(1:nroot_read)); Call memplus(KIND(ecas), SIZE(ecas), 1)
+    read (unit_new) ecas(1:nroot_read)
     read (unit_new) dict_cas_idx_size ! The number of CAS configurations
     do idx = 1, dict_cas_idx_size
         read (unit_new) dict_key, dict_val
@@ -138,7 +138,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     ! Read CASCI energy
     Allocate (eigen(1:nroot_read)); Call memplus(KIND(eigen), SIZE(eigen), 1)
-    eigen(:) = ecas(:) + ecore
+    eigen(:) = ecas(1:nroot_read) + ecore
     Deallocate (ecas)
 
     ! Read CI coefficients
