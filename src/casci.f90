@@ -67,22 +67,7 @@ SUBROUTINE casci
             ",dict_cas_idx_size =", dict_cas_idx_size, ",dict_cas_idx_reverse_size =", dict_cas_idx_reverse_size
         call stop_with_errorcode(1)
     end if
-! Print out CI matrix!
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        filename = 'CIMAT'
-        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
-        write (unit_cimat) ndet, nroot
-        write (unit_cimat) ecas(1:ndet)
-        write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
-        do idx = 1, dict_cas_idx_size
-            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx to the file
-        end do
-        write (unit_cimat) dict_cas_idx_reverse_size ! The number of elements in dict_cas_idx_reverse
-        do idx = 1, dict_cas_idx_reverse_size
-            write (unit_cimat) keys_rev(idx), vals_rev(idx) ! Store pairs of keys_rev and values in dict_cas_idx_reverse to the file
-        end do
-        close (unit_cimat)
-    end if
+
     Allocate (cir(ndet, nroot)); Call memplus(KIND(cir), SIZE(cir), 1)
     Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
@@ -130,6 +115,28 @@ SUBROUTINE casci
             end do
         end if
         Call memminus(KIND(mat_complex), SIZE(mat_complex), 2); Deallocate (mat_complex)
+    end if
+    ! write CI matrix to CIMAT file
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        filename = 'CIMAT'
+        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
+        write (unit_cimat) ndet, nroot
+        write (unit_cimat) ecas(1:ndet)
+        write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
+        do idx = 1, dict_cas_idx_size
+            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx to the file
+        end do
+        write (unit_cimat) dict_cas_idx_reverse_size ! The number of elements in dict_cas_idx_reverse
+        do idx = 1, dict_cas_idx_reverse_size
+            write (unit_cimat) keys_rev(idx), vals_rev(idx) ! Store pairs of keys_rev and values in dict_cas_idx_reverse to the file
+        end do
+        if (realonly%is_realonly()) then
+            write (unit_cimat) (cir(:, irec), irec=1, nroot)
+        else
+            write (unit_cimat) (cir(:, irec), irec=1, nroot)
+            write (unit_cimat) (cii(:, irec), irec=1, nroot)
+        end if
+        close (unit_cimat)
     end if
     Deallocate (ecas)
     deallocate (keys, vals, keys_rev, vals_rev)
