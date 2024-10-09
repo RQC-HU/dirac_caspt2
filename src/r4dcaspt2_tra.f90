@@ -28,7 +28,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     character(*), parameter         :: int_input_form = '(1x,a,1x,i0)'
     character(len=30)               :: real_str
     integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
-    integer                 :: idx, dict_key, dict_val
+    integer                 :: idx, dict_key, dict_val, nroot_read
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -110,7 +110,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     ! Read CAS configuration convertion list
     call open_unformatted_file(unit=unit_new, file="CIMAT", status='old', optional_action="read")
-    read (unit_new) ndet
+    read (unit_new) ndet, nroot_read
     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
     read (unit_new) ecas(1:ndet)
     read (unit_new) dict_cas_idx_size ! The number of CAS configurations

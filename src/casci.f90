@@ -71,7 +71,7 @@ SUBROUTINE casci
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         filename = 'CIMAT'
         call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
-        write (unit_cimat) ndet
+        write (unit_cimat) ndet, nroot
         write (unit_cimat) ecas(1:ndet)
         write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
         do idx = 1, dict_cas_idx_size
