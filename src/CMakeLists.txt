@@ -42,20 +42,13 @@ add_executable(r4dcascicoexe
   cutoff.f90
   diag.f90
   density_matrix.f90
-  e0after_tra.f90
   e0test.f90
-  fock_matrix_of_hf.f90
-  fockcasci.f90
-  fockdiag.f90
   search_cas_configuration.f90
   get_filename.f90
   mem.f90
   one_e_exct.f90
-  prtoutfock.f90
   r4dcasci.f90
   read_mrconee.f90
-  sdet.f90
-  trac.f90
   tramo.f90
 )
 target_link_libraries(r4dcascicoexe dcaspt2_module)
@@ -66,14 +59,20 @@ add_executable(r4dcaspt2ocoexe
   checkdgc.f90
   cutoff.f90
   diag.f90
+  divide_2_elec_integral_into_subspaces.f90
+  e0after_tra.f90
   density_matrix.f90
+  fock_matrix_of_hf.f90
+  fockcasci.f90
+  fockdiag.f90
   get_filename.f90
   mem.f90
   one_e_exct.f90
   r4dcaspt2_tra.f90
   ras_det_check.f90
   read_mrconee.f90
-  divide_2_elec_integral_into_subspaces.f90
+  prtoutfock.f90
+  sdet.f90
   solve_A_subspace.f90
   solve_B_subspace.f90
   solve_C_subspace.f90
@@ -82,6 +81,7 @@ add_executable(r4dcaspt2ocoexe
   solve_F_subspace.f90
   solve_G_subspace.f90
   solve_H_subspace.f90
+  trac.f90
   tramo.f90
 )
 target_link_libraries(r4dcaspt2ocoexe caspt2_module)
