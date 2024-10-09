@@ -111,6 +111,11 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Read CAS configuration convertion list
     call open_unformatted_file(unit=unit_new, file="CIMAT", status='old', optional_action="read")
     read (unit_new) ndet, nroot_read
+    if (nroot_read < selectroot) then
+        if (rank == 0) print *, 'ERROR: nroot in CIMAT file is less than selectroot. nroot in CIMAT =', nroot_read, &
+            ",selectroot =", selectroot
+        call stop_with_errorcode(1)
+    end if
     Allocate (ecas(1:ndet)); Call memplus(KIND(ecas), SIZE(ecas), 1)
     read (unit_new) ecas(1:ndet)
     read (unit_new) dict_cas_idx_size ! The number of CAS configurations
@@ -132,9 +137,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
 
     ! Read CASCI energy
-    Allocate (eigen(1:nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
-    eigen = 0.0d+00
-    eigen(1:nroot) = ecas(1:nroot) + ecore
+    Allocate (eigen(1:nroot_read)); Call memplus(KIND(eigen), SIZE(eigen), 1)
+    eigen(:) = ecas(:) + ecore
     Deallocate (ecas)
 
     ! Read CI coefficients
