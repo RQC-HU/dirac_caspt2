@@ -14,7 +14,6 @@ SUBROUTINE fockdiag
 
     Implicit NONE
 
-    integer                 :: unit_transfock
     integer                 :: i0, n, n0, n1, nspace(3, 3)
     real(8), allocatable :: fa(:, :)
     complex*16, allocatable :: fac(:, :)
@@ -75,16 +74,5 @@ SUBROUTINE fockdiag
 #ifdef DEBUG
     Call e0aftertra
 #endif
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=unit_transfock, file='TRANSFOCK', status='replace', optional_action='write')
-        write (unit_transfock) nmo
-        if (realonly%is_realonly()) then
-            write (unit_transfock) fock_real(1:nmo, 1:nmo)
-        else
-            write (unit_transfock) fock_cmplx(1:nmo, 1:nmo)
-        end if
-        close (unit_transfock)
-    end if
-
     if (debug .and. rank == 0) print *, 'fockdiag end'
 end subroutine fockdiag
