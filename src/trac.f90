@@ -15,12 +15,11 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
     real(8), intent(in)  :: fa(global_act_start:global_act_end, global_act_start:global_act_end)
 
     integer :: i0, j0, i, info
-    integer :: ok, unit_newcicoeff
+    integer :: ok
     integer :: occ(nelec, ndet)
 
     integer, allocatable    :: IPIV(:)
     real(8), allocatable    :: ds(:, :)
-    complex*16, allocatable ::  ci(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -66,16 +65,6 @@ SUBROUTINE traci(fa)  ! Transform CI matrix for new spinor basis
         call stop_with_errorcode(info)
     end if
 
-    allocate (ci(ndet)); call memplus(kind(ci), size(ci), 2)
-    ci(:) = (0.0d+00, 0.0d+00)
-    ci = cir(1:ndet, selectroot) ! Imaginary part of ci is zero
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=unit_newcicoeff, file="NEWCICOEFF", status='replace', optional_action='write')
-        write (unit_newcicoeff) ci(:)
-        close (unit_newcicoeff)
-    end if
-    if (allocated(ci)) call memminus(kind(ci), size(ci), 2); Deallocate (ci)
-
     Deallocate (ds)
 
 End subroutine traci
@@ -98,7 +87,7 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     complex*16, intent(in)  :: fac(global_act_start:global_act_end, global_act_start:global_act_end)
 
     integer :: i0, j0, i, info
-    integer :: ok, unit_newcicoeff
+    integer :: ok
     integer :: occ(nelec, ndet)
 
     integer, allocatable     :: IPIV(:)
@@ -158,11 +147,6 @@ SUBROUTINE tracic(fac)  ! Transform CI matrix for new spinor basis
     ! ci is now rotated_ci and we need to rotate it back to cir and cii
     cir(1:ndet, selectroot) = DBLE(ci(1:ndet))
     cii(1:ndet, selectroot) = DIMAG(ci(1:ndet))
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        call open_unformatted_file(unit=unit_newcicoeff, file="NEWCICOEFF", status='replace', optional_action='write')
-        write (unit_newcicoeff) ci(1:ndet)
-        close (unit_newcicoeff)
-    end if
 
     Deallocate (ci)
     Deallocate (ds)
