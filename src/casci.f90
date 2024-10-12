@@ -67,27 +67,10 @@ SUBROUTINE casci
             ",dict_cas_idx_size =", dict_cas_idx_size, ",dict_cas_idx_reverse_size =", dict_cas_idx_reverse_size
         call stop_with_errorcode(1)
     end if
-! Print out CI matrix!
-    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        filename = 'CIMAT'
-        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
-        write (unit_cimat) ndet
-        write (unit_cimat) ecas(1:ndet)
-        write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
-        do idx = 1, dict_cas_idx_size
-            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx to the file
-        end do
-        write (unit_cimat) dict_cas_idx_reverse_size ! The number of elements in dict_cas_idx_reverse
-        do idx = 1, dict_cas_idx_reverse_size
-            write (unit_cimat) keys_rev(idx), vals_rev(idx) ! Store pairs of keys_rev and values in dict_cas_idx_reverse to the file
-        end do
-        close (unit_cimat)
-    end if
-    Allocate (cir(ndet, selectroot:selectroot)); Call memplus(KIND(cir), SIZE(cir), 1)
+
+    Allocate (cir(ndet, nroot)); Call memplus(KIND(cir), SIZE(cir), 1)
     Allocate (eigen(nroot)); Call memplus(KIND(eigen), SIZE(eigen), 1)
 
-    cir(:, :) = 0.0d+00
-    eigen(:) = 0.0d+00
     eigen(1:nroot) = ecas(1:nroot) + ecore
     if (rank == 0) then
         print '("CASCI ENERGY FOR ",I2," STATE")', totsym
@@ -97,7 +80,7 @@ SUBROUTINE casci
         End do
     end if
     if (realonly%is_realonly()) then
-        cir(1:ndet, selectroot) = mat_real(1:ndet, selectroot)
+        cir(1:ndet, 1:nroot) = mat_real(1:ndet, 1:nroot)
         if (rank == 0) then
             do irec = 1, nroot
                 print '("Root = ",I4)', irec
@@ -113,11 +96,10 @@ SUBROUTINE casci
             end do
         end if
     else
-        Allocate (cii(ndet, selectroot:selectroot)); Call memplus(KIND(cii), SIZE(cii), 1)
+        Allocate (cii(ndet, nroot)); Call memplus(KIND(cii), SIZE(cii), 1)
         ! Print out the results
-        cii(:, :) = 0.0d+00
-        cir(1:ndet, selectroot) = DBLE(mat_complex(1:ndet, selectroot))
-        cii(1:ndet, selectroot) = DIMAG(mat_complex(1:ndet, selectroot))
+        cir(1:ndet, 1:nroot) = DBLE(mat_complex(1:ndet, 1:nroot))
+        cii(1:ndet, 1:nroot) = DIMAG(mat_complex(1:ndet, 1:nroot))
         if (rank == 0) then
             do irec = 1, nroot
                 print '("Root = ",I4)', irec
@@ -133,6 +115,28 @@ SUBROUTINE casci
             end do
         end if
         Call memminus(KIND(mat_complex), SIZE(mat_complex), 2); Deallocate (mat_complex)
+    end if
+    ! write CI matrix to CIMAT file
+    if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
+        filename = 'CIMAT'
+        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
+        write (unit_cimat) ndet, nroot
+        write (unit_cimat) ecas(1:nroot)
+        write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
+        do idx = 1, dict_cas_idx_size
+            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx to the file
+        end do
+        write (unit_cimat) dict_cas_idx_reverse_size ! The number of elements in dict_cas_idx_reverse
+        do idx = 1, dict_cas_idx_reverse_size
+            write (unit_cimat) keys_rev(idx), vals_rev(idx) ! Store pairs of keys_rev and values in dict_cas_idx_reverse to the file
+        end do
+        if (realonly%is_realonly()) then
+            write (unit_cimat) (cir(:, irec), irec=1, nroot)
+        else
+            write (unit_cimat) (cir(:, irec), irec=1, nroot)
+            write (unit_cimat) (cii(:, irec), irec=1, nroot)
+        end if
+        close (unit_cimat)
     end if
     Deallocate (ecas)
     deallocate (keys, vals, keys_rev, vals_rev)
