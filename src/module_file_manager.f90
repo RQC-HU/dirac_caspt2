@@ -77,69 +77,65 @@ contains
         end if
     end subroutine check_file_open
 
-    subroutine open_file(unit, form, file, status, action)
+    subroutine open_file(unit, form, file, status, optional_action, optional_position)
         implicit none
-        character(len=*), intent(in) :: form, file, status, action
+        character(len=*), intent(in) :: form, file, status
+        character(len=*), intent(in), optional :: optional_action, optional_position
         integer, intent(inout) :: unit
-        character(:), allocatable :: file_status
+        character(:), allocatable :: file_status, action, position
         integer :: iostat
         call search_unused_file_unit(unit)
-        allocate (file_status, source=trim(status))
-        call lowercase(file_status)
-        if (file_status /= 'old' .and. file_status /= 'new' .and. file_status /= 'replace') then
-            print *, 'ERROR: file_status must be old, new or replace. file_status = ', file_status
-            print *, 'Exiting...'
-            call stop_with_errorcode(1)
+        allocate (file_status, source=parse_file_status(status))
+        allocate (action, source=parse_optional_action(optional_action))
+        if (present(optional_position)) then
+            allocate (position, source=trim(adjustl(optional_position)))
+            call lowercase(position)
+            open (unit, form=form, file=file, status=file_status, iostat=iostat, action=action, position=position)
+        else
+            open (unit, form=form, file=file, status=file_status, iostat=iostat, action=action)
         end if
-        open (unit, form=form, file=file, status=status, iostat=iostat, action=action)
         call check_file_open(file, iostat, unit)
     end subroutine open_file
-    subroutine check_action_type(action, file)
-        implicit none
-        character(len=*), intent(in) :: action, file
-        if (action /= 'read' .and. action /= 'write' .and. action /= 'readwrite') then
-            print *, 'ERROR: action must be read, write or readwrite. action = ', action
-            print *, 'FILE NAME: ', file
-            print *, 'Exiting...'
-            call stop_with_errorcode(1)
-        end if
-    end subroutine check_action_type
 
-    subroutine open_unformatted_file(unit, file, status, optional_action)
+    function parse_file_status(status) result(parsed_status)
+        implicit none
+        character(len=*), intent(in) :: status
+        character(:), allocatable :: parsed_status
+        allocate (parsed_status, source=trim(adjustl(status)))
+        call lowercase(parsed_status)
+    end function parse_file_status
+
+    function parse_optional_action(optional_action) result(parsed_action)
         implicit none
         character(len=*), intent(in), optional :: optional_action
+        character(:), allocatable :: parsed_action
+        if (present(optional_action)) then
+            allocate (parsed_action, source=trim(adjustl(optional_action)))
+            call lowercase(parsed_action)
+        else
+            allocate (parsed_action, source='readwrite')
+        end if
+    end function parse_optional_action
+
+    subroutine open_unformatted_file(unit, file, status, optional_action, optional_position)
+        implicit none
+        character(len=*), intent(in), optional :: optional_action, optional_position
         character(len=*), intent(in) :: file, status
         integer, intent(inout) :: unit
-        character(:), allocatable :: actual_action, trimmed_action, form
+        character(:), allocatable :: form
 
-        if (present(optional_action)) then
-            allocate (trimmed_action, source=trim(optional_action))
-            call lowercase(trimmed_action)
-            call check_action_type(action=trimmed_action, file=file)
-            allocate (actual_action, source=trimmed_action)
-        else
-            allocate (actual_action, source='readwrite')
-        end if
         allocate (form, source='unformatted')
-        call open_file(unit=unit, form=form, file=file, status=status, action=actual_action)
+        call open_file(unit, form, file, status, optional_action, optional_position)
     end subroutine open_unformatted_file
 
-    subroutine open_formatted_file(unit, file, status, optional_action)
+    subroutine open_formatted_file(unit, file, status, optional_action, optional_position)
         implicit none
-        character(len=*), intent(in), optional :: optional_action
+        character(len=*), intent(in), optional :: optional_action, optional_position
         character(len=*), intent(in) :: file, status
         integer, intent(inout) :: unit
         character(:), allocatable :: form, actual_action, trimmed_action
 
-        if (present(optional_action)) then
-            allocate (trimmed_action, source=trim(optional_action))
-            call lowercase(trimmed_action)
-            call check_action_type(action=trimmed_action, file=file)
-            allocate (actual_action, source=trimmed_action)
-        else
-            allocate (actual_action, source='readwrite')
-        end if
         allocate (form, source='formatted')
-        call open_file(unit=unit, form=form, file=file, status=status, action=actual_action)
+        call open_file(unit, form, file, status, optional_action, optional_position)
     end subroutine open_formatted_file
 end module module_file_manager
