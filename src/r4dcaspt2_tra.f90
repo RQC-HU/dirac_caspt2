@@ -29,7 +29,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     character(*), parameter         :: int_input_form = '(1x,a,1x,i0)'
     character(len=30)               :: real_str
     integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
-    integer                 :: idx, dict_key, dict_val, nroot_read, i, nuniq
+    integer                 :: idx, nroot_read, i, nuniq
+    integer(8), allocatable :: dict_vals(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -120,15 +121,13 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Allocate (ecas(1:nroot_read)); Call memplus(KIND(ecas), SIZE(ecas), 1)
     read (unit_new) ecas(1:nroot_read)
     read (unit_new) dict_cas_idx_size ! The number of CAS configurations
-    do idx = 1, dict_cas_idx_size
-        read (unit_new) dict_key, dict_val
-        call add(dict_cas_idx, dict_key, dict_val)
+    allocate (dict_vals(dict_cas_idx_size))
+    read (unit_new) dict_vals(:)
+    do idx = 1, size(dict_vals)
+        call add(dict_cas_idx, idx, dict_vals(idx))
+        call add(dict_cas_idx_reverse, dict_vals(idx), idx)
     end do
-    read (unit_new) dict_cas_idx_reverse_size ! The number of CAS configurations
-    do idx = 1, dict_cas_idx_reverse_size
-        read (unit_new) dict_key, dict_val
-        call add(dict_cas_idx_reverse, dict_key, dict_val)
-    end do
+    deallocate(dict_vals)
     allocate (cir(ndet, nroot_read)); Call memplus(KIND(cir), SIZE(cir), 1)
     allocate (cii(ndet, nroot_read)); Call memplus(KIND(cii), SIZE(cii), 1)
     read (unit_new) (cir(:, i), i=1, nroot_read)
@@ -138,9 +137,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     close (unit_new)
     ! Check if dict_cas_idx_size is equal to ndet
-    if (dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet) then
-        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet. ndet =', ndet, &
-            ",dict_cas_idx_size =", dict_cas_idx_size, ",dict_cas_idx_reverse_size =", dict_cas_idx_reverse_size
+    if (dict_cas_idx_size /= ndet) then
+        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet. ndet =', ndet, ",dict_cas_idx_size =", dict_cas_idx_size
         call stop_with_errorcode(1)
     end if
 

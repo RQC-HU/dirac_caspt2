@@ -22,8 +22,8 @@ SUBROUTINE casci
     real(8), allocatable    :: ecas(:)
     character(:), allocatable  :: filename
     character(len=len_convert_int_to_chr) :: chr_root
-    integer :: dict_cas_idx_size, dict_cas_idx_reverse_size, idx
-    integer, allocatable :: keys(:), vals(:), keys_rev(:), vals_rev(:)
+    integer :: dict_cas_idx_size, idx
+    integer, allocatable :: keys(:), vals(:)
     type(time_type) :: tmp_start_time, tmp_end_time
 
     Call search_cas_configuration
@@ -57,14 +57,9 @@ SUBROUTINE casci
     dict_cas_idx_size = get_size(dict_cas_idx)
     allocate (keys(dict_cas_idx_size), vals(dict_cas_idx_size))
     call get_keys_vals(dict_cas_idx, keys, vals, dict_cas_idx_size)
-    ! keys and vals are used to store pairs of keys and values in dict_cas_idx_reverse
-    dict_cas_idx_reverse_size = get_size(dict_cas_idx_reverse)
-    allocate (keys_rev(dict_cas_idx_reverse_size), vals_rev(dict_cas_idx_reverse_size))
-    call get_keys_vals(dict_cas_idx_reverse, keys_rev, vals_rev, dict_cas_idx_reverse_size)
     ! Check if dict_cas_idx_size is equal to ndet
-    if (dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet) then
-        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet. ndet =', ndet, &
-            ",dict_cas_idx_size =", dict_cas_idx_size, ",dict_cas_idx_reverse_size =", dict_cas_idx_reverse_size
+    if (dict_cas_idx_size /= ndet) then
+        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet. ndet =', ndet, ",dict_cas_idx_size =", dict_cas_idx_size
         call stop_with_errorcode(1)
     end if
 
@@ -123,13 +118,7 @@ SUBROUTINE casci
         write (unit_cimat) ndet, nroot
         write (unit_cimat) ecas(1:nroot)
         write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
-        do idx = 1, dict_cas_idx_size
-            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx to the file
-        end do
-        write (unit_cimat) dict_cas_idx_reverse_size ! The number of elements in dict_cas_idx_reverse
-        do idx = 1, dict_cas_idx_reverse_size
-            write (unit_cimat) keys_rev(idx), vals_rev(idx) ! Store pairs of keys_rev and values in dict_cas_idx_reverse to the file
-        end do
+        write (unit_cimat) vals(1:dict_cas_idx_size)
         if (realonly%is_realonly()) then
             write (unit_cimat) (cir(:, irec), irec=1, nroot)
         else
@@ -139,5 +128,5 @@ SUBROUTINE casci
         close (unit_cimat)
     end if
     Deallocate (ecas)
-    deallocate (keys, vals, keys_rev, vals_rev)
+    deallocate (keys, vals)
 end subroutine casci
