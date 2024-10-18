@@ -5,6 +5,7 @@ module module_essential_input
     private
     public :: add_essential_input, update_esesential_input, &
               check_all_essential_inputs_specified, &
+              get_essential_input_idx, essential_input_is_specified, &
               essential_inputs
     type essential_input
         character(:), allocatable :: name
@@ -66,5 +67,35 @@ contains
             end if
         end do
     end subroutine check_all_essential_inputs_specified
+
+    function get_essential_input_idx(name) result(idx)
+        implicit none
+        character(*), intent(in) :: name
+        integer :: i, idx
+        character(:), allocatable :: trimmed_name
+
+        trimmed_name = trim(adjustl(name))
+        do i = 1, size(essential_inputs, 1)
+            if (essential_inputs(i)%name == trimmed_name) then
+                idx = i
+                return ! Found, return idx
+            end if
+        end do
+        idx = -1 ! Not found
+    end function get_essential_input_idx
+
+    function essential_input_is_specified(name) result(is_specified)
+        implicit none
+        character(*), intent(in) :: name
+        logical :: is_specified
+        integer :: idx
+
+        idx = get_essential_input_idx(name)
+        if (idx == -1) then
+            if (rank == 0) print *, "ERROR: Unknown input: ", trim(adjustl(name))
+            call stop_with_errorcode(1)
+        end if
+        is_specified = essential_inputs(idx)%is_specified
+    end function essential_input_is_specified
 
 end module module_essential_input

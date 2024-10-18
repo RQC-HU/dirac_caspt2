@@ -12,11 +12,6 @@ subroutine read_cimat
     integer(8), allocatable :: dict_cas_idx_values(:)
     real(8), allocatable    :: ecas(:)
 
-    ! Initialize variables as invalid values
-    dict_cas_idx_size = -1
-    ndet = -1
-    nroot_read = -1
-
     if (allocated(essential_inputs)) deallocate (essential_inputs)
     call add_essential_input("ndet")
     call add_essential_input("nroot")
@@ -28,7 +23,7 @@ subroutine read_cimat
     call open_unformatted_file(unit, "CIMAT", "old", "read", "append")
     backspace (unit)
     read (unit) key
-    if (trim(adjustl(key)) /= "end") then
+    if (trim(adjustl(key)) /= "end") then ! CIMAT must be ended with "end"
         if (rank == 0) print *, "Error: CIMAT file is corrupted."
         call stop_with_errorcode(1)
     end if
@@ -52,7 +47,7 @@ subroutine read_cimat
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("ecas")
-            if (nroot_read == -1) then
+            if (.not. essential_input_is_specified("nroot")) then
                 if (rank == 0) print *, "Error: ecas detected before nroot."
                 call stop_with_errorcode(1)
             end if
@@ -64,7 +59,7 @@ subroutine read_cimat
             deallocate (ecas)
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("dict_cas_idx_values")
-            if (ndet == -1) then
+            if (.not. essential_input_is_specified("ndet")) then
                 if (rank == 0) print *, "Error: dict_cas_idx_values detected before ndet."
                 call stop_with_errorcode(1)
             end if
@@ -76,11 +71,11 @@ subroutine read_cimat
             end do
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("ci_coefficients")
-            if (ndet == -1) then
+            if (.not. essential_input_is_specified("ndet")) then
                 if (rank == 0) print *, "Error: ci_coefficients detected before ndet."
                 call stop_with_errorcode(1)
             end if
-            if (nroot_read == -1) then
+            if (.not. essential_input_is_specified("nroot")) then
                 if (rank == 0) print *, "Error: ci_coefficients detected before nroot."
                 call stop_with_errorcode(1)
             end if
