@@ -22,6 +22,7 @@ SUBROUTINE casci
     real(8), allocatable    :: ecas(:)
     character(:), allocatable  :: filename
     character(len=len_convert_int_to_chr) :: chr_root
+    character(len=cimat_key_size) :: key
     integer :: dict_cas_idx_size, idx
     integer, allocatable :: keys(:), vals(:)
     type(time_type) :: tmp_start_time, tmp_end_time
@@ -115,16 +116,28 @@ SUBROUTINE casci
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         filename = 'CIMAT'
         call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
-        write (unit_cimat) ndet, nroot
+        key = 'ndet'
+        write (unit_cimat) key
+        write (unit_cimat) ndet
+        key = 'nroot'
+        write (unit_cimat) key
+        write (unit_cimat) nroot
+        key = 'ecas'
+        write (unit_cimat) key
         write (unit_cimat) ecas(1:nroot)
-        write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
+        key = 'dict_cas_idx_values'
+        write (unit_cimat) key
         write (unit_cimat) vals(1:dict_cas_idx_size)
+        key = 'ci_coefficients'
+        write (unit_cimat) key
         if (realonly%is_realonly()) then
             write (unit_cimat) (cir(:, irec), irec=1, nroot)
         else
             write (unit_cimat) (cir(:, irec), irec=1, nroot)
             write (unit_cimat) (cii(:, irec), irec=1, nroot)
         end if
+        key = 'end'
+        write (unit_cimat) key
         close (unit_cimat)
     end if
     Deallocate (ecas)

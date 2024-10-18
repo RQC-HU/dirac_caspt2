@@ -70,6 +70,7 @@ add_executable(r4dcaspt2ocoexe
   one_e_exct.f90
   r4dcaspt2_tra.f90
   ras_det_check.f90
+  read_cimat.f90
   read_mrconee.f90
   prtoutfock.f90
   sdet.f90

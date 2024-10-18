@@ -21,16 +21,12 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     include 'mpif.h'
     real(16)                :: time0, time1
 #endif
-    integer                 :: unit_input, unit_new, cur_subspace_idx
+    integer                 :: unit_input, cur_subspace_idx
     real(8)                 :: e0, e2, weight0
-    complex*16, allocatable         :: ci(:)
-    real(8), allocatable            :: ecas(:)
     character(:), allocatable       :: filename
     character(*), parameter         :: int_input_form = '(1x,a,1x,i0)'
     character(len=30)               :: real_str
-    integer                 :: dict_cas_idx_size, dict_cas_idx_reverse_size ! The number of CAS configurations
-    integer                 :: idx, nroot_read, i, nuniq
-    integer(8), allocatable :: dict_vals(:)
+    integer                 :: idx, i, nuniq
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -110,42 +106,8 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     nmo = ninact + nact + nsec
     if (rank == 0) print *, 'nmo        =', nmo
 
-    ! Read CAS configuration convertion list
-    call open_unformatted_file(unit=unit_new, file="CIMAT", status='old', optional_action="read")
-    read (unit_new) ndet, nroot_read
-    if (nroot_read < selectroot) then
-        if (rank == 0) print *, 'ERROR: nroot in CIMAT file is less than selectroot. nroot in CIMAT =', nroot_read, &
-            ",selectroot =", selectroot
-        call stop_with_errorcode(1)
-    end if
-    Allocate (ecas(1:nroot_read)); Call memplus(KIND(ecas), SIZE(ecas), 1)
-    read (unit_new) ecas(1:nroot_read)
-    read (unit_new) dict_cas_idx_size ! The number of CAS configurations
-    allocate (dict_vals(dict_cas_idx_size))
-    read (unit_new) dict_vals(:)
-    do idx = 1, size(dict_vals)
-        call add(dict_cas_idx, idx, dict_vals(idx))
-        call add(dict_cas_idx_reverse, dict_vals(idx), idx)
-    end do
-    deallocate(dict_vals)
-    allocate (cir(ndet, nroot_read)); Call memplus(KIND(cir), SIZE(cir), 1)
-    allocate (cii(ndet, nroot_read)); Call memplus(KIND(cii), SIZE(cii), 1)
-    read (unit_new) (cir(:, i), i=1, nroot_read)
-    cii = 0.0d+00
-    if (.not. realonly%is_realonly()) then
-        read (unit_new) (cii(:, i), i=1, nroot_read)
-    end if
-    close (unit_new)
-    ! Check if dict_cas_idx_size is equal to ndet
-    if (dict_cas_idx_size /= ndet) then
-        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet. ndet =', ndet, ",dict_cas_idx_size =", dict_cas_idx_size
-        call stop_with_errorcode(1)
-    end if
+    call read_cimat
 
-    ! Read CASCI energy
-    Allocate (eigen(1:nroot_read)); Call memplus(KIND(eigen), SIZE(eigen), 1)
-    eigen(:) = ecas(1:nroot_read) + ecore
-    Deallocate (ecas)
     iroot = selectroot
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
 !            BUILDING  FOCK MATRIX               !
