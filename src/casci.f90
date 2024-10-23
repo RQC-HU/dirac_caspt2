@@ -14,7 +14,7 @@ SUBROUTINE casci
     use module_time
     Implicit NONE
 
-    integer :: j0, j, i0, irec, unit_cimat
+    integer :: j0, j, i0, irec, unit_cidata
     real(8) :: cutoff_threshold
 
     complex*16, allocatable :: mat_complex(:, :) ! For complex
@@ -22,7 +22,7 @@ SUBROUTINE casci
     real(8), allocatable    :: ecas(:)
     character(:), allocatable  :: filename
     character(len=len_convert_int_to_chr) :: chr_root
-    character(len=cimat_key_size) :: key
+    character(len=cidata_key_size) :: key
     integer :: dict_cas_idx_size, idx
     integer, allocatable :: keys(:), vals(:)
     type(time_type) :: tmp_start_time, tmp_end_time
@@ -112,45 +112,45 @@ SUBROUTINE casci
         end if
         Call memminus(KIND(mat_complex), SIZE(mat_complex), 2); Deallocate (mat_complex)
     end if
-    ! write CI matrix to CIMAT file
+    ! write CI matrix to the CIDATA file
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        filename = 'CIMAT'
-        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
+        filename = 'CIDATA'
+        call open_unformatted_file(unit=unit_cidata, file=filename, status='replace')
         key = "ninact"
-        write (unit_cimat) key
-        write (unit_cimat) ninact
+        write (unit_cidata) key
+        write (unit_cidata) ninact
         key = 'nact'
-        write (unit_cimat) key
-        write (unit_cimat) nact
+        write (unit_cidata) key
+        write (unit_cidata) nact
         key = 'nsec'
-        write (unit_cimat) key
-        write (unit_cimat) nsec
+        write (unit_cidata) key
+        write (unit_cidata) nsec
         key = 'nelec'
-        write (unit_cimat) key
-        write (unit_cimat) nelec
+        write (unit_cidata) key
+        write (unit_cidata) nelec
         key = 'ndet'
-        write (unit_cimat) key
-        write (unit_cimat) ndet
+        write (unit_cidata) key
+        write (unit_cidata) ndet
         key = 'nroot'
-        write (unit_cimat) key
-        write (unit_cimat) nroot
+        write (unit_cidata) key
+        write (unit_cidata) nroot
         key = 'ecas'
-        write (unit_cimat) key
-        write (unit_cimat) ecas(1:nroot)
+        write (unit_cidata) key
+        write (unit_cidata) ecas(1:nroot)
         key = 'dict_cas_idx_values'
-        write (unit_cimat) key
-        write (unit_cimat) vals(1:dict_cas_idx_size)
+        write (unit_cidata) key
+        write (unit_cidata) vals(1:dict_cas_idx_size)
         key = 'ci_coefficients'
-        write (unit_cimat) key
+        write (unit_cidata) key
         if (realonly%is_realonly()) then
-            write (unit_cimat) (cir(:, irec), irec=1, nroot)
+            write (unit_cidata) (cir(:, irec), irec=1, nroot)
         else
-            write (unit_cimat) (cir(:, irec), irec=1, nroot)
-            write (unit_cimat) (cii(:, irec), irec=1, nroot)
+            write (unit_cidata) (cir(:, irec), irec=1, nroot)
+            write (unit_cidata) (cii(:, irec), irec=1, nroot)
         end if
         key = 'end'
-        write (unit_cimat) key
-        close (unit_cimat)
+        write (unit_cidata) key
+        close (unit_cidata)
     end if
     Deallocate (ecas)
     deallocate (keys, vals)

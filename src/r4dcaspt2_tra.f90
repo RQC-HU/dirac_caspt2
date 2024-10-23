@@ -106,7 +106,7 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     nmo = ninact + nact + nsec
     if (rank == 0) print *, 'nmo        =', nmo
 
-    call read_cimat
+    call read_cidata
 
     iroot = selectroot
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!

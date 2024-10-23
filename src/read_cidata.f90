@@ -1,5 +1,5 @@
-subroutine read_cimat
-    ! Read CASCI energy and CI coefficients and dictionary of CAS configurations from CIMAT file
+subroutine read_cidata
+    ! Read CASCI energy and CI coefficients and dictionary of CAS configurations from cidata file
     use module_dict, only: add
     use module_error, only: stop_with_errorcode
     use module_essential_input
@@ -7,7 +7,7 @@ subroutine read_cimat
     use module_realonly, only: realonly
     use module_global_variables
     implicit none
-    character(len=cimat_key_size) :: key
+    character(len=cidata_key_size) :: key
     integer :: unit, i, dict_cas_idx_size
     integer :: ninact_read, nact_read, nsec_read, nelec_read, nroot_read
     integer(8), allocatable :: dict_cas_idx_values(:)
@@ -25,11 +25,11 @@ subroutine read_cimat
     call add_essential_input("ci_coefficients")
     call add_essential_input("end")
 
-    call open_unformatted_file(unit, "CIMAT", "old", "read", "append")
+    call open_unformatted_file(unit, file="CIDATA", status="old", optional_position="append")
     backspace (unit)
     read (unit) key
-    if (trim(adjustl(key)) /= "end") then ! CIMAT must be ended with "end"
-        if (rank == 0) print *, "Error: CIMAT file is corrupted."
+    if (trim(adjustl(key)) /= "end") then ! cidata must be ended with "end"
+        if (rank == 0) print *, "Error: cidata file is corrupted."
         call stop_with_errorcode(1)
     end if
     rewind (unit)
@@ -40,42 +40,42 @@ subroutine read_cimat
         case ("ninact")
             read (unit) ninact_read
             if (ninact_read /= ninact) then
-                if (rank == 0) print *, "Error: ninact in CIMAT file is not equal to ninact in input file."
+                if (rank == 0) print *, "Error: ninact in cidata file is not equal to ninact in input file."
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("nact")
             read (unit) nact_read
             if (nact_read /= nact) then
-                if (rank == 0) print *, "Error: nact in CIMAT file is not equal to nact in input file."
+                if (rank == 0) print *, "Error: nact in cidata file is not equal to nact in input file."
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("nsec")
             read (unit) nsec_read
             if (nsec_read /= nsec) then
-                if (rank == 0) print *, "Error: nsec in CIMAT file is not equal to nsec in input file."
+                if (rank == 0) print *, "Error: nsec in cidata file is not equal to nsec in input file."
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("nelec")
             read (unit) nelec_read
             if (nelec_read /= nelec) then
-                if (rank == 0) print *, "Error: nelec in CIMAT file is not equal to nelec in input file."
+                if (rank == 0) print *, "Error: nelec in cidata file is not equal to nelec in input file."
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("ndet")
             read (unit) ndet
             if (ndet < 0) then
-                if (rank == 0) print *, "Error: Invalid ndet in CIMAT file. ndet = ", ndet
+                if (rank == 0) print *, "Error: Invalid ndet in cidata file. ndet = ", ndet
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("nroot")
             read (unit) nroot_read
             if (nroot_read < 0) then
-                if (rank == 0) print *, "Error: Invalid nroot in CIMAT file. nroot = ", nroot_read
+                if (rank == 0) print *, "Error: Invalid nroot in cidata file. nroot = ", nroot_read
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
@@ -126,7 +126,7 @@ subroutine read_cimat
             call update_esesential_input(trim(adjustl(key)), .true.)
             exit
         case default
-            if (rank == 0) print *, "Error: Unknown keyword in CIMAT file."
+            if (rank == 0) print *, "Error: Unknown keyword in cidata file."
             call stop_with_errorcode(1)
         end select
     end do
@@ -134,4 +134,4 @@ subroutine read_cimat
     call check_all_essential_inputs_specified
     deallocate (essential_inputs)
 
-end subroutine read_cimat
+end subroutine read_cidata

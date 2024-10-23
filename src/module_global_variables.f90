@@ -177,6 +177,6 @@ MODULE module_global_variables
     real(8), parameter  :: global_threshold = 1.0d-15 ! Threshold for removing small elements
     integer      :: ndet, iroot ! ndet: the number of CAS configuration
     integer, parameter :: len_convert_int_to_chr = 30 ! Length of the string for converting integer to character
-    integer, parameter :: cimat_key_size = 30 ! Length of the key in CIMAT file
+    integer, parameter :: cidata_key_size = 30 ! Length of the key in cidata file
     logical :: dirac_32bit_build = .false. ! If .true., the DIRAC is built in 32-bit mode (default: .false.(64-bit mode))
 end MODULE module_global_variables
