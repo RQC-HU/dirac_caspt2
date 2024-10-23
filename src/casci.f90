@@ -14,7 +14,7 @@ SUBROUTINE casci
     use module_time
     Implicit NONE
 
-    integer :: j0, j, i0, irec, unit_cimat
+    integer :: j0, j, i0, irec, unit_cidata
     real(8) :: cutoff_threshold
 
     complex*16, allocatable :: mat_complex(:, :) ! For complex
@@ -22,8 +22,9 @@ SUBROUTINE casci
     real(8), allocatable    :: ecas(:)
     character(:), allocatable  :: filename
     character(len=len_convert_int_to_chr) :: chr_root
-    integer :: dict_cas_idx_size, dict_cas_idx_reverse_size, idx
-    integer, allocatable :: keys(:), vals(:), keys_rev(:), vals_rev(:)
+    character(len=cidata_key_size) :: key
+    integer :: dict_cas_idx_size, idx
+    integer, allocatable :: keys(:), vals(:)
     type(time_type) :: tmp_start_time, tmp_end_time
 
     Call search_cas_configuration
@@ -57,14 +58,9 @@ SUBROUTINE casci
     dict_cas_idx_size = get_size(dict_cas_idx)
     allocate (keys(dict_cas_idx_size), vals(dict_cas_idx_size))
     call get_keys_vals(dict_cas_idx, keys, vals, dict_cas_idx_size)
-    ! keys and vals are used to store pairs of keys and values in dict_cas_idx_reverse
-    dict_cas_idx_reverse_size = get_size(dict_cas_idx_reverse)
-    allocate (keys_rev(dict_cas_idx_reverse_size), vals_rev(dict_cas_idx_reverse_size))
-    call get_keys_vals(dict_cas_idx_reverse, keys_rev, vals_rev, dict_cas_idx_reverse_size)
     ! Check if dict_cas_idx_size is equal to ndet
-    if (dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet) then
-        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet .or. dict_cas_idx_reverse_size /= ndet. ndet =', ndet, &
-            ",dict_cas_idx_size =", dict_cas_idx_size, ",dict_cas_idx_reverse_size =", dict_cas_idx_reverse_size
+    if (dict_cas_idx_size /= ndet) then
+        if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet. ndet =', ndet, ",dict_cas_idx_size =", dict_cas_idx_size
         call stop_with_errorcode(1)
     end if
 
@@ -116,28 +112,46 @@ SUBROUTINE casci
         end if
         Call memminus(KIND(mat_complex), SIZE(mat_complex), 2); Deallocate (mat_complex)
     end if
-    ! write CI matrix to CIMAT file
+    ! write CI matrix to the CIDATA file
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        filename = 'CIMAT'
-        call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
-        write (unit_cimat) ndet, nroot
-        write (unit_cimat) ecas(1:nroot)
-        write (unit_cimat) dict_cas_idx_size ! The number of elements in dict_cas_idx
-        do idx = 1, dict_cas_idx_size
-            write (unit_cimat) keys(idx), vals(idx) ! Store pairs of keys and values in dict_cas_idx to the file
-        end do
-        write (unit_cimat) dict_cas_idx_reverse_size ! The number of elements in dict_cas_idx_reverse
-        do idx = 1, dict_cas_idx_reverse_size
-            write (unit_cimat) keys_rev(idx), vals_rev(idx) ! Store pairs of keys_rev and values in dict_cas_idx_reverse to the file
-        end do
+        filename = 'CIDATA'
+        call open_unformatted_file(unit=unit_cidata, file=filename, status='replace')
+        key = "ninact"
+        write (unit_cidata) key
+        write (unit_cidata) ninact
+        key = 'nact'
+        write (unit_cidata) key
+        write (unit_cidata) nact
+        key = 'nsec'
+        write (unit_cidata) key
+        write (unit_cidata) nsec
+        key = 'nelec'
+        write (unit_cidata) key
+        write (unit_cidata) nelec
+        key = 'ndet'
+        write (unit_cidata) key
+        write (unit_cidata) ndet
+        key = 'nroot'
+        write (unit_cidata) key
+        write (unit_cidata) nroot
+        key = 'ecas'
+        write (unit_cidata) key
+        write (unit_cidata) ecas(1:nroot)
+        key = 'dict_cas_idx_values'
+        write (unit_cidata) key
+        write (unit_cidata) vals(1:dict_cas_idx_size)
+        key = 'ci_coefficients'
+        write (unit_cidata) key
         if (realonly%is_realonly()) then
-            write (unit_cimat) (cir(:, irec), irec=1, nroot)
+            write (unit_cidata) (cir(:, irec), irec=1, nroot)
         else
-            write (unit_cimat) (cir(:, irec), irec=1, nroot)
-            write (unit_cimat) (cii(:, irec), irec=1, nroot)
+            write (unit_cidata) (cir(:, irec), irec=1, nroot)
+            write (unit_cidata) (cii(:, irec), irec=1, nroot)
         end if
-        close (unit_cimat)
+        key = 'end'
+        write (unit_cidata) key
+        close (unit_cidata)
     end if
     Deallocate (ecas)
-    deallocate (keys, vals, keys_rev, vals_rev)
+    deallocate (keys, vals)
 end subroutine casci
