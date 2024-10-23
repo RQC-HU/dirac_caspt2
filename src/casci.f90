@@ -116,6 +116,18 @@ SUBROUTINE casci
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
         filename = 'CIMAT'
         call open_unformatted_file(unit=unit_cimat, file=filename, status='replace')
+        key = "ninact"
+        write (unit_cimat) key
+        write (unit_cimat) ninact
+        key = 'nact'
+        write (unit_cimat) key
+        write (unit_cimat) nact
+        key = 'nsec'
+        write (unit_cimat) key
+        write (unit_cimat) nsec
+        key = 'nelec'
+        write (unit_cimat) key
+        write (unit_cimat) nelec
         key = 'ndet'
         write (unit_cimat) key
         write (unit_cimat) ndet

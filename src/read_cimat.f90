@@ -8,11 +8,16 @@ subroutine read_cimat
     use module_global_variables
     implicit none
     character(len=cimat_key_size) :: key
-    integer :: unit, i, dict_cas_idx_size, nroot_read
+    integer :: unit, i, dict_cas_idx_size
+    integer :: ninact_read, nact_read, nsec_read, nelec_read, nroot_read
     integer(8), allocatable :: dict_cas_idx_values(:)
     real(8), allocatable    :: ecas(:)
 
     if (allocated(essential_inputs)) deallocate (essential_inputs)
+    call add_essential_input("ninact")
+    call add_essential_input("nact")
+    call add_essential_input("nsec")
+    call add_essential_input("nelec")
     call add_essential_input("ndet")
     call add_essential_input("nroot")
     call add_essential_input("ecas")
@@ -32,6 +37,34 @@ subroutine read_cimat
     do while (.true.)
         read (unit) key
         select case (trim(adjustl(key)))
+        case ("ninact")
+            read (unit) ninact_read
+            if (ninact_read /= ninact) then
+                if (rank == 0) print *, "Error: ninact in CIMAT file is not equal to ninact in input file."
+                call stop_with_errorcode(1)
+            end if
+            call update_esesential_input(trim(adjustl(key)), .true.)
+        case ("nact")
+            read (unit) nact_read
+            if (nact_read /= nact) then
+                if (rank == 0) print *, "Error: nact in CIMAT file is not equal to nact in input file."
+                call stop_with_errorcode(1)
+            end if
+            call update_esesential_input(trim(adjustl(key)), .true.)
+        case ("nsec")
+            read (unit) nsec_read
+            if (nsec_read /= nsec) then
+                if (rank == 0) print *, "Error: nsec in CIMAT file is not equal to nsec in input file."
+                call stop_with_errorcode(1)
+            end if
+            call update_esesential_input(trim(adjustl(key)), .true.)
+        case ("nelec")
+            read (unit) nelec_read
+            if (nelec_read /= nelec) then
+                if (rank == 0) print *, "Error: nelec in CIMAT file is not equal to nelec in input file."
+                call stop_with_errorcode(1)
+            end if
+            call update_esesential_input(trim(adjustl(key)), .true.)
         case ("ndet")
             read (unit) ndet
             if (ndet < 0) then
