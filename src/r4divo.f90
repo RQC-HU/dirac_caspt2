@@ -15,9 +15,6 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use module_ivo_consistency_check
 
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-#endif
     integer                     :: input_unit, nuniq
     character(:), allocatable   :: filename
     character(*), parameter     :: int_input_form = '(1x,a,1x,i0)'
@@ -25,17 +22,6 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
-    debug = .FALSE.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-#ifdef HAVE_MPI
-    call MPI_INIT(ierr)
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-#else
-    rank = 0; nprocs = 1
-#endif
 
     if (rank == 0) then
         call print_head_ivo
@@ -129,8 +115,5 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call write_allocated_memory_size
     call get_current_time_and_print_diff(init_time, end_time) ! print the total time
     if (rank == 0) print *, 'END OF RELATIVISTIC IVO PROGRAM'
-#ifdef HAVE_MPI
-    call MPI_FINALIZE(ierr)
-#endif
 
 END subroutine r4divo_co
