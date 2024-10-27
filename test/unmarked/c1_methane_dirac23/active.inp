@@ -16,5 +16,8 @@
 0.0
 .diracver
 23
+.subprograms
+CASCI
+CASPT2
 .end
 

@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
+subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -15,9 +15,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     use read_input_module
 
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-#endif
     integer                    :: i0, nuniq, unit_eps, unit_input
     character(:), allocatable  :: filename
     character(*), parameter    :: int_input_form = '(1x,a,1x,i0)'
@@ -26,14 +23,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-! MPI initialization and get the number of MPI processes (nprocs) and own process number.
-#ifdef HAVE_MPI
-    call MPI_INIT(ierr)
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-#else
-    rank = 0; nprocs = 1
-#endif
     if (rank == 0) then
         call print_head_casci
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
@@ -46,11 +35,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         call write_allocated_memory_size
     end if
     call get_current_time(init_time); call print_time(init_time); start_time = init_time
-
-    call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
-    call read_input(unit_input)
-    close (unit_input)
-    if (enable_restart) call read_and_validate_restart_file
 
     if (rank == 0) then
         print int_input_form, 'ninact        =', ninact
@@ -74,11 +58,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
         if (enable_restart) print *, "restart       =", enable_restart
         print *, ''
     end if
-
-    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    filename = 'MRCONEE'
-    call check_dirac_integer_size(filename)
-    call read_mrconee(filename)
 
     ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
     call check_realonly()
@@ -129,9 +108,6 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(ras3_list)) then
         Call memminus(KIND(ras3_list), SIZE(ras3_list), 1); deallocate (ras3_list)
     end if
-    if (allocated(space_idx)) then
-        Call memminus(KIND(space_idx), SIZE(space_idx), 1); deallocate (space_idx)
-    end if
     if (allocated(cir)) then
         Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
     end if
@@ -150,32 +126,8 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (allocated(eps)) then
         Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
     end if
-    if (allocated(MULTB_S)) then
-        Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
-    end if
-    if (allocated(MULTB_D)) then
-        Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
-    end if
-    if (allocated(MULTB_DS)) then
-        Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
-    end if
-    if (allocated(irpamo)) then
-        Call memminus(KIND(irpamo), SIZE(irpamo), 1); deallocate (irpamo)
-    end if
-    if (allocated(indmo_cas_to_dirac)) then
-        Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1); deallocate (indmo_cas_to_dirac)
-    end if
-    if (allocated(indmo_dirac_to_cas)) then
-        Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1); deallocate (indmo_dirac_to_cas)
-    end if
-    if (allocated(one_elec_int_i)) then
-        Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1); deallocate (one_elec_int_i)
-    end if
     if (allocated(inttwi)) then
         Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
-    end if
-    if (allocated(one_elec_int_r)) then
-        Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1); deallocate (one_elec_int_r)
     end if
     if (allocated(inttwr)) then
         Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
@@ -195,8 +147,5 @@ PROGRAM r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     if (rank == 0) call write_allocated_memory_size
     call get_current_time_and_print_diff(init_time, end_time) ! Print the total time
     if (rank == 0) print *, 'End r4dcasci part'
-#ifdef HAVE_MPI
-    call MPI_FINALIZE(ierr)
-#endif
 
-END program r4dcasci
+END subroutine r4dcasci

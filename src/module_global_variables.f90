@@ -39,6 +39,7 @@ MODULE module_global_variables
     logical         :: inversion = .false., no_inversion = .false., is_scheme_set = .false.
     logical         :: debug = .false. ! debugprint option
     integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
+    logical         :: doivo = .false., docasci = .false., docaspt2 = .false.
 
     !! =================================================
     !! Variables of CI

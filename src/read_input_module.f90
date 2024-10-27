@@ -61,7 +61,7 @@ contains
         is_end = .false.
 
         call print_input_file(unit_num)
-        rewind(unit_num)
+        rewind (unit_num)
         call init_essential_variables
 
         do while (.not. is_end) ! Read the input file until the "end" is found
@@ -206,6 +206,9 @@ contains
 
         case (".restart")
             enable_restart = .true.
+
+        case (".subprograms")
+            call read_subprograms(unit_num)
 
         case (".end")
             is_end = .true.
@@ -576,6 +579,52 @@ contains
             end do
         end subroutine fill_numbers_to_list
     end subroutine parse_range_input_int
+
+    subroutine read_subprograms(unit_num)
+        use module_global_variables
+        implicit none
+        integer, intent(in) :: unit_num
+        integer :: iostat
+        character(len=max_str_length) :: input
+        character(:), allocatable :: trim_input
+
+        do while (.true.)
+            read (unit_num, '(A)', iostat=iostat) input
+            if (iostat /= 0) then
+                if (rank == 0) print *, "ERROR: while reading subprograms, iostat = ", iostat, ", input =", input
+                call stop_with_errorcode(iostat)
+                call exit(iostat)
+            end if
+
+            call uppercase(input)
+            allocate(trim_input, source=trim(adjustl(input)))
+            if (index(trim_input, ".") == 1) then
+                ! If the input starts with a dot, it is the end of the subprograms.
+                ! Need to reset the file pointer to the beginning of the line.
+                backspace(unit_num)
+                return
+            end if
+
+            select case (trim_input)
+            case ("CASCI")
+                docasci = .true.
+            case ("CASPT2")
+                docaspt2 = .true.
+            case ("IVO")
+                doivo = .true.
+            case default
+                if (rank == 0) print *, "ERROR: Unknown subprogram: ", trim_input
+                call stop_with_errorcode(1)
+            end select
+            deallocate (trim_input)
+        end do
+
+        if (doivo .and. (docasci .or. docaspt2)) then
+            if (rank == 0) print *, "ERROR: ivo and casci or casci2 cannot be specified at the same time."
+            call stop_with_errorcode(1)
+        end if
+
+    end subroutine read_subprograms
 
     subroutine write_parse_error_and_stop(subroutine_name, input)
         implicit none

@@ -16,4 +16,7 @@
 .ras3
 3..8
 4
+.subprograms
+CASCI
+CASPT2
 .end

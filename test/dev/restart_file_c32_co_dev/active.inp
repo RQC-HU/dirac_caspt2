@@ -17,4 +17,7 @@
 .diracver
 21
 .restart
+.subprograms
+CASCI
+CASPT2
 .end

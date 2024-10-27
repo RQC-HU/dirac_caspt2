@@ -6,7 +6,7 @@ module module_essential_input
     public :: add_essential_input, update_esesential_input, &
               check_all_essential_inputs_specified, &
               get_essential_input_idx, essential_input_is_specified, &
-              essential_inputs
+              essential_inputs, essential_input
     type essential_input
         character(:), allocatable :: name
         logical :: is_specified

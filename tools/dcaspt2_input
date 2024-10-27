@@ -278,23 +278,9 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
 
     # --mpi option
     mpi = f"mpirun -np {args.mpi}" if args.mpi > 1 else ""
+    bin_path = binary_dir / "r4dcaspt2exe"
+    command = f"{mpi} {bin_path}"
 
-    # Create a command
-    ivo_path = binary_dir / "r4divocoexe"
-    casci_path = binary_dir / "r4dcascicoexe"
-    caspt2_path = binary_dir / "r4dcaspt2ocoexe"
-    if args.skipcasci and args.onlycasci:
-        # --skip-casci and --only-casci cannot be used at the same time
-        msg = "--skip-casci and --only-casci cannot be used at the same time"
-        raise ValueError(msg)
-    if args.ivo:
-        command = f"{mpi} {ivo_path}"
-    elif args.onlycasci:
-        command = f"{mpi} {casci_path}"
-    elif args.skipcasci:
-        command = f"{mpi} {caspt2_path}"
-    else:
-        command = f"{mpi} {casci_path} && {mpi} {caspt2_path}"
     print(f"Created command : {command}")
     return command
 

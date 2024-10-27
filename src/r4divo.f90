@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
+subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -47,8 +47,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call write_allocated_memory_size
     call get_current_time(init_time); call print_time(init_time); start_time = init_time
 
-    call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
-    call read_input(input_unit)
     if (rank == 0) then
         print int_input_form, 'ninact     =', ninact
         print int_input_form, 'nact       =', nact
@@ -75,10 +73,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         if (enable_restart) print *, "restart    =", enable_restart
         print *, ''
     end if
-
-    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    filename = 'MRCONEE'
-    call read_mrconee(filename)
 
     ! Check consistency of IVO input and DFPCMO file.
     call ivo_consistency_check
@@ -139,4 +133,4 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call MPI_FINALIZE(ierr)
 #endif
 
-END program r4divo_co
+END subroutine r4divo_co
