@@ -99,15 +99,6 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     call write_allocated_memory_size
 
     ! Deallocate the memory
-    if (allocated(ras1_list)) then
-        Call memminus(KIND(ras1_list), SIZE(ras1_list), 1); deallocate (ras1_list)
-    end if
-    if (allocated(ras2_list)) then
-        Call memminus(KIND(ras2_list), SIZE(ras2_list), 1); deallocate (ras2_list)
-    end if
-    if (allocated(ras3_list)) then
-        Call memminus(KIND(ras3_list), SIZE(ras3_list), 1); deallocate (ras3_list)
-    end if
     if (allocated(cir)) then
         Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
     end if

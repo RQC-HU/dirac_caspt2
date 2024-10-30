@@ -438,19 +438,22 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print '(" weight of 0th wave function is ",F30.20)', weight0
         print '(" Total second order energy is   ",F30.20," a.u.")', e2all - eshift*sumc2
         print '(" Total energy is                ",F30.20," a.u.")', e2all + eigen(iroot) - eshift*sumc2
+        print *, ' '
+        print *, 'END OF RELATIVISTIC CASPT2 PROGRAM'
     end if
 
-    ! Deallocate the memory
-    if (allocated(cir)) Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
-    if (allocated(cii)) Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
-    if (allocated(eigen)) Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
-    if (allocated(eps)) Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
-    if (allocated(MULTB_S)) Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
-    if (allocated(MULTB_D)) Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
-    if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
-
-    if (rank == 0) print *, ' '
-    if (rank == 0) print *, 'END OF RELATIVISTIC CASPT2 PROGRAM'
+    if (allocated(cir)) then
+        Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
+    end if
+    if (allocated(cii)) then
+        Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
+    end if
+    if (allocated(eigen)) then
+        Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
+    end if
+    if (allocated(eps)) then
+        Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
+    end if
     ! Print out the total time
 !    call get_current_time_and_print_diff(init_time, end_time)
 

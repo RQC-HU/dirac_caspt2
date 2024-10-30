@@ -33,6 +33,7 @@ add_executable(r4dcaspt2exe
   # General
   create_newmdcint.f90
   cutoff.f90
+  dcaspt2_deallocate.f90
   dcaspt2_main.f90
   dcaspt2_run_subprograms.f90
   density_matrix.f90

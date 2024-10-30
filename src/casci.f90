@@ -37,7 +37,7 @@ SUBROUTINE casci
         Allocate (mat_complex(ndet, ndet)); Call memplus(KIND(mat_complex), SIZE(mat_complex), 2)
         Call casmat_complex(mat_complex)
     end if
-    Allocate (ecas(ndet))
+    Allocate (ecas(ndet)); call memplus(KIND(ecas), SIZE(ecas), 1)
     ecas = 0.0d+00
     call get_current_time(tmp_start_time)
 
@@ -57,6 +57,7 @@ SUBROUTINE casci
     ! keys and vals are used to store pairs of keys and values in dict_cas_idx
     dict_cas_idx_size = get_size(dict_cas_idx)
     allocate (keys(dict_cas_idx_size), vals(dict_cas_idx_size))
+    call memplus(KIND(keys), SIZE(keys), 1); call memplus(KIND(vals), SIZE(vals), 1)
     call get_keys_vals(dict_cas_idx, keys, vals, dict_cas_idx_size)
     ! Check if dict_cas_idx_size is equal to ndet
     if (dict_cas_idx_size /= ndet) then
@@ -152,6 +153,6 @@ SUBROUTINE casci
         write (unit_cidata) key
         close (unit_cidata)
     end if
-    Deallocate (ecas)
-    deallocate (keys, vals)
+    call memminus(KIND(ecas), SIZE(ecas), 1); Deallocate (ecas)
+    call memminus(KIND(keys), SIZE(vals), 1); call memminus(KIND(vals), SIZE(vals), 1); deallocate (keys, vals)
 end subroutine casci
