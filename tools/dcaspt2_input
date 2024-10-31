@@ -72,6 +72,7 @@ Wildcard is available.\n\
     )
     parser.add_argument(
         "--scratch",
+        default="~/dcaspt2_scratch",
         dest="scratchdir",
         type=str,
         help="Set the scratch directory. Add the subdirectory to the specified directory.\n(e.g.) --scratch /home/username/scratch \n=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_scratch]",
@@ -151,11 +152,7 @@ Please specify the valid path and try again."
         return scratch_dir
 
     # --scratch option, Create the root scratch directory path
-    if args.scratchdir:
-        root_scr_dir = Path(args.scratchdir).expanduser().resolve()
-    else:
-        # Use the default scratch directory if --scratch option is not specified
-        root_scr_dir = Path("~/dcaspt2_scratch").expanduser().resolve()
+    root_scr_dir = Path(args.scratchdir).expanduser().resolve()
 
     try:
         os.makedirs(root_scr_dir, exist_ok=True)
