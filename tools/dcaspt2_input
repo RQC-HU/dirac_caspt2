@@ -51,7 +51,6 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("-i", "--inp", type=str, dest="input", help="Input file [default: active.inp]")
     parser.add_argument("-o", "--out", type=str, dest="output", help="Specify the name of output file [default: dirac_caspt2.out]")
     parser.add_argument("--int", dest="integrals", help="Specify the directory where 1-2 integrals files are stored.\n[default: current directory]", metavar="1-2_INTEGRALS_DIR")
-    parser.add_argument("--ivo", action="store_true", help="Run ivo calculation only [default: False]")
     parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]", metavar="NUM_MPI_PROCESS")
     parser.add_argument(
         "--omp",
@@ -215,7 +214,8 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
         # Create a symbolic link to the 1-2 integrals file
         scratch_mrconee_path = scratch_dir / "MRCONEE"
         scratch_mrconee_path.symlink_to(integrals_dir / "MRCONEE")
-        if args.ivo:
+        dfpcmo_file_path = integrals_dir / "DFPCMO"
+        if dfpcmo_file_path:
             scratch_dfpcmo_path = scratch_dir / "DFPCMO"
             scratch_dfpcmo_path.symlink_to(integrals_dir / "DFPCMO")
         mdcints = integrals_dir / "MDCIN*"
