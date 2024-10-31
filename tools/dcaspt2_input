@@ -54,6 +54,7 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]", metavar="NUM_MPI_PROCESS")
     parser.add_argument(
         "--omp",
+        default=-1, # minus number or 0 means that this script doesn't override the OMP_NUM_THREADS environment variable
         dest="threads",
         type=int,
         help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]",
@@ -254,7 +255,7 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
         str: Created command
     """
     # --omp option
-    if args.threads is None or args.threads < 1:
+    if args.threads < 1:
         pass  # This script don't set OMP_NUM_THREADS
     else:
         os.environ["OMP_NUM_THREADS"] = str(args.threads)
