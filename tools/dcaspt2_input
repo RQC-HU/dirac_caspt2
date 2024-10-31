@@ -54,10 +54,12 @@ You need to prepare the DIRAC (http://diracprogram.org) 1-2 integrals file in ad
     parser.add_argument("--mpi", dest="mpi", type=int, default=1, help="Specify the number of MPI process. [default: 1]", metavar="NUM_MPI_PROCESS")
     parser.add_argument(
         "--omp",
-        default=-1, # minus number or 0 means that this script doesn't override the OMP_NUM_THREADS environment variable
+        default=-1,  # minus number or 0 means that this script doesn't override the OMP_NUM_THREADS environment variable
         dest="threads",
         type=int,
-        help="Specify the number of OpenMP threads per (MPI) process.\nThis option overrides the OMP_NUM_THREADS environment variable.\n[default: $OMP_NUM_THREADS]",
+        help="Specify the number of OpenMP threads per (MPI) process.\n\
+This option overrides the OMP_NUM_THREADS environment variable.\n\
+[default: $OMP_NUM_THREADS]",
         metavar="NUM_OMP_THREADS",
     )
     parser.add_argument(
@@ -76,7 +78,10 @@ Wildcard is available.\n\
         default="~/dcaspt2_scratch",
         dest="scratchdir",
         type=str,
-        help="Set the scratch directory. Add the subdirectory to the specified directory.\n(e.g.) --scratch /home/username/scratch \n=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n[default: ~/dcaspt2_scratch]",
+        help="Set the scratch directory. Add the subdirectory to the specified directory.\n\
+(e.g.) --scratch /home/username/scratch \n\
+=> Create /home/username/scratch/active_2020-01-01_12-34-56 directory.\n\
+[default: ~/dcaspt2_scratch]",
     )
     parser.add_argument("--scratchfull", dest="scratchfull", type=str, help="Set the scratch directory. Use the specified directory as the scratch directory.\n[default: None]")
     parser.add_argument("-s", "--save", "--keep_scratch", dest="save", action="store_true", help="Save the scratch directory after calculation. [default: False]")
@@ -239,7 +244,10 @@ def check_integral_files(integrals_dir: Path) -> None:
         integral_path = (integrals_dir / file).resolve()
         if not integral_path.exists():
             raise Exception(
-                f"\n{integral_path} file is not found under {integrals_dir}.\nPlease specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n(e.g.) If you saved a MDCINT file at /home/username/H2O/MDCINT, use the following command: dcaspt2 -i input_file_path --int /home/username/H2O/.\n For more information, please use the --help option ( dcaspt2 --help )."
+                f"\n{integral_path} file is not found under {integrals_dir}.\n\
+Please specify the directory where 1-2 integrals files are stored with the -int or --integrals option.\n\
+(e.g.) If you saved a MDCINT file at /home/username/H2O/MDCINT, use the following command: dcaspt2 -i input_file_path --int /home/username/H2O/.\n\
+For more information, please use the --help option ( dcaspt2 --help )."
             )
     return
 
