@@ -254,10 +254,8 @@ def create_command(args: "argparse.Namespace", binary_dir: Path) -> str:
         str: Created command
     """
     # --omp option
-    if args.threads is None:
+    if args.threads is None or args.threads < 1:
         pass  # This script don't set OMP_NUM_THREADS
-    elif args.threads <= 1:
-        os.environ["OMP_NUM_THREADS"] = "1"
     else:
         os.environ["OMP_NUM_THREADS"] = str(args.threads)
 
