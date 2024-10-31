@@ -8,7 +8,7 @@ subroutine dcaspt2_run_subprograms
     integer :: unit_input
     character(:), allocatable :: filename
 
-    if (rank == 0) print *, "Starting DCASPT2 calculation"
+    call print_head
 
     call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action="read")
     rewind (unit_input)
