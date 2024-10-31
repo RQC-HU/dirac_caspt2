@@ -254,51 +254,58 @@ The following custom CMake build options are currently supported
 ### Input file
 
 - The input file is a text file with the following format
+  - keyword (e.g. .ninact) is case-insensitive, so you are free to write it in uppercase or lowercase.
 
   - CASCI/CASPT2 input
     ```in
-    ninact
+    .ninact
     8
-    nact
+    .nact
     6
-    nsec
+    .nsec
     142
-    nelec
+    .nelec
     2
-    totsym
+    .totsym
     3
-    eshift
+    .eshift
     0.0
-    diracver
+    .diracver
     21
-    end
+    .subprograms
+    CASCI
+    CASPT2
+    .end
     ```
 
   - RASCI/RASPT2 input
     ```in
-    ninact
+    .ninact
     30
-    nact ! sum of ras1, ras2 and ras3
+    .nact ! sum of ras1, ras2 and ras3
     28
-    nsec
+    .nsec
     574
-    nelec
+    .nelec
     12
-    totsym
+    .totsym
     33
-    eshift
+    .eshift
     0.0
-    diracver
+    .diracver
     22
-    ras1
+    .ras1
     31..42
     2
-    ras2
+    .ras2
     43..48
-    ras3
+    .ras3
     49..58
     2
-    end
+    .subprograms
+    CASCI
+    CASPT2
+    .end
     ```
 
 - Please refer to the following for the meaning of each parameter and whether it is a required parameter or not
@@ -307,36 +314,37 @@ The following custom CMake build options are currently supported
 Input for CASCI and CASPT2
 
 [required parameters]
-ninact      : the number of inactive spinors
-nact        : the number of active spinors
-nsec        : the number of secondary spinors
-nelec       : the number of active electrons in active space
-totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
-diracver    : DIRAC version
-end         : The identifier at the end of the input file
+.ninact      : the number of inactive spinors
+.nact        : the number of active spinors
+.nsec        : the number of secondary spinors
+.nelec       : the number of active electrons in active space
+.totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
+.diracver    : DIRAC version
+.subprograms : List of subprograms separated by newlines (currently supported CASCI, CASPT2 and IVO)
+.end         : The identifier at the end of the input file
 
 [required parameters (IVO)]
-nocc        : The number of occupied MO (This option is for molecules without inversion center symmetry)
-noccg       : The number of occupied MO (gerade)
-noccu       : The number of occupied MO (ungerade)
+.nocc        : The number of occupied MO (This option is for molecules without inversion center symmetry)
+.noccg       : The number of occupied MO (gerade)
+.noccu       : The number of occupied MO (ungerade)
 
 [optional parameters]
-nroot       : the number of roots (default: 10, max: 500, if the number of CASCI/RASCI configuration is less than nroot, nroot will be replaced by the number of CASCI/RASCI configuration.)
-selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (default: 1, max: 500, the lowest root)
-eshift      : for real shift (default: 0)
-ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
-ras2        : RAS2 spinor list
-ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
-minholeras1 : The minimum number of hole in ras1 (default: 0)
-scheme      : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
-debugprint  : This keyword invokes priniting of additional information in the output file
-restart     : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
+.nroot       : the number of roots (default: 10, max: 500, if the number of CASCI/RASCI configuration is less than nroot, nroot will be replaced by the number of CASCI/RASCI .configuration.)
+.selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (default: 1, max: 500, the lowest root)
+.eshift      : for real shift (default: 0)
+.ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
+.ras2        : RAS2 spinor list
+.ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
+.minholeras1 : The minimum number of hole in ras1 (default: 0)
+.scheme      : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/.doc/release-23/manual/moltra.html#scheme)
+.debugprint  : This keyword invokes priniting of additional information in the output file
+.restart     : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
 
 [optional parameters (IVO)]
-nhomo       : The number of HOMO-like spinors (default: 0)
-nvcut       : The number of virtual cut MO (default: 0, This option is for molecules without inversion center symmetry)
-nvcutg      : The number of virtual cut MO (default: 0, gerade)
-nvcutu      : The number of virtual cut MO (default: 0, ungerade)
+.nhomo       : The number of HOMO-like spinors (default: 0)
+.nvcut       : The number of virtual cut MO (default: 0, This option is for molecules without inversion center symmetry)
+.nvcutg      : The number of virtual cut MO (default: 0, gerade)
+.nvcutu      : The number of virtual cut MO (default: 0, ungerade)
 ```
 
 ### Input file specification
@@ -347,16 +355,16 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
 - If you write \! or \#, the rest of the characters are recognized as comments.
 
   ```in
-   nact ! The number of nact
+   .nact ! The number of nact
    ↓
-   nact
+   .nact
   ```
 
 - Two or more consecutive dots are considered to be a range specification
   - You need to write the smaller number to the left of the dot and the larger number to the right
 
 ```in
-  RAS2
+  .RAS2
   2..5
   ↓
   2,3,4,5
@@ -365,7 +373,7 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
 - Recognizes a , (semicolon) or half-width space as a numeric delimiter
 
 ```in
-  RAS1
+  .RAS1
   1..4, 7   8 11..14
   ↓
   1,2,3,4,7,8,11,12,14
