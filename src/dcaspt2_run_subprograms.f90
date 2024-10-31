@@ -2,6 +2,7 @@ subroutine dcaspt2_run_subprograms
     use dcaspt2_restart_file, only: read_and_validate_restart_file
     use module_file_manager, only: open_formatted_file
     use module_global_variables
+    use module_realonly, only: check_realonly
     use read_input_module, only: read_input
     implicit none
     integer :: unit_input
@@ -20,6 +21,7 @@ subroutine dcaspt2_run_subprograms
     allocate (filename, source='MRCONEE')
     call check_dirac_integer_size(filename)
     call read_mrconee(filename)
+    call check_realonly
 
     if (doivo) then
         call r4divo_co

@@ -9,7 +9,7 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use module_global_variables
     use module_file_manager
     use module_2integrals
-    use module_realonly, only: check_realonly, realonly
+    use module_realonly, only: realonly
     use module_time
     use read_input_module
     use module_ivo_consistency_check
@@ -63,7 +63,6 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     ! Check consistency of IVO input and DFPCMO file.
     call ivo_consistency_check
 
-    call check_realonly
     ! Create UTChem type MDCINT file from Dirac MDCINT file
     if (rank == 0) print *, "Create_newmdcint"
     call create_newmdcint

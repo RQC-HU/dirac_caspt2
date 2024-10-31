@@ -10,7 +10,7 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     use module_global_variables
     use module_file_manager
     use module_2integrals
-    use module_realonly
+    use module_realonly, only: realonly
     use module_time
     use read_input_module
 
@@ -60,7 +60,6 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 
     ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
-    call check_realonly()
     if (skip_mdcint) then
         if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
         call get_mdcint_filename(0)
