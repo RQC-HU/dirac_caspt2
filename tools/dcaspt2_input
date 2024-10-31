@@ -470,8 +470,7 @@ def set_ouput_file_path(args: "argparse.Namespace", user_submitted_dir: Path) ->
         Path: Path to the output file
     """
     if args.output is None:
-        filename = "dirac_ivo.out" if args.ivo else "dirac_caspt2.out"
-        output_file_path = (user_submitted_dir / filename).resolve()
+        output_file_path = (user_submitted_dir / "dirac_caspt2.out").resolve()
     else:
         output_file_path = Path(args.output).expanduser().resolve()
 
