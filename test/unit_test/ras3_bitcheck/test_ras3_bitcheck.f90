@@ -8,7 +8,7 @@ program ras3_bitcheck
     logical :: is_allow
 
     call open_formatted_file(unit=unit_new, file='active.inp', status="old", optional_action='read')
-    call read_input(unit_new)
+    call read_input(unit_new, .true.)
     close (unit_new)
 
     call open_formatted_file(unit=unit_new, file='result.out', status="replace", optional_action='write')

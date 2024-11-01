@@ -47,7 +47,7 @@ contains
         end if
     end subroutine print_input_file
 
-    subroutine read_input(unit_num)
+    subroutine read_input(unit_num, bypass_reqired_file_check)
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
         ! This subroutine is the entry point to read active.inp
         !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
@@ -55,10 +55,17 @@ contains
         use module_index_utils, only: set_global_index
         implicit none
         integer, intent(in) :: unit_num
+        logical, optional, intent(in) :: bypass_reqired_file_check ! It is used for unit test
         integer :: iostat
         character(len=max_str_length) :: string
-        logical :: is_comment
+        logical :: is_comment, do_reqired_file_check
         is_end = .false.
+
+        if (present(bypass_reqired_file_check)) then
+            do_reqired_file_check = .not. bypass_reqired_file_check
+        else
+            do_reqired_file_check = .true.
+        end if
 
         call print_input_file(unit_num)
         rewind (unit_num)
@@ -82,6 +89,7 @@ contains
         call set_global_index
         call validate_nroot_selectroot
         call set_mdcint_scheme
+        if (do_reqired_file_check) call check_reqired_files_exist
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
 
@@ -597,11 +605,11 @@ contains
             end if
 
             call uppercase(input)
-            allocate(trim_input, source=trim(adjustl(input)))
+            allocate (trim_input, source=trim(adjustl(input)))
             if (index(trim_input, ".") == 1) then
                 ! If the input starts with a dot, it is the end of the subprograms.
                 ! Need to reset the file pointer to the beginning of the line.
-                backspace(unit_num)
+                backspace (unit_num)
                 return
             end if
 
@@ -814,6 +822,38 @@ contains
         end if
 
     end subroutine is_comment_line
+
+    subroutine check_reqired_files_exist
+        use module_global_variables
+        implicit none
+        logical :: is_exist, is_exist_mdcint
+
+        ! Check the existence of MRCONEE file
+        inquire (file="MRCONEE", exist=is_exist)
+        if (.not. is_exist) then
+            if (rank == 0) print *, "ERROR: MRCONEE file is required, but it is not found."
+            call stop_with_errorcode(1)
+        end if
+
+        ! Check the existence of MDCINT or MDCINTNEW file
+        inquire (file="MDCINT", exist=is_exist_mdcint)
+        is_exist = is_exist_mdcint
+        inquire (file="MDCINTNEW", exist=is_exist_mdcint)
+        is_exist = or(is_exist, is_exist_mdcint)
+        if (.not. is_exist) then
+            if (rank == 0) print *, "ERROR: MDCINT or MDCINTNEW file is required, but it is not found."
+            call stop_with_errorcode(1)
+        end if
+
+        if (doivo) then
+            ! Check the existence of DFPCMO file
+            inquire (file="DFPCMO", exist=is_exist)
+            if (.not. is_exist) then
+                if (rank == 0) print *, "ERROR: DFPCMO file is required, but it is not found."
+                call stop_with_errorcode(1)
+            end if
+        end if
+    end subroutine check_reqired_files_exist
 
     subroutine validate_nroot_selectroot
         use module_global_variables, only: rank, nroot, selectroot
