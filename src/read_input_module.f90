@@ -853,6 +853,15 @@ contains
                 call stop_with_errorcode(1)
             end if
         end if
+
+        if (.not. docasci .and. docaspt2) then
+            ! Check the existence of CIDATA file
+            inquire (file="CIDATA", exist=is_exist)
+            if (.not. is_exist) then
+                if (rank == 0) print *, "ERROR: CIDATA file is required, but it is not found."
+                call stop_with_errorcode(1)
+            end if
+        end if
     end subroutine check_reqired_files_exist
 
     subroutine validate_nroot_selectroot
