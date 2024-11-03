@@ -6,6 +6,7 @@ SUBROUTINE casmat_complex(mat)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_dict, only: exists, get_val
     use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_even_ret1
@@ -18,7 +19,8 @@ SUBROUTINE casmat_complex(mat)
 
     integer              :: occ, vir, indr, inds, inda, indb
     integer              :: ir, is, ia, ib, imo
-    integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
+    integer              :: i0, j0, k0, l0
+    integer(kind=int64)  :: i, j, newcas_idx1, newcas_idx2
     integer              :: phase1, phase2
     real(8)              :: i2r, i2i
     complex*16           :: cmplxint, mat0
@@ -226,6 +228,7 @@ SUBROUTINE casmat_real(mat)
 
     ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_dict, only: exists, get_val
     use module_index_utils, only: convert_global_to_active_idx, convert_active_to_global_idx, sign_even_ret1
@@ -238,7 +241,8 @@ SUBROUTINE casmat_real(mat)
 
     integer              :: occ, vir, indr, inds, inda, indb
     integer              :: ir, is, ia, ib, imo
-    integer              :: i0, j0, k0, l0, i, j, newcas_idx1, newcas_idx2
+    integer              :: i0, j0, k0, l0
+    integer(kind=int64)  :: i, j, newcas_idx1, newcas_idx2
     integer              :: phase1, phase2
     real(8)              :: mat0, i2r
     integer, allocatable :: oc(:), vi(:)
