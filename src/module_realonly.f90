@@ -27,15 +27,16 @@ contains
     end function is_realonly
 
     subroutine check_realonly()
+        use, intrinsic :: iso_fortran_env, only: int32
         use module_global_variables
         use module_error
         use module_file_manager
 
         integer :: unit_mdcint
         integer :: i, j, nz, inz, iostat
-        integer(4) :: i_32bit, j_32bit, nz_32bit
+        integer(kind=int32) :: i_32bit, j_32bit, nz_32bit
         integer, allocatable :: k(:), l(:)
-        integer(4), allocatable :: k_32bit(:), l_32bit(:)
+        integer(kind=int32), allocatable :: k_32bit(:), l_32bit(:)
         real(8), allocatable :: rklr(:), rkli(:)
         character(6), parameter :: filename = "MDCINT"
 

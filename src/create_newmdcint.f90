@@ -7,6 +7,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use, intrinsic :: iso_fortran_env, only: int32
     use module_error, only: stop_with_errorcode
     use module_file_manager
     Use module_global_variables
@@ -21,11 +22,11 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer :: i0, inz, nnz, n
     integer :: ikr, jkr, i
     integer :: cur_i, cur_j, cur_k, cur_l
-    integer(4) :: ikr_32bit, jkr_32bit, nz_32bit, nkr_32bit
+    integer(kind=int32) :: ikr_32bit, jkr_32bit, nz_32bit, nkr_32bit
     integer :: ii, jj, kk, ll
     integer :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
     integer, allocatable :: indk(:), indl(:), kr(:)
-    integer(4), allocatable :: indk_32bit(:), indl_32bit(:), kr_32bit(:)
+    integer(kind=int32), allocatable :: indk_32bit(:), indl_32bit(:), kr_32bit(:)
     double precision, allocatable  :: rklr(:), rkli(:)
     double precision :: cur_int2_real, cur_int2_imag
     real(8) :: cutoff
