@@ -60,15 +60,10 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     end if
 
     ! Read around the MDCINT file and determine if the imaginary part of the 2-electron integral is written or not.
-    if (skip_mdcint) then
-        if (rank == 0) print *, "Skip create_newmdcint (Activated skip_mdcint option by user input file)"
-        call get_mdcint_filename(0)
-    else
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
-        ! Create UTChem type MDCINT file from Dirac MDCINT file
-        call create_newmdcint
-        call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
-    end if
+    call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
+    ! Create UTChem type MDCINT file from Dirac MDCINT file
+    call create_newmdcint
+    call get_current_time_and_print_diff(start_time, end_time); start_time = end_time
 
     ! Read UTChem type MDCINT files and expands the 2-electron integral in memory
     Call readint2_casci(mdcintnew, nuniq)
