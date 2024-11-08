@@ -244,14 +244,17 @@ SUBROUTINE read_mrconee(filename)
     use module_file_manager
     use module_sort_swap
     Implicit NONE
+    character(*), intent(in) :: filename
 
-    integer :: unit_mrconee, IMO, IRP
+    integer :: unit_mrconee
     integer(kind=int32) :: nmo_32bit, nfsym_32bit, nz_32bit, norbt_32bit
     logical(kind=int32) :: breit_32bit, spinfr_32bit
-    character(*), intent(in) :: filename
-    integer :: i0, j0, k0, i, j, m, iostat
-    logical :: breit, is_end_of_file, spinfr
-    integer :: nfsym, nz, norbt
+    integer(kind=int64) :: IMO, IRP
+    integer(kind=int64) :: i0, j0, k0, i, j, m
+    logical(kind=int64) :: breit, spinfr
+    integer(kind=int64) :: nfsym, nz, norbt
+    integer :: iostat
+    logical :: is_end_of_file
     call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
 
     ! Read the number of molecular orbitals, Breit interaction and the core energy and HF energy.
@@ -322,7 +325,7 @@ contains
 
     subroutine read_irreducible_representation_infomation
         implicit none
-        integer :: nsymrp
+        integer(kind=int64) :: nsymrp
         integer(kind=int32) :: nsymrp_32bit, nsymrpa_32bit
         character :: repn(64)*14
         ! Read the number of irreducible representations and irreducible representation labels for each molecular orbital.
@@ -367,7 +370,7 @@ contains
         ! MULTB, MULTB2, MULTB_S, MULTB_D, MULTB_DS
         implicit none
         integer(kind=int32) :: multb_32bit(128, 128)
-        integer, allocatable :: SD(:, :)
+        integer(kind=int64), allocatable :: SD(:, :)
 
         allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
         allocate (MULTB_D(1:NSYMRPA, 1:NSYMRPA))  ! dagger
@@ -448,8 +451,8 @@ contains
 
     subroutine create_mo_irrep_conversion_list
         implicit none
-        integer, allocatable :: tmp_mo(:)
-        integer, allocatable :: irpmo(:)
+        integer(kind=int64), allocatable :: tmp_mo(:)
+        integer(kind=int64), allocatable :: irpmo(:)
         integer(kind=int32), allocatable :: irpmo_32bit(:), irpamo_32bit(:)
         ! Define the space index for each molecular orbital.
         Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
@@ -546,7 +549,7 @@ contains
 
         Implicit NONE
 
-        integer :: isp, nmom
+        integer(kind=int64) :: isp, nmom
         double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
         if (debug .and. rank == 0) then

@@ -7,7 +7,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    use, intrinsic :: iso_fortran_env, only: int32
+    use, intrinsic :: iso_fortran_env, only: int32, int64
     use module_error, only: stop_with_errorcode
     use module_file_manager
     Use module_global_variables
@@ -19,20 +19,20 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     include 'mpif.h'
 #endif
     Character  :: datex*10, timex*8
-    integer :: i0, inz, nnz, n
-    integer :: ikr, jkr, i
-    integer :: cur_i, cur_j, cur_k, cur_l
     integer(kind=int32) :: ikr_32bit, jkr_32bit, nz_32bit, nkr_32bit
-    integer :: ii, jj, kk, ll
-    integer :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
-    integer, allocatable :: indk(:), indl(:), kr(:)
+    integer(kind=int64) :: ikr, jkr, nz, nkr
+    integer(kind=int64) :: i, i0, inz, nnz, n, nz_loop_end
+    integer(kind=int64) :: cur_i, cur_j, cur_k, cur_l
+    integer(kind=int64) :: ii, jj, kk, ll
+    integer(kind=int64) :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
     integer(kind=int32), allocatable :: indk_32bit(:), indl_32bit(:), kr_32bit(:)
+    integer(kind=int64), allocatable :: indk(:), indl(:), kr(:)
     double precision, allocatable  :: rklr(:), rkli(:)
     double precision :: cur_int2_real, cur_int2_imag
     real(8) :: cutoff
-    integer :: iiit, jjjt, kkkt, lllt
-    integer :: nkr, nz, file_idx, iostat
-    integer :: unit_mdcint, unit_mdcintnew, nz_loop_end
+    integer(kind=int64) :: iiit, jjjt, kkkt, lllt
+    integer :: file_idx, iostat
+    integer :: unit_mdcint, unit_mdcintnew
     logical :: is_file_exist, is_end_of_file
 
     if (rank == 0) print *, 'Start create_newmdcint'
