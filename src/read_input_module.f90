@@ -215,6 +215,9 @@ contains
         case (".subprograms")
             call read_subprograms(unit_num)
 
+        case (".countndet")
+            docountndet = .true.
+
         case (".end")
             is_end = .true.
 
