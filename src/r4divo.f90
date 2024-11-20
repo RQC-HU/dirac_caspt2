@@ -76,7 +76,7 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, ' '
         print *, '*******************************'
         print *, ' '
-        print *, 'IREP IS ', repna(totsym)
+        ! print *, 'IREP IS ', repna(totsym)
         print *, ' '
         print *, '*******************************'
     end if
@@ -96,10 +96,22 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     end if
 
     ! Deallocate memory
-    Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
-    Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
-    if (.not. realonly%is_realonly()) then
+    if (allocated(inttwi)) then
+        Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
+    end if
+    if (allocated(inttwr)) then
+        Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
+    end if
+    if (allocated(int2r_f1)) then
+        Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
+    end if
+    if (allocated(int2r_f2)) then
+        Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
+    end if
+    if (allocated(int2i_f1)) then
         Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
+    end if
+    if (allocated(int2i_f2)) then
         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
 

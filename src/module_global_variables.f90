@@ -32,8 +32,10 @@ MODULE module_global_variables
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
     logical         :: enable_restart = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
+    ! totsym and selectroot list caspt2_ciroots(:, 1) = totsym, caspt2_ciroots(:, 2) = selectroot
+    integer, allocatable :: caspt2_ciroots(:, :)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
-    integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
+    integer, parameter :: max_ras_spinor_num = 200, root_max = 500, max_i4 = huge(0_4) ! 4byte integer max value
     ! vcut_mo_num: The number of virtual orbitals in each fermion irreducible representation
     ! occ_mo_num: The number of occupied orbitals in each fermion irreducible representation
     integer         :: vcut_mo_num(2) = 0, occ_mo_num(2) = 0

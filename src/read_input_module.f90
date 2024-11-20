@@ -23,7 +23,6 @@ contains
         call add_essential_input("nact")
         call add_essential_input("nsec")
         call add_essential_input("nelec")
-        call add_essential_input("totsym")
         call add_essential_input("diracver")
     end subroutine init_essential_variables
 
@@ -126,14 +125,10 @@ contains
             call update_esesential_input("nelec", .true.)
 
         case (".nroot")
-            call read_an_integer(unit_num, ".nroot", 1, 500, nroot)
+            call read_an_integer(unit_num, ".nroot", 1, root_max, nroot)
 
-        case (".selectroot")
-            call read_an_integer(unit_num, ".selectroot", 1, 500, selectroot)
-
-        case (".totsym")
-            call read_an_integer(unit_num, ".totsym", 1, input_intmax, totsym)
-            call update_esesential_input("totsym", .true.)
+        case (".caspt2_ciroots")
+            call read_caspt2_ciroots(unit_num)
 
         case (".ncore")
             call read_an_integer(unit_num, ".ncore", 0, input_intmax, ncore)
@@ -633,6 +628,67 @@ contains
         end if
 
     end subroutine read_subprograms
+
+    subroutine read_caspt2_ciroots(unit_num)
+        use module_global_variables
+        use module_sort_swap, only: heapSort
+        implicit none
+        integer, intent(in) :: unit_num
+        integer :: iostat, read_int, idx_filled, i, ciroots_idx
+        integer, parameter :: totsym_list_max = 1024
+        logical :: is_comment
+        integer :: tmp_int_list(max_str_length), tmp_ciroots(totsym_list_max, 2)
+        character(len=max_str_length) :: input
+        character(:), allocatable :: trim_input
+
+        tmp_ciroots(:, :) = 0
+        ciroots_idx = 0
+        do while (.true.)
+            read (unit_num, '(A)', iostat=iostat) input
+            if (iostat /= 0) then
+                if (rank == 0) print *, "ERROR: while reading capst2_ciroots, iostat = ", iostat, ", input =", input
+                call stop_with_errorcode(iostat)
+                call exit(iostat)
+            end if
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle
+
+            allocate (trim_input, source=trim(adjustl(input)))
+            if (index(trim_input, ".") == 1) then
+                ! If the input starts with a dot, it is the end of the subprograms.
+                ! Need to reset the file pointer to the beginning of the line.
+                backspace (unit_num)
+                exit
+            end if
+            deallocate (trim_input)
+
+            idx_filled = 0
+            print *, "length of tmp_int_list", size(tmp_int_list)
+            call parse_input_string_to_int_list(string=input, list=tmp_int_list, filled_num=idx_filled, &
+                                                allow_int_min=0, allow_int_max=root_max)
+
+            if (idx_filled < 2) then
+                if (rank == 0) then
+                    print *, "ERROR: .caspt2_ciroots must have at least 2 integers per line. input:", input
+                    print *, "1st integer is the total symmetry number, 2nd integer and later are the selectroot."
+                end if
+                call stop_with_errorcode(1)
+            end if
+            call heapSort(list=tmp_int_list(2:idx_filled), is_descending_order=.false.)
+
+            ! Convert 1-dim list to 2-dim ciroots
+            do i = 2, idx_filled
+                ciroots_idx = ciroots_idx + 1
+                tmp_ciroots(ciroots_idx, 1) = tmp_int_list(1) ! total symmetry number
+                tmp_ciroots(ciroots_idx, 2) = tmp_int_list(i) ! selectroot
+            end do
+
+        end do
+
+        allocate (caspt2_ciroots(ciroots_idx, 2))
+        caspt2_ciroots = tmp_ciroots(1:ciroots_idx, :) ! Copy the tmp_ciroots to caspt2_ciroots
+
+    end subroutine read_caspt2_ciroots
 
     subroutine write_parse_error_and_stop(subroutine_name, input)
         implicit none

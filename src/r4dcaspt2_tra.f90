@@ -452,6 +452,26 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     if (allocated(eps)) then
         Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
     end if
+    if (allocated(inttwi)) then
+        Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
+    end if
+    if (allocated(inttwr)) then
+        Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
+    end if
+    if (allocated(int2r_f1)) then
+        Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
+    end if
+    if (allocated(int2r_f2)) then
+        Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
+    end if
+    if (.not. realonly%is_realonly()) then
+        if (allocated(int2i_f1)) then
+            Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
+        end if
+        if (allocated(int2i_f2)) then
+            Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
+        end if
+    end if
     ! Print out the total time
 !    call get_current_time_and_print_diff(init_time, end_time)
 
