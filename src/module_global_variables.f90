@@ -43,6 +43,8 @@ MODULE module_global_variables
     logical         :: debug = .false. ! debugprint option
     integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
     logical         :: doivo = .false., docasci = .false., docaspt2 = .false., docountndet = .false.
+    integer, parameter :: ciroots_max = 1024, totsym_max = 1024
+    integer, allocatable :: nroot_list(:)
 
     !! =================================================
     !! Variables of CI

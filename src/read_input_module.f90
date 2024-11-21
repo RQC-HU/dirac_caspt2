@@ -634,15 +634,16 @@ contains
         use module_sort_swap, only: heapSort
         implicit none
         integer, intent(in) :: unit_num
-        integer :: iostat, read_int, idx_filled, i, ciroots_idx
-        integer, parameter :: totsym_list_max = 1024
+        integer :: iostat, read_int, idx_filled, i, ciroots_idx, tmp_totsym, max_totsym
         logical :: is_comment
-        integer :: tmp_int_list(max_str_length), tmp_ciroots(totsym_list_max, 2)
+        integer :: tmp_int_list(max_str_length), tmp_ciroots(ciroots_max * totsym_max, 2), tmp_nroot_list(totsym_max)
         character(len=max_str_length) :: input
         character(:), allocatable :: trim_input
 
         tmp_ciroots(:, :) = 0
+        tmp_nroot_list = 0
         ciroots_idx = 0
+        max_totsym = 0
         do while (.true.)
             read (unit_num, '(A)', iostat=iostat) input
             if (iostat /= 0) then
@@ -666,7 +667,6 @@ contains
             print *, "length of tmp_int_list", size(tmp_int_list)
             call parse_input_string_to_int_list(string=input, list=tmp_int_list, filled_num=idx_filled, &
                                                 allow_int_min=0, allow_int_max=root_max)
-
             if (idx_filled < 2) then
                 if (rank == 0) then
                     print *, "ERROR: .caspt2_ciroots must have at least 2 integers per line. input:", input
@@ -674,12 +674,15 @@ contains
                 end if
                 call stop_with_errorcode(1)
             end if
+            tmp_totsym = tmp_int_list(1)
+            max_totsym = max(max_totsym, tmp_totsym)
             call heapSort(list=tmp_int_list(2:idx_filled), is_descending_order=.false.)
+            tmp_nroot_list(tmp_totsym) = max(tmp_int_list(idx_filled), tmp_nroot_list(tmp_totsym))
 
             ! Convert 1-dim list to 2-dim ciroots
             do i = 2, idx_filled
                 ciroots_idx = ciroots_idx + 1
-                tmp_ciroots(ciroots_idx, 1) = tmp_int_list(1) ! total symmetry number
+                tmp_ciroots(ciroots_idx, 1) = tmp_totsym ! total symmetry number
                 tmp_ciroots(ciroots_idx, 2) = tmp_int_list(i) ! selectroot
             end do
 
@@ -687,6 +690,9 @@ contains
 
         allocate (caspt2_ciroots(ciroots_idx, 2))
         caspt2_ciroots = tmp_ciroots(1:ciroots_idx, :) ! Copy the tmp_ciroots to caspt2_ciroots
+
+        allocate (nroot_list(max_totsym))
+        nroot_list = tmp_nroot_list(1:max_totsym) ! Copy the tmp_nroot_list to nroot_list
 
     end subroutine read_caspt2_ciroots
 
