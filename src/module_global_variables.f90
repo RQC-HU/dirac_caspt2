@@ -43,7 +43,7 @@ MODULE module_global_variables
     logical         :: debug = .false. ! debugprint option
     integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
     logical         :: doivo = .false., docasci = .false., docaspt2 = .false., docountndet = .false.
-    integer, parameter :: ciroots_max = 1024, totsym_max = 1024
+    integer, parameter :: totsym_max = 1024, ciroots_max = totsym_max * 1024 ! ciroot_max = totsym_max * ciroot_max_per_symmetry
     integer, allocatable :: nroot_list(:)
 
     !! =================================================
