@@ -66,7 +66,7 @@ SUBROUTINE print_head
         print '(84A)', '@       of the GNU Lesser General Public License version 2.1 as published          @'
         print '(84A)', '@       by the Free Software Foundation.                                           @'
         print '(84A)', '@                                                                                  @'
-        print '(84A)', '@       Please site the following paper when you publish the data obtained         @'
+        print '(84A)', '@       Please cite the following paper when you publish the data obtained         @'
         print '(84A)', '@       using this program.                                                        @'
         print '(84A)', '@       1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M.                 @'
         print '(84A)', '@          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @'
