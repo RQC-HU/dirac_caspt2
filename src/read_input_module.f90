@@ -172,9 +172,6 @@ contains
         case (".minholeras1")
             call read_an_integer(unit_num, ".minholeras1", 0, input_intmax, min_hole_ras1)
 
-        case (".skip_mdcint")
-            skip_mdcint = .true.
-
         case (".nocc")
             if (inversion) call err_ivo_input
             call read_an_integer(unit_num, ".nocc", 0, input_intmax, occ_mo_num(1))

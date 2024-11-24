@@ -30,7 +30,7 @@ MODULE module_global_variables
     integer         :: ras1_start, ras2_start, ras3_start
     integer         :: ras1_size = 0, ras2_size = 0, ras3_size = 0
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
-    logical         :: skip_mdcint = .false., enable_restart = .false.
+    logical         :: enable_restart = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
     integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
