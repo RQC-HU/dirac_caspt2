@@ -185,4 +185,5 @@ MODULE module_global_variables
     integer, parameter :: len_convert_int_to_chr = 30 ! Length of the string for converting integer to character
     integer, parameter :: cidata_key_size = 30 ! Length of the key in cidata file
     logical :: dirac_32bit_build = .false. ! If .true., the DIRAC is built in 32-bit mode (default: .false.(64-bit mode))
+    logical :: casci_done(totsym_max) = .false.
 end MODULE module_global_variables

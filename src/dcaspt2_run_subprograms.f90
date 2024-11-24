@@ -44,8 +44,9 @@ subroutine dcaspt2_run_subprograms
         sumc2_subspace = 0
         if (enable_restart) call read_and_validate_restart_file
 
-        if (docasci) then
+        if (docasci .and. .not. casci_done(totsym)) then
             call r4dcasci
+            casci_done(totsym) = .true.
         end if
 
         if (docaspt2) then
