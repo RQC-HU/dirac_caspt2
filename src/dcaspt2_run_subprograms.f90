@@ -23,6 +23,11 @@ subroutine dcaspt2_run_subprograms
     call read_mrconee(filename)
     call check_realonly
 
+    if (docountndet) then
+        call search_cas_configuration ! If docountndet is true, only search the number of CASCI configurations and print them
+        return ! skip subprograms if docountndet is true
+    end if
+
     if (doivo) then
         call r4divo_co
     end if

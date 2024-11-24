@@ -53,18 +53,14 @@ SUBROUTINE search_cas_configuration
         current_det = find_next_configuration()
     End do
 
-    ! Stop the program if ndet == 0 because ndet == 0 means the number of CASCI configuration.
-    if (ndet == 0) then
+    if (docountndet) then
         if (rank == 0) then
-            print *, "[ERROR]: The number of CASCI configuration is 0. Therefore, subsequent calculations", &
-                " cannot be performed successfully and the program is terminated."
-            print '(a,i0,a)', " Please check your totsym parameter in your input file. your totsym parameter: ", totsym, "."
-            print *, "Following are the number of configurations for each totsym."
+            print *, 'Numbers of CASCI configurations for each total symmetry'
             do idx = 1, 2*nsymrpa
-                if (rank == 0) print '(2(a,i0))', "det_cnt( ", idx, " ) = ", det_cnt(idx)
+                print '(2(a,i0))', "ndet( ", idx, " ) = ", det_cnt(idx)
             end do
         end if
-        call stop_with_errorcode(1)
+        return ! skip the rest of validation
     end if
 
     if (rank == 0) then
@@ -160,6 +156,22 @@ contains
 
     subroutine validate_ndet_and_input_parameters()
         implicit none
+
+        ! Stop the program if ndet == 0 because the number of CASCI configuration is 0.
+        ! It means that subsequent calculations cannot be performed successfully.
+        if (ndet == 0) then
+            if (rank == 0) then
+                print *, "[ERROR]: The number of CASCI configuration is 0. Therefore, subsequent calculations", &
+                    " cannot be performed successfully and the program is terminated."
+                print '(a,i0,a)', " Please check your totsym parameter in your input file. your totsym parameter: ", totsym, "."
+                print *, "Following are the number of configurations for each totsym."
+                do idx = 1, 2*nsymrpa
+                    print '(2(a,i0))', "ndet( ", idx, " ) = ", det_cnt(idx)
+                end do
+            end if
+            call stop_with_errorcode(1)
+        end if
+
         if (ndet < selectroot) then
             if (rank == 0) then
                 print *, "ERROR: ndet < selectroot"
