@@ -1,5 +1,6 @@
 subroutine read_cidata
     ! Read CASCI energy and CI coefficients and dictionary of CAS configurations from cidata file
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_dict, only: add
     use module_error, only: stop_with_errorcode
     use module_essential_input
@@ -10,7 +11,7 @@ subroutine read_cidata
     character(len=cidata_key_size) :: key
     integer :: unit, i, dict_cas_idx_size
     integer :: ninact_read, nact_read, nsec_read, nelec_read, nroot_read
-    integer(8), allocatable :: dict_cas_idx_values(:)
+    integer(kind=int64), allocatable :: dict_cas_idx_values(:)
     real(8), allocatable    :: ecas(:)
 
     if (allocated(essential_inputs)) deallocate (essential_inputs)
@@ -99,9 +100,10 @@ subroutine read_cidata
             allocate (dict_cas_idx_values(ndet))
             read (unit) dict_cas_idx_values
             do i = 1, ndet
-                call add(dict_cas_idx, i, dict_cas_idx_values(i))
-                call add(dict_cas_idx_reverse, dict_cas_idx_values(i), i)
+                call add(dict_cas_idx, int(i, kind=int64), dict_cas_idx_values(i))
+                call add(dict_cas_idx_reverse, dict_cas_idx_values(i), int(i, kind=int64))
             end do
+            deallocate (dict_cas_idx_values)
             call update_esesential_input(trim(adjustl(key)), .true.)
         case ("ci_coefficients")
             if (.not. essential_input_is_specified("ndet")) then

@@ -6,6 +6,7 @@ SUBROUTINE casci
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_dict, only: get_keys_vals, get_size
     use module_error, only: stop_with_errorcode
     use module_file_manager, only: open_unformatted_file
@@ -24,7 +25,7 @@ SUBROUTINE casci
     character(len=len_convert_int_to_chr) :: chr_root
     character(len=cidata_key_size) :: key
     integer :: dict_cas_idx_size, idx
-    integer, allocatable :: keys(:), vals(:)
+    integer(kind=int64), allocatable :: keys(:), vals(:)
     type(time_type) :: tmp_start_time, tmp_end_time
 
     Call search_cas_configuration

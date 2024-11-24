@@ -1,4 +1,5 @@
 module ras_det_check
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables, only: rank, ras1_list, ras2_list
     implicit none
     private
@@ -8,8 +9,8 @@ contains
         ! function satisfy_ras1_condition(i,upper_allowed_hole) result(is_det_allowed)
         ! This function returns true if the configuration (i) is allowed
         use module_global_variables, only: ras1_size, min_hole_ras1
-        integer, intent(in) :: i, upper_allowed_hole
-        integer :: num_of_electron, ras1_bit
+        integer(kind=int64), intent(in) :: i, upper_allowed_hole
+        integer(kind=int64) :: num_of_electron, ras1_bit
         logical :: is_det_allowed
         ras1_bit = 2**ras1_size - 1
         call conunt_num_of_elec(i, ras1_bit, num_of_electron)
@@ -19,8 +20,8 @@ contains
         ! function satisfy_ras3_condition(i,upper_allowed_electron) result(is_det_allowed)
         ! This function returns true if the configuration (i) is allowed
         use module_global_variables, only: ras1_size, ras2_size
-        integer, intent(in) :: i, upper_allowed_electron
-        integer :: num_of_electron, ras3_bit, width_of_shift
+        integer(kind=int64), intent(in) :: i, upper_allowed_electron
+        integer(kind=int64) :: num_of_electron, ras3_bit, width_of_shift
         logical :: is_det_allowed
         ras3_bit = i
         width_of_shift = 0
@@ -39,16 +40,16 @@ contains
 
     subroutine conunt_num_of_elec(i, bit, num_of_electron)
         implicit none
-        integer, intent(in) ::  i, bit
-        integer, intent(out) :: num_of_electron
+        integer(kind=int64), intent(in) ::  i, bit
+        integer(kind=int64), intent(out) :: num_of_electron
         num_of_electron = ras_bit_calculate(i, bit)
 
     end subroutine conunt_num_of_elec
 
     function ras_bit_calculate(configuration, bit) result(num_of_electron)
         implicit none
-        integer, intent(in) :: configuration, bit
-        integer :: num_of_electron, multiply
+        integer(kind=int64), intent(in) :: configuration, bit
+        integer(kind=int64) :: num_of_electron, multiply
 
         ! ras_bitとconfigurationとのbit論理積
         multiply = iand(bit, configuration)

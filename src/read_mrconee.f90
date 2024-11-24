@@ -1,4 +1,5 @@
 subroutine check_dirac_integer_size(filename)
+    use, intrinsic :: iso_fortran_env, only: int32
     use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_file_manager
@@ -7,10 +8,10 @@ subroutine check_dirac_integer_size(filename)
 
     integer :: unit_mrconee
     character(*), intent(in) :: filename
-    integer :: iostat, record_size
+    integer :: iostat
     logical :: is_end_of_file
     integer :: nsymrp
-    integer(4) :: leading_rec_marker, trailing_rec_marker, record_offset, seek_st
+    integer(kind=int32) :: leading_rec_marker, trailing_rec_marker, record_size, record_offset, seek_st
     nsymrp = 0
     record_offset = 0
     seek_st = 0
@@ -237,19 +238,23 @@ SUBROUTINE read_mrconee(filename)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use, intrinsic :: iso_fortran_env, only: int32
     use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_file_manager
     use module_sort_swap
     Implicit NONE
-
-    integer :: unit_mrconee, IMO, IRP
-    integer(4) :: nmo_32bit, nfsym_32bit, nz_32bit, norbt_32bit
-    logical(4) :: breit_32bit, spinfr_32bit
     character(*), intent(in) :: filename
-    integer :: i0, j0, k0, i, j, m, iostat
-    logical :: breit, is_end_of_file, spinfr
-    integer :: nfsym, nz, norbt
+
+    integer :: unit_mrconee
+    integer(kind=int32) :: nmo_32bit, nfsym_32bit, nz_32bit, norbt_32bit
+    logical(kind=int32) :: breit_32bit, spinfr_32bit
+    integer(kind=int64) :: IMO, IRP
+    integer(kind=int64) :: i0, j0, k0, i, j, m
+    logical(kind=int64) :: breit, spinfr
+    integer(kind=int64) :: nfsym, nz, norbt
+    integer :: iostat
+    logical :: is_end_of_file
     call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
 
     ! Read the number of molecular orbitals, Breit interaction and the core energy and HF energy.
@@ -320,8 +325,8 @@ contains
 
     subroutine read_irreducible_representation_infomation
         implicit none
-        integer :: nsymrp
-        integer(4) :: nsymrp_32bit, nsymrpa_32bit
+        integer(kind=int64) :: nsymrp
+        integer(kind=int32) :: nsymrp_32bit, nsymrpa_32bit
         character :: repn(64)*14
         ! Read the number of irreducible representations and irreducible representation labels for each molecular orbital.
         if (dirac_32bit_build) then
@@ -364,8 +369,8 @@ contains
         ! create multiplication table
         ! MULTB, MULTB2, MULTB_S, MULTB_D, MULTB_DS
         implicit none
-        integer(4) :: multb_32bit(128, 128)
-        integer, allocatable :: SD(:, :)
+        integer(kind=int32) :: multb_32bit(128, 128)
+        integer(kind=int64), allocatable :: SD(:, :)
 
         allocate (MULTB_S(1:NSYMRPA, 1:NSYMRPA))
         allocate (MULTB_D(1:NSYMRPA, 1:NSYMRPA))  ! dagger
@@ -446,9 +451,9 @@ contains
 
     subroutine create_mo_irrep_conversion_list
         implicit none
-        integer, allocatable :: tmp_mo(:)
-        integer, allocatable :: irpmo(:)
-        integer(4), allocatable :: irpmo_32bit(:), irpamo_32bit(:)
+        integer(kind=int64), allocatable :: tmp_mo(:)
+        integer(kind=int64), allocatable :: irpmo(:)
+        integer(kind=int32), allocatable :: irpmo_32bit(:), irpamo_32bit(:)
         ! Define the space index for each molecular orbital.
         Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
         space_idx(1:ninact) = 1 ! inactive = 1
@@ -544,7 +549,7 @@ contains
 
         Implicit NONE
 
-        integer :: isp, nmom
+        integer(kind=int64) :: isp, nmom
         double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
         if (debug .and. rank == 0) then

@@ -3,6 +3,7 @@
 MODULE module_global_variables
 
 ! *+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@+*+@+*+@*+@+*+@+*+@
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_dict
     Implicit NONE
 
@@ -95,20 +96,20 @@ MODULE module_global_variables
     !! Variables of MRCONEE (A file stores 1-electron integrals, symmetry information, multiplication table etc. that is created by DIRAC)
     !! ====================================================================================================================================
     double precision :: ecore ! core energy
-    integer :: nmo, scfru
-    integer, allocatable :: irpamo(:) ! symmetry number of the specific mo
-    integer, allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
-    integer, allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor
+    integer(kind=int64)  :: nmo, scfru
+    integer(kind=int64), allocatable :: irpamo(:) ! symmetry number of the specific mo
+    integer(kind=int64), allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
+    integer(kind=int64), allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor
     real(8), allocatable :: one_elec_int_r(:, :) ! one-electron integral in CASPT2 order (real part) [old name]: oner
     real(8), allocatable :: one_elec_int_i(:, :) ! one-electron integral in CAPST2 order (imaginally part) [old name]: onei
     real(8), allocatable :: dirac_mo_energy(:) ! MO energy (a.u.) (DIRAC order)
     real(8), allocatable :: caspt2_mo_energy(:) ! MO energy (a.u.) (CASPT2 order) [old name]: orbmo
     ! Symmetry
-    integer :: nsymrpa ! number of irreducible representation (abelian group)
+    integer(kind=int64) :: nsymrpa ! number of irreducible representation (abelian group)
     character :: repna(64)*4 ! irreducible representation assignment (abelian group)
     ! Multiplication table for symmetry
-    integer :: multb(128, 128), multb2(128, 128)
-    integer, allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :)
+    integer(kind=int64) :: multb(128, 128), multb2(128, 128)
+    integer(kind=int64), allocatable ::multb_s(:, :), multb_d(:, :), multb_ds(:, :)
     real(8) :: hf_energy_mrconee ! HF energy in MRCONEE
 
     !! ========================================

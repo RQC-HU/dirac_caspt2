@@ -7,13 +7,14 @@ SUBROUTINE search_cas_configuration
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_dict, only: add
     Implicit NONE
 
-    integer :: idx, t, allow_det_num, current_det, cur_sym
-    integer, allocatable :: det_cnt(:)
+    integer(kind=int64) :: idx, t, allow_det_num, current_det, cur_sym
+    integer(kind=int64), allocatable :: det_cnt(:)
 
     if (debug .and. rank == 0) print *, 'Enter search_cas_configuration'
     allocate (det_cnt(2*nsymrpa))
@@ -45,8 +46,8 @@ SUBROUTINE search_cas_configuration
         ! Check if the configuration is CASCI configuration
         if (is_cas_configuration(cur_sym)) then
             ndet = ndet + 1
-            call add(dict_cas_idx, ndet, current_det)
-            call add(dict_cas_idx_reverse, current_det, ndet)
+            call add(dict_cas_idx, int(ndet, kind=int64), current_det)
+            call add(dict_cas_idx_reverse, current_det, int(ndet, kind=int64))
         end if
 
         current_det = find_next_configuration()
@@ -77,7 +78,7 @@ contains
 
     function find_next_configuration() result(next_configuration)
         implicit none
-        integer :: next_configuration
+        integer(kind=int64) :: next_configuration
         ! Find the next configuration
         ! http://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
         ! is the reference implementation of the following code (public domain)

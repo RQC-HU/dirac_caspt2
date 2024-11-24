@@ -6,6 +6,7 @@ module module_dict
 ! Modified by: Kohei Noda
 
 ! This is a dictionary data structure implementation based on treap.
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_error, only: stop_with_errorcode
     implicit none
     private
@@ -13,24 +14,24 @@ module module_dict
 
     type dict
         type(node), pointer :: root => null()
-        integer :: randstate = 1231767121
+        integer(kind=int64) :: randstate = 1231767121
     contains
         final :: destruct_dict
     end type dict
 
     type node
         type(node), pointer :: left => null(), right => null()
-        integer, allocatable :: key
-        integer :: val
-        integer :: pri  ! min-heap
-        integer :: cnt = 1
+        integer(kind=int64), allocatable :: key
+        integer(kind=int64) :: val
+        integer(kind=int64) :: pri  ! min-heap
+        integer(kind=int64) :: cnt = 1
     end type node
 contains
     ! High level wrapper of dictionary data structure
     pure function xorshift(i)
         implicit none
-        integer, intent(in) :: i
-        integer :: xorshift
+        integer(kind=int64), intent(in) :: i
+        integer(kind=int64) :: xorshift
         if (i == 0) then
             xorshift = 1231767121
         else
@@ -44,9 +45,9 @@ contains
     function get_val(t, key)
         implicit none
         type(dict), intent(in) :: t
-        integer, intent(in) :: key
+        integer(kind=int64), intent(in) :: key
         type(node), pointer :: nd
-        integer :: get_val
+        integer(kind=int64) :: get_val
         nd => find_node(t%root, key)
         if (.not. associated(nd)) then
             call stop_with_errorcode(1)
@@ -57,7 +58,7 @@ contains
     function exists(t, key)
         implicit none
         type(dict), intent(in) :: t
-        integer, intent(in) :: key
+        integer(kind=int64), intent(in) :: key
         type(node), pointer :: nd
         logical :: exists
         nd => find_node(t%root, key)
@@ -68,8 +69,8 @@ contains
         ! Add a new key-value pair to the dictionary.
         implicit none
         type(dict), intent(inout) :: t
-        integer, intent(in) :: key
-        integer, intent(in) :: val
+        integer(kind=int64), intent(in) :: key
+        integer(kind=int64), intent(in) :: val
         type(node), pointer :: nd
         nd => find_node(t%root, key)
         if (associated(nd)) then
@@ -83,16 +84,16 @@ contains
     subroutine remove(t, key)
         implicit none
         type(dict), intent(inout) :: t
-        integer, intent(in) :: key
+        integer(kind=int64), intent(in) :: key
         t%root => erase(t%root, key)
     end subroutine remove
 
     function get_kth_key(t, k)
         implicit none
         type(dict), intent(in) :: t
-        integer, intent(in) :: k
+        integer(kind=int64), intent(in) :: k
         type(node), pointer :: res
-        integer, allocatable :: get_kth_key
+        integer(kind=int64), allocatable :: get_kth_key
         if (k < 1 .or. k > my_count(t%root)) then
             print *, "get_kth_key failed"
             call stop_with_errorcode(1)
@@ -105,10 +106,10 @@ contains
     subroutine get_keys_vals(t, keys, vals, n)
         implicit none
         type(dict), intent(in) :: t
-        integer, intent(in) :: n
-        integer, intent(out) :: keys(n)
-        integer, intent(out) :: vals(n)
-        integer :: counter
+        integer(kind=int64), intent(in) :: n
+        integer(kind=int64), intent(out) :: keys(n)
+        integer(kind=int64), intent(out) :: vals(n)
+        integer(kind=int64) :: counter
         if (my_count(t%root) /= n) call stop_with_errorcode(1)
         counter = 0
         call inorder(t%root, keys, vals, counter)
@@ -117,7 +118,7 @@ contains
     function get_size(t)
         implicit none
         type(dict), intent(in) :: t
-        integer :: get_size
+        integer(kind=int64) :: get_size
         get_size = my_count(t%root)
     end function get_size
 
@@ -138,7 +139,7 @@ contains
     function my_count(root)
         implicit none
         type(node), pointer, intent(in) :: root
-        integer :: my_count
+        integer(kind=int64) :: my_count
         if (associated(root)) then
             my_count = root%cnt
         else
@@ -175,9 +176,9 @@ contains
     recursive function insert(root, key, val, pri) result(res)
         implicit none
         type(node), pointer, intent(in) :: root
-        integer, intent(in) :: pri
-        integer, intent(in) :: key
-        integer, intent(in) :: val
+        integer(kind=int64), intent(in) :: pri
+        integer(kind=int64), intent(in) :: key
+        integer(kind=int64), intent(in) :: val
         type(node), pointer :: res
 
         if (.not. associated(root)) then
@@ -206,7 +207,7 @@ contains
     recursive function erase(root, key) result(res)
         implicit none
         type(node), pointer, intent(in) :: root
-        integer, intent(in) :: key
+        integer(kind=int64), intent(in) :: key
         type(node), pointer :: res, tmp
 
         if (.not. associated(root)) then
@@ -245,7 +246,7 @@ contains
     recursive function find_node(root, key) result(res)
         implicit none
         type(node), pointer, intent(in) :: root
-        integer, intent(in) :: key
+        integer(kind=int64), intent(in) :: key
         type(node), pointer :: res
         if (.not. associated(root)) then
             res => null()
@@ -261,7 +262,7 @@ contains
     recursive function kth_node(root, k) result(res)
         implicit none
         type(node), pointer, intent(in) :: root
-        integer, intent(in) :: k
+        integer(kind=int64), intent(in) :: k
         type(node), pointer :: res
         if (.not. associated(root)) then
             res => null()
@@ -288,9 +289,9 @@ contains
     recursive subroutine inorder(root, keys, vals, counter)
         implicit none
         type(node), pointer, intent(in) :: root
-        integer, intent(inout) :: keys(:)
-        integer, intent(inout) :: vals(:)
-        integer, intent(inout) :: counter
+        integer(kind=int64), intent(inout) :: keys(:)
+        integer(kind=int64), intent(inout) :: vals(:)
+        integer(kind=int64), intent(inout) :: counter
         if (.not. associated(root)) return
 
         call inorder(root%left, keys, vals, counter)

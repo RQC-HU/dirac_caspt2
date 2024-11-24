@@ -7,6 +7,7 @@ subroutine one_e_exct(icas_idx, creation_op, annihilation_op, newcas_idx, phase)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    use iso_fortran_env, only: int64
     use module_global_variables
 
     Implicit NONE
@@ -14,9 +15,10 @@ subroutine one_e_exct(icas_idx, creation_op, annihilation_op, newcas_idx, phase)
     ! icas_idx: index of the current CAS
     ! creation_op: index of creation operator (electron will be excited to this orbital)
     ! annihilation_op: index of annihilation operator (electron will be excited from this orbital)
-    integer, intent(in)  :: icas_idx, creation_op, annihilation_op
-    integer, intent(out) :: newcas_idx, phase
-    integer :: ia, ib
+    integer(kind=int64), intent(in)  :: icas_idx, creation_op, annihilation_op
+    integer(kind=int64), intent(out) :: newcas_idx, phase
+    integer(kind=int64) :: ia, ib
+    integer(kind=int64), parameter :: two_int64 = 2
 
     ia = 0
     ib = 0
@@ -32,16 +34,16 @@ subroutine one_e_exct(icas_idx, creation_op, annihilation_op, newcas_idx, phase)
 
     elseif ((btest(icas_idx, annihilation_op - 1) .eqv. .true.) .and. (btest(icas_idx, creation_op - 1) .eqv. .false.)) then
 
-        newcas_idx = icas_idx - 2**(annihilation_op - 1) + 2**(creation_op - 1)
+        newcas_idx = icas_idx - two_int64**(annihilation_op - 1) + two_int64**(creation_op - 1)
 
 !        calculation of phase
         if (annihilation_op < nact) then
-            ia = ia + 2**nact - 2**annihilation_op
+            ia = ia + two_int64**nact - two_int64**annihilation_op
         end if
         if (creation_op < nact) then
-            ib = ib + 2**nact - 2**creation_op
+            ib = ib + two_int64**nact - two_int64**creation_op
         end if
-        phase = POPCNT(iand(icas_idx, ia)) + POPCNT(iand(icas_idx - 2**(annihilation_op - 1), ib))
+        phase = POPCNT(iand(icas_idx, ia)) + POPCNT(iand(icas_idx - two_int64**(annihilation_op - 1), ib))
         ! odd => (-), even => (+)
 
     end if

@@ -25,6 +25,7 @@ contains
 
     SUBROUTINE readint2_casci_realonly(filename, nuniq)  ! 2 electorn integrals created by typart in utchem (Realonly)
 
+        use, intrinsic :: iso_fortran_env, only: int64
         use module_global_variables
         use module_file_manager
         use module_index_utils, only: sign_even_ret1, sign_odd_ret1
@@ -34,17 +35,20 @@ contains
 #endif
         Implicit NONE
         character(len=*), intent(in) :: filename
+        integer, intent(out) :: nuniq
 
         character  :: datex*10, timex*8
-        integer    :: unit_mdcint, nkr, nuniq, nmoc
-        integer    :: j0, i0
-        integer    :: k, l
-        integer    :: i, j, nz
-        integer    :: inz
-        integer    :: jtr0, itr0
-        integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, count
+        integer    :: unit_mdcint
+        integer(kind=int64) :: nkr, nmoc
+        integer(kind=int64) :: j0, i0
+        integer(kind=int64) :: k, l
+        integer(kind=int64) :: i, j, nz
+        integer(kind=int64) :: inz
+        integer(kind=int64) :: jtr0, itr0
+        integer(kind=int64) :: itr, jtr, ltr, ktr, totalint, count
+        integer    :: SignIJ, SignKL
         complex*16 :: cint2
-        integer, allocatable :: indk(:), indl(:), kr(:)
+        integer(kind=int64), allocatable :: indk(:), indl(:), kr(:)
         real(8), allocatable  :: rklr(:)
         logical :: continue_read, is_end_of_file
         integer :: iostat
@@ -276,6 +280,7 @@ contains
 
     SUBROUTINE readint2_casci_complex(filename, nuniq)  ! 2 electorn integrals created by typart in utchem (Complex)
 
+        use, intrinsic :: iso_fortran_env, only: int64
         use module_global_variables
         use module_file_manager
         use module_index_utils, only: sign_even_ret1, sign_odd_ret1
@@ -285,17 +290,20 @@ contains
 #endif
         Implicit NONE
         character(len=*), intent(in) :: filename
+        integer, intent(out) :: nuniq
 
         character  :: datex*10, timex*8
-        integer    :: unit_mdcint, nkr, nuniq, nmoc
-        integer    :: j0, i0
-        integer    :: k, l
-        integer    :: i, j, nz
-        integer    :: inz
-        integer    :: jtr0, itr0
-        integer    :: SignIJ, SignKL, itr, jtr, ltr, ktr, totalint, count
+        integer    :: unit_mdcint
+        integer(kind=int64) :: nkr, nmoc
+        integer(kind=int64) :: j0, i0
+        integer(kind=int64) :: k, l
+        integer(kind=int64) :: i, j, nz
+        integer(kind=int64) :: inz
+        integer(kind=int64) :: jtr0, itr0
+        integer(kind=int64) :: itr, jtr, ltr, ktr, totalint, count
+        integer    :: SignIJ, SignKL
         complex*16 :: cint2
-        integer, allocatable :: indk(:), indl(:), kr(:)
+        integer(kind=int64), allocatable :: indk(:), indl(:), kr(:)
         real(8), allocatable  :: rklr(:), rkli(:)
         logical :: continue_read, is_end_of_file
         integer :: iostat
