@@ -26,6 +26,7 @@ If you want to contribute to this project (bug report, feature request, pull req
     - [Input file](#input-file)
     - [Input file specification](#input-file-specification)
   - [License](#license)
+  - [Citation](#citation)
 
 ## Download
 
@@ -388,3 +389,9 @@ Input for CASCI and CASPT2
     - [src/module_dict.f90](src/module_dict.f90)
     - [setup](setup)
     - [tools/dcaspt2_input](tools/dcaspt2_input)
+
+
+## Citation
+
+- Please cite the following paper when you publish the data obtained by using this program.
+  1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M. Relativistic CASPT2/RASPT2 Program along with DIRAC software. ChemRxiv. 2024; doi: [10.26434/chemrxiv-2024-t9x0l](10.26434/chemrxiv-2024-t9x0l)  This content is a preprint and has not been peer-reviewed.

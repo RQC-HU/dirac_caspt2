@@ -28,6 +28,7 @@
     - [input file](#input-file)
     - [インプットファイルの仕様](#インプットファイルの仕様)
   - [License](#license)
+  - [Citation](#citation)
 
 ## ダウンロード
 
@@ -378,3 +379,8 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
     - [src/module_dict.f90](src/module_dict.f90)
     - [setup](setup)
     - [tools/dcaspt2_input](tools/dcaspt2_input)
+
+## Citation
+
+- 本プログラムを使って得られたデータを公開する場合は以下の論文を引用してください
+  1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M. Relativistic CASPT2/RASPT2 Program along with DIRAC software. ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l  This content is a preprint and has not been peer-reviewed.
