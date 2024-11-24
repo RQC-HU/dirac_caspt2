@@ -94,11 +94,15 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
     !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
     if (realonly%is_realonly()) then
-        allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        if (.not. allocated(fock_real)) then
+            allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        end if
         fock_real(:, :) = 0.0d+00
         call fock_matrix_of_hf_real
     else
-        Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        if (.not. allocated(fock_cmplx)) then
+            Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        end if
         fock_cmplx(:, :) = 0.0d+00
         call fock_matrix_of_hf_complex
     End if
