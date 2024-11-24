@@ -1,26 +1,22 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
+subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    use dcaspt2_restart_file
+    use dcaspt2_restart_file, only: get_subspace_idx, is_skip_restart_file_subspace
     use module_2integrals, only: readint2_casci
     use module_dict, only: add
     use module_error, only: stop_with_errorcode
     use module_file_manager
     use module_global_variables
     use module_intra, only: intra_1, intra_2, intra_3
-    use module_realonly, only: check_realonly, realonly
+    use module_realonly, only: realonly
     use module_time
     use read_input_module, only: read_input
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-    real(16)                :: time0, time1
-#endif
     integer                 :: unit_input, cur_subspace_idx
     real(8)                 :: e0, e2, weight0
     character(:), allocatable       :: filename
@@ -31,15 +27,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-!   MPI initialization and get the number of MPI processes (nprocs) and own process number.
-#ifdef HAVE_MPI
-    call MPI_INIT(ierr)
-    time0 = MPI_Wtime()
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-#else
-    rank = 0; nprocs = 1
-#endif
     if (rank == 0) then
         call print_head_caspt2
         print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
@@ -51,11 +38,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     call write_allocated_memory_size
     call get_current_time(init_time); call print_time(init_time); start_time = init_time
-
-    call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action='read')
-    call read_input(unit_input)
-    close (unit_input)
-    if (enable_restart) call read_and_validate_restart_file
 
     if (rank == 0) then
         print int_input_form, 'ninact        =', ninact
@@ -84,14 +66,6 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         if (rank == 0) print *, "The CASPT2 energy cannot be defined when ninact = 0 and nsec = 0."
         stop
     end if
-
-    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    if (rank == 0) print *, ' '
-    if (rank == 0) print *, 'Reading MRCONEE (1-e integrals)'
-    filename = 'MRCONEE'
-    call check_dirac_integer_size(filename)
-    call read_mrconee(filename)
-    call check_realonly()
 
     if (rank == 0) print *, 'Reading MDCINT (2-e integrals)'
 
@@ -462,29 +436,23 @@ PROGRAM r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print '(" weight of 0th wave function is ",F30.20)', weight0
         print '(" Total second order energy is   ",F30.20," a.u.")', e2all - eshift*sumc2
         print '(" Total energy is                ",F30.20," a.u.")', e2all + eigen(iroot) - eshift*sumc2
+        print *, ' '
+        print *, 'END OF RELATIVISTIC CASPT2 PROGRAM'
     end if
 
-    ! Deallocate the memory
-    if (allocated(cir)) Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
-    if (allocated(cii)) Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
-    if (allocated(eigen)) Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
-    if (allocated(eps)) Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
-    if (allocated(MULTB_S)) Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
-    if (allocated(MULTB_D)) Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
-    if (allocated(MULTB_DS)) Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
-
-    if (rank == 0) print *, ' '
-    if (rank == 0) print *, 'END OF RELATIVISTIC CASPT2 PROGRAM'
+    if (allocated(cir)) then
+        Call memminus(KIND(cir), SIZE(cir), 1); deallocate (cir)
+    end if
+    if (allocated(cii)) then
+        Call memminus(KIND(cii), SIZE(cii), 1); deallocate (cii)
+    end if
+    if (allocated(eigen)) then
+        Call memminus(KIND(eigen), SIZE(eigen), 1); deallocate (eigen)
+    end if
+    if (allocated(eps)) then
+        Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
+    end if
     ! Print out the total time
 !    call get_current_time_and_print_diff(init_time, end_time)
-#ifdef HAVE_MPI
-    ! MPI finalization
-    time1 = MPI_Wtime()
-    if (rank == 0) then
-        ! Print out the total time (MPI)
-        write (*, "(a,e16.6)") "MPI_Wtime :", time1 - time0
-    end if
-    call MPI_FINALIZE(ierr)
-#endif
 
-END program r4dcaspt2_tra
+END subroutine r4dcaspt2_tra

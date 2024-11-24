@@ -19,60 +19,56 @@ add_library(dcaspt2_module STATIC
   ras_det_check.f90
   read_input_module.f90
   takekr.f90
+
+  # CASPT2 modules
+  ulambda_s_half.f90
+
+  # IVO modules
+  module_ivo_consistency_check.f90
 )
 target_link_libraries(dcaspt2_module dcaspt2_module_global)
 
-add_library(caspt2_module STATIC
-ulambda_s_half.f90
-)
-target_link_libraries(caspt2_module dcaspt2_module)
+add_executable(r4dcaspt2exe
 
-add_library(ivo_module STATIC
-  module_ivo_consistency_check.f90
-)
-target_link_libraries(ivo_module dcaspt2_module)
+  # General
+  create_newmdcint.f90
+  cutoff.f90
+  dcaspt2_deallocate.f90
+  dcaspt2_main.f90
+  dcaspt2_run_subprograms.f90
+  density_matrix.f90
+  diag.f90
+  e0test.f90
+  get_filename.f90
+  mem.f90
+  one_e_exct.f90
+  print_head.f90
+  read_cidata.f90
+  read_mrconee.f90
+  tramo.f90
 
-add_executable(r4dcascicoexe
-  print_head_casci.f90
+  # IVO
+  fockivo.f90
+  print_head_ivo.f90
+  r4divo.f90
+
+  # CASCI
   calce0.f90
   casci.f90
   casmat.f90
   checkdgc.f90
-  create_newmdcint.f90
-  cutoff.f90
-  diag.f90
-  density_matrix.f90
-  e0test.f90
-  search_cas_configuration.f90
-  get_filename.f90
-  mem.f90
-  one_e_exct.f90
+  print_head_casci.f90
   r4dcasci.f90
-  read_mrconee.f90
-  tramo.f90
-)
-target_link_libraries(r4dcascicoexe dcaspt2_module)
+  search_cas_configuration.f90
 
-add_executable(r4dcaspt2ocoexe
-  print_head_caspt2.f90
-  calce0.f90
-  checkdgc.f90
-  cutoff.f90
-  diag.f90
+  # CASPT2
   divide_2_elec_integral_into_subspaces.f90
   e0after_tra.f90
-  density_matrix.f90
   fock_matrix_of_hf.f90
   fockcasci.f90
   fockdiag.f90
-  get_filename.f90
-  mem.f90
-  one_e_exct.f90
+  print_head_caspt2.f90
   r4dcaspt2_tra.f90
-  ras_det_check.f90
-  read_cidata.f90
-  read_mrconee.f90
-  prtoutfock.f90
   sdet.f90
   solve_A_subspace.f90
   solve_B_subspace.f90
@@ -83,25 +79,8 @@ add_executable(r4dcaspt2ocoexe
   solve_G_subspace.f90
   solve_H_subspace.f90
   trac.f90
-  tramo.f90
+  prtoutfock.f90
 )
-target_link_libraries(r4dcaspt2ocoexe caspt2_module)
+target_link_libraries(r4dcaspt2exe dcaspt2_module)
 
-add_executable(r4divocoexe
-  print_head_ivo.f90
-  create_newmdcint.f90
-	diag.f90
-	density_matrix.f90
-	e0test.f90
-	fockivo.f90
-	get_filename.f90
-	mem.f90
-	one_e_exct.f90
-	r4divo.f90
-  read_mrconee.f90
-)
-target_link_libraries(r4divocoexe ivo_module)
-
-install(TARGETS r4divocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(TARGETS r4dcascicoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(TARGETS r4dcaspt2ocoexe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS r4dcaspt2exe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})

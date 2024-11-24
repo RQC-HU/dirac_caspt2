@@ -1,7 +1,7 @@
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
+subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -9,15 +9,12 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     use module_global_variables
     use module_file_manager
     use module_2integrals
-    use module_realonly, only: check_realonly, realonly
+    use module_realonly, only: realonly
     use module_time
     use read_input_module
     use module_ivo_consistency_check
 
     Implicit NONE
-#ifdef HAVE_MPI
-    include 'mpif.h'
-#endif
     integer                     :: input_unit, nuniq
     character(:), allocatable   :: filename
     character(*), parameter     :: int_input_form = '(1x,a,1x,i0)'
@@ -25,17 +22,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-
-    debug = .FALSE.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-#ifdef HAVE_MPI
-    call MPI_INIT(ierr)
-    call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
-    call MPI_COMM_rank(MPI_COMM_WORLD, rank, ierr)
-#else
-    rank = 0; nprocs = 1
-#endif
 
     if (rank == 0) then
         call print_head_ivo
@@ -47,8 +33,6 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     call write_allocated_memory_size
     call get_current_time(init_time); call print_time(init_time); start_time = init_time
 
-    call open_formatted_file(unit=input_unit, file='active.inp', status="old", optional_action='read')
-    call read_input(input_unit)
     if (rank == 0) then
         print int_input_form, 'ninact     =', ninact
         print int_input_form, 'nact       =', nact
@@ -76,14 +60,9 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print *, ''
     end if
 
-    ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
-    filename = 'MRCONEE'
-    call read_mrconee(filename)
-
     ! Check consistency of IVO input and DFPCMO file.
     call ivo_consistency_check
 
-    call check_realonly
     ! Create UTChem type MDCINT file from Dirac MDCINT file
     if (rank == 0) print *, "Create_newmdcint"
     call create_newmdcint
@@ -117,26 +96,15 @@ PROGRAM r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     end if
 
     ! Deallocate memory
-    Call memminus(KIND(irpamo), SIZE(irpamo), 1); deallocate (irpamo)
-    Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1); deallocate (indmo_cas_to_dirac)
-    Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1); deallocate (indmo_dirac_to_cas)
-    Call memminus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1); deallocate (one_elec_int_i)
-    Call memminus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1); deallocate (one_elec_int_r)
     Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
     Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
     if (.not. realonly%is_realonly()) then
         Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
-    Call memminus(KIND(MULTB_S), SIZE(MULTB_S), 1); deallocate (MULTB_S)
-    Call memminus(KIND(MULTB_D), SIZE(MULTB_D), 1); deallocate (MULTB_D)
-    Call memminus(KIND(MULTB_DS), SIZE(MULTB_DS), 1); deallocate (MULTB_DS)
 
     call write_allocated_memory_size
     call get_current_time_and_print_diff(init_time, end_time) ! print the total time
     if (rank == 0) print *, 'END OF RELATIVISTIC IVO PROGRAM'
-#ifdef HAVE_MPI
-    call MPI_FINALIZE(ierr)
-#endif
 
-END program r4divo_co
+END subroutine r4divo_co

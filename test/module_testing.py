@@ -22,7 +22,7 @@ def create_test_command_dcaspt2(
 ) -> str:
     options = ""
     if is_ivo:
-        options += ' --ivo --get "DFPCMONEW"'
+        options += ' --get "DFPCMONEW"'
     if save:
         scratch_path = os.path.join(test_path, "scratch")
         options += f" --save --scratch {scratch_path}"

@@ -61,7 +61,7 @@ contains
         is_end = .false.
 
         call print_input_file(unit_num)
-        rewind(unit_num)
+        rewind (unit_num)
         call init_essential_variables
 
         do while (.not. is_end) ! Read the input file until the "end" is found
@@ -101,36 +101,36 @@ contains
         call lowercase(string)
         select case (trim(adjustl(string)))
 
-        case ("ninact")
-            call read_an_integer(unit_num, "ninact", 0, input_intmax, ninact)
+        case (".ninact")
+            call read_an_integer(unit_num, ".ninact", 0, input_intmax, ninact)
             call update_esesential_input("ninact", .true.)
 
-        case ("nact")
-            call read_an_integer(unit_num, "nact", 0, input_intmax, nact)
+        case (".nact")
+            call read_an_integer(unit_num, ".nact", 0, input_intmax, nact)
             call update_esesential_input("nact", .true.)
 
-        case ("nsec")
-            call read_an_integer(unit_num, "nsec", 0, input_intmax, nsec)
+        case (".nsec")
+            call read_an_integer(unit_num, ".nsec", 0, input_intmax, nsec)
             call update_esesential_input("nsec", .true.)
 
-        case ("nelec")
-            call read_an_integer(unit_num, "nelec", 0, input_intmax, nelec)
+        case (".nelec")
+            call read_an_integer(unit_num, ".nelec", 0, input_intmax, nelec)
             call update_esesential_input("nelec", .true.)
 
-        case ("nroot")
-            call read_an_integer(unit_num, "nroot", 1, 500, nroot)
+        case (".nroot")
+            call read_an_integer(unit_num, ".nroot", 1, 500, nroot)
 
-        case ("selectroot")
-            call read_an_integer(unit_num, "selectroot", 1, 500, selectroot)
+        case (".selectroot")
+            call read_an_integer(unit_num, ".selectroot", 1, 500, selectroot)
 
-        case ("totsym")
-            call read_an_integer(unit_num, "totsym", 1, input_intmax, totsym)
+        case (".totsym")
+            call read_an_integer(unit_num, ".totsym", 1, input_intmax, totsym)
             call update_esesential_input("totsym", .true.)
 
-        case ("ncore")
-            call read_an_integer(unit_num, "ncore", 0, input_intmax, ncore)
+        case (".ncore")
+            call read_an_integer(unit_num, ".ncore", 0, input_intmax, ncore)
 
-        case ("eshift")
+        case (".eshift")
             do
                 read (unit_num, '(A)') input
                 call is_comment_line(input, is_comment)
@@ -140,74 +140,77 @@ contains
                 end if
             end do
 
-        case ("diracver")
-            call read_an_integer(unit_num, "diracver", 0, input_intmax, dirac_version)
+        case (".diracver")
+            call read_an_integer(unit_num, ".diracver", 0, input_intmax, dirac_version)
             call update_esesential_input("diracver", .true.)
 
-        case ("nhomo")
-            call read_an_integer(unit_num, "nhomo", 0, input_intmax, nhomo)
+        case (".nhomo")
+            call read_an_integer(unit_num, ".nhomo", 0, input_intmax, nhomo)
 
-        case ("ras1")
+        case (".ras1")
             call ras_read(unit_num, ras1_list, 1)
             ras1_size = size(ras1_list, 1)
-            call read_an_integer(unit_num, "ras1", 0, ras1_size, ras1_max_hole)
+            call read_an_integer(unit_num, ".ras1", 0, ras1_size, ras1_max_hole)
 
-        case ("ras2")
+        case (".ras2")
             call ras_read(unit_num, ras2_list, 2)
             ras2_size = size(ras2_list, 1)
 
-        case ("ras3")
+        case (".ras3")
             call ras_read(unit_num, ras3_list, 3)
             ras3_size = size(ras3_list, 1)
-            call read_an_integer(unit_num, "ras3", 0, ras3_size, ras3_max_elec)
+            call read_an_integer(unit_num, ".ras3", 0, ras3_size, ras3_max_elec)
 
-        case ("minholeras1")
-            call read_an_integer(unit_num, "minholeras1", 0, input_intmax, min_hole_ras1)
+        case (".minholeras1")
+            call read_an_integer(unit_num, ".minholeras1", 0, input_intmax, min_hole_ras1)
 
-        case ("skip_mdcint")
+        case (".skip_mdcint")
             skip_mdcint = .true.
 
-        case ("nocc")
+        case (".nocc")
             if (inversion) call err_ivo_input
-            call read_an_integer(unit_num, "nocc", 0, input_intmax, occ_mo_num(1))
+            call read_an_integer(unit_num, ".nocc", 0, input_intmax, occ_mo_num(1))
             no_inversion = .true.
 
-        case ("noccg")
+        case (".noccg")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, "noccg", 0, input_intmax, occ_mo_num(1))
+            call read_an_integer(unit_num, ".noccg", 0, input_intmax, occ_mo_num(1))
             inversion = .true.
 
-        case ("noccu")
+        case (".noccu")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, "noccu", 0, input_intmax, occ_mo_num(2))
+            call read_an_integer(unit_num, ".noccu", 0, input_intmax, occ_mo_num(2))
             inversion = .true.
 
-        case ("nvcut")
+        case (".nvcut")
             if (inversion) call err_ivo_input
-            call read_an_integer(unit_num, "nvcut", 0, input_intmax, vcut_mo_num(1))
+            call read_an_integer(unit_num, ".nvcut", 0, input_intmax, vcut_mo_num(1))
             no_inversion = .true.
 
-        case ("nvcutg")
+        case (".nvcutg")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, "nvcutg", 0, input_intmax, vcut_mo_num(1))
+            call read_an_integer(unit_num, ".nvcutg", 0, input_intmax, vcut_mo_num(1))
             inversion = .true.
 
-        case ("nvcutu")
+        case (".nvcutu")
             if (no_inversion) call err_ivo_input
-            call read_an_integer(unit_num, "nvcutu", 0, input_intmax, vcut_mo_num(2))
+            call read_an_integer(unit_num, ".nvcutu", 0, input_intmax, vcut_mo_num(2))
             inversion = .true.
 
-        case ("scheme")
-            call read_an_integer(unit_num, "scheme", 1, input_intmax, mdcint_scheme)
+        case (".scheme")
+            call read_an_integer(unit_num, ".scheme", 1, input_intmax, mdcint_scheme)
             is_scheme_set = .true.
 
-        case ("debugprint")
+        case (".debugprint")
             debug = .true.
 
-        case ("restart")
+        case (".restart")
             enable_restart = .true.
 
-        case ("end")
+        case (".subprograms")
+            call read_subprograms(unit_num)
+
+        case (".end")
             is_end = .true.
 
         case default
@@ -576,6 +579,52 @@ contains
             end do
         end subroutine fill_numbers_to_list
     end subroutine parse_range_input_int
+
+    subroutine read_subprograms(unit_num)
+        use module_global_variables
+        implicit none
+        integer, intent(in) :: unit_num
+        integer :: iostat
+        character(len=max_str_length) :: input
+        character(:), allocatable :: trim_input
+
+        do while (.true.)
+            read (unit_num, '(A)', iostat=iostat) input
+            if (iostat /= 0) then
+                if (rank == 0) print *, "ERROR: while reading subprograms, iostat = ", iostat, ", input =", input
+                call stop_with_errorcode(iostat)
+                call exit(iostat)
+            end if
+
+            call uppercase(input)
+            allocate(trim_input, source=trim(adjustl(input)))
+            if (index(trim_input, ".") == 1) then
+                ! If the input starts with a dot, it is the end of the subprograms.
+                ! Need to reset the file pointer to the beginning of the line.
+                backspace(unit_num)
+                return
+            end if
+
+            select case (trim_input)
+            case ("CASCI")
+                docasci = .true.
+            case ("CASPT2")
+                docaspt2 = .true.
+            case ("IVO")
+                doivo = .true.
+            case default
+                if (rank == 0) print *, "ERROR: Unknown subprogram: ", trim_input
+                call stop_with_errorcode(1)
+            end select
+            deallocate (trim_input)
+        end do
+
+        if (doivo .and. (docasci .or. docaspt2)) then
+            if (rank == 0) print *, "ERROR: ivo and casci or casci2 cannot be specified at the same time."
+            call stop_with_errorcode(1)
+        end if
+
+    end subroutine read_subprograms
 
     subroutine write_parse_error_and_stop(subroutine_name, input)
         implicit none

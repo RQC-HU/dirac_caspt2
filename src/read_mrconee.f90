@@ -16,6 +16,7 @@ subroutine check_dirac_integer_size(filename)
     seek_st = 0
 
     ! Get an unused unit
+    print *, 'filename = ', filename
     call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
     rewind (unit_mrconee)
     close (unit_mrconee)
@@ -312,6 +313,8 @@ SUBROUTINE read_mrconee(filename)
 
 ! Read 1 electron integrals to the variables one_elec_int_r and one_elec_int_i
     call read_1_elec_integrals
+
+    close (unit_mrconee)
 
 contains
 
