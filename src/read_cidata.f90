@@ -135,6 +135,6 @@ subroutine read_cidata
 
     call check_all_essential_inputs_specified
     deallocate (essential_inputs)
-    close(unit)
+    close (unit)
 
 end subroutine read_cidata

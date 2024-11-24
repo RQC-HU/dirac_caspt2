@@ -641,7 +641,7 @@ contains
         character(len=max_str_length) :: input
         character(:), allocatable :: trim_input
 
-        allocate(tmp_ciroots(ciroots_max, 2))
+        allocate (tmp_ciroots(ciroots_max, 2))
         tmp_ciroots(:, :) = 0
         tmp_nroot_list = 0
         ciroots_idx = 0
@@ -692,8 +692,8 @@ contains
 
         allocate (caspt2_ciroots(ciroots_idx, 2))
         caspt2_ciroots = tmp_ciroots(1:ciroots_idx, :) ! Copy the tmp_ciroots to caspt2_ciroots
-        deallocate(tmp_ciroots)
-        
+        deallocate (tmp_ciroots)
+
         allocate (nroot_list(max_totsym))
         nroot_list = tmp_nroot_list(1:max_totsym) ! Copy the tmp_nroot_list to nroot_list
 
