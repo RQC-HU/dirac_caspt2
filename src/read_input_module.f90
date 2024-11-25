@@ -13,18 +13,18 @@ module read_input_module
     implicit none
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
-    logical is_end
+    logical is_end, set_caspt2_ciroots
     integer, parameter :: input_intmax = 10**9, max_str_length = 500
 
 contains
 
     subroutine init_essential_variables
-        call add_essential_input("ninact")
-        call add_essential_input("nact")
-        call add_essential_input("nsec")
-        call add_essential_input("nelec")
-        call add_essential_input("totsym")
-        call add_essential_input("diracver")
+        call add_essential_input(".ninact")
+        call add_essential_input(".nact")
+        call add_essential_input(".nsec")
+        call add_essential_input(".nelec")
+        call add_essential_input(".diracver")
+        call add_essential_input(".subprograms")
     end subroutine init_essential_variables
 
     subroutine print_input_file(unit_num)
@@ -60,6 +60,7 @@ contains
         character(len=max_str_length) :: string
         logical :: is_comment, do_reqired_file_check
         is_end = .false.
+        set_caspt2_ciroots = .false.
 
         if (present(bypass_reqired_file_check)) then
             do_reqired_file_check = .not. bypass_reqired_file_check
@@ -87,8 +88,8 @@ contains
 
         call check_all_essential_inputs_specified
         call set_global_index
-        call validate_nroot_selectroot
         call set_mdcint_scheme
+        call check_ciroots_set
         if (do_reqired_file_check) call check_reqired_files_exist
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
@@ -111,29 +112,23 @@ contains
 
         case (".ninact")
             call read_an_integer(unit_num, ".ninact", 0, input_intmax, ninact)
-            call update_esesential_input("ninact", .true.)
+            call update_esesential_input(".ninact", .true.)
 
         case (".nact")
             call read_an_integer(unit_num, ".nact", 0, input_intmax, nact)
-            call update_esesential_input("nact", .true.)
+            call update_esesential_input(".nact", .true.)
 
         case (".nsec")
             call read_an_integer(unit_num, ".nsec", 0, input_intmax, nsec)
-            call update_esesential_input("nsec", .true.)
+            call update_esesential_input(".nsec", .true.)
 
         case (".nelec")
             call read_an_integer(unit_num, ".nelec", 0, input_intmax, nelec)
-            call update_esesential_input("nelec", .true.)
+            call update_esesential_input(".nelec", .true.)
 
-        case (".nroot")
-            call read_an_integer(unit_num, ".nroot", 1, 500, nroot)
-
-        case (".selectroot")
-            call read_an_integer(unit_num, ".selectroot", 1, 500, selectroot)
-
-        case (".totsym")
-            call read_an_integer(unit_num, ".totsym", 1, input_intmax, totsym)
-            call update_esesential_input("totsym", .true.)
+        case (".caspt2_ciroots")
+            call read_caspt2_ciroots(unit_num)
+            set_caspt2_ciroots = .true.
 
         case (".ncore")
             call read_an_integer(unit_num, ".ncore", 0, input_intmax, ncore)
@@ -150,7 +145,7 @@ contains
 
         case (".diracver")
             call read_an_integer(unit_num, ".diracver", 0, input_intmax, dirac_version)
-            call update_esesential_input("diracver", .true.)
+            call update_esesential_input(".diracver", .true.)
 
         case (".nhomo")
             call read_an_integer(unit_num, ".nhomo", 0, input_intmax, nhomo)
@@ -214,9 +209,15 @@ contains
 
         case (".subprograms")
             call read_subprograms(unit_num)
+            call update_esesential_input(".subprograms", .true.)
 
         case (".countndet")
             docountndet = .true.
+            ! .countndet just calls the search_cas_configuration subroutine, so it is not a subprogram,
+            ! but if .countndet is specified, the other subroutines will be skipped.
+            ! Therefore, if .countndet is specified, .subprograms doesn't need to be specified.
+            ! Thus, we set essential input "subprograms" to .true.
+            call update_esesential_input(".subprograms", .true.)
 
         case (".end")
             is_end = .true.
@@ -634,6 +635,76 @@ contains
 
     end subroutine read_subprograms
 
+    subroutine read_caspt2_ciroots(unit_num)
+        use module_global_variables
+        use module_sort_swap, only: heapSort
+        implicit none
+        integer, intent(in) :: unit_num
+        integer :: iostat, read_int, idx_filled, i, ciroots_idx, tmp_totsym, max_totsym
+        logical :: is_comment
+        integer :: tmp_int_list(max_str_length), tmp_nroot_list(totsym_max)
+        integer, parameter :: default_nroot = 10
+        integer, allocatable :: tmp_ciroots(:, :)
+        character(len=max_str_length) :: input
+        character(:), allocatable :: trim_input
+
+        allocate (tmp_ciroots(ciroots_max, 2))
+        tmp_ciroots(:, :) = 0
+        tmp_nroot_list(:) = default_nroot
+        ciroots_idx = 0
+        max_totsym = 0
+        do while (.true.)
+            read (unit_num, '(A)', iostat=iostat) input
+            if (iostat /= 0) then
+                if (rank == 0) print *, "ERROR: while reading capst2_ciroots, iostat = ", iostat, ", input =", input
+                call stop_with_errorcode(iostat)
+                call exit(iostat)
+            end if
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle
+
+            allocate (trim_input, source=trim(adjustl(input)))
+            if (index(trim_input, ".") == 1) then
+                ! If the input starts with a dot, it is the end of the subprograms.
+                ! Need to reset the file pointer to the beginning of the line.
+                backspace (unit_num)
+                exit
+            end if
+            deallocate (trim_input)
+
+            idx_filled = 0
+            call parse_input_string_to_int_list(string=input, list=tmp_int_list, filled_num=idx_filled, &
+                                                allow_int_min=0, allow_int_max=root_max)
+            if (idx_filled < 2) then
+                if (rank == 0) then
+                    print *, "ERROR: .caspt2_ciroots must have at least 2 integers per line. input:", input
+                    print *, "1st integer is the total symmetry number, 2nd integer and later are the selectroot."
+                end if
+                call stop_with_errorcode(1)
+            end if
+            tmp_totsym = tmp_int_list(1)
+            max_totsym = max(max_totsym, tmp_totsym)
+            call heapSort(list=tmp_int_list(2:idx_filled), is_descending_order=.false.)
+            tmp_nroot_list(tmp_totsym) = max(tmp_int_list(idx_filled), tmp_nroot_list(tmp_totsym))
+
+            ! Convert 1-dim list to 2-dim ciroots
+            do i = 2, idx_filled
+                ciroots_idx = ciroots_idx + 1
+                tmp_ciroots(ciroots_idx, 1) = tmp_totsym ! total symmetry number
+                tmp_ciroots(ciroots_idx, 2) = tmp_int_list(i) ! selectroot
+            end do
+
+        end do
+
+        allocate (caspt2_ciroots(ciroots_idx, 2))
+        caspt2_ciroots = tmp_ciroots(1:ciroots_idx, :) ! Copy the tmp_ciroots to caspt2_ciroots
+        deallocate (tmp_ciroots)
+
+        allocate (nroot_list(max_totsym))
+        nroot_list = tmp_nroot_list(1:max_totsym) ! Copy the tmp_nroot_list to nroot_list
+
+    end subroutine read_caspt2_ciroots
+
     subroutine write_parse_error_and_stop(subroutine_name, input)
         implicit none
         character(len=*), intent(in) :: subroutine_name, input
@@ -823,6 +894,19 @@ contains
 
     end subroutine is_comment_line
 
+    ! If the user enabled CASCI or CASPT2 subprograms, user must specify .caspt2_ciroots
+    subroutine check_ciroots_set
+        use module_global_variables
+        implicit none
+        if ((docasci .or. docaspt2) .and. .not. set_caspt2_ciroots) then
+            if (rank == 0) then
+                print *, "ERROR: you enabled CASCI or CASPT2 subprograms, but you didn't specify .caspt2_ciroots"
+                print *, "Please specify .caspt2_ciroots in your input file."
+            end if
+            call stop_with_errorcode(1)
+        end if
+    end subroutine check_ciroots_set
+
     subroutine check_reqired_files_exist
         use module_global_variables
         implicit none
@@ -863,23 +947,6 @@ contains
             end if
         end if
     end subroutine check_reqired_files_exist
-
-    subroutine validate_nroot_selectroot
-        use module_global_variables, only: rank, nroot, selectroot
-        implicit none
-        if (nroot < selectroot) then
-            if (rank == 0) then
-                print *, "Warning: nroot < selectroot"
-                print '(a,i0)', "nroot = ", nroot
-                print '(a,i0)', "selectroot = ", selectroot
-                print *, "this is not an error, but it is not recommended"
-                print '(a,i0,a)', "because ", selectroot, "th RASCI/CASCI energy will not be displayed to the output file."
-                print *, "Threfore, explicitly replace the number of selectroot to the number of nroot."
-                print '(a,i0)', "new nroot = ", selectroot
-            end if
-            nroot = selectroot
-        end if
-    end subroutine validate_nroot_selectroot
 
     subroutine set_mdcint_scheme
         use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, &

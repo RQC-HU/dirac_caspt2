@@ -26,7 +26,8 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     if (rank == 0) then
         call print_head_ivo
         print *, ''
-        print *, 'START RELATIVISTIC IVO PROGRAM'
+        print *, 'Enter RELATIVISTIC IVO PROGRAM'
+        print *, ''
     end if
 
     tmem = 0.0d+00
@@ -38,9 +39,6 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
         print int_input_form, 'nact       =', nact
         print int_input_form, 'nsec       =', nsec
         print int_input_form, 'nelec      =', nelec
-        print int_input_form, 'nroot      =', nroot
-        print int_input_form, 'selectroot =', selectroot
-        print int_input_form, 'totsym     =', totsym
         write (real_str, '(E20.10)') eshift
         print '(1x,a,1x,a)', 'eshift     =', trim(adjustl(real_str))          ! NO USE IN IVO BUT FOR CASCI AND CASPT2 IT IS USED
         print int_input_form, 'nhomo      =', nhomo
@@ -73,12 +71,6 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
 
     if (rank == 0) then
         call write_allocated_memory_size
-        print *, ' '
-        print *, '*******************************'
-        print *, ' '
-        print *, 'IREP IS ', repna(totsym)
-        print *, ' '
-        print *, '*******************************'
     end if
     iroot = selectroot
 
@@ -96,10 +88,22 @@ subroutine r4divo_co   ! DO IVO CALC ONLY FOR SMALL BASIS SETS
     end if
 
     ! Deallocate memory
-    Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
-    Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
-    if (.not. realonly%is_realonly()) then
+    if (allocated(inttwi)) then
+        Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
+    end if
+    if (allocated(inttwr)) then
+        Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
+    end if
+    if (allocated(int2r_f1)) then
+        Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
+    end if
+    if (allocated(int2r_f2)) then
+        Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
+    end if
+    if (allocated(int2i_f1)) then
         Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
+    end if
+    if (allocated(int2i_f2)) then
         Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
     end if
 

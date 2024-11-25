@@ -25,9 +25,8 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
 
     if (rank == 0) then
         call print_head_casci
-        print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
-        print *, ' ENTER R4DCASCI PROGRAM'
+        print *, ' ENTER RELATIVISTIC CASCI PROGRAM'
         print *, ''
     end if
     tmem = 0.0d+00

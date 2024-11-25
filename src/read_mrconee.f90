@@ -439,6 +439,9 @@ contains
                 print '(50I3)', (SD(i, j), j=1, nsymrpa)
             End do
         end if
+        if (.not. allocated(MULTB_DS)) then
+            allocate (MULTB_DS(1:NSYMRPA, 1:NSYMRPA)); Call memplus(size(MULTB_DS), kind(MULTB_DS), 1)
+        end if
         MULTB_DS = transpose(SD)
         if (debug .and. rank == 0) then
             print *, 'MULTB_DS'

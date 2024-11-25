@@ -6,12 +6,8 @@
 48
 .nelec
 4
-.totsym
-3
-.nroot
-3
-.selectroot
-1
+.caspt2_ciroots
+3 1
 .diracver
 21
 .subprograms

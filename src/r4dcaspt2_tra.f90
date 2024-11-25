@@ -29,7 +29,6 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     if (rank == 0) then
         call print_head_caspt2
-        print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
         print *, ' START RELATIVISIC CASPT2 PROGRAM'
         print *, ''
@@ -94,11 +93,15 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     !! TEST TO CALCULATE FOCK MATRIX OF HF STATE fpq = hpq + SIGUMA_r[(pq|rr)-(pr|qr)]
     !! THIS MUST BE DIAGONAL MATRIX AND DIAGONAL ELEMENTS CORESPONDS TO SPINOR ENERGIES.
     if (realonly%is_realonly()) then
-        allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        if (.not. allocated(fock_real)) then
+            allocate (fock_real(nmo, nmo)); Call memplus(KIND(fock_real), SIZE(fock_real), 1)
+        end if
         fock_real(:, :) = 0.0d+00
         call fock_matrix_of_hf_real
     else
-        Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        if (.not. allocated(fock_cmplx)) then
+            Allocate (fock_cmplx(nmo, nmo)); Call memplus(KIND(fock_cmplx), SIZE(fock_cmplx), 2)
+        end if
         fock_cmplx(:, :) = 0.0d+00
         call fock_matrix_of_hf_complex
     End if
@@ -432,6 +435,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Print out the total 2nd order energy
 
     if (rank == 0) then
+        print '(" CASPT2 ENERGY FOR ",I0," STATE, selectroot = ",I0)', totsym, selectroot
         print '(" c^2 is                         ",F30.20)', sumc2
         print '(" weight of 0th wave function is ",F30.20)', weight0
         print '(" Total second order energy is   ",F30.20," a.u.")', e2all - eshift*sumc2
@@ -451,6 +455,26 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     end if
     if (allocated(eps)) then
         Call memminus(KIND(eps), SIZE(eps), 1); deallocate (eps)
+    end if
+    if (allocated(inttwi)) then
+        Call memminus(KIND(inttwi), SIZE(inttwi), 1); deallocate (inttwi)
+    end if
+    if (allocated(inttwr)) then
+        Call memminus(KIND(inttwr), SIZE(inttwr), 1); deallocate (inttwr)
+    end if
+    if (allocated(int2r_f1)) then
+        Call memminus(KIND(int2r_f1), SIZE(int2r_f1), 1); deallocate (int2r_f1)
+    end if
+    if (allocated(int2r_f2)) then
+        Call memminus(KIND(int2r_f2), SIZE(int2r_f2), 1); deallocate (int2r_f2)
+    end if
+    if (.not. realonly%is_realonly()) then
+        if (allocated(int2i_f1)) then
+            Call memminus(KIND(int2i_f1), SIZE(int2i_f1), 1); deallocate (int2i_f1)
+        end if
+        if (allocated(int2i_f2)) then
+            Call memminus(KIND(int2i_f2), SIZE(int2i_f2), 1); deallocate (int2i_f2)
+        end if
     end if
     ! Print out the total time
 !    call get_current_time_and_print_diff(init_time, end_time)

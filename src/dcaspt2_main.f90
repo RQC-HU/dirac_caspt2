@@ -12,6 +12,7 @@ program dcaspt2_main
 #else
     rank = 0; nprocs = 1
 #endif
+    if (rank == 0) print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
 
     call dcaspt2_run_subprograms
 

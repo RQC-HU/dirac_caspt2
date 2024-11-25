@@ -22,7 +22,7 @@ MODULE module_global_variables
     ! dirac_version : DIRAC version
     ! mdcint_scheme : MDCINT **MOLTRA>.SCHEME value (https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
     integer         :: ninact, nact, nsec, nelec
-    integer         :: nroot = 10, selectroot = 1
+    integer         :: nroot, selectroot
     integer         :: totsym, ncore
     real(8)         :: eshift = 0.0d+00 ! default: 0.0
     integer         :: dirac_version
@@ -32,8 +32,10 @@ MODULE module_global_variables
     integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
     logical         :: enable_restart = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
+    ! totsym and selectroot list caspt2_ciroots(:, 1) = totsym, caspt2_ciroots(:, 2) = selectroot
+    integer, allocatable :: caspt2_ciroots(:, :)
     integer         :: nhomo = 0  ! Default value of nhomo is zero. If you want to specify the value, please use the input file.
-    integer, parameter :: max_ras_spinor_num = 200, max_i4 = huge(0_4) ! 4byte integer max value
+    integer, parameter :: max_ras_spinor_num = 200, root_max = 500, max_i4 = huge(0_4) ! 4byte integer max value
     ! vcut_mo_num: The number of virtual orbitals in each fermion irreducible representation
     ! occ_mo_num: The number of occupied orbitals in each fermion irreducible representation
     integer         :: vcut_mo_num(2) = 0, occ_mo_num(2) = 0
@@ -41,6 +43,8 @@ MODULE module_global_variables
     logical         :: debug = .false. ! debugprint option
     integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
     logical         :: doivo = .false., docasci = .false., docaspt2 = .false., docountndet = .false.
+    integer, parameter :: totsym_max = 1024, ciroots_max = totsym_max*1024 ! ciroot_max = totsym_max * ciroot_max_per_symmetry
+    integer, allocatable :: nroot_list(:)
 
     !! =================================================
     !! Variables of CI
@@ -181,4 +185,5 @@ MODULE module_global_variables
     integer, parameter :: len_convert_int_to_chr = 30 ! Length of the string for converting integer to character
     integer, parameter :: cidata_key_size = 30 ! Length of the key in cidata file
     logical :: dirac_32bit_build = .false. ! If .true., the DIRAC is built in 32-bit mode (default: .false.(64-bit mode))
+    logical :: casci_done(totsym_max) = .false.
 end MODULE module_global_variables
