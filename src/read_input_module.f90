@@ -19,12 +19,12 @@ module read_input_module
 contains
 
     subroutine init_essential_variables
-        call add_essential_input("ninact")
-        call add_essential_input("nact")
-        call add_essential_input("nsec")
-        call add_essential_input("nelec")
-        call add_essential_input("diracver")
-        call add_essential_input("subprograms")
+        call add_essential_input(".ninact")
+        call add_essential_input(".nact")
+        call add_essential_input(".nsec")
+        call add_essential_input(".nelec")
+        call add_essential_input(".diracver")
+        call add_essential_input(".subprograms")
     end subroutine init_essential_variables
 
     subroutine print_input_file(unit_num)
@@ -112,19 +112,19 @@ contains
 
         case (".ninact")
             call read_an_integer(unit_num, ".ninact", 0, input_intmax, ninact)
-            call update_esesential_input("ninact", .true.)
+            call update_esesential_input(".ninact", .true.)
 
         case (".nact")
             call read_an_integer(unit_num, ".nact", 0, input_intmax, nact)
-            call update_esesential_input("nact", .true.)
+            call update_esesential_input(".nact", .true.)
 
         case (".nsec")
             call read_an_integer(unit_num, ".nsec", 0, input_intmax, nsec)
-            call update_esesential_input("nsec", .true.)
+            call update_esesential_input(".nsec", .true.)
 
         case (".nelec")
             call read_an_integer(unit_num, ".nelec", 0, input_intmax, nelec)
-            call update_esesential_input("nelec", .true.)
+            call update_esesential_input(".nelec", .true.)
 
         case (".caspt2_ciroots")
             call read_caspt2_ciroots(unit_num)
@@ -145,7 +145,7 @@ contains
 
         case (".diracver")
             call read_an_integer(unit_num, ".diracver", 0, input_intmax, dirac_version)
-            call update_esesential_input("diracver", .true.)
+            call update_esesential_input(".diracver", .true.)
 
         case (".nhomo")
             call read_an_integer(unit_num, ".nhomo", 0, input_intmax, nhomo)
@@ -209,7 +209,7 @@ contains
 
         case (".subprograms")
             call read_subprograms(unit_num)
-            call update_esesential_input("subprograms", .true.)
+            call update_esesential_input(".subprograms", .true.)
 
         case (".countndet")
             docountndet = .true.
@@ -217,7 +217,7 @@ contains
             ! but if .countndet is specified, the other subroutines will be skipped.
             ! Therefore, if .countndet is specified, .subprograms doesn't need to be specified.
             ! Thus, we set essential input "subprograms" to .true.
-            call update_esesential_input("subprograms", .true.)
+            call update_esesential_input(".subprograms", .true.)
 
         case (".end")
             is_end = .true.
