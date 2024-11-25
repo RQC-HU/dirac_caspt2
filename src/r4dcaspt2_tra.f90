@@ -435,6 +435,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     ! Print out the total 2nd order energy
 
     if (rank == 0) then
+        print '(" CASPT2 ENERGY FOR ",I0," STATE, selectroot = ",I0)', totsym, selectroot
         print '(" c^2 is                         ",F30.20)', sumc2
         print '(" weight of 0th wave function is ",F30.20)', weight0
         print '(" Total second order energy is   ",F30.20," a.u.")', e2all - eshift*sumc2
