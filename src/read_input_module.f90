@@ -643,13 +643,14 @@ contains
         integer :: iostat, read_int, idx_filled, i, ciroots_idx, tmp_totsym, max_totsym
         logical :: is_comment
         integer :: tmp_int_list(max_str_length), tmp_nroot_list(totsym_max)
+        integer, parameter :: default_nroot = 10
         integer, allocatable :: tmp_ciroots(:, :)
         character(len=max_str_length) :: input
         character(:), allocatable :: trim_input
 
         allocate (tmp_ciroots(ciroots_max, 2))
         tmp_ciroots(:, :) = 0
-        tmp_nroot_list = 0
+        tmp_nroot_list(:) = default_nroot
         ciroots_idx = 0
         max_totsym = 0
         do while (.true.)
