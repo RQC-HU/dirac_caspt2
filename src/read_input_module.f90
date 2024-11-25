@@ -87,7 +87,6 @@ contains
 
         call check_all_essential_inputs_specified
         call set_global_index
-        call validate_nroot_selectroot
         call set_mdcint_scheme
         call check_ciroots_set
         if (do_reqired_file_check) call check_reqired_files_exist
@@ -125,9 +124,6 @@ contains
         case (".nelec")
             call read_an_integer(unit_num, ".nelec", 0, input_intmax, nelec)
             call update_esesential_input("nelec", .true.)
-
-        case (".nroot")
-            call read_an_integer(unit_num, ".nroot", 1, root_max, nroot)
 
         case (".caspt2_ciroots")
             call read_caspt2_ciroots(unit_num)
@@ -943,23 +939,6 @@ contains
             end if
         end if
     end subroutine check_reqired_files_exist
-
-    subroutine validate_nroot_selectroot
-        use module_global_variables, only: rank, nroot, selectroot
-        implicit none
-        if (nroot < selectroot) then
-            if (rank == 0) then
-                print *, "Warning: nroot < selectroot"
-                print '(a,i0)', "nroot = ", nroot
-                print '(a,i0)', "selectroot = ", selectroot
-                print *, "this is not an error, but it is not recommended"
-                print '(a,i0,a)', "because ", selectroot, "th RASCI/CASCI energy will not be displayed to the output file."
-                print *, "Threfore, explicitly replace the number of selectroot to the number of nroot."
-                print '(a,i0)', "new nroot = ", selectroot
-            end if
-            nroot = selectroot
-        end if
-    end subroutine validate_nroot_selectroot
 
     subroutine set_mdcint_scheme
         use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, &
