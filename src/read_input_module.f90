@@ -24,6 +24,7 @@ contains
         call add_essential_input("nsec")
         call add_essential_input("nelec")
         call add_essential_input("diracver")
+        call add_essential_input("subprograms")
     end subroutine init_essential_variables
 
     subroutine print_input_file(unit_num)
@@ -208,9 +209,15 @@ contains
 
         case (".subprograms")
             call read_subprograms(unit_num)
+            call update_esesential_input("subprograms", .true.)
 
         case (".countndet")
             docountndet = .true.
+            ! .countndet just calls the search_cas_configuration subroutine, so it is not a subprogram,
+            ! but if .countndet is specified, the other subroutines will be skipped.
+            ! Therefore, if .countndet is specified, .subprograms doesn't need to be specified.
+            ! Thus, we set essential input "subprograms" to .true.
+            call update_esesential_input("subprograms", .true.)
 
         case (".end")
             is_end = .true.
