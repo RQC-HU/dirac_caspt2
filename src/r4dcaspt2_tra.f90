@@ -29,7 +29,6 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
 
     if (rank == 0) then
         call print_head_caspt2
-        print '(2(A,1X,I0))', 'initialization of mpi, rank :', rank, ' nprocs :', nprocs
         print *, ''
         print *, ' START RELATIVISIC CASPT2 PROGRAM'
         print *, ''
