@@ -260,48 +260,55 @@ pytest --all
 - インプットファイルには以下のような内容を記述してください
   - CASCI/CASPT2 input
     ```in
-    ninact
+    .ninact
     8
-    nact
+    .nact
     6
-    nsec
+    .nsec
     142
-    nelec
+    .nelec
     2
-    totsym
-    3
-    eshift
+    .caspt2_ciroots
+    3 1 2 3  ! calculate CASCI energy for total symmetry 3 (row 1) and CASPT2 energies for the 1st, 2nd, and 3rd roots of total symmetry 3 (row 2, 3 and 4)
+    4 1      ! calculate CASCI energy for total symmetry 4 (row 1) and CASPT2 energies for the 1st root of total symmetry 4 (row 2)
+    .eshift
     0.0
-    diracver
+    .diracver
     21
-    end
+    .subprograms
+    CASCI
+    CASPT2
+    .end
     ```
 
   - RASCI/RASPT2 input
     ```in
-    ninact
+    .ninact
     30
-    nact ! sum of ras1, ras2 and ras3
+    .nact ! sum of ras1, ras2 and ras3
     28
-    nsec
+    .nsec
     574
-    nelec
+    .nelec
     12
-    totsym
-    33
-    eshift
+    .caspt2_ciroots
+    33 1
+    .eshift
     0.0
-    diracver
+    .diracver
     22
-    ras1
+    .ras1
     31..42
     2
-    ras2
+    .ras2
     43..48
-    ras3
+    .ras3
     49..58
     2
-    end
+    .subprograms
+    CASCI
+    CASPT2
+    .end
     ```
 
 各パラメータの意味と必須パラメータかどうかについては以下を参照してください
@@ -310,35 +317,38 @@ pytest --all
 Input for CASCI and CASPT2
 
 [required parameters]
-ninact      : the number of inactive spinors
-nact        : the number of active spinors
-nsec        : the number of secondary spinors
-totsym      : total symmetry (ex. 5 for Ag in C2h closed shell)
-diracver    : DIRAC version
-end         : The identifier at the end of the input file
+.ninact         : the number of inactive spinors
+.nact           : the number of active spinors
+.nsec           : the number of secondary spinors
+.totsym         : total symmetry (ex. 5 for Ag in C2h closed shell)
+.diracver       : DIRAC version
+.end            : The identifier at the end of the input file
 
 [required parameters (IVO)]
-nocc        : The number of occupied MO (This option is for molecules without inversion center symmetry)
-noccg       : The number of occupied spinors (gerade)
-noccu       : The number of occupied spinors (ungerade)
+.nocc           : The number of occupied MO (This option is for molecules without inversion center symmetry)
+.noccg          : The number of occupied spinors (gerade)
+.noccu          : The number of occupied spinors (ungerade)
+
+[required parameters (CASCI and CASPT2)]
+.caspt2_ciroots : Multiple line input. total symmery to calculate CASCI/CASPT2 energy (ex. 5 for Ag in C2h closed shell) (row 1),
+                  number of roots that you want to calculate CASPT2 energy (row 2 and later)
 
 [optional parameters]
-nroot       : the number of roots (default: 10, max: 500, if the number of CASCI/RASCI configuration is less than nroot, nroot will be replaced by the number of CASCI/RASCI configuration)
-selectroot  : which root do you want to calculate RASPT2/CASPT2 energy? (default: 1, max: 500, the lowest root)
-eshift      : for real shift (default: 0)
-ras1        : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
-ras2        : RAS2 spinor list
-ras3        : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
-minholeras1 : The minimum number of hole in ras1 (default: 0)
-scheme      : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
-debugprint  : This keyword invokes printing of additional information in the output file
-restart     : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
+.eshift         : for real shift (default: 0)
+.ras1           : RAS1 spinor list (row 1)and the maximum number of hole allowed in ras1(row 2)
+.ras2           : RAS2 spinor list
+.ras3           : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
+.minholeras1    : The minimum number of hole in ras1 (default: 0)
+.scheme         : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
+.debugprint     : This keyword invokes printing of additional information in the output file
+.restart        : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
+.countndet      : Count and print the number of determinants for each total symmetry of this input file, and skip the any other calculations. If you set this option, you don't need to set .subprograms parameter. (default: false)
 
 [optional parameters (IVO)]
-nhomo       : The number of HOMO-like spinors (default: 0)
-nvcut       : The number of virtual cut MO (default: 0, This option is for molecules without inversion center symmetry)
-nvcutg      : The number of virtual cut MO (default: 0, gerade)
-nvcutu      : The number of virtual cut MO (default: 0, ungerade)
+.nhomo          : The number of HOMO-like spinors (default: 0)
+.nvcut          : The number of virtual cut MO (default: 0, This option is for molecules without inversion center symmetry)
+.nvcutg         : The number of virtual cut MO (default: 0, gerade)
+.nvcutu         : The number of virtual cut MO (default: 0, ungerade)
 ```
 
 ### インプットファイルの仕様
@@ -349,12 +359,12 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
 - \!か\#を書くとそれ以降の文字はコメントと認識します
 
 ```in
- nact ! The number of nact
+ .nact ! The number of nact
  ↓
- nact
+ .nact
 ```
 
-- RASについて.(ドット)が2つ以上連続していると範囲指定をしているとみなします(左に小さい数値、右に大きい数値を書く必要があります)
+- .(ドット)が2つ以上連続していると範囲指定をしているとみなします(左に小さい数値、右に大きい数値を書く必要があります)
 
 ```in
   1..4
@@ -362,7 +372,7 @@ nvcutu      : The number of virtual cut MO (default: 0, ungerade)
   1,2,3,4
 ```
 
-- RASについて,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
+- ,(セミコロン)もしくは半角スペースを数値の区切りであると認識します
 
 ```in
   1..4, 7   8 11..14
