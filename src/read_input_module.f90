@@ -669,7 +669,6 @@ contains
             deallocate (trim_input)
 
             idx_filled = 0
-            print *, "length of tmp_int_list", size(tmp_int_list)
             call parse_input_string_to_int_list(string=input, list=tmp_int_list, filled_num=idx_filled, &
                                                 allow_int_min=0, allow_int_max=root_max)
             if (idx_filled < 2) then
