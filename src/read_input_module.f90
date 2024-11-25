@@ -13,7 +13,7 @@ module read_input_module
     implicit none
     private
     public read_input, check_substring, ras_read, lowercase, uppercase
-    logical is_end
+    logical is_end, set_caspt2_ciroots
     integer, parameter :: input_intmax = 10**9, max_str_length = 500
 
 contains
@@ -59,6 +59,7 @@ contains
         character(len=max_str_length) :: string
         logical :: is_comment, do_reqired_file_check
         is_end = .false.
+        set_caspt2_ciroots = .false.
 
         if (present(bypass_reqired_file_check)) then
             do_reqired_file_check = .not. bypass_reqired_file_check
@@ -88,6 +89,7 @@ contains
         call set_global_index
         call validate_nroot_selectroot
         call set_mdcint_scheme
+        call check_ciroots_set
         if (do_reqired_file_check) call check_reqired_files_exist
         ! Check the RAS configuration
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) call check_ras_is_valid
@@ -129,6 +131,7 @@ contains
 
         case (".caspt2_ciroots")
             call read_caspt2_ciroots(unit_num)
+            set_caspt2_ciroots = .true.
 
         case (".ncore")
             call read_an_integer(unit_num, ".ncore", 0, input_intmax, ncore)
@@ -887,6 +890,19 @@ contains
         end if
 
     end subroutine is_comment_line
+
+    ! If the user enabled CASCI or CASPT2 subprograms, user must specify .caspt2_ciroots
+    subroutine check_ciroots_set
+        use module_global_variables
+        implicit none
+        if ((docasci .or. docaspt2) .and. .not. set_caspt2_ciroots) then
+            if (rank == 0) then
+                print *, "ERROR: you enabled CASCI or CASPT2 subprograms, but you didn't specify .caspt2_ciroots"
+                print *, "Please specify .caspt2_ciroots in your input file."
+            end if
+            call stop_with_errorcode(1)
+        end if
+    end subroutine check_ciroots_set
 
     subroutine check_reqired_files_exist
         use module_global_variables
