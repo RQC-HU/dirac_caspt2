@@ -22,7 +22,7 @@ MODULE module_global_variables
     ! dirac_version : DIRAC version
     ! mdcint_scheme : MDCINT **MOLTRA>.SCHEME value (https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
     integer         :: ninact, nact, nsec, nelec
-    integer         :: nroot = 10, selectroot = 1
+    integer         :: nroot, selectroot
     integer         :: totsym, ncore
     real(8)         :: eshift = 0.0d+00 ! default: 0.0
     integer         :: dirac_version
