@@ -1,7 +1,7 @@
 subroutine read_cidata
     ! Read CASCI energy and CI coefficients and dictionary of CAS configurations from cidata file
     use, intrinsic :: iso_fortran_env, only: int64
-    use module_dict, only: add
+    use module_dict, only: add, destruct_dict
     use module_error, only: stop_with_errorcode
     use module_essential_input
     use module_file_manager, only: open_unformatted_file
@@ -99,6 +99,8 @@ subroutine read_cidata
             end if
             allocate (dict_cas_idx_values(ndet))
             read (unit) dict_cas_idx_values
+            call destruct_dict(dict_cas_idx)
+            call destruct_dict(dict_cas_idx_reverse)
             do i = 1, ndet
                 call add(dict_cas_idx, int(i, kind=int64), dict_cas_idx_values(i))
                 call add(dict_cas_idx_reverse, dict_cas_idx_values(i), int(i, kind=int64))

@@ -10,7 +10,7 @@ module module_dict
     use module_error, only: stop_with_errorcode
     implicit none
     private
-    public :: dict, get_val, add, exists, remove, get_keys_vals, get_size, get_kth_key
+    public :: dict, get_val, add, exists, remove, get_keys_vals, get_size, get_kth_key, destruct_dict
 
     type dict
         type(node), pointer :: root => null()
