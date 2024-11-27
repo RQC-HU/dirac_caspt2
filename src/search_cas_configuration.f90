@@ -10,7 +10,7 @@ SUBROUTINE search_cas_configuration
     use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_error, only: stop_with_errorcode
-    use module_dict, only: add
+    use module_dict, only: add, destruct_dict
     Implicit NONE
 
     integer(kind=int64) :: idx, t, allow_det_num, current_det, cur_sym
@@ -21,6 +21,8 @@ SUBROUTINE search_cas_configuration
     det_cnt(:) = 0
     allow_det_num = 0
     ndet = 0
+    call destruct_dict(dict_cas_idx)
+    call destruct_dict(dict_cas_idx_reverse)
 
     ! ========================================================================================
     ! Find the CASCI configuration and store the index of the CASCI configuration in dict_cas_idx.
