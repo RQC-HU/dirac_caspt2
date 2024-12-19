@@ -39,7 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        fc: [mpiifort, mpiifx]
+        toolchain:
+          - {fc: mpiifort, pkgname: intel-oneapi-compiler-fortran-2024.2}
+          - {fc: mpiifx, pkgname: intel-oneapi-compiler-fortran}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
     steps:
@@ -68,7 +70,7 @@ jobs:
       - name: Install MPI Intel Fortran compiler
         if: steps.cache-install.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y intel-oneapi-compiler-fortran intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel
+          sudo apt-get install -y ${{ matrix.toolchain.pkgname }} intel-oneapi-openmp intel-oneapi-mpi intel-oneapi-mpi-devel
       - name: Set Intel oneAPI environments
         run: |
           source /opt/intel/oneapi/setvars.sh --force
@@ -76,7 +78,7 @@ jobs:
       - name: Install cmake
         run: |
           sudo apt-get install -y cmake
-      - run: ${{ matrix.fc }} --version
+      - run: ${{ matrix.toolchain.fc }} --version
       - name: Install python
         uses: actions/setup-python@v5
         with:
@@ -86,7 +88,7 @@ jobs:
         run: python -m pip install pytest
       - name: Build source code (parallel)
         run: |
-          ./setup --mpi --omp -j --build --fc ${{ matrix.fc }}
+          ./setup --mpi --omp -j --build --fc ${{ matrix.toolchain.fc }}
       - name: Run unittest(parallel, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
