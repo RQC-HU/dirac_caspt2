@@ -137,6 +137,9 @@ SUBROUTINE casci
         key = 'nroot'
         write (unit_cidata) key
         write (unit_cidata) nroot
+        key = 'totsym'
+        write (unit_cidata) key
+        write (unit_cidata) totsym
         key = 'ecas'
         write (unit_cidata) key
         write (unit_cidata) ecas(1:nroot)

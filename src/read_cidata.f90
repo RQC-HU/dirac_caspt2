@@ -12,7 +12,7 @@ subroutine read_cidata
     character(len=len_convert_int_to_chr) :: chr_totsym
     character(:), allocatable :: filename
     integer :: unit, i, dict_cas_idx_size
-    integer :: ninact_read, nact_read, nsec_read, nelec_read, nroot_read
+    integer :: ninact_read, nact_read, nsec_read, nelec_read, nroot_read, totsym_read
     integer(kind=int64), allocatable :: dict_cas_idx_values(:)
     real(8), allocatable    :: ecas(:)
 
@@ -23,6 +23,7 @@ subroutine read_cidata
     call add_essential_input("nelec")
     call add_essential_input("ndet")
     call add_essential_input("nroot")
+    call add_essential_input("totsym")
     call add_essential_input("ecas")
     call add_essential_input("dict_cas_idx_values")
     call add_essential_input("ci_coefficients")
@@ -81,6 +82,14 @@ subroutine read_cidata
             read (unit) nroot_read
             if (nroot_read < 0) then
                 if (rank == 0) print *, "Error: Invalid nroot in cidata file. nroot = ", nroot_read
+                call stop_with_errorcode(1)
+            end if
+            call update_esesential_input(trim(adjustl(key)), .true.)
+        case ("totsym")
+            read (unit) totsym_read
+            if (totsym_read /= totsym) then
+                if (rank == 0) print *, "Error: Invalid totsym in cidata file. totsym in cidata = ", totsym_read, &
+                    " totsym = ", totsym
                 call stop_with_errorcode(1)
             end if
             call update_esesential_input(trim(adjustl(key)), .true.)
