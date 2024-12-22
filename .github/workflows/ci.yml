@@ -52,7 +52,7 @@ jobs:
         with:
           path: |
             /opt/intel/oneapi
-          key: ${{ runner.os }}-install-intel-${{ env.KEYVERSION }}
+          key: ${{ runner.os }}-install-${{ matrix.toolchain.fc }}-${{ matrix.toolchain.pkgname }}-${{ env.KEYVERSION }}
       - name: Update packages
         run: |
           sudo apt-get update
