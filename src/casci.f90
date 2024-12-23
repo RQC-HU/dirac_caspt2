@@ -22,7 +22,7 @@ SUBROUTINE casci
     real(8), allocatable    :: mat_real(:, :) ! For realonly
     real(8), allocatable    :: ecas(:)
     character(:), allocatable  :: filename
-    character(len=len_convert_int_to_chr) :: chr_root
+    character(len=len_convert_int_to_chr) :: chr_root, chr_totsym
     character(len=cidata_key_size) :: key
     integer :: dict_cas_idx_size, idx
     integer(kind=int64), allocatable :: keys(:), vals(:)
@@ -116,7 +116,8 @@ SUBROUTINE casci
     end if
     ! write CI matrix to the CIDATA file
     if (rank == 0) then ! Only master ranks are allowed to create files used by CASPT2 except for MDCINTNEW.
-        filename = 'CIDATA'
+        write (chr_totsym, *) totsym
+        filename = 'CIDATA_sym'//trim(adjustl(chr_totsym)) ! (e.g.) CIDATA_sym33
         call open_unformatted_file(unit=unit_cidata, file=filename, status='replace')
         key = "ninact"
         write (unit_cidata) key
@@ -136,6 +137,9 @@ SUBROUTINE casci
         key = 'nroot'
         write (unit_cidata) key
         write (unit_cidata) nroot
+        key = 'totsym'
+        write (unit_cidata) key
+        write (unit_cidata) totsym
         key = 'ecas'
         write (unit_cidata) key
         write (unit_cidata) ecas(1:nroot)
