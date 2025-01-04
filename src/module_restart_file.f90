@@ -2,11 +2,12 @@ module dcaspt2_restart_file
 
     use module_error, only: stop_with_errorcode
     use module_file_manager, only: open_formatted_file, check_iostat
-    use module_global_variables, only: rank, enable_restart, sumc2, sumc2_subspace, e2all, e2_subspace, next_subspace
+    use module_global_variables, only: rank, enable_restart, sumc2, sumc2_subspace, e2all, e2_subspace, next_subspace, &
+                                       len_convert_int_to_chr, totsym, selectroot
     implicit none
 
     private
-    character(len=1) :: subspace_list(8) = (/'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'/)
+    character(len=1) :: subspace_list(9) = (/'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'/)  ! I is not a valid subspace, but it is used to skip A-H subspace calc and print the final energy
 
     public :: is_skip_restart_file_subspace, get_subspace_idx, read_and_validate_restart_file
 contains
@@ -43,6 +44,8 @@ contains
             get_subspace_idx = 7
         case ('H')
             get_subspace_idx = 8
+        case ('I')
+            get_subspace_idx = 9 ! I is not a valid subspace, but it is used to skip A-H subspace calc and print the final energy
         case default
             if (rank == 0) print *, "Invalid subspace (not A-H), no need to restart CASPT2 calculation"
             call stop_with_errorcode(1)
@@ -53,26 +56,37 @@ contains
         implicit none
 
         character(len=*), parameter :: key_subspace = "Subspace:", key_sumc2 = "Sumc2:", key_energy = "Energy:"
-        character(len=*), parameter :: restart_file = "caspt2_restart"
+        character(len=*), parameter :: restart_file_base = "caspt2_restart"
+        character(:), allocatable :: restart_file
+        character(len=len_convert_int_to_chr) :: chr_totsym, chr_root
         character(len=500) :: buf, buf_internal
         character(len=1) :: subspace
         real(kind=8) :: read_sumc2, read_energy
-        integer :: i, idx, file_unit, iostat, subspace_index
+        integer :: i, idx, file_unit, iostat, subspace_index, totsym_read, selectroot_read
         logical :: restart_file_exists, eof, valid_subspace = .false.
 
+        write (chr_totsym, *) totsym
+        write (chr_root, *) selectroot
+        restart_file = trim(adjustl(restart_file_base))//"_"//trim(adjustl(chr_totsym))//"_"//trim(adjustl(chr_root))
+        print *, "Restart file: ", restart_file
         inquire (file=restart_file, exist=restart_file_exists)
-        if (.not. restart_file_exists) call error_restart_file("caspt2_restart file does not exist")
+        if (.not. restart_file_exists) then
+            if (rank == 0) print *, restart_file//" does not exist"
+            return  ! No restart file, continue CASPT2 calculation from scratch
+        end if
 
-        call open_formatted_file(file_unit, "caspt2_restart", "old")
-        read (file_unit, '(A)', iostat=iostat) buf
-        call check_iostat(iostat, restart_file, eof)
-        idx = index(buf, ":")
-        if (idx == 0) call error_restart_file("Error reading next subspace info in caspt2_restart")
-        read (buf(idx + 1:), '(A)', iostat=iostat) buf_internal
-        if (iostat /= 0) call error_restart_file("Error reading next subspace info in caspt2_restart")
-        buf_internal = trim(adjustl(buf_internal))
-        read (buf_internal, *) next_subspace
-        subspace_index = get_subspace_idx(next_subspace)
+        call open_formatted_file(file_unit, restart_file, "old")
+        call read_totsym(totsym_read)
+        if (totsym_read /= totsym) then
+            if (rank == 0) print '(2(A,I0,1x))', "totsym = ", totsym, ", restart file totsym = ", totsym_read
+            call error_restart_file("totsym in "//restart_file//" does not match with the input file")
+        end if
+        call read_selectroot(selectroot_read)
+        if (selectroot_read /= selectroot) then
+            if (rank == 0) print '(2(A,I0,1x))', "selectroot = ", selectroot, ", restart file selectroot = ", selectroot_read
+            call error_restart_file("selectroot in "//restart_file//" does not match with the input file")
+        end if
+        call read_next_subspace(subspace_index)
 
         do while (.true.)
             read (file_unit, '(A)', iostat=iostat) buf
@@ -111,6 +125,45 @@ contains
         end do
 
     contains
+        subroutine read_totsym(totsym_ret)
+            implicit none
+            integer, intent(out) :: totsym_ret
+            read (file_unit, '(A)', iostat=iostat) buf
+            call check_iostat(iostat, restart_file, eof)
+            idx = index(buf, ":")
+            if (idx == 0) call error_restart_file("Error reading totsym info in caspt2_restart")
+            read (buf(idx + 1:), '(A)', iostat=iostat) buf_internal
+            if (iostat /= 0) call error_restart_file("Error reading totsym info in caspt2_restart")
+            read (buf_internal, *) totsym_ret ! convert string to integer
+        end subroutine read_totsym
+
+        subroutine read_selectroot(selectroot_ret)
+            implicit none
+            integer, intent(out) :: selectroot_ret
+            read (file_unit, '(A)', iostat=iostat) buf
+            call check_iostat(iostat, restart_file, eof)
+            idx = index(buf, ":")
+            if (idx == 0) call error_restart_file("Error reading selectroot info in caspt2_restart")
+            read (buf(idx + 1:), '(A)', iostat=iostat) buf_internal
+            if (iostat /= 0) call error_restart_file("Error reading selectroot info in caspt2_restart")
+            read (buf_internal, *) selectroot_ret ! convert string to integer
+        end subroutine read_selectroot
+
+        subroutine read_next_subspace(subpsace_idx_ret)
+            implicit none
+            integer, intent(out) :: subpsace_idx_ret
+            read (file_unit, '(A)', iostat=iostat) buf
+            call check_iostat(iostat, restart_file, eof)
+            idx = index(buf, ":")
+            if (idx == 0) call error_restart_file("Error reading next subspace info in caspt2_restart")
+            read (buf(idx + 1:), '(A)', iostat=iostat) buf_internal
+            if (iostat /= 0) call error_restart_file("Error reading next subspace info in caspt2_restart")
+
+            buf_internal = trim(adjustl(buf_internal))
+            read (buf_internal, *) next_subspace
+            subpsace_idx_ret = get_subspace_idx(next_subspace)
+        end subroutine read_next_subspace
+
         subroutine error_restart_file(error_message)
             character(len=*), intent(in) :: error_message
             if (rank == 0) print *, error_message

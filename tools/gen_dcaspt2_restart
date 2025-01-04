@@ -14,36 +14,57 @@ class SubSpaceInfo:
         self.sumc2 = inf
 
 
-def read_input(input_file) -> ODict[str, SubSpaceInfo]:  # ODict[subspace, SubSpaceInfo]
+class Caspt2Info:
+    def __init__(self):
+        self.totsym = -1
+        self.selectroot = -1
+        self.subspace_energies: ODict[str, SubSpaceInfo] = OrderedDict()
 
-    caspt2_energies: ODict[str, SubSpaceInfo] = {}
+
+def read_input(input_file) -> list[Caspt2Info]:
+
+    caspt2_energies: "list[Caspt2Info]" = []
+    caspt2_energies.append(Caspt2Info())  # Add the first element
 
     with open(input_file, "r") as f:
         lines = f.readlines()
 
+    totsym_pattern = re.compile(r" *totsym += +\d+")
+    selectroot_pattern = re.compile(r" *selectroot += +\d+")
     # e2[a-h] +=.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
-    energy_pattern = re.compile(r" e2[a-h] +=.+a\.u\.")
+    energy_pattern = re.compile(r" *e2[a-h] +=.+a\.u\.")
     # sumc2,[a-h] +=.+ (e.g. sumc2,a  =     0.9132513754E-04)
-    sumc2_pattern = re.compile(r" sumc2,[a-h] +=.+")
+    sumc2_pattern = re.compile(r" *sumc2,[a-h] +=.+")
+    total_energy_pattern = re.compile(r" *Total energy is +.+a\.u\.")
 
     for line in lines:
-        if energy_pattern.match(line):
+        if totsym_pattern.match(line):
+            totsym = int(line.split("=")[1].strip())
+            caspt2_energies[-1].totsym = totsym
+        elif selectroot_pattern.match(line):
+            selectroot = int(line.split("=")[1].strip())
+            caspt2_energies[-1].selectroot = selectroot
+        elif energy_pattern.match(line):
             subspace = str(line.strip().split(" ")[0][-1]).upper()  # e.g. e2a -> A
             subspace_energy = float(line.split("=")[1].split("a.u.")[0])  # e.g. -1.73748326489E-09
-            if subspace not in caspt2_energies:
-                caspt2_energies[subspace] = SubSpaceInfo()
-            elif caspt2_energies[subspace].energy != inf:
+            if subspace not in caspt2_energies[-1].subspace_energies:
+                caspt2_energies[-1].subspace_energies[subspace] = SubSpaceInfo()
+            elif caspt2_energies[-1].subspace_energies[subspace].energy != inf:
                 raise ValueError(f"Energy for subspace {subspace} already found")
-            caspt2_energies[subspace].energy = subspace_energy
+            caspt2_energies[-1].subspace_energies[subspace].energy = subspace_energy
         elif sumc2_pattern.match(line):
             subspace = str(line.strip().split(",")[1].split(" ")[0]).upper()  # e.g. sumc2,a -> A
             sumc2 = float(line.strip().split("=")[1])  # e.g. 0.9132513754E-04
-            if subspace not in caspt2_energies:
-                caspt2_energies[subspace] = SubSpaceInfo()
-            elif caspt2_energies[subspace].sumc2 != inf:
+            if subspace not in caspt2_energies[-1].subspace_energies:
+                caspt2_energies[-1].subspace_energies[subspace] = SubSpaceInfo()
+            elif caspt2_energies[-1].subspace_energies[subspace].sumc2 != inf:
                 raise ValueError(f"Sumc2 for subspace {subspace} already found")
-            caspt2_energies[subspace].sumc2 = sumc2
+            caspt2_energies[-1].subspace_energies[subspace].sumc2 = sumc2
+        elif total_energy_pattern.match(line):
+            caspt2_energies.append(Caspt2Info())  # add next caspt2 info
 
+    if caspt2_energies[-1].totsym == -1 and caspt2_energies[-1].selectroot == -1:
+        caspt2_energies.pop()  # Remove the last element if it is empty
     return caspt2_energies
 
 
@@ -52,9 +73,7 @@ def next_subspace(subspace: str) -> str:
 
 
 def main():
-    print("Generating a restart file for a CASPT2 calculation")
     user_dir = Path.cwd().resolve()
-    output_file = user_dir / "caspt2_restart"
 
     parser = argparse.ArgumentParser(description="Generate a restart file (caspt2_restart) for a CASPT2 calculation")
     parser.add_argument("input_file", help="The input file for the CASPT2 calculation")
@@ -62,28 +81,31 @@ def main():
     input_file = Path(args.input_file).expanduser().resolve()
 
     tmp_caspt2_energies = read_input(input_file)
-    tmp_caspt2_energies = OrderedDict(sorted(tmp_caspt2_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
 
-    caspt2_energies = OrderedDict()
-    for subspace, info in tmp_caspt2_energies.items():
-        if info.energy == inf or info.sumc2 == inf:
-            # Remove the current and following subspaces because the energy or/and sumc2 are missing
-            # it means that the subspace and the following calculations are not finished
-            break
-        caspt2_energies[subspace] = info
-
-    if not caspt2_energies:
-        raise ValueError("No CASPT2 energies and sumc2 found in the input file")
-
-    last_subspace = next(reversed(caspt2_energies))
-    output_lines = [f"Next subspace: {next_subspace(last_subspace)}\n"] + [
-        f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy}\n" for subspace, info in caspt2_energies.items()
-    ]
-
-    with open(output_file, "w") as f:
-        f.writelines(output_lines)
-    for line in output_lines:
-        print(line, end="")
+    for caspt2_info in tmp_caspt2_energies:
+        subspace_energies = OrderedDict()
+        if caspt2_info.totsym == -1 or caspt2_info.selectroot == -1:
+            print(f"totsym or selectroot not found in the input file, skipping. (totsym={caspt2_info.totsym}, selectroot={caspt2_info.selectroot})")
+            continue
+        caspt2_info.subspace_energies = OrderedDict(sorted(caspt2_info.subspace_energies.items(), key=lambda x: x[0]))  # Sort by subspace ascending order alphabetically
+        for subspace, info in caspt2_info.subspace_energies.items():
+            if info.energy == inf or info.sumc2 == inf:
+                # Remove the current and following subspaces because the energy or/and sumc2 are missing
+                # it means that the subspace and the following calculations are not finished
+                break
+            subspace_energies[subspace] = info
+        if len(subspace_energies) == 0:
+            continue  # no need to generate a restart file if there are no subspace energies
+        last_subspace = next(reversed(subspace_energies))
+        output_lines = [f"totsym: {caspt2_info.totsym}\n", f"selectroot: {caspt2_info.selectroot}\n", f"Next subspace: {next_subspace(last_subspace)}\n"] + [
+            f"Subspace: {subspace} Sumc2: {info.sumc2} Energy: {info.energy}\n" for subspace, info in subspace_energies.items()
+        ]
+        output_file = user_dir / f"caspt2_restart_{caspt2_info.totsym}_{caspt2_info.selectroot}"
+        with open(output_file, "w") as f:
+            f.writelines(output_lines)
+        for line in output_lines:
+            print(line, end="")
+        print(f"Restart file saved as {output_file}\n")
 
 
 if __name__ == "__main__":

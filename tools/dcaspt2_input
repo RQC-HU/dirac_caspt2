@@ -197,9 +197,9 @@ def copy_essential_files_to_scratch_dir(args: "argparse.Namespace", input_file_p
     if input_file_dir != scratch_dir:
         scratch_input_file_path = scratch_dir / "active.inp"  # The name of input file is fixed to active.inp in the scratch directory.
         scratch_input_file_path.symlink_to(input_file_path)
-        restart_file = input_file_dir / "caspt2_restart"
-        if restart_file.exists():
-            scratch_restart_file_path = scratch_dir / "caspt2_restart"
+        restart_files = input_file_dir / "caspt2_restart*"
+        for restart_file in glob.glob(str(restart_files)):
+            scratch_restart_file_path = scratch_dir / Path(restart_file).name
             scratch_restart_file_path.symlink_to(restart_file)
     if integrals_dir != scratch_dir:
         # Create a symbolic link to the 1-2 integrals file
