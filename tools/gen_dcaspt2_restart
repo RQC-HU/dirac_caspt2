@@ -29,13 +29,13 @@ def read_input(input_file) -> list[Caspt2Info]:
     with open(input_file, "r") as f:
         lines = f.readlines()
 
-    totsym_pattern = re.compile(r" totsym += +\d+")
-    selectroot_pattern = re.compile(r" selectroot += +\d+")
+    totsym_pattern = re.compile(r" *totsym += +\d+")
+    selectroot_pattern = re.compile(r" *selectroot += +\d+")
     # e2[a-h] +=.+a\.u\. (e.g. e2a   = -1.73748326489E-09 a.u.)
-    energy_pattern = re.compile(r" e2[a-h] +=.+a\.u\.")
+    energy_pattern = re.compile(r" *e2[a-h] +=.+a\.u\.")
     # sumc2,[a-h] +=.+ (e.g. sumc2,a  =     0.9132513754E-04)
-    sumc2_pattern = re.compile(r" sumc2,[a-h] +=.+")
-    total_energy_pattern = re.compile(r" Total energy is +.+a\.u\.")
+    sumc2_pattern = re.compile(r" *sumc2,[a-h] +=.+")
+    total_energy_pattern = re.compile(r" *Total energy is +.+a\.u\.")
 
     for line in lines:
         if totsym_pattern.match(line):
