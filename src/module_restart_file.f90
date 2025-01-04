@@ -70,7 +70,10 @@ contains
         restart_file = trim(adjustl(restart_file_base))//"_"//trim(adjustl(chr_totsym))//"_"//trim(adjustl(chr_root))
         print *, "Restart file: ", restart_file
         inquire (file=restart_file, exist=restart_file_exists)
-        if (.not. restart_file_exists) call error_restart_file("caspt2_restart file does not exist")
+        if (.not. restart_file_exists) then
+            if (rank == 0) print *, restart_file//" does not exist"
+            return  ! No restart file, continue CASPT2 calculation from scratch
+        end if
 
         call open_formatted_file(file_unit, restart_file, "old")
         call read_totsym(totsym_read)
