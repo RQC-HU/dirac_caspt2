@@ -379,8 +379,8 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     else if (is_skip_restart_file_subspace("G")) then
         if (rank == 0) then
             print *, "Skip the calculation of G subspace 2nd order energy because of the caspt2_restart file."
-            print '("e2e      = ",E25.15," a.u.")', e2_subspace(cur_subspace_idx)
-            print '("sumc2,e  = ",E25.15)', sumc2_subspace(cur_subspace_idx)
+            print '("e2g      = ",E25.15," a.u.")', e2_subspace(cur_subspace_idx)
+            print '("sumc2,g  = ",E25.15)', sumc2_subspace(cur_subspace_idx)
         end if
     else
         if (rank == 0) print '(64A)', '----------------------------------------------------------------'
