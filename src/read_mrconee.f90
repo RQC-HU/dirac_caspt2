@@ -552,7 +552,7 @@ contains
 
         Implicit NONE
 
-        integer(kind=int64) :: isp, nmom
+        integer(kind=int64) :: isp
         double precision, allocatable :: roner(:, :, :), ronei(:, :, :)
 
         if (debug .and. rank == 0) then
@@ -582,15 +582,14 @@ contains
 
         close (unit_mrconee)
 
-        nmom = global_sec_end
-        Allocate (one_elec_int_r(nmom, nmom)); Call memplus(KIND(one_elec_int_r), SIZE(one_elec_int_r), 1)
-        Allocate (one_elec_int_i(nmom, nmom)); Call memplus(KIND(one_elec_int_i), SIZE(one_elec_int_i), 1)
+        allocate (one_elec_int_r(nmo, nmo)); call memplus(kind(one_elec_int_r), size(one_elec_int_r), 1)
+        allocate (one_elec_int_i(nmo, nmo)); call memplus(kind(one_elec_int_i), size(one_elec_int_i), 1)
 
 ! Store the one-electron integrals in energy order (CASPT2 order)
 ! one_elec_int_[r,i] are CASPT2 order
 ! roner, ronei are DIRAC order
-        do i0 = 1, nmom
-            do j0 = 1, nmom
+        do i0 = 1, nmo
+            do j0 = 1, nmo
                 one_elec_int_r(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = roner(i0, j0, 1) ! using alpha component for a while
                 one_elec_int_i(indmo_dirac_to_cas(i0), indmo_dirac_to_cas(j0)) = ronei(i0, j0, 1)
             end do
