@@ -1,0 +1,19 @@
+.ninact
+8
+.nact
+8
+.nsec
+!44 ! nmo in MRCONEE is 8 + 8 + 44 = 60
+40
+.nelec
+6
+.caspt2_ciroots
+33 1
+.eshift
+0.0
+.diracver
+22
+.subprograms
+CASCI
+CASPT2
+.end
