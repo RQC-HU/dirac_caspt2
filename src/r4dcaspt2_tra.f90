@@ -76,7 +76,6 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
     Call divide_2_elec_integral_into_subspaces(mdcintnew)
 
     call write_allocated_memory_size
-    nmo = ninact + nact + nsec
     if (rank == 0) print *, 'nmo        =', nmo
 
     call read_cidata

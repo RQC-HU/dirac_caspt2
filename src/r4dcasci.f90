@@ -68,8 +68,6 @@ subroutine r4dcasci   ! DO CASCI CALC IN THIS PROGRAM!
     Call readint2_casci(mdcintnew, nuniq)
 
     if (rank == 0) print *, 'nmo        =', nmo
-    nmo = ninact + nact + nsec
-
     ! Print the irreducible representation used to calculate CASCI energy.
     if (rank == 0) then
         call write_allocated_memory_size
