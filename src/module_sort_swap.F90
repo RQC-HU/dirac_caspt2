@@ -16,7 +16,7 @@ module module_sort_swap
         module procedure heapifyInt, heapifyReal
     end interface heapify
     interface swap
-        module procedure swapInt, swapInt64, swapReal, swapCmp16, swapArrayInt, swapArrayReal, swapArrayCmp16
+        module procedure swapInt32, swapInt64, swapReal, swapCmp16, swapArrayInt, swapArrayReal, swapArrayCmp16
     end interface swap
 contains
     subroutine heapifyInt(array, first, last, is_descending_order)
@@ -113,15 +113,16 @@ contains
         end do
     end subroutine
 
-    subroutine swapInt(a, b)
+    subroutine swapInt32(a, b)
         ! Swap values between a and b
+        use, intrinsic :: iso_fortran_env, only: int32
         implicit none
-        integer :: temp
-        integer, INTENT(INOUT) :: a, b
+        integer(kind=int32) :: temp
+        integer(kind=int32), INTENT(INOUT) :: a, b
         temp = a
         a = b
         b = temp
-    end subroutine swapInt
+    end subroutine swapInt32
     subroutine swapInt64(a, b)
         ! Swap values between a and b
         use, intrinsic :: iso_fortran_env, only: int64

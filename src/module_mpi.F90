@@ -3,7 +3,7 @@ module module_mpi
     ! Currently, only reduce and allreduce are implemented.
     ! Author: Kohei Noda
 
-    use, intrinsic :: iso_fortran_env, only: int64
+    use, intrinsic :: iso_fortran_env, only: int32, int64
     use module_global_variables, only: rank, nprocs, ierr, max_i4
     implicit none
 #ifdef HAVE_MPI
@@ -11,7 +11,7 @@ module module_mpi
     private
     public reduce_wrapper, allreduce_wrapper
     interface reduce_wrapper
-        module procedure reduce_i, reduce_i64, reduce_i_1, reduce_r_2, reduce_c_2
+        module procedure reduce_i32, reduce_i64, reduce_i_1, reduce_r_2, reduce_c_2
     end interface reduce_wrapper
 
     interface allreduce_wrapper
@@ -42,10 +42,10 @@ module module_mpi
                                       op_mpi_lxor, op_mpi_bxor, op_mpi_maxloc, op_mpi_minloc/)
 contains
 
-    subroutine reduce_i(mat, root_rank, optional_op)
+    subroutine reduce_i32(mat, root_rank, optional_op)
         ! Reduce for an integer value
         implicit none
-        integer, intent(inout) :: mat
+        integer(kind=int32), intent(inout) :: mat
         integer, intent(in) :: root_rank
         integer, optional, intent(in) :: optional_op
         integer :: ii, ie
@@ -70,7 +70,7 @@ contains
             call MPI_Reduce(mat, mat, 1, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
         end if
 
-    end subroutine reduce_i
+    end subroutine reduce_i32
 
     subroutine reduce_i64(mat, root_rank, optional_op)
         ! Reduce for an integer value

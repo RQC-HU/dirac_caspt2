@@ -1,18 +1,20 @@
 module module_takekr
 
+    iuse, intrinsic :: iso_fortran_env, only: int32, int64
     implicit none
 
     private
     public :: takekr
 
     interface takekr
-        module procedure takekr_complex, takekr_int64_complex, takekr_real, takekr_int64_real
+        module procedure takekr_int32_complex, takekr_int64_complex, &
+                         takekr_int32_real, takekr_int64_real
     end interface takekr
 contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE takekr_complex(i, j, k, l, cint2)
+    SUBROUTINE takekr_int32_complex(i, j, k, l, cint2)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -20,7 +22,7 @@ contains
         use module_global_variables
 
         Implicit NONE
-        integer, intent(inout)      :: i, j, k, l
+        integer(kind=int32), intent(inout)      :: i, j, k, l
         complex*16, intent(inout)   :: cint2
         integer                     :: signij, signkl
 
@@ -40,7 +42,7 @@ contains
 
         cint2 = signij*signkl*DCONJG(cint2)
 
-    End subroutine takekr_complex
+    End subroutine takekr_int32_complex
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -50,7 +52,6 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use, intrinsic :: iso_fortran_env, only: int64
         use module_global_variables
 
         Implicit NONE
@@ -79,16 +80,15 @@ contains
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-    SUBROUTINE takekr_real(i, j, k, l, rint2)
+    SUBROUTINE takekr_int32_real(i, j, k, l, rint2)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
-        use, intrinsic :: iso_fortran_env, only: int64
         use module_global_variables
 
         Implicit NONE
-        integer(kind=int64), intent(inout)      :: i, j, k, l
+        integer(kind=int32), intent(inout)      :: i, j, k, l
         real(8), intent(inout)      :: rint2
         integer                     :: signij, signkl
 
@@ -108,7 +108,7 @@ contains
 
         rint2 = signij*signkl*rint2
 
-    End subroutine takekr_real
+    End subroutine takekr_int32_real
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -121,7 +121,7 @@ contains
         use module_global_variables
 
         Implicit NONE
-        integer, intent(inout)      :: i, j, k, l
+        integer(kind=int64), intent(inout)      :: i, j, k, l
         real(8), intent(inout)      :: rint2
         integer                     :: signij, signkl
 
