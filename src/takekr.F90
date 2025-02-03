@@ -1,6 +1,6 @@
 module module_takekr
 
-    iuse, intrinsic :: iso_fortran_env, only: int32, int64
+    use, intrinsic :: iso_fortran_env, only: int32, int64
     implicit none
 
     private
