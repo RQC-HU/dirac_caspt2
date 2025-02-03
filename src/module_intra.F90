@@ -1056,7 +1056,6 @@ contains
         use module_error, only: stop_with_errorcode
         use module_file_manager
         use module_global_variables
-        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1164,9 +1163,9 @@ contains
 
             i = initial_i
             j = initial_j
-            k = initial_l + sign_odd_ret1(initial_l) ! k = initial_l + 1 if initial_l is odd, otherwise k = initial_l - 1
-            l = initial_k + sign_odd_ret1(initial_k) ! l = initial_k + 1 if initial_k is odd, otherwise l = initial_k - 1
-            cint2 = initial_cint2*sign_even_ret1(initial_k + initial_l) ! cint2 = initial_cint2 if initial_k + initial_l is even, otherwise cint2 = -initial_cint2
+            k = initial_l + merge(1, -1, mod(initial_l, 2)==1) ! k = initial_l + 1 if initial_l is odd, otherwise k = initial_l - 1
+            l = initial_k + merge(1, -1, mod(initial_k, 2)==1) ! l = initial_k + 1 if initial_k is odd, otherwise l = initial_k - 1
+            cint2 = initial_cint2*merge(1, -1, mod(initial_k + initial_l, 2)==0) ! cint2 = initial_cint2 if initial_k + initial_l is even, otherwise cint2 = -initial_cint2
             isym = irpamo(l)
 
             Do lnew = 1, nsym(spl, isym)
@@ -1326,7 +1325,6 @@ contains
         use module_error, only: stop_with_errorcode
         use module_file_manager
         use module_global_variables
-        use module_index_utils, only: sign_even_ret1, sign_odd_ret1
 #ifdef HAVE_MPI
         use module_mpi
 #endif
@@ -1434,9 +1432,9 @@ contains
 
             i = initial_i
             j = initial_j
-            k = initial_l + sign_odd_ret1(initial_l) ! k = initial_l + 1 if initial_l is odd, otherwise k = initial_l - 1
-            l = initial_k + sign_odd_ret1(initial_k) ! l = initial_k + 1 if initial_k is odd, otherwise l = initial_k - 1
-            cint2 = initial_cint2*sign_even_ret1(initial_k + initial_l) ! cint2 = initial_cint2 if initial_k + initial_l is even, otherwise cint2 = -initial_cint2
+            k = initial_l + merge(1, -1, mod(initial_l, 2)==1) ! k = initial_l + 1 if initial_l is odd, otherwise k = initial_l - 1
+            l = initial_k + merge(1, -1, mod(initial_k, 2)==1) ! l = initial_k + 1 if initial_k is odd, otherwise l = initial_k - 1
+            cint2 = initial_cint2*merge(1, -1, mod(initial_k + initial_l, 2)==0) ! cint2 = initial_cint2 if initial_k + initial_l is even, otherwise cint2 = -initial_cint2
             isym = irpamo(l)
 
             Do lnew = 1, nsym(spl, isym)

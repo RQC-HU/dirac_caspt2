@@ -7,7 +7,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
-    use module_index_utils, only: convert_active_to_global_idx, sign_even_ret1
+    use module_index_utils, only: convert_active_to_global_idx
 
     Implicit NONE
     real(8), intent(in)  :: fa(global_act_start:global_act_end, global_act_start:global_act_end)
@@ -42,7 +42,7 @@ SUBROUTINE dets(fa, occold, occnew, ds)
 
     ! count the number of ipvt(i) /= i
     n = count(ipvt /= [(i, i=1, nelec)])
-    phase = sign_even_ret1(n) ! If n is even, phase = 1.0d+00, else phase = -1.0d+00
+    phase = merge(1, -1, mod(n, 2)==0) ! If n is even, phase = 1.0d+00, else phase = -1.0d+00
 
     ds = 1.0d+00
     Do i = 1, nelec
@@ -61,7 +61,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
     use module_global_variables
-    use module_index_utils, only: convert_active_to_global_idx , sign_even_ret1
+    use module_index_utils, only: convert_active_to_global_idx
 
     Implicit NONE
     complex*16, intent(in)  :: fac(global_act_start:global_act_end, global_act_start:global_act_end)
@@ -95,7 +95,7 @@ SUBROUTINE detsc(fac, occold, occnew, ds)
     ! count the number of ipvt(i) /= i
     n = count(ipvt /= [(i, i=1, nelec)])
 
-    phase = sign_even_ret1(n) ! If n is even, phase = 1.0d+00, else phase = -1.0d+00
+    phase = merge(1, -1, mod(n, 2)==0) ! If n is even, phase = 1.0d+00, else phase = -1.0d+00
 
     ds2 = 1.0d+00
 
