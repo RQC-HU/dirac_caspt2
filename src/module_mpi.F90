@@ -3,6 +3,7 @@ module module_mpi
     ! Currently, only reduce and allreduce are implemented.
     ! Author: Kohei Noda
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables, only: rank, nprocs, ierr, max_i4
     implicit none
 #ifdef HAVE_MPI
@@ -10,7 +11,7 @@ module module_mpi
     private
     public reduce_wrapper, allreduce_wrapper
     interface reduce_wrapper
-        module procedure reduce_i, reduce_i_1, reduce_r_2, reduce_c_2
+        module procedure reduce_i, reduce_i64, reduce_i_1, reduce_r_2, reduce_c_2
     end interface reduce_wrapper
 
     interface allreduce_wrapper
@@ -70,6 +71,36 @@ contains
         end if
 
     end subroutine reduce_i
+
+    subroutine reduce_i64(mat, root_rank, optional_op)
+        ! Reduce for an integer value
+        implicit none
+        integer(kind=int64), intent(inout) :: mat
+        integer, intent(in) :: root_rank
+        integer, optional, intent(in) :: optional_op
+        integer :: ii, ie
+        integer :: i, cnt
+        integer :: op
+        integer :: datatype
+
+        op = op_mpi_sum ! default operation
+        if (present(optional_op)) then
+            call check_operation(optional_op)
+            op = optional_op
+        end if
+        if (sizeof(mat) == 4) then
+            datatype = MPI_INTEGER4 ! 4 byte integer
+        else
+            datatype = MPI_INTEGER8 ! 8 byte integer
+        end if
+
+        if (rank == root_rank) then
+            call MPI_Reduce(MPI_IN_PLACE, mat, 1, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+        else
+            call MPI_Reduce(mat, mat, 1, datatype, op, root_rank, MPI_COMM_WORLD, ierr)
+        end if
+
+    end subroutine reduce_i64
 
     subroutine reduce_i_1(mat, root_rank, optional_op)
         ! Reduce for 1 dimensional integer array
