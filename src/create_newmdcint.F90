@@ -92,8 +92,8 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
                     jkr = -jkr
                     indk(:) = -indk(:)
                     indl(:) = -indl(:)
-                    rklr(:) = -rklr(:)*sign(1, ikr*jkr*indk(:)*indl(:))
-                    if (.not. realonly%is_realonly()) rkli(:) = rkli(:)*sign(1, ikr*jkr*indk(:)*indl(:))
+                    rklr(:) = -rklr(:)*sign(1_8, ikr*jkr*indk(:)*indl(:))
+                    if (.not. realonly%is_realonly()) rkli(:) = rkli(:)*sign(1_8, ikr*jkr*indk(:)*indl(:))
                 end if
                 !   !$OMP parallel do private(iii,jjj,kkk,lll,iikr,jjkr,kkkr,llkr,iiit,jjjt,kkkt,lllt,ii,jj,kk,ll)
 
