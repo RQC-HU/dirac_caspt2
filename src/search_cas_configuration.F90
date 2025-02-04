@@ -43,7 +43,7 @@ SUBROUTINE search_cas_configuration
         allow_det_num = allow_det_num + 1
 
         ! Calculate the total symmetry of the configuration and count-up the number of configurations for calculated symmetry.
-        cur_sym = cas_configuation_totsym()
+        cur_sym = cas_configuration_totsym()
         det_cnt(cur_sym) = det_cnt(cur_sym) + 1
 
         ! Check if the configuration is CASCI configuration
@@ -107,7 +107,7 @@ contains
         satisfy_ras_conditions = .true.
     end function satisfy_ras_conditions
 
-    function cas_configuation_totsym() result(ret_isym)
+    function cas_configuration_totsym() result(ret_isym)
         use module_index_utils, only: convert_active_to_global_idx
         implicit none
         integer :: i, j, jsym, ielec
@@ -144,7 +144,7 @@ contains
                 "current_det:", current_det, " bit(current_det):", current_det, " isym:", ret_isym
 #endif
         end if
-    end function cas_configuation_totsym
+    end function cas_configuration_totsym
 
     logical function is_cas_configuration(isym)
         implicit none
