@@ -13,7 +13,8 @@ SUBROUTINE search_cas_configuration
     use module_dict, only: add, destruct_dict
     Implicit NONE
 
-    integer(kind=int64) :: idx, t, allow_det_num, current_det, cur_sym
+    integer(kind=int64) :: idx, t, allow_det_num, current_det
+    integer             :: cur_sym
     integer(kind=int64), allocatable :: det_cnt(:)
 
     if (debug .and. rank == 0) print *, 'Enter search_cas_configuration'
@@ -89,14 +90,14 @@ contains
         use ras_det_check
         implicit none
         if (ras1_size /= 0) then
-            if (.not. satisfy_ras1_condition(current_det, ras1_max_hole)) then
+            if (.not. satisfy_ras1_condition(current_det, int(ras1_max_hole, kind=int64))) then
                 ! Do not satisfy the RAS1 condition
                 satisfy_ras_conditions = .false.
                 return
             end if
         end if
         if (ras3_size /= 0) then
-            if (.not. satisfy_ras3_condition(current_det, ras3_max_elec)) then
+            if (.not. satisfy_ras3_condition(current_det, int(ras3_max_elec, kind=int64))) then
                 ! Do not satisfy the RAS3 condition
                 satisfy_ras_conditions = .false.
                 return
