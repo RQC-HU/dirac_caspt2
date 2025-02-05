@@ -59,7 +59,7 @@ SUBROUTINE casci
     dict_cas_idx_size = get_size(dict_cas_idx)
     allocate (keys(dict_cas_idx_size), vals(dict_cas_idx_size))
     call memplus(KIND(keys), SIZE(keys), 1); call memplus(KIND(vals), SIZE(vals), 1)
-    call get_keys_vals(dict_cas_idx, keys, vals, dict_cas_idx_size)
+    call get_keys_vals(dict_cas_idx, keys, vals, int(dict_cas_idx_size, kind=int64))
     ! Check if dict_cas_idx_size is equal to ndet
     if (dict_cas_idx_size /= ndet) then
         if (rank == 0) print *, 'ERROR: dict_cas_idx_size /= ndet. ndet =', ndet, ",dict_cas_idx_size =", dict_cas_idx_size
@@ -84,7 +84,7 @@ SUBROUTINE casci
                 print '("Root = ",I4)', irec
                 do j = 1, ndet
                     if ((ABS(mat_real(j, irec))**2) > 1.0d-02) then
-                        i0 = get_val(dict_cas_idx, j)
+                        i0 = get_val(dict_cas_idx, int(j, kind=int64))
                         print *, (btest(i0, j0), j0=0, nact - 1)
                         print '(I4, 3X,E14.7," Weights ",E14.7)', &
                         & j, mat_real(j, irec), &
@@ -103,7 +103,7 @@ SUBROUTINE casci
                 print '("Root = ",I4)', irec
                 do j = 1, ndet
                     if ((ABS(mat_complex(j, irec))**2) > 1.0d-02) then
-                        i0 = get_val(dict_cas_idx, j)
+                        i0 = get_val(dict_cas_idx, int(j, kind=int64))
                         print *, (btest(i0, j0), j0=0, nact - 1)
                         print '(I4,2(3X,E14.7)," Weights ",E14.7)', &
                         & j, mat_complex(j, irec), &

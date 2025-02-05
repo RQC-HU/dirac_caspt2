@@ -16,7 +16,7 @@ module module_sort_swap
         module procedure heapifyInt, heapifyReal
     end interface heapify
     interface swap
-        module procedure swapInt, swapReal, swapCmp16, swapArrayInt, swapArrayReal, swapArrayCmp16
+        module procedure swapInt32, swapInt64, swapReal, swapCmp16, swapArrayInt, swapArrayReal, swapArrayCmp16
     end interface swap
 contains
     subroutine heapifyInt(array, first, last, is_descending_order)
@@ -113,19 +113,30 @@ contains
         end do
     end subroutine
 
-    subroutine swapInt(a, b)
+    subroutine swapInt32(a, b)
         ! Swap values between a and b
+        use, intrinsic :: iso_fortran_env, only: int32
         implicit none
-        integer temp
-        integer, INTENT(INOUT) :: a, b
+        integer(kind=int32) :: temp
+        integer(kind=int32), INTENT(INOUT) :: a, b
         temp = a
         a = b
         b = temp
-    end subroutine swapInt
+    end subroutine swapInt32
+    subroutine swapInt64(a, b)
+        ! Swap values between a and b
+        use, intrinsic :: iso_fortran_env, only: int64
+        implicit none
+        integer(kind=int64) :: temp
+        integer(kind=int64), INTENT(INOUT) :: a, b
+        temp = a
+        a = b
+        b = temp
+    end subroutine swapInt64
     subroutine swapReal(a, b)
         ! Swap values between a and b
         implicit none
-        real(8) temp
+        real(8) :: temp
         real(8), INTENT(INOUT) :: a, b
         temp = a
         a = b
@@ -134,7 +145,7 @@ contains
     subroutine swapCmp16(a, b)
         ! Swap values between a and b
         implicit none
-        complex*16 temp
+        complex*16 :: temp
         complex*16, INTENT(INOUT) :: a, b
         temp = a
         a = b
@@ -144,7 +155,7 @@ contains
     subroutine swapArrayInt(array, a, b)
         ! Swap values between array(a) and array(b)
         implicit none
-        integer temp
+        integer :: temp
         integer, INTENT(INOUT) :: array(:)
         integer, INTENT(IN) :: a, b
         temp = array(a)
@@ -154,7 +165,7 @@ contains
     subroutine swapArrayReal(array, a, b)
         ! Swap values between array(a) and array(b)
         implicit none
-        real(8) temp
+        real(8) :: temp
         real(8), INTENT(INOUT) :: array(:)
         integer, INTENT(IN) :: a, b
         temp = array(a)
@@ -164,7 +175,7 @@ contains
     subroutine swapArrayCmp16(array, a, b)
         ! Swap values between array(a) and array(b)
         implicit none
-        complex*16 temp
+        complex*16 :: temp
         complex*16, INTENT(INOUT) :: array(:)
         integer, INTENT(IN) :: a, b
         temp = array(a)

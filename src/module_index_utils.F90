@@ -4,14 +4,13 @@ module module_index_utils
     private
     public :: convert_active_to_global_idx, convert_secondary_to_global_idx, &
               convert_global_to_active_idx, convert_global_to_secondary_idx, &
-              get_mo_range, set_global_index, sign_even_ret1, sign_odd_ret1
+              get_mo_range, set_global_index
 
 contains
 
     function convert_active_to_global_idx(active_idx) result(global_idx)
         ! ====================================================================================================
-        ! Converts a active index to a global index
-        ! ====================================================================================================
+        ! Converts a active index to a global index ====================================================================================================
         ! The global index means the index of sequential ordering of all (inactive + active + secondary) orbitals
         ! The active index means the index of sequential ordering of active orbitals
         use module_global_variables, only: ninact, nact, rank
@@ -133,60 +132,5 @@ contains
         end if
         global_sec_end = ninact + nact + nsec
     end subroutine set_global_index
-
-    function sign_even_ret1(phase) result(sign)
-        ! ====================================================================================================
-        ! Returns the sign of a phase, given the phase number
-        ! If the phase is even, then the sign is returned as +1
-        ! If the phase is odd, then the sign is returned as -1
-        ! ====================================================================================================
-        use module_global_variables, only: rank
-        integer, intent(in) :: phase
-        integer :: sign
-        ! phase | sign(return value)
-        ! ==========================
-        ! even  |  +1
-        !  odd  |  -1
-        sign = 0
-
-        if (mod(phase, 2) == 0) then
-            sign = 1
-        else
-            sign = -1
-        end if
-
-        if (sign == 0) then
-            if (rank == 0) print *, "Error: sign = 0"
-            call stop_with_errorcode(4)
-        end if
-
-    end function sign_even_ret1
-
-    function sign_odd_ret1(phase) result(sign)
-        ! ====================================================================================================
-        ! Returns the sign of a phase, given the phase number
-        ! If the phase is even, then the sign is returned as -1
-        ! If the phase is odd, then the sign is returned as +1
-        ! ====================================================================================================
-        use module_global_variables, only: rank
-        integer, intent(in) :: phase
-        integer :: sign
-        ! phase | sign(return value)
-        ! ==========================
-        ! even  |  -1
-        !  odd  |  +1
-        sign = 0
-
-        if (mod(phase, 2) == 0) then
-            sign = -1
-        else
-            sign = 1
-        end if
-
-        if (sign == 0) then
-            if (rank == 0) print *, "Error: sign = 0"
-            call stop_with_errorcode(4)
-        end if
-    end function sign_odd_ret1
 
 end module module_index_utils
