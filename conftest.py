@@ -121,6 +121,13 @@ def env_setup_gen_restart_file(request: pytest.FixtureRequest) -> Tuple[Path, Pa
     expected_path = caller_path / f"expected_{caller_name}"
     return (gen_restart_path, test_path, input_path, expected_path)
 
+@pytest.fixture(scope="function")
+def env_setup_unittest(request: pytest.FixtureRequest):
+    def _env_setup_unittest(exe_name: str) -> Path:
+        build_dir = request.config.build_dir
+        exe_path = build_dir / exe_name
+        return exe_path
+    return _env_setup_unittest
 
 def pytest_configure(config: pytest.Config) -> None:
     config.build_dir = Path(config.getoption("--build-dir")).expanduser().resolve()
