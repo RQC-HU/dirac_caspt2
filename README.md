@@ -237,11 +237,11 @@ The following custom CMake build options are currently supported
 ### Calculation
 
 - You can use this program with the dcaspt2 script
-  - The dcaspt2 script is located in the bin directory or in the destination directory if installed by specifying with a --prefix option.
+  - The dcaspt2 script is located in the build directory (by default) or in the destination directory if installed by specifying with a --prefix option.
 
     ```sh
     # If you did not install with --prefix
-    /path/to/dirac_caspt2/bin/dcaspt2 -i input_file
+    /path/to/dirac_caspt2/build/dcaspt2 -i input_file
     # If you installed with --prefix
     $PREFIX/dcaspt2 -i input_file
     ```
