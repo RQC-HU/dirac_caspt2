@@ -4,3 +4,4 @@ add_executable(test_ras_input_reader_exe
   test_ras_input_reader.f90
 )
 target_link_libraries(test_ras_input_reader_exe dcaspt2_module)
+set_target_properties(test_ras_input_reader_exe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")

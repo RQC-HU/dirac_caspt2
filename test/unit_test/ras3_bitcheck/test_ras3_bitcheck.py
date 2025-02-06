@@ -9,7 +9,8 @@ import pytest
 
 
 @pytest.mark.dev
-def test_ras3_bitcheck():
+def test_ras3_bitcheck(env_setup_unittest):
+    exe_file_path = env_setup_unittest("ras3_bitcheck_exe")
     # Current path
     test_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,12 +20,10 @@ def test_ras3_bitcheck():
     # input/output/executable file names
     ref_output_file = "expected"
     result_filename = "result.out"
-    exe_filename = "ras3_bitcheck_exe"
 
     # Absolute path to input/output/executable files
     ref_output_file_path = os.path.abspath(os.path.join(test_path, ref_output_file))
     result_file_path = os.path.abspath(os.path.join(test_path, result_filename))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     test_command = create_test_command(mpi_num_process=1, binaries=[exe_file_path])
