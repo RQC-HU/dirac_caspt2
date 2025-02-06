@@ -17,7 +17,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(slow_only_option, action="store_true", default=False, help="run only very slow tests")
     parser.addoption(dev_option, action="store_true", default=False, help="run tests for development")
     parser.addoption(runall_option, action="store_true", default=False, help="run all tests")
-    parser.addoption("-B", "--build-dir", action="store", default="bin", help="build directory [default: bin]")
+    parser.addoption("-B", "--build-dir", action="store", default="build", help="build directory [default: build]")
     parser.addoption(
         "--mpi",
         type=int,
