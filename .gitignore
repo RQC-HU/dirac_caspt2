@@ -11,8 +11,8 @@
 # Ignore object files
 bin/
 
-# Ignore build directory
-build/
+# Ignore build* directory
+build*
 
 # Ignore object files and module files
 *.o
