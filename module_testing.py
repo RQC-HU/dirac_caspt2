@@ -79,6 +79,7 @@ def check_test_returncode(process: "subprocess.CompletedProcess[str]") -> None:
     if process.returncode != 0:
         raise Exception("ERROR: Process failed. return code status : " + str(process.returncode))
 
+
 def get_multi_caspt2_energy_from_output_file(file_path: str) -> List[float]:
     with open(file_path, encoding="utf-8", mode="r") as output_file:
         try:
@@ -90,6 +91,7 @@ def get_multi_caspt2_energy_from_output_file(file_path: str) -> List[float]:
         except Exception as error:
             error_message = f"{error}\nERROR: Failed to get the CASPT2 energy from the reference file {file_path}."
             raise Exception(error_message)
+
 
 def get_caspt2_energy_from_output_file(file_path: str) -> float:
     with open(file_path, encoding="utf-8", mode="r") as output_file:
