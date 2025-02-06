@@ -8,7 +8,6 @@ option(MPI "Enable MPI?" OFF)
 option(OPENMP "Enable OpenMP?" OFF)
 option(MKL "Enable MKL?" ON)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin) # Set executable output path
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules) # Set module output path
 
 # Deny In-source build ( Ref : https://github.com/eigenteam/eigen-git-mirror/blob/36b95962756c1fce8e29b1f8bc45967f30773c00/CMakeLists.txt#L7-L9)
@@ -73,10 +72,10 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(test)
-configure_file(${PROJECT_SOURCE_DIR}/tools/dcaspt2_input ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 COPYONLY)
-configure_file(${PROJECT_SOURCE_DIR}/tools/gen_dcaspt2_restart ${EXECUTABLE_OUTPUT_PATH}/gen_dcaspt2_restart COPYONLY)
-install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/dcaspt2 DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(PROGRAMS ${EXECUTABLE_OUTPUT_PATH}/gen_dcaspt2_restart DESTINATION ${CMAKE_INSTALL_PREFIX})
+configure_file(${PROJECT_SOURCE_DIR}/tools/dcaspt2_input ${PROJECT_BINARY_DIR}/dcaspt2 COPYONLY)
+configure_file(${PROJECT_SOURCE_DIR}/tools/gen_dcaspt2_restart ${PROJECT_BINARY_DIR}/gen_dcaspt2_restart COPYONLY)
+install(PROGRAMS ${PROJECT_BINARY_DIR}/dcaspt2 DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(PROGRAMS ${PROJECT_BINARY_DIR}/gen_dcaspt2_restart DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # Create a custom target named commit_hash
 add_custom_target(commit_hash ALL)
@@ -87,9 +86,9 @@ add_custom_command(
   PRE_BUILD
   COMMAND ${CMAKE_COMMAND}
   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-  -DEXECUTABLE_OUTPUT_PATH=${EXECUTABLE_OUTPUT_PATH}
+  -DPROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}
   -DPROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
   -P ${PROJECT_SOURCE_DIR}/cmake/commit_hash.cmake
   ALWAYS
 )
-install(FILES ${EXECUTABLE_OUTPUT_PATH}/.commit_hash DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES ${PROJECT_BINARY_DIR}/.commit_hash DESTINATION ${CMAKE_INSTALL_PREFIX})

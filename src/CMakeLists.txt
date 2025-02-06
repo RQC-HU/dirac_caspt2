@@ -83,4 +83,7 @@ add_executable(r4dcaspt2exe
 )
 target_link_libraries(r4dcaspt2exe dcaspt2_module)
 
+# r4dcaspt2exe is placed in the PROJECT_BINARY_DIR on build time
+set_target_properties(r4dcaspt2exe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+
 install(TARGETS r4dcaspt2exe RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
