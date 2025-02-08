@@ -13,7 +13,7 @@ from module_testing import (
 
 
 @pytest.mark.dev
-def test_time_calc():
+def test_time_calc(env_setup_unittest):
 
     def create_date_time_from_input(input_str: str) -> datetime:
         # (e.g. "2021 01 01 00 00 00 00\n")
@@ -31,11 +31,11 @@ def test_time_calc():
         day, hour, minute, second = int(splitted[-8]), int(splitted[-6]), int(splitted[-4]), float(splitted[-2])
         return timedelta(days=day, hours=hour, minutes=minute, seconds=second)
 
+    exe_file_path = env_setup_unittest("test_time_calc_exe")
     # Set file names
     input_file = "input"
     output_filename = "stdout.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.result.out"  # latest passed output (After test, the output file is moved to this)
-    exe_filename = "test_time_calc_exe"  # Executable file
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -46,7 +46,6 @@ def test_time_calc():
     input_file_path = os.path.abspath(os.path.join(test_path, input_file))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)

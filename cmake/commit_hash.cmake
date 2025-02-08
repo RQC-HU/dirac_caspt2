@@ -1,6 +1,6 @@
 message(STATUS "Getting git hash")
 message(STATUS "commit_hash.cmake PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
-message(STATUS "commit_hash.cmake EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH}")
+message(STATUS "commit_hash.cmake PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
 message(STATUS "commit_hash.cmake CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 set(git_hash "unknown") # Default value
 
@@ -17,4 +17,4 @@ else()
     set(git_hash "unknown")
 endif()
 
-file(WRITE ${EXECUTABLE_OUTPUT_PATH}/.commit_hash "${git_hash}")
+file(WRITE ${PROJECT_BINARY_DIR}/.commit_hash "${git_hash}")

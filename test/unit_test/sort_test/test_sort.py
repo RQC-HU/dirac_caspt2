@@ -13,12 +13,11 @@ from module_testing import (
 
 
 @pytest.mark.dev
-def test_int_sort():
-
+def test_int_sort(env_setup_unittest):
+    exe_file_path = env_setup_unittest("test_sort_int_exe")
     # Set file names
     output_filename = "int.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.int.out"  # latest passed output (After test, the output file is moved to this)
-    exe_filename = "test_sort_int_exe"  # Executable file
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -28,7 +27,6 @@ def test_int_sort():
     # Set file paths
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)
@@ -75,12 +73,11 @@ def test_int_sort():
 
 
 @pytest.mark.dev
-def test_int_sort_reverse():
-
+def test_int_sort_reverse(env_setup_unittest):
+    exe_file_path = env_setup_unittest("test_sort_int_reverse_exe")
     # Set file names
     output_filename = "int_reverse.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.int_reverse.out"  # latest passed output (After test, the output file is moved to this)
-    exe_filename = "test_sort_int_reverse_exe"  # Executable file
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -90,7 +87,6 @@ def test_int_sort_reverse():
     # Set file paths
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)
@@ -137,12 +133,11 @@ def test_int_sort_reverse():
 
 
 @pytest.mark.dev
-def test_real_sort():
-
+def test_real_sort(env_setup_unittest):
+    exe_file_path = env_setup_unittest("test_sort_real_exe")
     # Set file names
     output_filename = "real.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.real.out"  # latest passed output (After test, the output file is moved to this)
-    exe_filename = "test_sort_real_exe"  # Executable file
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -152,7 +147,6 @@ def test_real_sort():
     # Set file paths
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)
@@ -177,12 +171,11 @@ def test_real_sort():
 
 
 @pytest.mark.dev
-def test_real_sort_reverse():
-
+def test_real_sort_reverse(env_setup_unittest):
+    exe_file_path = env_setup_unittest("test_sort_real_reverse_exe")
     # Set file names
     output_filename = "real_reverse.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.real_reverse.out"  # latest passed output (After test, the output file is moved to this)
-    exe_filename = "test_sort_real_reverse_exe"  # Executable file
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -192,7 +185,6 @@ def test_real_sort_reverse():
     # Set file paths
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)

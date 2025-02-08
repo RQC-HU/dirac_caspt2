@@ -11,13 +11,14 @@ import pytest
 
 
 @pytest.mark.dev
-def test_lowercase():
+def test_lowercase(env_setup_unittest):
+    exe_file_path = env_setup_unittest("test_lowercase_exe")
+    print(f"Test command: {exe_file_path}")
 
     # Set file names
     ref_output_file = "expected"  # Reference
     output_filename = "result.out"  # Output (This file is compared with Reference)
     latest_passed_output = "latest_passed.result.out"  # latest passed output (After test, the output file is moved to this)
-    exe_filename = "test_lowercase_exe"  # Executable file
 
     # Get this files path and change directory to this path
     test_path = os.path.dirname(os.path.abspath(__file__))  # The path of this file
@@ -28,7 +29,6 @@ def test_lowercase():
     ref_output_file_path = os.path.abspath(os.path.join(test_path, ref_output_file))
     output_file_path = os.path.abspath(os.path.join(test_path, output_filename))
     latest_passed_path = os.path.abspath(os.path.join(test_path, latest_passed_output))
-    exe_file_path = os.path.abspath(os.path.join(test_path, exe_filename))
 
     is_binary_file_exist(exe_file_path)
     delete_scratch_files([output_filename], test_path)

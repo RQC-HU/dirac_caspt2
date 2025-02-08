@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 import pytest
+
 from module_testing import create_test_command_dcaspt2
 
 slow_only_option = "--slowonly"
@@ -16,6 +17,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(slow_only_option, action="store_true", default=False, help="run only very slow tests")
     parser.addoption(dev_option, action="store_true", default=False, help="run tests for development")
     parser.addoption(runall_option, action="store_true", default=False, help="run all tests")
+    parser.addoption("-B", "--build-dir", action="store", default="build", help="build directory [default: build]")
     parser.addoption(
         "--mpi",
         type=int,
@@ -48,7 +50,6 @@ def save(request: pytest.FixtureRequest):
 
 @pytest.fixture(scope="function")
 def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_threads: int, save: bool) -> Tuple[Path, Path, Path, Path, str]:
-    root_path = Path(__file__).parent.parent
     test_path = Path(request.fspath).parent
     # test_name is the name of the test file without the extension and the first test_.
     # (e.g.) /path/to/test/slow/c1_methane_slow/test_c1_methane_slow.py -> c1_methane_slow
@@ -63,7 +64,7 @@ def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_n
     ref_output_path = test_path / ref_output_file
     output_path = test_path / output_filename
     latest_passed_path = test_path / latest_passed_output
-    dcaspt2 = root_path / "bin/dcaspt2"
+    dcaspt2 = request.config.build_dir / "dcaspt2"
     test_command = create_test_command_dcaspt2(dcaspt2, mpi_num_process, omp_num_threads, input_path, output_path, test_path, save)
 
     return (
@@ -77,7 +78,6 @@ def env_setup_caspt2(request: pytest.FixtureRequest, mpi_num_process: int, omp_n
 
 @pytest.fixture(scope="function")
 def env_setup_ivo(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_threads: int, save: bool) -> Tuple[Path, Path, Path, Path, str]:
-    root_path = Path(__file__).parent.parent
     test_path = Path(request.fspath).parent
     # test_name is the name of the test file without the extension and the first test_.
     # (e.g.) /path/to/test/dev/ivo_c32h_n2_dev_dirac22/test_ivo_c32h_n2_dev_dirac22.py -> ivo_c32h_n2_dev_dirac22
@@ -95,7 +95,7 @@ def env_setup_ivo(request: pytest.FixtureRequest, mpi_num_process: int, omp_num_
     latest_passed_DFPCMONEW_path = test_path / latest_passed_output
     output_path = test_path / output_filename
     latest_passed_output_path = test_path / latest_passed_output
-    dcaspt2 = root_path / "bin/dcaspt2"
+    dcaspt2 = request.config.build_dir / "dcaspt2"
     is_ivo = True
     test_command = create_test_command_dcaspt2(dcaspt2, mpi_num_process, omp_num_threads, input_path, output_path, test_path, save, is_ivo)
 
@@ -115,15 +115,24 @@ def env_setup_gen_restart_file(request: pytest.FixtureRequest) -> Tuple[Path, Pa
     caller_name = request.function.__name__
     caller_path = Path(request.node.path).expanduser().resolve().parent
 
-    root_path = Path(__file__).parent.parent
-    gen_restart_path = root_path / "bin/gen_dcaspt2_restart"
+    gen_restart_path = request.config.build_dir / "gen_dcaspt2_restart"
     test_path = Path(request.node.path).parent
     input_path = caller_path / f"{caller_name}.in"
     expected_path = caller_path / f"expected_{caller_name}"
     return (gen_restart_path, test_path, input_path, expected_path)
 
+@pytest.fixture(scope="function")
+def env_setup_unittest(request: pytest.FixtureRequest):
+    def _env_setup_unittest(exe_name: str) -> Path:
+        build_dir = request.config.build_dir
+        exe_path = build_dir / exe_name
+        return exe_path
+    return _env_setup_unittest
 
 def pytest_configure(config: pytest.Config) -> None:
+    config.build_dir = Path(config.getoption("--build-dir")).expanduser().resolve()
+    if not config.build_dir.exists():
+        raise FileNotFoundError(f"build directory {config.build_dir} does not exist.")
     config.addinivalue_line("markers", "slowonly: mark test as slow to run")
     config.addinivalue_line("markers", "dev: mark test as for development")
 

@@ -12,6 +12,7 @@ from pathlib import Path
 
 def define_args() -> "argparse.Namespace":
     parser = argparse.ArgumentParser(description="This script is used as a setup script for this project.")
+    parser.add_argument("-B", "--build-dir", type=str, dest="build_dir", default="build", help="Specify the build directory. [default: build]")
     parser.add_argument("--build", action="store_true", help="Build the project after the setup. [default: False]")
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
@@ -32,7 +33,16 @@ def define_args() -> "argparse.Namespace":
     return parser.parse_args()
 
 
-def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -> str:
+def validate_build_dir(build_dir: Path, script_path: Path):
+    banned_dir_names = ["__pycache__", ".devcontainer", ".git", ".github", ".pytest_cache", ".vscode", "cmake", "src", "test", "tools"]
+    banned_dirs = set(script_path / banned_dir_name for banned_dir_name in banned_dir_names)
+    if build_dir in banned_dirs:
+        logging.error(f"Build directory {build_dir} is not allowed because it is a reserved directory.")
+        logging.error(f"banned_dirs: {[d.as_posix() for d in banned_dirs]}")
+        raise ValueError(f"Build directory {build_dir} is not allowed.")
+
+
+def preprocess(args: "argparse.Namespace", build_dir: Path) -> str:
     def check_cmake_version() -> None:
         logging.info("Checking if CMake is installed and the version is 3.14 or later...")
         try:
@@ -69,15 +79,12 @@ def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -
             raise  # raise the FileNotFoundError exception to exit the script with an error code.
 
     def clean_dir() -> None:
-        """Remove build and bin directories before configuring the source code."""
+        """Remove build directories before configuring the source code."""
         logging.info("Cleaning the build directory...")
-        remove_dirs_name = ["build", "bin"]
-        for rmdir_name in remove_dirs_name:
-            rmdir = (script_path / rmdir_name).resolve()
-            logging.info(f"Checking if {rmdir} exists...")
-            if rmdir.exists():
-                shutil.rmtree(rmdir)
-                logging.info(f"Removed the directory {rmdir}")
+        logging.info(f"Checking if {build_dir} exists...")
+        if build_dir.exists():
+            shutil.rmtree(build_dir)
+            logging.info(f"Removed the directory {build_dir}")
 
     def set_compiler() -> str:
         if args.fc is not None:
@@ -135,27 +142,26 @@ def preprocess(args: "argparse.Namespace", exec_path: Path, script_path: Path) -
     return cmake_flags
 
 
-def configure_source(cmake_flags: str, script_path: Path) -> None:
+def configure_source(build_dir: Path, cmake_flags: str) -> None:
     logging.info(f"CMake flags are {cmake_flags}")
-    build_dir = (script_path / "build").resolve()
     build_dir.mkdir(exist_ok=True)
     command = f"cmake -B {build_dir} {cmake_flags}"
     with open("cmake_build_command.log", "w") as f:
         f.write(command)
     logging.info(f"BUILD COMMAND is {command}")
-    logging.info(f"Build command is saved in {script_path}/cmake_build_command.log")
+    logging.info(f"Build command is saved in {Path.cwd().resolve()}/cmake_build_command.log")
     subprocess.run(command.split(), check=True)
     logging.info("Successfully configured the source code.")
 
 
-def build(args: "argparse.Namespace") -> None:
+def build(args: "argparse.Namespace", build_dir: Path) -> None:
     num_of_process = args.parallel
     if num_of_process == -1:
         # const value of -j option, which means the native build tool's default number is used.
         # (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
-        cmd = "cmake --build build -j"
+        cmd = f"cmake --build {build_dir} -j"
     else:
-        cmd = f"cmake --build build -j {num_of_process}"
+        cmd = f"cmake --build {build_dir} -j {num_of_process}"
     subprocess.run(cmd.split(), check=True)
     logging.info("Successfully built the project.")
 
@@ -163,23 +169,26 @@ def build(args: "argparse.Namespace") -> None:
 def main():
 
     logging.info("Start dirac_caspt2 setup script.")
-    exec_path = Path.cwd().resolve()
     script_path = Path(__file__).parent.resolve()
     os.chdir(script_path)
 
     args = define_args()
-    cmake_flags = preprocess(args, exec_path, script_path)
-    configure_source(cmake_flags, script_path)
+    build_dir = Path(args.build_dir).expanduser().resolve()
+    validate_build_dir(build_dir, script_path)
+    logging.info(f"build path is {build_dir}")
+    cmake_flags = preprocess(args, build_dir)
+    configure_source(build_dir, cmake_flags)
 
     if not args.build:
         finish_message = "Finished the setup script.\n\n If you want to build the project, please run the following command: \n\tcmake --build build\n or\n\tmake -C build\n After building the project successfully, you should run tests!\n"
     else:
-        build(args)
+        build(args, build_dir)
         finish_message = "Finished the setup script.\n"
     logging.info(finish_message)
 
     mpi_option_message = " --mpi=[number of MPI processes]" if args.mpi else ""
     omp_option_message = " --omp=[number of OpenMP threads per one process]" if args.omp else ""
+    build_dir_option_message = f" --build-dir={build_dir}"
     enable_or_disable_mpi = "set" if args.mpi else "do not set"
 
     logging.info(
@@ -189,9 +198,9 @@ def main():
         \tpip install pytest\n\n\
         You {enable_or_disable_mpi} --mpi option. Therefore, you should run one of the following tests:\n\
         - Run all tests:\n\
-        \tpytest --all{mpi_option_message}{omp_option_message}\n\
+        \tpytest --all{build_dir_option_message}{mpi_option_message}{omp_option_message}\n\
         - Run tests excluding the tests long time to run:\n\
-        \tpytest{mpi_option_message}{omp_option_message}\n\
+        \tpytest{build_dir_option_message}{mpi_option_message}{omp_option_message}\n\
         For more information, please read the {script_path}/README.md file."
     )
 
