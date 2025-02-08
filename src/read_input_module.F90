@@ -6,8 +6,7 @@ module read_input_module
 !
 ! This is a utility module that interpret and parse input strings.
 !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
-    use module_essential_input, only: add_essential_input, update_esesential_input, &
-                                      check_all_essential_inputs_specified, essential_inputs
+    use module_essential_input
     use module_global_variables, only: rank, len_convert_int_to_chr
     use module_error, only: stop_with_errorcode
     implicit none
@@ -15,16 +14,17 @@ module read_input_module
     public read_input, check_substring, ras_read, lowercase, uppercase
     logical is_end, set_caspt2_ciroots
     integer, parameter :: input_intmax = 10**9, max_str_length = 500
+    type(essential_inputs_container) :: container
 
 contains
 
     subroutine init_essential_variables
-        call add_essential_input(".ninact")
-        call add_essential_input(".nact")
-        call add_essential_input(".nsec")
-        call add_essential_input(".nelec")
-        call add_essential_input(".diracver")
-        call add_essential_input(".subprograms")
+        call container%add_essential_input(".ninact")
+        call container%add_essential_input(".nact")
+        call container%add_essential_input(".nsec")
+        call container%add_essential_input(".nelec")
+        call container%add_essential_input(".diracver")
+        call container%add_essential_input(".subprograms")
     end subroutine init_essential_variables
 
     subroutine print_input_file(unit_num)
@@ -86,7 +86,7 @@ contains
             call read_keyword_and_value(unit_num, string)
         end do
 
-        call check_all_essential_inputs_specified
+        call container%check_all_essential_inputs_specified()
         call set_global_index
         call set_mdcint_scheme
         call check_ciroots_set
@@ -112,19 +112,19 @@ contains
 
         case (".ninact")
             call read_an_integer(unit_num, ".ninact", 0, input_intmax, ninact)
-            call update_esesential_input(".ninact", .true.)
+            call container%update_essential_input(".ninact", .true.)
 
         case (".nact")
             call read_an_integer(unit_num, ".nact", 0, input_intmax, nact)
-            call update_esesential_input(".nact", .true.)
+            call container%update_essential_input(".nact", .true.)
 
         case (".nsec")
             call read_an_integer(unit_num, ".nsec", 0, input_intmax, nsec)
-            call update_esesential_input(".nsec", .true.)
+            call container%update_essential_input(".nsec", .true.)
 
         case (".nelec")
             call read_an_integer(unit_num, ".nelec", 0, input_intmax, nelec)
-            call update_esesential_input(".nelec", .true.)
+            call container%update_essential_input(".nelec", .true.)
 
         case (".caspt2_ciroots")
             call read_caspt2_ciroots(unit_num)
@@ -145,7 +145,7 @@ contains
 
         case (".diracver")
             call read_an_integer(unit_num, ".diracver", 0, input_intmax, dirac_version)
-            call update_esesential_input(".diracver", .true.)
+            call container%update_essential_input(".diracver", .true.)
 
         case (".nhomo")
             call read_an_integer(unit_num, ".nhomo", 0, input_intmax, nhomo)
@@ -209,7 +209,7 @@ contains
 
         case (".subprograms")
             call read_subprograms(unit_num)
-            call update_esesential_input(".subprograms", .true.)
+            call container%update_essential_input(".subprograms", .true.)
 
         case (".countndet")
             docountndet = .true.
@@ -217,7 +217,7 @@ contains
             ! but if .countndet is specified, the other subroutines will be skipped.
             ! Therefore, if .countndet is specified, .subprograms doesn't need to be specified.
             ! Thus, we set essential input "subprograms" to .true.
-            call update_esesential_input(".subprograms", .true.)
+            call container%update_essential_input(".subprograms", .true.)
 
         case (".end")
             is_end = .true.
