@@ -38,7 +38,7 @@ def validate_build_dir(build_dir: Path, script_path: Path):
     banned_dirs = set(script_path / banned_dir_name for banned_dir_name in banned_dir_names)
     if build_dir in banned_dirs:
         logging.error(f"Build directory {build_dir} is not allowed because it is a reserved directory.")
-        logging.error(f"baned_dirs: {[d.as_posix() for d in banned_dirs]}")
+        logging.error(f"banned_dirs: {[d.as_posix() for d in banned_dirs]}")
         raise ValueError(f"Build directory {build_dir} is not allowed.")
 
 
