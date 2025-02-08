@@ -12,6 +12,7 @@ from pathlib import Path
 
 def define_args() -> "argparse.Namespace":
     parser = argparse.ArgumentParser(description="This script is used as a setup script for this project.")
+    parser.add_argument("-B", "--build-dir", type=str, dest="build_dir", default="build", help="Specify the build directory. [default: build]")
     parser.add_argument("--build", action="store_true", help="Build the project after the setup. [default: False]")
     parser.add_argument("--build-type", type=str, help="Specify the build type. (release, debug can be specified.) [default: release]")
     parser.add_argument("--fc", type=str, help="The path to the Fortran compiler.(If not specified, the default compiler will be used.)")
@@ -29,7 +30,6 @@ def define_args() -> "argparse.Namespace":
     parser.add_argument("--no-mkl", action="store_true", help="Disable MKL support. The path to the BLAS/LAPACK library should be specified in the --flags option.")
     parser.add_argument("--omp", "--openmp", action="store_true", help="Enable OpenMP support.")
     parser.add_argument("--prefix", type=str, metavar="INSTALL_DIR", help="Specify the installation directory. [default: /usr/local/bin]")
-    parser.add_argument("build_path", nargs="?", default="build", help="Specify the build directory. [default: build]")
     return parser.parse_args()
 
 
@@ -145,14 +145,14 @@ def configure_source(build_dir: Path, cmake_flags: str) -> None:
     logging.info("Successfully configured the source code.")
 
 
-def build(args: "argparse.Namespace", build_path: Path) -> None:
+def build(args: "argparse.Namespace", build_dir: Path) -> None:
     num_of_process = args.parallel
     if num_of_process == -1:
         # const value of -j option, which means the native build tool's default number is used.
         # (https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-build-j)
-        cmd = f"cmake --build {build_path} -j"
+        cmd = f"cmake --build {build_dir} -j"
     else:
-        cmd = f"cmake --build {build_path} -j {num_of_process}"
+        cmd = f"cmake --build {build_dir} -j {num_of_process}"
     subprocess.run(cmd.split(), check=True)
     logging.info("Successfully built the project.")
 
@@ -164,21 +164,21 @@ def main():
     os.chdir(script_path)
 
     args = define_args()
-    build_path = Path(args.build_path).expanduser().resolve()
-    logging.info(f"build path is {build_path}")
-    cmake_flags = preprocess(args, build_path)
-    configure_source(build_path, cmake_flags)
+    build_dir = Path(args.build_dir).expanduser().resolve()
+    logging.info(f"build path is {build_dir}")
+    cmake_flags = preprocess(args, build_dir)
+    configure_source(build_dir, cmake_flags)
 
     if not args.build:
         finish_message = "Finished the setup script.\n\n If you want to build the project, please run the following command: \n\tcmake --build build\n or\n\tmake -C build\n After building the project successfully, you should run tests!\n"
     else:
-        build(args, build_path)
+        build(args, build_dir)
         finish_message = "Finished the setup script.\n"
     logging.info(finish_message)
 
     mpi_option_message = " --mpi=[number of MPI processes]" if args.mpi else ""
     omp_option_message = " --omp=[number of OpenMP threads per one process]" if args.omp else ""
-    build_dir_option_message = f" --build-dir={build_path}"
+    build_dir_option_message = f" --build-dir={build_dir}"
     enable_or_disable_mpi = "set" if args.mpi else "do not set"
 
     logging.info(
