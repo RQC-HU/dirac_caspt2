@@ -15,19 +15,19 @@ subroutine read_cidata
     integer :: ninact_read, nact_read, nsec_read, nelec_read, nroot_read, totsym_read
     integer(kind=int64), allocatable :: dict_cas_idx_values(:)
     real(8), allocatable    :: ecas(:)
+    type(essential_inputs_container) :: container
 
-    if (allocated(essential_inputs)) deallocate (essential_inputs)
-    call add_essential_input("ninact")
-    call add_essential_input("nact")
-    call add_essential_input("nsec")
-    call add_essential_input("nelec")
-    call add_essential_input("ndet")
-    call add_essential_input("nroot")
-    call add_essential_input("totsym")
-    call add_essential_input("ecas")
-    call add_essential_input("dict_cas_idx_values")
-    call add_essential_input("ci_coefficients")
-    call add_essential_input("end")
+    call container%add_essential_input("ninact")
+    call container%add_essential_input("nact")
+    call container%add_essential_input("nsec")
+    call container%add_essential_input("nelec")
+    call container%add_essential_input("ndet")
+    call container%add_essential_input("nroot")
+    call container%add_essential_input("totsym")
+    call container%add_essential_input("ecas")
+    call container%add_essential_input("dict_cas_idx_values")
+    call container%add_essential_input("ci_coefficients")
+    call container%add_essential_input("end")
 
     write (chr_totsym, *) totsym
     filename = "CIDATA_sym"//trim(adjustl(chr_totsym))
@@ -49,42 +49,42 @@ subroutine read_cidata
                 if (rank == 0) print *, "Error: ninact in cidata file is not equal to ninact in input file."
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("nact")
             read (unit) nact_read
             if (nact_read /= nact) then
                 if (rank == 0) print *, "Error: nact in cidata file is not equal to nact in input file."
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("nsec")
             read (unit) nsec_read
             if (nsec_read /= nsec) then
                 if (rank == 0) print *, "Error: nsec in cidata file is not equal to nsec in input file."
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("nelec")
             read (unit) nelec_read
             if (nelec_read /= nelec) then
                 if (rank == 0) print *, "Error: nelec in cidata file is not equal to nelec in input file."
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("ndet")
             read (unit) ndet
             if (ndet < 0) then
                 if (rank == 0) print *, "Error: Invalid ndet in cidata file. ndet = ", ndet
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("nroot")
             read (unit) nroot_read
             if (nroot_read < 0) then
                 if (rank == 0) print *, "Error: Invalid nroot in cidata file. nroot = ", nroot_read
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("totsym")
             read (unit) totsym_read
             if (totsym_read /= totsym) then
@@ -92,9 +92,9 @@ subroutine read_cidata
                     " totsym = ", totsym
                 call stop_with_errorcode(1)
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("ecas")
-            if (.not. essential_input_is_specified("nroot")) then
+            if (.not. container%essential_input_is_specified("nroot")) then
                 if (rank == 0) print *, "Error: ecas detected before nroot."
                 call stop_with_errorcode(1)
             end if
@@ -104,9 +104,9 @@ subroutine read_cidata
             read (unit) ecas
             eigen(:) = ecas(1:nroot_read) + ecore
             deallocate (ecas)
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("dict_cas_idx_values")
-            if (.not. essential_input_is_specified("ndet")) then
+            if (.not. container%essential_input_is_specified("ndet")) then
                 if (rank == 0) print *, "Error: dict_cas_idx_values detected before ndet."
                 call stop_with_errorcode(1)
             end if
@@ -119,13 +119,13 @@ subroutine read_cidata
                 call add(dict_cas_idx_reverse, dict_cas_idx_values(i), int(i, kind=int64))
             end do
             deallocate (dict_cas_idx_values)
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("ci_coefficients")
-            if (.not. essential_input_is_specified("ndet")) then
+            if (.not. container%essential_input_is_specified("ndet")) then
                 if (rank == 0) print *, "Error: ci_coefficients detected before ndet."
                 call stop_with_errorcode(1)
             end if
-            if (.not. essential_input_is_specified("nroot")) then
+            if (.not. container%essential_input_is_specified("nroot")) then
                 if (rank == 0) print *, "Error: ci_coefficients detected before nroot."
                 call stop_with_errorcode(1)
             end if
@@ -138,9 +138,9 @@ subroutine read_cidata
                 read (unit) cir
                 read (unit) cii
             end if
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
         case ("end")
-            call update_esesential_input(trim(adjustl(key)), .true.)
+            call container%update_essential_input(trim(adjustl(key)), .true.)
             exit
         case default
             if (rank == 0) print *, "Error: Unknown keyword in cidata file."
@@ -148,8 +148,7 @@ subroutine read_cidata
         end select
     end do
 
-    call check_all_essential_inputs_specified
-    deallocate (essential_inputs)
+    call container%check_all_essential_inputs_specified()
     close (unit)
 
 end subroutine read_cidata
