@@ -22,8 +22,8 @@ def test_c1_methane_slow(env_setup_caspt2) -> None:
     test_energy = get_caspt2_energy_from_output_file(output_path)
 
     # Check whether the output of test run
-    # matches the reference to 7th decimal places.
-    assert test_energy == pytest.approx(ref_energy, abs=1e-7)
+    # matches the reference to 10th decimal places.
+    assert test_energy == pytest.approx(ref_energy, abs=1e-10)
 
     # If it reaches this point, the result of assert is true.
     # The latest passed output file is overwritten by the current output file if assert is True.
