@@ -32,7 +32,7 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel OR CMAKE_Fortran_COMPILER_ID STREQUA
 
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DINTEL -g -traceback -cpp -i8 -I$ENV{MKLROOT}/include -pad -integer-size 64 -unroll -warn nounused -nogen-interface")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check -debug extended -debug-parameters -warn -DDEBUG")
-  set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -fp-model=precise")
   link_libraries(-i8)
 
   if(MKL)
