@@ -113,6 +113,8 @@ jobs:
           - { compiler: gcc, version: 10, image: ubuntu-24.04 }
           - { compiler: gcc, version: 11, image: ubuntu-24.04 }
           - { compiler: gcc, version: 12, image: ubuntu-24.04 }
+          - { compiler: gcc, version: 13, image: ubuntu-24.04 }
+          - { compiler: gcc, version: 14, image: ubuntu-24.04 }
     runs-on: ${{ matrix.toolchain.image }}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
