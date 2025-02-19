@@ -393,4 +393,4 @@ Input for CASCI and CASPT2
 ## Citation
 
 - 本プログラムを使って得られたデータを公開する場合は以下の論文を引用してください
-  1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M. Relativistic CASPT2/RASPT2 Program along with DIRAC software. ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l  This content is a preprint and has not been peer-reviewed.
+  1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe. Relativistic CASPT2/RASPT2 Program along with DIRAC software. J. Chem. Theory Comput. 2025, 21, 3, 1249–1258; [https://doi.org/10.1021/acs.jctc.4c01589](https://doi.org/10.1021/acs.jctc.4c01589)
