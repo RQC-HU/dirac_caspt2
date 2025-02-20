@@ -113,6 +113,8 @@ jobs:
           - { compiler: gcc, version: 10, image: ubuntu-24.04 }
           - { compiler: gcc, version: 11, image: ubuntu-24.04 }
           - { compiler: gcc, version: 12, image: ubuntu-24.04 }
+          - { compiler: gcc, version: 13, image: ubuntu-24.04 }
+          - { compiler: gcc, version: 14, image: ubuntu-24.04 }
     runs-on: ${{ matrix.toolchain.image }}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
@@ -157,7 +159,7 @@ jobs:
         run: |
           sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu focal main universe"
           sudo apt-get update
-      - uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
+      - uses: fortran-lang/setup-fortran@2bbdcb313d2b7e72d1d07caf87f3ef9f376d9224 # v1.6.3
         id: setup-fortran
         with:
           compiler: ${{ matrix.toolchain.compiler }}
