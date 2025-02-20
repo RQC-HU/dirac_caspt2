@@ -390,7 +390,7 @@ Input for CASCI and CASPT2
   - Please see [LICENSE](LICENSE) for details.
 - But some files are licensed under other licenses.
   - MIT license
-    - [src/module_dict.f90](src/module_dict.f90)
+    - [src/module_dict.F90](src/module_dict.F90)
     - [setup](setup)
     - [tools/dcaspt2_input](tools/dcaspt2_input)
 

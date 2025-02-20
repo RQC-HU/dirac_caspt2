@@ -386,7 +386,7 @@ Input for CASCI and CASPT2
   - 詳細については [LICENSE](LICENSE) ファイルを参照ください
 - ただし以下のファイルは別のライセンスの元で配布されています
   - MIT license
-    - [src/module_dict.f90](src/module_dict.f90)
+    - [src/module_dict.F90](src/module_dict.F90)
     - [setup](setup)
     - [tools/dcaspt2_input](tools/dcaspt2_input)
 
