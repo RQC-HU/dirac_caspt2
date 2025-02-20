@@ -65,7 +65,7 @@ git clone --depth=1 https://github.com/RQC-HU/dirac_caspt2.git
 
 - [Python(version ≧ 3.6)](https://www.python.org/)
   - setupスクリプト(ビルド用スクリプト),dcaspt2スクリプト(プログラム実行用スクリプト)およびテストを実行するのに使用します
-  - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
+  - Python (version ≧ 3.6)がインストールされておらず、かつルート権限がない場合[pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation)などのPythonバージョンマネジメントツールを使用して非ルートユーザーでPythonをインストール、セットアップすることをおすすめします
 - [pytest](https://docs.pytest.org/)
   - テストを実行するために使用します
   - Python (version ≧ 3.6)をインストールしていれば以下のコマンドで入手できます
@@ -317,7 +317,7 @@ Input for CASCI and CASPT2
 .ras2           : RAS2 spinor list
 .ras3           : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 .minholeras1    : The minimum number of hole in ras1 (default: 0)
-.scheme         : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
+.scheme         : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/master/manual/moltra.html#scheme)
 .debugprint     : This keyword invokes printing of additional information in the output file
 .restart        : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
 .countndet      : Count and print the number of determinants for each total symmetry of this input file, and skip the any other calculations. If you set this option, you don't need to set .subprograms parameter. (default: false)

@@ -61,7 +61,7 @@ If you want to build this program, you need to have the following compilers, too
     ```
 - [Python(version >= 3.6)](https://www.python.org/)
   - The setup script(build script), the dcaspt2 script(program execution script) and pytest use Python.
-  - If Python (version >= 3.6) is not installed on your machine and you don't have root privileges, it is recommended to install and setup Python with Python version management tool such as [pyenv](https://github.com/pyenv/pyenv)
+  - If Python (version >= 3.6) is not installed on your machine and you don't have root privileges, it is recommended to install and setup Python with Python version management tool such as [pyenv](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation)
 - [pytest](https://docs.pytest.org/en/latest/)
   - This program uses pytest to run tests.
   - If pytest is not installed on your machine, please install pytest with pip.
@@ -318,7 +318,7 @@ Input for CASCI and CASPT2
 .ras2           : RAS2 spinor list
 .ras3           : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 .minholeras1    : The minimum number of hole in ras1 (default: 0)
-.scheme         : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/.doc/release-23/manual/moltra.html#scheme)
+.scheme         : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/master/manual/moltra.html#scheme)
 .debugprint     : This keyword invokes priniting of additional information in the output file
 .restart        : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
 .countndet      : Count and print the number of determinants for each total symmetry of this input file, and skip the any other calculations. If you set this option, you don't need to set .subprograms parameter. (default: false)
