@@ -168,6 +168,9 @@ jobs:
       - name: Build source code
         run: |
           ./setup --fc ${{ steps.setenv.outputs.FC }} ${{ steps.setenv.outputs.BUILD_OPTION }} -j --build
+      - name: Set MKL_NUM_THREADS env
+        run: |
+          echo 'export MKL_NUM_THREADS=1' >> $GITHUB_ENV
       - name: Run unittest(run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
