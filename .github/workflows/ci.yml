@@ -170,7 +170,7 @@ jobs:
           ./setup --fc ${{ steps.setenv.outputs.FC }} ${{ steps.setenv.outputs.BUILD_OPTION }} -j --build
       - name: Set MKL_NUM_THREADS env
         run: |
-          echo 'export MKL_NUM_THREADS=1' >> $GITHUB_ENV
+          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
       - name: Run unittest(run slowonly tests, pull_request)
         run: |
           pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }} --slowonly
