@@ -181,7 +181,7 @@ jobs:
       - name: Run unittest(run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --slowonly
+          pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }} --slowonly
       - name: Run unittest(run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
@@ -189,4 +189,4 @@ jobs:
       - name: Run unittest(run all tests, push to main branch)
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
-          pytest --all
+          pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }} --all
