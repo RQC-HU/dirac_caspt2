@@ -175,10 +175,13 @@ jobs:
       - name: Build source code
         run: |
           ./setup --fc ${{ steps.setenv.outputs.FC }} ${{ steps.setenv.outputs.BUILD_OPTION }} -j --build
+      - name: Set MKL_NUM_THREADS env variable to 1
+        run: |
+          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
       - name: Run unittest(run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          pytest --slowonly
+          pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }} --slowonly
       - name: Run unittest(run normal and slow tests, push to other than main branch)
         if: ${{ github.ref_name != 'main' && github.event_name == 'push' }}
         run: |
@@ -186,4 +189,4 @@ jobs:
       - name: Run unittest(run all tests, push to main branch)
         if: ${{ github.ref_name == 'main' && github.event_name == 'push' }}
         run: |
-          pytest --all
+          pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }} --all
