@@ -38,6 +38,7 @@ jobs:
     timeout-minutes: 60 # Max execution time (min)
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
           - {fc: mpiifort, pkgname: intel-oneapi-compiler-fortran-2024.2}
@@ -90,7 +91,6 @@ jobs:
         run: |
           ./setup --mpi --omp -j --build --fc ${{ matrix.toolchain.fc }}
       - name: Run unittest(parallel, run slowonly tests, pull_request)
-        if: ${{ github.event_name == 'pull_request' }}
         run: |
           pytest --slowonly --mpi=2
       - name: Run unittest(parallel, run normal and slow tests, push to other than main branch)
@@ -103,8 +103,10 @@ jobs:
           pytest --all --mpi=2
 
   test-linux-gfortran:
+
     timeout-minutes: 60 # Max execution time (min)
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
           - { compiler: gcc, version: 7, image: ubuntu-24.04 }
@@ -179,7 +181,6 @@ jobs:
         run: |
           echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
       - name: Run unittest(run slowonly tests, pull_request)
-        if: ${{ github.event_name == 'pull_request' }}
         run: |
           pytest ${{ steps.setenv.outputs.OPENMP_TEST_OPTION }} --slowonly
       - name: Run unittest(run normal and slow tests, push to other than main branch)
