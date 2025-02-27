@@ -15,7 +15,7 @@ SUBROUTINE casci
     use module_time
     Implicit NONE
 
-    integer :: j0, j, i0, irec, unit_cidata
+    integer :: j0, j, i0, irec, unit_cidata, dummy
     real(8) :: cutoff_threshold
 
     complex*16, allocatable :: mat_complex(:, :) ! For complex
@@ -49,9 +49,9 @@ SUBROUTINE casci
     end if
     cutoff_threshold = 0  ! No need to resolve linear dependence
     if (realonly%is_realonly()) then
-        call rdiagx(mat_real, ndet, nroot, ecas)
+        call rdiag(mat_real, ndet, dummy, ecas, 0.0d+00)
     else
-        Call cdiagx(mat_complex, ndet, nroot, ecas)
+        Call cdiag(mat_complex, ndet, dummy, ecas, 0.0d+00)
     end if
     if (rank == 0) print *, 'End mat diagonalization'
     call get_current_time_and_print_diff(tmp_start_time, tmp_end_time)
