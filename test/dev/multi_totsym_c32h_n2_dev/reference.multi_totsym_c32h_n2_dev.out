@@ -56,10 +56,10 @@ initialization of mpi, rank : 0 nprocs : 1
 @                                                                                  @
 @       Please cite the following paper when you publish the data obtained         @
 @       using this program.                                                        @
-@       1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M.                 @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
 @          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
-@          ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l                        @
-@          This content is a preprint and has not been peer-reviewed.              @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
 @                                                                                  @
 @       We do not take any responsibility for the results produced                 @
 @       by this program.                                                           @
@@ -291,10 +291,10 @@ initialization of mpi, rank : 0 nprocs : 1
 @                                                                                  @
 @       Please cite the following paper when you publish the data obtained         @
 @       using this program.                                                        @
-@       1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M.                 @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
 @          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
-@          ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l                        @
-@          This content is a preprint and has not been peer-reviewed.              @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
 @                                                                                  @
 @       We do not take any responsibility for the results produced                 @
 @       by this program.                                                           @
@@ -306,8 +306,8 @@ initialization of mpi, rank : 0 nprocs : 1
  
 Master rank allocated memory size:       0.00 bytes
 Present time is
-YEAR  = 2024 MONTH = 11 DATE  = 27
-HOUR  = 20 MIN  = 17 SEC  = 3.036
+YEAR  = 2025 MONTH = 2 DATE  = 27
+HOUR  = 12 MIN  = 52 SEC  = 50.283
  ninact        = 8
  nact          = 8
  nsec          = 44
@@ -326,7 +326,7 @@ HOUR  = 20 MIN  = 17 SEC  = 3.036
 computational time = 0 day 0 h 0 min 0.000 sec
  Start create_newmdcint
  End create_newmdcint
-computational time = 0 day 0 h 0 min 0.160 sec
+computational time = 0 day 0 h 0 min 0.103 sec
  Enter readint2_casci subroutine (realonly)
 Master rank allocated memory size:       8.15 MB
  end Read mdcint normal
@@ -352,12 +352,12 @@ because the number of CASCI configuration is 6 and it is less than 10
  Start mat diagonalization
  ndet before diagonalization                    6
  End mat diagonalization
-computational time = 0 day 0 h 0 min 0.004 sec
+computational time = 0 day 0 h 0 min 0.003 sec
 CASCI ENERGY FOR 33 STATE
-CASCI Total Energy ROOT1     -107.74149572896821780432 a.u.
+CASCI Total Energy ROOT1     -107.74149572896818938261 a.u.
 CASCI Total Energy ROOT2     -107.35955115239495682999 a.u.
-CASCI Total Energy ROOT3     -107.35955114220404027492 a.u.
-CASCI Total Energy ROOT4     -106.89259754221150444664 a.u.
+CASCI Total Energy ROOT3     -107.35955114220398343150 a.u.
+CASCI Total Energy ROOT4     -106.89259754221156129006 a.u.
 CASCI Total Energy ROOT5     -106.84462652881818200967 a.u.
 CASCI Total Energy ROOT6     -106.62765243489901934026 a.u.
 Root =    1
@@ -367,14 +367,14 @@ Root =    1
    6    0.1195900E+00 Weights  0.1430176E-01
 Root =    2
  T T T T F T T F
-   2   -0.7071094E+00 Weights  0.5000037E+00
+   2   -0.7071047E+00 Weights  0.4999970E+00
  T T T T T F F T
-   3    0.7071041E+00 Weights  0.4999962E+00
+   3    0.7071088E+00 Weights  0.5000029E+00
 Root =    3
  T T T T F T T F
-   2    0.7071041E+00 Weights  0.4999962E+00
+   2    0.7071089E+00 Weights  0.5000029E+00
  T T T T T F F T
-   3    0.7071094E+00 Weights  0.5000038E+00
+   3    0.7071047E+00 Weights  0.4999971E+00
 Root =    4
  T T T T F F T T
    4   -0.5371039E+00 Weights  0.2884806E+00
@@ -417,14 +417,14 @@ Root =    6
 selectroot 1
  energy 1 =              (-147.98445401883998,0.0000000000000000)
  energy 2 =               (26.007663946707229,0.0000000000000000)
- energy 3 =              (-19.601207797740109,0.0000000000000000)
- energy 4 =               (7.9068188066576184,0.0000000000000000)
- t-energy(1-4)              (-133.67117906321525,0.0000000000000000)
- t-energy  -133.67117906321522     
+ energy 3 =              (-19.601207797740088,0.0000000000000000)
+ energy 4 =               (7.9068188066576104,0.0000000000000000)
+ t-energy(1-4)              (-133.67117906321522,0.0000000000000000)
+ t-energy  -133.67117906321519     
  C the error          (2.84217094304040074E-014,0.0000000000000000)
 Master rank allocated memory size:       8.06 MB
 Master rank allocated memory size:     288.00 bytes
-computational time = 0 day 0 h 0 min 0.180 sec
+computational time = 0 day 0 h 0 min 0.130 sec
  End r4dcasci part
  
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -483,10 +483,10 @@ computational time = 0 day 0 h 0 min 0.180 sec
 @                                                                                  @
 @       Please cite the following paper when you publish the data obtained         @
 @       using this program.                                                        @
-@       1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M.                 @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
 @          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
-@          ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l                        @
-@          This content is a preprint and has not been peer-reviewed.              @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
 @                                                                                  @
 @       We do not take any responsibility for the results produced                 @
 @       by this program.                                                           @
@@ -498,8 +498,8 @@ computational time = 0 day 0 h 0 min 0.180 sec
  
 Master rank allocated memory size:       0.00 bytes
 Present time is
-YEAR  = 2024 MONTH = 11 DATE  = 27
-HOUR  = 20 MIN  = 17 SEC  = 3.217
+YEAR  = 2025 MONTH = 2 DATE  = 27
+HOUR  = 12 MIN  = 52 SEC  = 50.413
  ninact        = 8
  nact          = 8
  nsec          = 44
@@ -521,9 +521,9 @@ Master rank allocated memory size:       0.00 bytes
  Enter readint2_casci subroutine (realonly)
 Master rank allocated memory size:       8.15 MB
  end Read mdcint normal
-computational time = 0 day 0 h 0 min 0.034 sec
+computational time = 0 day 0 h 0 min 0.049 sec
  end building fock
-computational time = 0 day 0 h 0 min 0.003 sec
+computational time = 0 day 0 h 0 min 0.005 sec
   
  *******************************
   
@@ -532,7 +532,7 @@ IRREP =   0g
  *******************************
   
  selectroot =                     1
-computational time = 0 day 0 h 0 min 0.000 sec
+computational time = 0 day 0 h 0 min 0.001 sec
 ----------------------------------------------------------------
  Start calcultion of A subspace 2nd order energy
 ----------------------------------------------------------------
@@ -540,17 +540,17 @@ Master rank allocated memory size:       8.16 MB
 Master rank allocated memory size:       8.16 MB
   
  e2a(isym)
- e2a(  1)  =    -0.122790477421256E-03 a.u.
- e2a(  2)  =    -0.122790477421256E-03 a.u.
- e2a( 17)  =    -0.416023623050983E-08 a.u.
- e2a( 18)  =    -0.416023623049739E-08 a.u.
+ e2a(  1)  =    -0.122790477421283E-03 a.u.
+ e2a(  2)  =    -0.122790477421283E-03 a.u.
+ e2a( 17)  =    -0.416023623052811E-08 a.u.
+ e2a( 18)  =    -0.416023623052479E-08 a.u.
  e2a( 19)  =     0.000000000000000E+00 a.u.
  e2a( 20)  =     0.000000000000000E+00 a.u.
- e2a       =    -0.245589275314972E-03 a.u.
- sumc2,a   =     0.913251375430079E-04
+ e2a       =    -0.245589275315027E-03 a.u.
+ sumc2,a   =     0.913251375430279E-04
   
  End calcultion of A subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.052 sec
+computational time = 0 day 0 h 0 min 0.018 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -559,12 +559,12 @@ computational time = 0 day 0 h 0 min 0.052 sec
 Master rank allocated memory size:       8.15 MB
   
  e2b(isym)
- e2b(  1)  =    -0.193888117085755E-02 a.u.
- e2b       =    -0.193888117085755E-02 a.u.
- sumc2,b   =     0.985786712314510E-03
+ e2b(  1)  =    -0.193888117085802E-02 a.u.
+ e2b       =    -0.193888117085802E-02 a.u.
+ sumc2,b   =     0.985786712314731E-03
   
  End calcuation of B subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.001 sec
+computational time = 0 day 0 h 0 min 0.002 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -575,23 +575,23 @@ Master rank allocated memory size:       8.29 MB
 Master rank allocated memory size:       8.29 MB
   
  e2c(isym)
- e2c(  1) =    -0.216146080224602E-02 a.u.
- e2c(  2) =    -0.216146080224603E-02 a.u.
- e2c(  3) =    -0.145590329622346E-01 a.u.
- e2c(  4) =    -0.145590329622346E-01 a.u.
+ e2c(  1) =    -0.216146080224592E-02 a.u.
+ e2c(  2) =    -0.216146080224592E-02 a.u.
+ e2c(  3) =    -0.145590329622338E-01 a.u.
+ e2c(  4) =    -0.145590329622338E-01 a.u.
  e2c(  5) =     0.000000000000000E+00 a.u.
  e2c(  6) =     0.000000000000000E+00 a.u.
- e2c( 17) =    -0.389804604776768E-02 a.u.
- e2c( 18) =    -0.389804604776767E-02 a.u.
- e2c( 19) =    -0.516273473342022E-05 a.u.
- e2c( 20) =    -0.516273473342067E-05 a.u.
+ e2c( 17) =    -0.389804604776766E-02 a.u.
+ e2c( 18) =    -0.389804604776766E-02 a.u.
+ e2c( 19) =    -0.516273473342100E-05 a.u.
+ e2c( 20) =    -0.516273473342151E-05 a.u.
  e2c( 21) =     0.000000000000000E+00 a.u.
  e2c( 22) =     0.000000000000000E+00 a.u.
- e2c      =    -0.412474050939634E-01 a.u.
- sumc2,c  =     0.199560252754226E-01
+ e2c      =    -0.412474050939616E-01 a.u.
+ sumc2,c  =     0.199560252754216E-01
   
  End calcuation of C subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.030 sec
+computational time = 0 day 0 h 0 min 0.038 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -602,21 +602,21 @@ Master rank allocated memory size:       8.29 MB
 Master rank allocated memory size:       8.29 MB
   
  e2d(isym)
- e2d(  1) =    -0.768005442552553E-04 a.u.
- e2d(  2) =    -0.135698848497896E-03 a.u.
- e2d(  3) =    -0.135698848497896E-03 a.u.
- e2d(  4) =    -0.185078164951031E-09 a.u.
- e2d(  5) =    -0.185078164951031E-09 a.u.
+ e2d(  1) =    -0.768005442552455E-04 a.u.
+ e2d(  2) =    -0.135698848497904E-03 a.u.
+ e2d(  3) =    -0.135698848497904E-03 a.u.
+ e2d(  4) =    -0.185078164951235E-09 a.u.
+ e2d(  5) =    -0.185078164951235E-09 a.u.
  e2d( 17) =    -0.106041142073383E-01 a.u.
- e2d( 18) =    -0.471888341726004E-03 a.u.
- e2d( 19) =    -0.471888341726004E-03 a.u.
- e2d( 20) =    -0.914613144702958E-05 a.u.
- e2d( 21) =    -0.914613144702965E-05 a.u.
- e2d      =    -0.119143817650918E-01 a.u.
- sumc2,d  =     0.348089802208199E-02
+ e2d( 18) =    -0.471888341725927E-03 a.u.
+ e2d( 19) =    -0.471888341725926E-03 a.u.
+ e2d( 20) =    -0.914613144703137E-05 a.u.
+ e2d( 21) =    -0.914613144703139E-05 a.u.
+ e2d      =    -0.119143817650916E-01 a.u.
+ sumc2,d  =     0.348089802208195E-02
   
  End calcuation of D subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.028 sec
+computational time = 0 day 0 h 0 min 0.041 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -626,16 +626,16 @@ Master rank allocated memory size:       8.29 MB
   
  e2e(isym)
  e2e(  1) =    -0.758982378323161E-03 a.u.
- e2e(  2) =    -0.758982378323160E-03 a.u.
- e2e( 17) =    -0.185654123435710E-04 a.u.
- e2e( 18) =    -0.185654123435709E-04 a.u.
- e2e( 19) =    -0.182083085453401E-05 a.u.
- e2e( 20) =    -0.182083085453401E-05 a.u.
- e2e      =    -0.155873724304253E-02 a.u.
- sumc2,e  =     0.242669326028603E-03
+ e2e(  2) =    -0.758982378323161E-03 a.u.
+ e2e( 17) =    -0.185654123435734E-04 a.u.
+ e2e( 18) =    -0.185654123435734E-04 a.u.
+ e2e( 19) =    -0.182083085452703E-05 a.u.
+ e2e( 20) =    -0.182083085452704E-05 a.u.
+ e2e      =    -0.155873724304252E-02 a.u.
+ sumc2,e  =     0.242669326028596E-03
   
  End calcuation of E subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.005 sec
+computational time = 0 day 0 h 0 min 0.008 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -644,21 +644,21 @@ computational time = 0 day 0 h 0 min 0.005 sec
 Master rank allocated memory size:       9.06 MB
   
  e2f(isym)
- e2f(  1) =    -0.264674760105916E-01 a.u.
- e2f(  2) =    -0.228278370530548E-02 a.u.
- e2f(  3) =    -0.228278370530548E-02 a.u.
+ e2f(  1) =    -0.264674760105927E-01 a.u.
+ e2f(  2) =    -0.228278370530547E-02 a.u.
+ e2f(  3) =    -0.228278370530547E-02 a.u.
  e2f(  4) =    -0.394619480420200E-02 a.u.
  e2f(  5) =    -0.394619480420200E-02 a.u.
- e2f( 17) =    -0.292137623525653E-02 a.u.
- e2f( 18) =    -0.659412469960935E-02 a.u.
- e2f( 19) =    -0.659412469960935E-02 a.u.
- e2f( 20) =    -0.411154658395313E-02 a.u.
- e2f( 21) =    -0.411154658395313E-02 a.u.
- e2f      =    -0.632581518319880E-01 a.u.
- sumc2,f  =     0.205333197908917E-01
+ e2f( 17) =    -0.292137623525651E-02 a.u.
+ e2f( 18) =    -0.659412469960937E-02 a.u.
+ e2f( 19) =    -0.659412469960937E-02 a.u.
+ e2f( 20) =    -0.411154658395314E-02 a.u.
+ e2f( 21) =    -0.411154658395314E-02 a.u.
+ e2f      =    -0.632581518319891E-01 a.u.
+ sumc2,f  =     0.205333197908925E-01
   
  End calcuation of F subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.022 sec
+computational time = 0 day 0 h 0 min 0.032 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -667,17 +667,17 @@ computational time = 0 day 0 h 0 min 0.022 sec
 Master rank allocated memory size:       9.06 MB
   
  e2g(isym)
- e2g(  1) =    -0.885264407311044E-02 a.u.
- e2g(  2) =    -0.885264407311045E-02 a.u.
- e2g( 17) =    -0.701386040048928E-02 a.u.
- e2g( 18) =    -0.701386040048928E-02 a.u.
+ e2g(  1) =    -0.885264407311043E-02 a.u.
+ e2g(  2) =    -0.885264407311043E-02 a.u.
+ e2g( 17) =    -0.701386040048927E-02 a.u.
+ e2g( 18) =    -0.701386040048927E-02 a.u.
  e2g( 19) =    -0.131663443409666E-01 a.u.
- e2g( 20) =    -0.131663443409666E-01 a.u.
+ e2g( 20) =    -0.131663443409667E-01 a.u.
  e2g      =    -0.580656976291327E-01 a.u.
  sumc2,g  =     0.124876302546401E-01
   
  End calcuation of G subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.026 sec
+computational time = 0 day 0 h 0 min 0.037 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -689,14 +689,14 @@ Master rank allocated memory size:       9.06 MB
  sumc2,h  =     0.473472415091886E-02
   
  End calcuation of H subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.021 sec
+computational time = 0 day 0 h 0 min 0.032 sec
 ----------------------------------------------------------------
   
  CASPT2 ENERGY FOR 33 STATE, selectroot = 1
  c^2 is                                 0.06251237866984135638
  weight of 0th wave function is         0.94116550552747391123
- Total second order energy is          -0.22868375209290708883 a.u.
- Total energy is                     -107.97017948106112328333 a.u.
+ Total second order energy is          -0.22868375209290683903 a.u.
+ Total energy is                     -107.97017948106109486162 a.u.
   
  END OF RELATIVISTIC CASPT2 PROGRAM
  
@@ -757,10 +757,10 @@ computational time = 0 day 0 h 0 min 0.021 sec
 @                                                                                  @
 @       Please cite the following paper when you publish the data obtained         @
 @       using this program.                                                        @
-@       1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M.                 @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
 @          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
-@          ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l                        @
-@          This content is a preprint and has not been peer-reviewed.              @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
 @                                                                                  @
 @       We do not take any responsibility for the results produced                 @
 @       by this program.                                                           @
@@ -772,8 +772,8 @@ computational time = 0 day 0 h 0 min 0.021 sec
  
 Master rank allocated memory size:       0.00 bytes
 Present time is
-YEAR  = 2024 MONTH = 11 DATE  = 27
-HOUR  = 20 MIN  = 17 SEC  = 3.439
+YEAR  = 2025 MONTH = 2 DATE  = 27
+HOUR  = 12 MIN  = 52 SEC  = 50.676
  ninact        = 8
  nact          = 8
  nsec          = 44
@@ -792,7 +792,7 @@ HOUR  = 20 MIN  = 17 SEC  = 3.439
 computational time = 0 day 0 h 0 min 0.000 sec
  Start create_newmdcint
  End create_newmdcint
-computational time = 0 day 0 h 0 min 0.060 sec
+computational time = 0 day 0 h 0 min 0.095 sec
  Enter readint2_casci subroutine (realonly)
 Master rank allocated memory size:       8.15 MB
  end Read mdcint normal
@@ -854,7 +854,7 @@ selectroot 1
  C the error          (2.84217094304040074E-014,0.0000000000000000)
 Master rank allocated memory size:       8.06 MB
 Master rank allocated memory size:  -28768.00 bytes
-computational time = 0 day 0 h 0 min 0.077 sec
+computational time = 0 day 0 h 0 min 0.117 sec
  End r4dcasci part
  
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -913,10 +913,10 @@ computational time = 0 day 0 h 0 min 0.077 sec
 @                                                                                  @
 @       Please cite the following paper when you publish the data obtained         @
 @       using this program.                                                        @
-@       1. Masuda Y, Noda K, Iwamuro S, Nakatani N, Hada M, Abe M.                 @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
 @          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
-@          ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-t9x0l                        @
-@          This content is a preprint and has not been peer-reviewed.              @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
 @                                                                                  @
 @       We do not take any responsibility for the results produced                 @
 @       by this program.                                                           @
@@ -928,8 +928,8 @@ computational time = 0 day 0 h 0 min 0.077 sec
  
 Master rank allocated memory size:       0.00 bytes
 Present time is
-YEAR  = 2024 MONTH = 11 DATE  = 27
-HOUR  = 20 MIN  = 17 SEC  = 3.516
+YEAR  = 2025 MONTH = 2 DATE  = 27
+HOUR  = 12 MIN  = 52 SEC  = 50.793
  ninact        = 8
  nact          = 8
  nsec          = 44
@@ -951,7 +951,7 @@ Master rank allocated memory size:       0.00 bytes
  Enter readint2_casci subroutine (realonly)
 Master rank allocated memory size:       8.15 MB
  end Read mdcint normal
-computational time = 0 day 0 h 0 min 0.037 sec
+computational time = 0 day 0 h 0 min 0.048 sec
  end building fock
 computational time = 0 day 0 h 0 min 0.002 sec
   
@@ -980,7 +980,7 @@ Master rank allocated memory size:       8.15 MB
  sumc2,a   =     0.127326601130172E-01
   
  End calcultion of A subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.015 sec
+computational time = 0 day 0 h 0 min 0.007 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -1026,7 +1026,7 @@ Master rank allocated memory size:       8.29 MB
   52  57    0.100000000000000E+01
   57  57    0.100000000000000E+01
  e2c(  1) =    -0.101158491726951E-01 a.u.
- e2c(  2) =    -0.241492455834633E-08 a.u.
+ e2c(  2) =    -0.241492455834644E-08 a.u.
  e2c(  3) =    -0.841298555576937E-02 a.u.
  e2c(  4) =    -0.114089225558363E-01 a.u.
  e2c(  5) =     0.000000000000000E+00 a.u.
@@ -1042,7 +1042,7 @@ Master rank allocated memory size:       8.29 MB
   12  12    0.100000000000000E+01
   12  17    0.100000000000000E+01
   17  17    0.100000000000000E+01
- e2c( 18) =    -0.270445237997168E-03 a.u.
+ e2c( 18) =    -0.270445237997171E-03 a.u.
   12  12    0.100000000000000E+01
   12  14    0.100000000000000E+01
   12  15    0.100000000000000E+01
@@ -1056,11 +1056,11 @@ Master rank allocated memory size:       8.29 MB
  e2c( 19) =    -0.173081899150023E-03 a.u.
  e2c( 20) =    -0.198796882216300E-03 a.u.
  e2c( 21) =     0.000000000000000E+00 a.u.
- e2c      =    -0.357476493155450E-01 a.u.
- sumc2,c  =     0.201442979708025E-01
+ e2c      =    -0.357476493155451E-01 a.u.
+ sumc2,c  =     0.201442979708026E-01
   
  End calcuation of C subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.018 sec
+computational time = 0 day 0 h 0 min 0.024 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -1071,19 +1071,19 @@ Master rank allocated memory size:       8.29 MB
 Master rank allocated memory size:       8.29 MB
   
  e2d(isym)
- e2d(  1) =    -0.759088923376594E-02 a.u.
- e2d(  2) =    -0.871086178493626E-02 a.u.
+ e2d(  1) =    -0.759088923376596E-02 a.u.
+ e2d(  2) =    -0.871086178493625E-02 a.u.
  e2d(  3) =    -0.741218833053005E-15 a.u.
  e2d(  6) =     0.000000000000000E+00 a.u.
  e2d( 17) =    -0.833908224677863E-02 a.u.
  e2d( 18) =    -0.252646961965057E-02 a.u.
- e2d( 19) =    -0.957976725020801E-02 a.u.
+ e2d( 19) =    -0.957976725020800E-02 a.u.
  e2d( 20) =    -0.167067806638830E-01 a.u.
- e2d      =    -0.534538507992231E-01 a.u.
+ e2d      =    -0.534538507992232E-01 a.u.
  sumc2,d  =     0.288142082870648E-01
   
  End calcuation of D subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.017 sec
+computational time = 0 day 0 h 0 min 0.025 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -1093,13 +1093,13 @@ Master rank allocated memory size:       8.29 MB
   
  e2e(isym)
  e2e(  2) =    -0.977709047025413E-02 a.u.
- e2e( 17) =    -0.630377004042071E-10 a.u.
- e2e( 20) =    -0.122855885421812E-09 a.u.
- e2e      =    -0.977709065614772E-02 a.u.
- sumc2,e  =     0.287800998394332E-02
+ e2e( 17) =    -0.630377004005953E-10 a.u.
+ e2e( 20) =    -0.122855885419158E-09 a.u.
+ e2e      =    -0.977709065614771E-02 a.u.
+ sumc2,e  =     0.287800998394331E-02
   
  End calcuation of E subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.004 sec
+computational time = 0 day 0 h 0 min 0.007 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -1116,12 +1116,12 @@ Master rank allocated memory size:       9.06 MB
  e2f( 17) =    -0.462759755929452E-02 a.u.
  e2f( 18) =    -0.227693882784396E-02 a.u.
  e2f( 19) =    -0.663256052437682E-02 a.u.
- e2f( 20) =    -0.739018483035850E-02 a.u.
+ e2f( 20) =    -0.739018483035851E-02 a.u.
  e2f      =    -0.565391166462523E-01 a.u.
  sumc2,f  =     0.188753651382747E-01
   
  End calcuation of F subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.020 sec
+computational time = 0 day 0 h 0 min 0.029 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -1131,7 +1131,7 @@ Master rank allocated memory size:       9.06 MB
   
  e2g(isym)
  e2g(  1) =    -0.160823528452454E-01 a.u.
- e2g(  2) =    -0.601101043679789E-09 a.u.
+ e2g(  2) =    -0.601101043679790E-09 a.u.
  e2g( 17) =    -0.701236647879226E-02 a.u.
  e2g( 18) =    -0.714401123813804E-02 a.u.
  e2g( 19) =    -0.133023155946829E-01 a.u.
@@ -1140,7 +1140,7 @@ Master rank allocated memory size:       9.06 MB
  sumc2,g  =     0.125892413907159E-01
   
  End calcuation of G subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.022 sec
+computational time = 0 day 0 h 0 min 0.032 sec
 ----------------------------------------------------------------
   
 ----------------------------------------------------------------
@@ -1152,13 +1152,13 @@ Master rank allocated memory size:       9.06 MB
  sumc2,h  =     0.488783548945683E-02
   
  End calcuation of H subspace 2nd order energy
-computational time = 0 day 0 h 0 min 0.021 sec
+computational time = 0 day 0 h 0 min 0.032 sec
 ----------------------------------------------------------------
   
  CASPT2 ENERGY FOR 34 STATE, selectroot = 1
- c^2 is                                 0.10092161837416116499
+ c^2 is                                 0.10092161837416126213
  weight of 0th wave function is         0.90832987863095826508
- Total second order energy is          -0.28080872750607727140 a.u.
+ Total second order energy is          -0.28080872750607743793 a.u.
  Total energy is                     -107.60120536479666952800 a.u.
   
  END OF RELATIVISTIC CASPT2 PROGRAM
@@ -1166,13 +1166,13 @@ computational time = 0 day 0 h 0 min 0.021 sec
 ================= Standard error =================
 
 ================= Calculation finished ================
-User Command : /home/noda/develop/dirac_caspt2/bin/dcaspt2
-Auto-created Command :  /home/noda/develop/dirac_caspt2/bin/r4dcaspt2exe
-Scratch directory : /home/noda/dcaspt2_scratch/active_2024-11-27_20-17-03_mox1yyip
-Output file : /home/noda/develop/dirac_caspt2/test/dev/c32h_n2_dev/dirac_caspt2.out
-Calculation started at : 2024-11-27 20:17:03
-Calculation finished at : 2024-11-27 20:17:03
-Elapsed time (sec) : 0.6498 sec
-Elapsed time : 0 day 0 hour 0 min 0 sec 649 millisecond
-dirac-caspt2 version (commit hash) : 08880a661265211eccef4401b6eaee3e87021cf9
+User Command : /workspace/build/dcaspt2 -i /workspace/test/dev/multi_totsym_c32h_n2_dev/active.inp -o /workspace/test/dev/multi_totsym_c32h_n2_dev/multi_totsym_c32h_n2_dev.caspt2.out --omp 1
+Auto-created Command :  /workspace/build/r4dcaspt2exe
+Scratch directory : /home/docker/dcaspt2_scratch/active_2025-02-27_12-52-50_mn45y7d1
+Output file : /workspace/test/dev/multi_totsym_c32h_n2_dev/multi_totsym_c32h_n2_dev.caspt2.out
+Calculation started at : 2025-02-27 12:52:50
+Calculation finished at : 2025-02-27 12:52:51
+Elapsed time (sec) : 0.7328 sec
+Elapsed time : 0 day 0 hour 0 min 0 sec 732 millisecond
+dirac-caspt2 version (commit hash) : e91dda0be404ad211985ff259698f8c040354219
 NORMAL END OF dirac-caspt2 CALCULATION
