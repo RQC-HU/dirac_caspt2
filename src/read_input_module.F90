@@ -642,15 +642,14 @@ contains
         integer, intent(in) :: unit_num
         integer :: iostat, read_int, idx_filled, i, ciroots_idx, tmp_totsym, max_totsym
         logical :: is_comment
-        integer :: tmp_ciroot_input(root_max), tmp_nroot_list(totsym_max)
-        integer, parameter :: default_nroot = 10
+        integer :: tmp_ciroot_input(root_max), tmp_max_selectroots(totsym_max)
         integer, allocatable :: tmp_ciroots(:, :)
         character(len=max_str_length) :: input
         character(:), allocatable :: trim_input
 
         allocate (tmp_ciroots(ciroots_max, 2))
         tmp_ciroots(:, :) = 0
-        tmp_nroot_list(:) = default_nroot
+        tmp_max_selectroots(:) = 0
         ciroots_idx = 0
         max_totsym = 0
         do while (.true.)
@@ -675,7 +674,7 @@ contains
             tmp_totsym = tmp_ciroot_input(1)
             max_totsym = max(max_totsym, tmp_totsym)
             call heapSort(list=tmp_ciroot_input(2:idx_filled), is_descending_order=.false.)
-            tmp_nroot_list(tmp_totsym) = max(tmp_ciroot_input(idx_filled), tmp_nroot_list(tmp_totsym))
+            tmp_max_selectroots(tmp_totsym) = max(tmp_ciroot_input(idx_filled), tmp_max_selectroots(tmp_totsym))
 
             ! Convert 1-dim list to 2-dim ciroots
             do i = 2, idx_filled
@@ -690,8 +689,8 @@ contains
         caspt2_ciroots = tmp_ciroots(1:ciroots_idx, :) ! Copy the tmp_ciroots to caspt2_ciroots
         deallocate (tmp_ciroots)
 
-        allocate (nroot_list(max_totsym))
-        nroot_list = tmp_nroot_list(1:max_totsym) ! Copy the tmp_nroot_list to nroot_list
+        allocate (max_selectroot_list(max_totsym))
+        max_selectroot_list = tmp_max_selectroots(1:max_totsym) ! Copy the tmp_max_selectroots to max_selectroot_list
  
     contains
         subroutine read_ciroots_line

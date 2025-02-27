@@ -44,7 +44,7 @@ MODULE module_global_variables
     integer, parameter :: default_scheme_dirac22_or_earlier = 6, default_scheme_dirac23_or_later = 4
     logical         :: doivo = .false., docasci = .false., docaspt2 = .false., docountndet = .false.
     integer, parameter :: totsym_max = 1024, ciroots_max = totsym_max*1024 ! ciroot_max = totsym_max * ciroot_max_per_symmetry
-    integer, allocatable :: nroot_list(:)
+    integer, allocatable :: max_selectroot_list(:)
 
     !! =================================================
     !! Variables of CI
