@@ -38,7 +38,7 @@ subroutine dcaspt2_run_subprograms
     do i = 1, size(caspt2_ciroots, 1)
         totsym = caspt2_ciroots(i, 1)
         selectroot = caspt2_ciroots(i, 2)
-        nroot = nroot_list(totsym)
+        nroot = max_selectroot_list(totsym)
         e2_subspace = 0
         sumc2 = 0
         sumc2_subspace = 0

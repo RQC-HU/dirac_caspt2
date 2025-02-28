@@ -642,15 +642,14 @@ contains
         integer, intent(in) :: unit_num
         integer :: iostat, read_int, idx_filled, i, ciroots_idx, tmp_totsym, max_totsym
         logical :: is_comment
-        integer :: tmp_int_list(max_str_length), tmp_nroot_list(totsym_max)
-        integer, parameter :: default_nroot = 10
+        integer :: tmp_ciroot_input(root_max), tmp_max_selectroots(totsym_max)
         integer, allocatable :: tmp_ciroots(:, :)
         character(len=max_str_length) :: input
         character(:), allocatable :: trim_input
 
         allocate (tmp_ciroots(ciroots_max, 2))
         tmp_ciroots(:, :) = 0
-        tmp_nroot_list(:) = default_nroot
+        tmp_max_selectroots(:) = 0
         ciroots_idx = 0
         max_totsym = 0
         do while (.true.)
@@ -670,28 +669,18 @@ contains
                 backspace (unit_num)
                 exit
             end if
+            call read_ciroots_line
             deallocate (trim_input)
-
-            idx_filled = 0
-            call parse_input_string_to_int_list(string=input, list=tmp_int_list, filled_num=idx_filled, &
-                                                allow_int_min=0, allow_int_max=root_max)
-            if (idx_filled < 2) then
-                if (rank == 0) then
-                    print *, "ERROR: .caspt2_ciroots must have at least 2 integers per line. input:", input
-                    print *, "1st integer is the total symmetry number, 2nd integer and later are the selectroot."
-                end if
-                call stop_with_errorcode(1)
-            end if
-            tmp_totsym = tmp_int_list(1)
+            tmp_totsym = tmp_ciroot_input(1)
             max_totsym = max(max_totsym, tmp_totsym)
-            call heapSort(list=tmp_int_list(2:idx_filled), is_descending_order=.false.)
-            tmp_nroot_list(tmp_totsym) = max(tmp_int_list(idx_filled), tmp_nroot_list(tmp_totsym))
+            call heapSort(list=tmp_ciroot_input(2:idx_filled), is_descending_order=.false.)
+            tmp_max_selectroots(tmp_totsym) = max(tmp_ciroot_input(idx_filled), tmp_max_selectroots(tmp_totsym))
 
             ! Convert 1-dim list to 2-dim ciroots
             do i = 2, idx_filled
                 ciroots_idx = ciroots_idx + 1
                 tmp_ciroots(ciroots_idx, 1) = tmp_totsym ! total symmetry number
-                tmp_ciroots(ciroots_idx, 2) = tmp_int_list(i) ! selectroot
+                tmp_ciroots(ciroots_idx, 2) = tmp_ciroot_input(i) ! selectroot
             end do
 
         end do
@@ -700,8 +689,48 @@ contains
         caspt2_ciroots = tmp_ciroots(1:ciroots_idx, :) ! Copy the tmp_ciroots to caspt2_ciroots
         deallocate (tmp_ciroots)
 
-        allocate (nroot_list(max_totsym))
-        nroot_list = tmp_nroot_list(1:max_totsym) ! Copy the tmp_nroot_list to nroot_list
+        allocate (max_selectroot_list(max_totsym))
+        max_selectroot_list = tmp_max_selectroots(1:max_totsym) ! Copy the tmp_max_selectroots to max_selectroot_list
+ 
+    contains
+        subroutine read_ciroots_line
+            implicit none
+            integer :: idx_filled_by_range, idx_filled_int
+            integer :: ciroots_range(root_max), ciroots_int(root_max)
+
+            idx_filled_by_range = 0
+            idx_filled_int = 0
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! First, we call this subroutine to detect the expression of the form a..b and expand it to a list.
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            call parse_range_input_int(string=trim_input, list=ciroots_range, filled_num=idx_filled_by_range, &
+                                        allow_int_min=0, allow_int_max=root_max)
+
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            ! Now, input string is seems to contain only space or , or integer
+            ! So we parse integer from input string and expand it to a list
+            !=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!=!
+            call parse_input_int(string=trim_input, list=ciroots_int, filled_num=idx_filled_int, &
+                                allow_int_min=0, allow_int_max=root_max)
+
+            idx_filled = idx_filled_by_range + idx_filled_int
+            if (idx_filled - 1 > root_max) then ! first int in trim_input is totsym, therefore the number of root is idx_filled - 1
+                if (rank == 0) then
+                    print '(2(a,i0),2a)', "ERROR: .caspt2_ciroots max number of roots is ", root_max, &
+                             " but selected ", idx_filled - 1, " roots. input:", input
+                end if
+                call stop_with_errorcode(1)                
+            end if
+            if (idx_filled < 2) then
+                if (rank == 0) then
+                    print *, "ERROR: .caspt2_ciroots must have at least 2 integers per line. input:", input
+                    print *, "1st integer is the total symmetry number, 2nd integer and later are the selectroot."
+                end if
+                call stop_with_errorcode(1)
+            end if
+            tmp_ciroot_input(1:idx_filled_int) = ciroots_int(1:idx_filled_int)
+            tmp_ciroot_input(idx_filled_int+1:idx_filled) = ciroots_range(1:idx_filled_by_range)
+        end subroutine read_ciroots_line
 
     end subroutine read_caspt2_ciroots
 
