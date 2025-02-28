@@ -1,184 +1,337 @@
-initialization of mpi, rank : 0 nprocs : 10
+initialization of mpi, rank : 0 nprocs : 1
  
-  ENTER R4DCASCI PROGRAM written by M. Abe 2007.7.19
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                       / ___|  / \  / ___||  _ \_   _|___ \                       @
+@                      | |     / _ \ \___ \| |_) || |   __) |                      @
+@                      | |___ / ___ \ ___) |  __/ | |  / __/                       @
+@                       \____/_/   \_\____/|_|    |_| |_____|                      @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please cite the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
+@          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  
-Master rank allocated memory size:       0.00 bytes
- Year =                   2024 Mon =                      1 Date = 
-                    29
- Hour =                      1 Min =                     39 Sec = 
-                    37 .                   420
-   5977.42000000000     
- ninact        =                     8
- nact          =                     4
- nsec          =                    42
- nelec         =                     2
- nroot         =                     1
- selectroot    =                     1
- totsym        =                     2
- eshift        =  0.000000000000000E+000
- dirac_version =                    23
+ 
+ Input file:
+ ```inp
+ .ninact
+ 8
+ .nact
+ 4
+ .nsec
+ 42
+ .nelec
+ 2
+ .caspt2_ciroots
+ 2 1
+ .eshift
+ 0.0
+ .diracver
+ 23
+ .subprograms
+ CASCI
+ CASPT2
+ .end
+ ```
+ 
+  
+ Reading MRCONEE (1-e integrals)
+ filename = MRCONEE
+ DIRAC seems to be compiled with 64-bit integer.
+ Information from MRCONEE
  NMO, BREIT, ECORE
-                    54 F   25.8634067154006     
+                   54 F   25.863406715400597     
   NSYMRP, (REPN(IRP),IRP=1,NSYMRP)
-                     2   1A            2A          
+                    2   1A            2A          
   NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)
-                     1    A   a
+                    1    A   a
  MULTB
   2  1
   1  2
- MULTB2
-  2  1
-  1  2
- end multb1,2
- MULTB_S
-  1
- MULTB_D
-  1
- MULTB_SD
-  1
- MULTB_DS
-  1
-irpmo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpmo   1  1  1  1  1  1  1  2  2  2  2  2  2  2  2  2  2  2  2  2
-irpmo   2  2  2  2  2  2  2  2  2  2  2  2  2  2
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1
- inactive
-   1   1     -0.1100682004E+02     1    A
-   2  28     -0.1100682004E+02     1    A
-   3   2     -0.1191936185E+01     1    A
-   4  29     -0.1191936185E+01     1    A
-   5   3     -0.7234750572E+00     1    A
-   6  30     -0.7234750572E+00     1    A
-   7   4     -0.7203933063E+00     1    A
-   8  31     -0.7203933063E+00     1    A
- active
-   9   5     -0.7173558079E+00     1    A
-  10  32     -0.7173558079E+00     1    A
-  11   6      0.3046855456E+00     1    A
-  12  33      0.3046855456E+00     1    A
- secondary
-  13   7      0.4186752325E+00     1    A
-  14  34      0.4186752325E+00     1    A
-  15   8      0.4195384658E+00     1    A
-  16  35      0.4195384658E+00     1    A
-  17   9      0.4203929727E+00     1    A
-  18  36      0.4203929727E+00     1    A
-  19  10      0.8120615863E+00     1    A
-  20  37      0.8120615863E+00     1    A
-  21  11      0.8133938274E+00     1    A
-  22  38      0.8133938274E+00     1    A
-  23  12      0.8147261074E+00     1    A
-  24  39      0.8147261074E+00     1    A
-  25  13      0.1390065531E+01     1    A
-  26  40      0.1390065531E+01     1    A
-  27  14      0.1587227266E+01     1    A
-  28  41      0.1587227266E+01     1    A
-  29  15      0.1588760069E+01     1    A
-  30  42      0.1588760069E+01     1    A
-  31  16      0.1590250901E+01     1    A
-  32  43      0.1590250901E+01     1    A
-  33  17      0.2285562490E+01     1    A
-  34  44      0.2285562490E+01     1    A
-  35  18      0.4460186159E+01     1    A
-  36  45      0.4460186159E+01     1    A
-  37  19      0.4467991045E+01     1    A
-  38  46      0.4467991045E+01     1    A
-  39  20      0.4475979108E+01     1    A
-  40  47      0.4475979108E+01     1    A
-  41  21      0.5918148553E+01     1    A
-  42  48      0.5918148553E+01     1    A
-  43  22      0.6041941561E+01     1    A
-  44  49      0.6041941561E+01     1    A
-  45  23      0.6050361094E+01     1    A
-  46  50      0.6050361094E+01     1    A
-  47  24      0.6059358126E+01     1    A
-  48  51      0.6059358126E+01     1    A
-  49  25      0.7586417059E+01     1    A
-  50  52      0.7586417059E+01     1    A
-  51  26      0.2374963020E+02     1    A
-  52  53      0.2374963020E+02     1    A
-  53  27      0.1070653371E+03     1    A
-  54  54      0.1070653371E+03     1    A
- Enter read_1_elec_integrals
+  
+----------------------------------------------------------------
+        energy-order    Dirac     orbtal energy    irrep  irrep 
+           index        index         (a.u.)       index  string
+----------------------------------------------------------------
+ inactive      1            1   -0.1100682004E+02      1       A
+ inactive      2           28   -0.1100682004E+02      1       A
+ inactive      3            2   -0.1191936185E+01      1       A
+ inactive      4           29   -0.1191936185E+01      1       A
+ inactive      5            3   -0.7234750572E+00      1       A
+ inactive      6           30   -0.7234750572E+00      1       A
+ inactive      7            4   -0.7203933063E+00      1       A
+ inactive      8           31   -0.7203933063E+00      1       A
+ active        9            5   -0.7173558079E+00      1       A
+ active       10           32   -0.7173558079E+00      1       A
+ active       11            6    0.3046855456E+00      1       A
+ active       12           33    0.3046855456E+00      1       A
+ secondary    13            7    0.4186752325E+00      1       A
+ secondary    14           34    0.4186752325E+00      1       A
+ secondary    15            8    0.4195384658E+00      1       A
+ secondary    16           35    0.4195384658E+00      1       A
+ secondary    17            9    0.4203929727E+00      1       A
+ secondary    18           36    0.4203929727E+00      1       A
+ secondary    19           10    0.8120615863E+00      1       A
+ secondary    20           37    0.8120615863E+00      1       A
+ secondary    21           11    0.8133938274E+00      1       A
+ secondary    22           38    0.8133938274E+00      1       A
+ secondary    23           12    0.8147261074E+00      1       A
+ secondary    24           39    0.8147261074E+00      1       A
+ secondary    25           13    0.1390065531E+01      1       A
+ secondary    26           40    0.1390065531E+01      1       A
+ secondary    27           14    0.1587227266E+01      1       A
+ secondary    28           41    0.1587227266E+01      1       A
+ secondary    29           15    0.1588760069E+01      1       A
+ secondary    30           42    0.1588760069E+01      1       A
+ secondary    31           16    0.1590250901E+01      1       A
+ secondary    32           43    0.1590250901E+01      1       A
+ secondary    33           17    0.2285562490E+01      1       A
+ secondary    34           44    0.2285562490E+01      1       A
+ secondary    35           18    0.4460186159E+01      1       A
+ secondary    36           45    0.4460186159E+01      1       A
+ secondary    37           19    0.4467991045E+01      1       A
+ secondary    38           46    0.4467991045E+01      1       A
+ secondary    39           20    0.4475979108E+01      1       A
+ secondary    40           47    0.4475979108E+01      1       A
+ secondary    41           21    0.5918148553E+01      1       A
+ secondary    42           48    0.5918148553E+01      1       A
+ secondary    43           22    0.6041941561E+01      1       A
+ secondary    44           49    0.6041941561E+01      1       A
+ secondary    45           23    0.6050361094E+01      1       A
+ secondary    46           50    0.6050361094E+01      1       A
+ secondary    47           24    0.6059358126E+01      1       A
+ secondary    48           51    0.6059358126E+01      1       A
+ secondary    49           25    0.7586417059E+01      1       A
+ secondary    50           52    0.7586417059E+01      1       A
+ secondary    51           26    0.2374963020E+02      1       A
+ secondary    52           53    0.2374963020E+02      1       A
+ secondary    53           27    0.1070653371E+03      1       A
+ secondary    54           54    0.1070653371E+03      1       A
+  
  MDCINT realonly =  F
+ 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                         ____    _    ____   ____ ___                             @
+@                        / ___|  / \  / ___| / ___|_ _|                            @
+@                       | |     / _ \ \___ \| |    | |                             @
+@                       | |___ / ___ \ ___) | |___ | |                             @
+@                        \____/_/   \_\____/ \____|___|                            @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please cite the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
+@          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 
+ 
+  ENTER RELATIVISTIC CASCI PROGRAM
+ 
+Master rank allocated memory size:       0.00 bytes
 Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  37.421sec  
-computational time =   0day  0h   0min  0.001sec
+YEAR  = 2025 MONTH = 2 DATE  = 27
+HOUR  = 12 MIN  = 56 SEC  = 40.676
+ ninact        = 8
+ nact          = 4
+ nsec          = 42
+ nelec         = 2
+ nroot         = 10
+ selectroot    = 1
+ totsym        = 2
+ eshift        = 0.0000000000E+00
+ diracver      = 23
+ scheme        = 4
+ ras1_max_hole = 0
+ ras3_max_elec = 0
+ minholeras1   = 0
+ debugprint    = F
+ 
+computational time = 0 day 0 h 0 min 0.000 sec
  Start create_newmdcint
  End create_newmdcint
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.276sec  
-computational time =   0day  0h   0min  1.855sec
+computational time = 0 day 0 h 0 min 0.492 sec
  Enter readint2_casci
-Master rank allocated memory size:       8.20 MB
-  20240124 02:46:27
- readint2nkr                    27 kr(+),kr(-)                     1
-                    28                     2                    29
-                     3                    30                     4
-                    31                     5                    32
-                     6                    33                     7
-                    34                     8                    35
-                     9                    36                    10
-                    37                    11                    38
-                    12                    39                    13
-                    40                    14                    41
-                    15                    42                    16
-                    43                    17                    44
-                    18                    45                    19
-                    46                    20                    47
-                    21                    48                    22
-                    49                    23                    50
-                    24                    51                    25
-                    52                    26                    53
-                    27                    54
+Master rank allocated memory size:       8.16 MB
  end Read mdcint normal
-                  1114                514494
- End MPI_Allreduce inttwr, inttwi, int2r_f1, int2i_f1, int2r_f2, int2i_f2
- nmo        =                    54
-Master rank allocated memory size:       8.12 MB
+ nmo        =                   54
+Master rank allocated memory size:       8.07 MB
   
  *******************************
   
- IREP IS    a
+ IREP IS      a
   
  *******************************
   
- Enter search_cas_configuration
- allow  =                      6
- totsym =                      2
- ndet   =                      6
+ Number of candidates for configuration of CASCI =                     6
+ total symmetry of CASCI configuration =                     2
+ Number of CASCI configuration =                     6
+ WARNING: ndet < nroot
+Cannot print 10th RASCI/CASCI energy
+because the number of CASCI configuration is 6 and it is less than 10
+ Therefore, replace nroot with the number of CASCI configuration.
+ new nroot =                     6
  Cas mat enter
  end casmat_complex
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.441sec  
-computational time =   0day  0h   0min  0.165sec
  Start mat diagonalization
- ndet before diagonalization                     6
+ ndet before diagonalization                    6
  End mat diagonalization
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.451sec  
-computational time =   0day  0h   0min  0.010sec
-CASCI ENERGY FOR  2 STATE
-CASCI Total Energy ROOT1           -37.460397813536531 a.u.
+computational time = 0 day 0 h 0 min 0.002 sec
+CASCI ENERGY FOR 2 STATE
+CASCI Total Energy ROOT1      -37.46039781353654518625 a.u.
+CASCI Total Energy ROOT2      -36.76477536407107038485 a.u.
+CASCI Total Energy ROOT3      -36.76476611397701788064 a.u.
+CASCI Total Energy ROOT4      -36.76473618441328028439 a.u.
+CASCI Total Energy ROOT5      -36.74434730991950459611 a.u.
+CASCI Total Energy ROOT6      -35.73875359635226800492 a.u.
 Root =    1
  T T F F
-   1   -0.9999823E+00    0.8298309E-15 Weights  0.9999646E+00
+   1   -0.9999823E+00    0.8203405E-15 Weights  0.9999646E+00
+Root =    2
+ T F T F
+   2    0.2481431E+00   -0.4453276E+00 Weights  0.2598917E+00
+ F T T F
+   3   -0.4663637E-03   -0.4900083E+00 Weights  0.2401083E+00
+ T F F T
+   4    0.4677505E-03   -0.4900083E+00 Weights  0.2401083E+00
+ F T F T
+   5    0.2481418E+00    0.4453283E+00 Weights  0.2598917E+00
+Root =    3
+ T F T F
+   2    0.6169223E+00    0.3451246E+00 Weights  0.4997040E+00
+ F T F T
+   5    0.6169223E+00   -0.3451246E+00 Weights  0.4997040E+00
+Root =    4
+ T F T F
+   2    0.2399878E+00   -0.4272175E+00 Weights  0.2401089E+00
+ F T T F
+   3   -0.8580376E-03    0.5097944E+00 Weights  0.2598911E+00
+ T F F T
+   4    0.8580376E-03    0.5097944E+00 Weights  0.2598911E+00
+ F T F T
+   5    0.2399878E+00    0.4272175E+00 Weights  0.2401089E+00
+Root =    5
+ F T T F
+   3    0.7068979E+00    0.2652632E-03 Weights  0.4997047E+00
+ T F F T
+   4   -0.7068979E+00    0.2652632E-03 Weights  0.4997047E+00
+Root =    6
+ F F T T
+   6    0.9999823E+00    0.0000000E+00 Weights  0.9999646E+00
  enter e0test
- core energy =   25.8634067154006     
- energyHF(1) (-97.9274853330862,0.000000000000000E+000)
- energyHF(2) (34.6037416909789,0.000000000000000E+000)
- energyHF = (-37.4603369267067,0.000000000000000E+000)
- energyHF(MRCONEE) =  -37.4603369255854     
- energyHF(MRCONEE) - energyHF = (1.121286175020941E-009,0.000000000000000E+000)
+ core energy =   25.863406715400597     
+ energyHF(1)              (-97.927485333086153,0.0000000000000000)
+ energyHF(2)               (34.603741690978879,0.0000000000000000)
+ energyHF =              (-37.460336926706674,0.0000000000000000)
+ energyHF(MRCONEE) =  -37.460336925585366     
+ energyHF(MRCONEE) - energyHF =         (1.12130749130301410E-009,0.0000000000000000)
  -------------------------------------------------------------------------
  NOTE:
  If DIRAC HF calculation was calculated with closed shell orbitals,
@@ -189,566 +342,265 @@ Root =    1
  by AOC-HF method as default.
  -------------------------------------------------------------------------
 selectroot 1
- energy 1 = (-84.3712551123306,0.000000000000000E+000)
- energy 2 = (23.1753313979400,0.000000000000000E+000)
- energy 3 = (-2.82084564055829,0.000000000000000E+000)
- energy 4 = (0.692964826011875,9.735840543583536E-020)
- t-energy(1-4) (-63.3238045289371,9.735840543583536E-020)
- t-energy  -63.3238045289371     
- C the error  (-5.684341886080801E-014,-9.735840543583536E-020)
- e0test end
-Master rank allocated memory size:       8.12 MB
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.452sec  
-computational time =   0day  0h   0min  0.176sec
- enter building fock matrix
- fockcasci_complex end
- end building fock
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.452sec  
-computational time =   0day  0h   0min  0.000sec
- fockdiag start
- FOR INACTIVE-INACTIVE ROTATION !
- cdiag0 start
- nsymrpa                     1
- fi T
- OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)
- DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)
- cdiag0 end
- FOR ACTIVE-ACTIVE ROTATION !
- cdiag0 start
- nsymrpa                     1
- fi T
- OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)
- DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)
- cdiag0 end
- FOR SECONDARY-SECONDARY ROTATION !
- cdiag0 start
- nsymrpa                     1
- fi T
- OFF DIAGONAL TERM OF U*FU (print only abs(diff) > 1.0d-10)
- DIAGONAL TERM OF U*FU, W AND THEIR DIFFERENCE (print only abs(diff) > 1.0d-10)
- cdiag0 end
- Enter TRACI
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.453sec  
-computational time =   0day  0h   0min  0.001sec
- End detsc
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.453sec  
-computational time =   0day  0h   0min  0.000sec
- Solve linear equations for ci matrix using zgesv
- End zgesv                     0
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.453sec  
-computational time =   0day  0h   0min  0.000sec
- fockdiag end
- eps(                     1 )=  -11.0068637050757     
- eps(                     2 )=  -11.0068637050756     
- eps(                     3 )=  -1.19195889693574     
- eps(                     4 )=  -1.19195889693573     
- eps(                     5 )= -0.723498917944852     
- eps(                     6 )= -0.723498917944852     
- eps(                     7 )= -0.720417132739057     
- eps(                     8 )= -0.720417132739056     
- eps(                     9 )= -0.717360962334755     
- eps(                    10 )= -0.717360962334754     
- eps(                    11 )=  0.304671397475989     
- eps(                    12 )=  0.304671397475990     
- eps(                    13 )=  0.418668693773747     
- eps(                    14 )=  0.418668693773755     
- eps(                    15 )=  0.419531950360926     
- eps(                    16 )=  0.419531950360931     
- eps(                    17 )=  0.420386627382771     
- eps(                    18 )=  0.420386627382773     
- eps(                    19 )=  0.812048470728316     
- eps(                    20 )=  0.812048470728321     
- eps(                    21 )=  0.813381145573325     
- eps(                    22 )=  0.813381145573327     
- eps(                    23 )=  0.814713447432790     
- eps(                    24 )=  0.814713447432794     
- eps(                    25 )=   1.39005222956000     
- eps(                    26 )=   1.39005222956001     
- eps(                    27 )=   1.58720925477632     
- eps(                    28 )=   1.58720925477633     
- eps(                    29 )=   1.58874180687974     
- eps(                    30 )=   1.58874180687974     
- eps(                    31 )=   1.59023271303742     
- eps(                    32 )=   1.59023271303743     
- eps(                    33 )=   2.28554440683727     
- eps(                    34 )=   2.28554440683727     
- eps(                    35 )=   4.46015769138655     
- eps(                    36 )=   4.46015769138655     
- eps(                    37 )=   4.46796355167398     
- eps(                    38 )=   4.46796355167399     
- eps(                    39 )=   4.47595183122825     
- eps(                    40 )=   4.47595183122825     
- eps(                    41 )=   5.91812101346682     
- eps(                    42 )=   5.91812101346684     
- eps(                    43 )=   6.04191040840439     
- eps(                    44 )=   6.04191040840440     
- eps(                    45 )=   6.05032983209074     
- eps(                    46 )=   6.05032983209076     
- eps(                    47 )=   6.05932727919207     
- eps(                    48 )=   6.05932727919211     
- eps(                    49 )=   7.58638467389481     
- eps(                    50 )=   7.58638467389484     
- eps(                    51 )=   23.7495900716230     
- eps(                    52 )=   23.7495900716230     
- eps(                    53 )=   107.065293134667     
- eps(                    54 )=   107.065293134667     
-Master rank allocated memory size:     856.00 bytes
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.453sec  
-computational time =   0day  1h  39min 39.453sec
+ energy 1 =              (-84.371255112330616,0.0000000000000000)
+ energy 2 =               (23.175331397939942,0.0000000000000000)
+ energy 3 =              (-2.8208456405582876,0.0000000000000000)
+ energy 4 =        (0.69296482601187481,9.73584055368095510E-020)
+ t-energy(1-4)        (-63.323804528937089,9.73584055368095510E-020)
+ t-energy  -63.323804528937146     
+ C the error  (-5.68434188608080149E-014,-9.73584055368095510E-020)
+Master rank allocated memory size:       8.07 MB
+Master rank allocated memory size:       0.00 bytes
+computational time = 0 day 0 h 0 min 0.606 sec
  End r4dcasci part
-initialization of mpi, rank : 0 nprocs : 10
  
-  ENTER R4DCASPT2_TRA PROGRAM written by M. Abe 2007.7.23
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@        ____  _____ _        _  _____ _____     _____ ____ _____ ___ ____         @
+@       |  _ \| ____| |      / \|_   _|_ _\ \   / /_ _/ ___|_   _|_ _/ ___|        @
+@       | |_) |  _| | |     / _ \ | |  | | \ \ / / | |\___ \ | |  | | |            @
+@       |  _ <| |___| |___ / ___ \| |  | |  \ V /  | | ___) || |  | | |___         @
+@       |_|_\_\_____|_____/_/___\_\_|_|___|_ \_/  |___|____/ |_| |___\____|        @
+@                       / ___|  / \  / ___||  _ \_   _|___ \                       @
+@                      | |     / _ \ \___ \| |_) || |   __) |                      @
+@                      | |___ / ___ \ ___) |  __/ | |  / __/                       @
+@                       \____/_/   \_\____/|_|    |_| |_____|                      @
+@                                                                                  @
+@       Developped by Kohei Noda, Yasuto Masuda, Sumika Iwamuro, Minori Abe        @
+@               Hiroshima University & Tokyo Metropolitan Univeristy               @
+@                     https://github.com/RQC-HU/dirac_caspt2                       @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@                MMMN,                                    .MMp                     @
+@               .#  ?YMa,                                dM\Tb                     @
+@               .F    ,MMm,                             dM#  .W,                   @
+@               (F      TMMp                           JMMt    7,                  @
+@               J]       4MMp                      .dMM@       M[                  @
+@               M\        ?MMh.                    .(MMMF       -N.                @
+@              .M          qMMMN+.............(+gMMMMM@^ (((()  MN                 @
+@              (F          .MT"^ _~?77?!~~???77"^ ``,!           JM!               @
+@              M]                                                  TN,             @
+@             .M}                                                  VMp             @
+@             MM        .gMMMNJ.                 ..MMMMMa,          UM2            @
+@            JP       .MMMMMMMMMN,              .M^MMMMN,TN,         UMp           @
+@           Jb        M@.MMMMMM)?Mh           .M^ MMMMMM] ?h          MMb          @
+@          .M^       .Hp 4MMMM!  .Mb          .M  (MMMM) ..9]      ...(MMNCASPT2   @
+@         .Mh.(J.,     TMNMMMMNM"^ 7`         TWgJuMMNg&M"     .d"""777MM!~??`     @
+@    ..gMMMM"^ .^          ?^                       ^^?                q@]         @
+@  .MM#"` MF        ^^^               ......             ^^^           -b          @
+@ , "     HN{                         WMMMM\   ..&,.           MNMNH96jM@          @
+@         .Mh,                 .       /M@^        //              _7^WMMMMNg,.    @
+@          dMugNMMMMMM9         .%      M:       ..M`                J@    74,     @
+@        ..MMM&       ..        TMa....M9WNmQggN#^?          jQNgg+..MF            @
+@      .M@^ .dMMo..gd ^`            `                          ?jM RASPT2.         @
+@     dF      ~jMM#1.               .N,      .N=        `   ..g#      .7           @
+@             .MMTTMMNm,.            -MMMWyM9-         ..+MMMT=)  dMM      mi      @
+@           .dMF    7?W""9g...,                 ...J"=`y"D`         FFM            @
+@          .MMF                 ^    """"""""   ^                      KK.         @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                                  @
+@       This program is intended to be used after HF and MO transformation         @
+@       calculations uisng the DIRAC software.                                     @
+@       https://www.diracprogram.org/doku.php?id=start                             @
+@                                                                                  @
+@       You can use, redistribute and/or modify this program under the terms       @
+@       of the GNU Lesser General Public License version 2.1 as published          @
+@       by the Free Software Foundation.                                           @
+@                                                                                  @
+@       Please cite the following paper when you publish the data obtained         @
+@       using this program.                                                        @
+@       1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe.           @
+@          Relativistic CASPT2/RASPT2 Program along with DIRAC software.           @
+@          J. Chem. Theory Comput. 2025, 21, 3, 1249–1258;                         @
+@          https://doi.org/10.1021/acs.jctc.4c01589                                @
+@                                                                                  @
+@       We do not take any responsibility for the results produced                 @
+@       by this program.                                                           @
+@                                                                                  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  
- Year =                   2024 Mon =                      1 Date = 
-                    29
- Hour =                      1 Min =                     39 Sec = 
-                    39 .                   992
-   5979.99200000000     
+ 
+  START RELATIVISIC CASPT2 PROGRAM
+ 
+Master rank allocated memory size:       0.00 bytes
 Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  39.992sec  
-computational time =   0day  0h   0min  0.000sec
- ninact        =                     8
- nact          =                     4
- nsec          =                    42
- nelec         =                     2
- nroot         =                     1
- selectroot    =                     1
- totsym        =                     2
- eshift        =  0.000000000000000E+000
- dirac_version =                    23
-  ENTER READ MRCONEE
- NMO, BREIT, ECORE
-                    54 F   25.8634067154006     
-  NSYMRP, (REPN(IRP),IRP=1,NSYMRP)
-                     2   1A            2A          
-  NSYMRPA, (REPNA(IRP),IRP=1,NSYMRPA*2)
-                     1    A   a
- MULTB
-  2  1
-  1  2
- MULTB2
-  2  1
-  1  2
- end multb1,2
- MULTB_S
-  1
- MULTB_D
-  1
- MULTB_SD
-  1
- MULTB_DS
-  1
-irpmo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpmo   1  1  1  1  1  1  1  2  2  2  2  2  2  2  2  2  2  2  2  2
-irpmo   2  2  2  2  2  2  2  2  2  2  2  2  2  2
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
-irpamo   1  1  1  1  1  1  1  1  1  1  1  1  1  1
- inactive
-   1   1     -0.1100682004E+02     1    A
-   2  28     -0.1100682004E+02     1    A
-   3   2     -0.1191936185E+01     1    A
-   4  29     -0.1191936185E+01     1    A
-   5   3     -0.7234750572E+00     1    A
-   6  30     -0.7234750572E+00     1    A
-   7   4     -0.7203933063E+00     1    A
-   8  31     -0.7203933063E+00     1    A
- active
-   9   5     -0.7173558079E+00     1    A
-  10  32     -0.7173558079E+00     1    A
-  11   6      0.3046855456E+00     1    A
-  12  33      0.3046855456E+00     1    A
- secondary
-  13   7      0.4186752325E+00     1    A
-  14  34      0.4186752325E+00     1    A
-  15   8      0.4195384658E+00     1    A
-  16  35      0.4195384658E+00     1    A
-  17   9      0.4203929727E+00     1    A
-  18  36      0.4203929727E+00     1    A
-  19  10      0.8120615863E+00     1    A
-  20  37      0.8120615863E+00     1    A
-  21  11      0.8133938274E+00     1    A
-  22  38      0.8133938274E+00     1    A
-  23  12      0.8147261074E+00     1    A
-  24  39      0.8147261074E+00     1    A
-  25  13      0.1390065531E+01     1    A
-  26  40      0.1390065531E+01     1    A
-  27  14      0.1587227266E+01     1    A
-  28  41      0.1587227266E+01     1    A
-  29  15      0.1588760069E+01     1    A
-  30  42      0.1588760069E+01     1    A
-  31  16      0.1590250901E+01     1    A
-  32  43      0.1590250901E+01     1    A
-  33  17      0.2285562490E+01     1    A
-  34  44      0.2285562490E+01     1    A
-  35  18      0.4460186159E+01     1    A
-  36  45      0.4460186159E+01     1    A
-  37  19      0.4467991045E+01     1    A
-  38  46      0.4467991045E+01     1    A
-  39  20      0.4475979108E+01     1    A
-  40  47      0.4475979108E+01     1    A
-  41  21      0.5918148553E+01     1    A
-  42  48      0.5918148553E+01     1    A
-  43  22      0.6041941561E+01     1    A
-  44  49      0.6041941561E+01     1    A
-  45  23      0.6050361094E+01     1    A
-  46  50      0.6050361094E+01     1    A
-  47  24      0.6059358126E+01     1    A
-  48  51      0.6059358126E+01     1    A
-  49  25      0.7586417059E+01     1    A
-  50  52      0.7586417059E+01     1    A
-  51  26      0.2374963020E+02     1    A
-  52  53      0.2374963020E+02     1    A
-  53  27      0.1070653371E+03     1    A
-  54  54      0.1070653371E+03     1    A
- Enter read_1_elec_integrals
- MDCINT realonly =  F
-  EXIT READ MRCONEE
-  ENTER READ MDCINT
- enter divide_2_elec_integral_into_subspaces
-Master rank allocated memory size:      71.32 KB
-  20240124 02:46:27
- nkr                    27 kr(+),kr(-)                     1
-                    28                     2                    29
-                     3                    30                     4
-                    31                     5                    32
-                     6                    33                     7
-                    34                     8                    35
-                     9                    36                    10
-                    37                    11                    38
-                    12                    39                    13
-                    40                    14                    41
-                    15                    42                    16
-                    43                    17                    44
-                    18                    45                    19
-                    46                    20                    47
-                    21                    48                    22
-                    49                    23                    50
-                    24                    51                    25
-                    52                    26                    53
-                    27                    54
- end divide_2_elec_integral_into_subspaces
-Master rank allocated memory size:      48.11 KB
- nmo        =                    54
+YEAR  = 2025 MONTH = 2 DATE  = 27
+HOUR  = 12 MIN  = 56 SEC  = 41.282
+ ninact        = 8
+ nact          = 4
+ nsec          = 42
+ nelec         = 2
+ nroot         = 6
+ selectroot    = 1
+ totsym        = 2
+ eshift        = 0.0000000000E+00
+ diracver      = 23
+ scheme        = 4
+ ras1_max_hole = 0
+ ras3_max_elec = 0
+ minholeras1   = 0
+ debugprint    = F
+ 
+ Reading MDCINT (2-e integrals)
+Master rank allocated memory size:       0.00 bytes
+ nmo        =                   54
+ Enter readint2_casci
+Master rank allocated memory size:       8.16 MB
+ end Read mdcint normal
+computational time = 0 day 0 h 0 min 0.234 sec
+ end building fock
+computational time = 0 day 0 h 0 min 0.002 sec
+ cdiag0 start
+ nsymrpa                    1
+ cdiag0 start
+ nsymrpa                    1
+ cdiag0 start
+ nsymrpa                    1
+computational time = 0 day 0 h 0 min 0.000 sec
+computational time = 0 day 0 h 0 min 0.000 sec
   
  *******************************
   
- IREP IS    a
+IRREP =    a
   
  *******************************
   
- selectroot =                      1
- e0 = Siguma_w(w:active) eps(w)Dww is   -1.43464963527141     
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.253sec  
-computational time =   0day  0h   0min  0.261sec
-Master rank allocated memory size:     103.16 KB
- read and write file properly. filename : A1int
- End intra3 A1int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.253sec  
-computational time =   0day  0h   0min  0.000sec
-Master rank allocated memory size:     127.16 KB
- read and write file properly. filename : A2int
- End intra_3 A2int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.255sec  
-computational time =   0day  0h   0min  0.002sec
+ selectroot =                     1
+computational time = 0 day 0 h 0 min 0.001 sec
+----------------------------------------------------------------
  Start calcultion of A subspace 2nd order energy
- ENTER solve A part
- Start A subspace V matrix
- reading A1int2 is over
- reading A2int2 is over
- A subspace V matrix is obtained normally
- isym, dimn                     1                    64
- Start A subspace S matrix
- A subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after A subspace S matrix cdiag, new dimension is                     4
- Start A subspace B matrix
- A subspace B matrix is obtained normally
- New dimension becomes                      4
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2a(  1) =    -0.1834156553E-07 a.u.
-e2a      =    -0.1834156553E-07 a.u.
-sumc2,a  =     0.1187454926E-07
- end solve_A_subspace
+----------------------------------------------------------------
+Master rank allocated memory size:       8.12 MB
+Master rank allocated memory size:       8.15 MB
+  
+ e2a(isym)
+ e2a(  1) =    -0.183415655349062E-07 a.u.
+ e2a       =    -0.183415655349062E-07 a.u.
+ sumc2,a  =     0.118745492610269E-07
+  
  End calcultion of A subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.378sec  
-computational time =   0day  0h   0min  0.123sec
-Master rank allocated memory size:     109.66 KB
- End intra_2 Bint
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.505sec  
-computational time =   0day  0h   0min  0.127sec
- Start calcuation of B subspace 2nd order energy
- ENTER solve B part
- Start B subspace V matrix
- reading Bint2 is over
- B subspace V matrix is obtained normally
- isym, dimn                     1                     6
- Start B subspace S matrix
- B subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after B subspace S matrix cdiag, new dimension is                     1
- Start B subspace B matrix
- B subspace B matrix is obtained normally
- New dimension becomes                      1
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2b(  1) =    -0.2523791023E-03a.u.
-e2b      =    -0.2523791023E-03 a.u.
-sumc2,b  =     0.9731015976E-04
- end solve_B_subspace
+computational time = 0 day 0 h 0 min 0.009 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of B subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       8.13 MB
+  
+ e2b(isym)
+ e2b(  1)  =    -0.252379102333800E-03 a.u.
+ e2b       =    -0.252379102333800E-03 a.u.
+ sumc2,b   =     0.973101597557531E-04
+  
  End calcuation of B subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.520sec  
-computational time =   0day  0h   0min  0.015sec
-Master rank allocated memory size:     135.56 KB
- read and write file properly. filename : C1int
- End intra_3 C1int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.525sec  
-computational time =   0day  0h   0min  0.005sec
-Master rank allocated memory size:     261.56 KB
- read and write file properly. filename : C2int
- End intra_3 C2int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.535sec  
-computational time =   0day  0h   0min  0.010sec
-Master rank allocated memory size:     261.56 KB
- End intra_1 C3int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.546sec  
-computational time =   0day  0h   0min  0.011sec
- Start calcuation of C subspace 2nd order energy
- ENTER solve C part
- Start C subspace V matrix
- reading C1int2 is over
- reading C2int2 is over
- reading C3int2 is over
- C subspace V matrix is obtained normally
- isym, dimn                     1                    64
- Start C subspace S matrix
- C subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after C subspace S matrix cdiag, new dimension is                     4
- Start C subspace B matrix
- C subspace B matrix is obtained normally
- New dimension becomes                      4
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2c(  1) =    -0.1365693566E-03 a.u.
-e2c      =    -0.1365693566E-03 a.u.
-sumc2,c  =     0.3899222245E-04
- end solve_C_subspace
+computational time = 0 day 0 h 0 min 0.003 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of C subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       8.15 MB
+Master rank allocated memory size:       8.28 MB
+Master rank allocated memory size:       8.28 MB
+  
+ e2c(isym)
+ e2c(  1) =    -0.136569356566459E-03 a.u.
+ e2c      =    -0.136569356566459E-03 a.u.
+ sumc2,c  =     0.389922224486590E-04
+  
  End calcuation of C subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.666sec  
-computational time =   0day  0h   0min  0.120sec
-Master rank allocated memory size:     177.56 KB
- read and write file properly. filename : D1int
- End intra_1 D1int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.805sec  
-computational time =   0day  0h   0min  0.139sec
-Master rank allocated memory size:     177.56 KB
- End intra_1 D2int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.812sec  
-computational time =   0day  0h   0min  0.007sec
-Master rank allocated memory size:     429.56 KB
- read and write file properly. filename : D3int
- End intra_1 D3int
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.830sec  
-computational time =   0day  0h   0min  0.018sec
- Start calcuation of D subspace 2nd order energy
- ENTER solve D part
- Start D subspace V matrix
- reading D1int2 is over
- reading D2int2 is over
- reading D3int2 is over
- D subspace V matrix is obtained normally
- isym, dimn                     1                    16
- Start D subspace S matrix
- D subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after D subspace S matrix cdiag, new dimension is                     6
- Start D subspace B matrix
- D subspace B matrix is obtained normally
- New dimension becomes                      6
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2d(  1) =    -0.2409212653E-02 a.u.
-e2d      =    -0.2409212653E-02 a.u.
-sumc2,d  =     0.6817654983E-03
- end solve_D_subspace
+computational time = 0 day 0 h 0 min 0.055 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of D subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       8.20 MB
+Master rank allocated memory size:       8.20 MB
+Master rank allocated memory size:       8.44 MB
+  
+ e2d(isym)
+ e2d(  1) =    -0.240921265291285E-02 a.u.
+ e2d      =    -0.240921265291285E-02 a.u.
+ sumc2,d  =     0.681765498285365E-03
+  
  End calcuation of D subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.836sec  
-computational time =   0day  0h   0min  0.006sec
-Master rank allocated memory size:     261.56 KB
- End intra_1 Eint
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.847sec  
-computational time =   0day  0h   0min  0.011sec
- Start calcuation of E subspace 2nd order energy
- ENTER solve E part
- Start E subspace V matrix
- reading Eint2 is over
- E subspace V matrix is obtained normally
- isym, dimn                     1                     4
- Start E subspace S matrix
- E subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after E subspace S matrix cdiag, new dimension is                     4
- Start E subspace B matrix
- E subspace B matrix is obtained normally
- New dimension becomes                      4
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2e(  1) =    -0.5134159851E-02 a.u.
-e2e      =    -0.5134159851E-02 a.u.
-sumc2,e  =     0.1338968406E-02
- end solve_E_subspace
+computational time = 0 day 0 h 0 min 0.067 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of E subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       8.28 MB
+  
+ e2e(isym)
+ e2e(  1) =    -0.513415986693871E-02 a.u.
+ e2e      =    -0.513415986693871E-02 a.u.
+ sumc2,e  =     0.133896840910508E-02
+  
  End calcuation of E subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.849sec  
-computational time =   0day  0h   0min  0.002sec
-Master rank allocated memory size:     534.56 KB
- End intra_1 Fint
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.876sec  
-computational time =   0day  0h   0min  0.027sec
- Start calcuation of F subspace 2nd order energy
- ENTER solve F part
- Start F subspace V matrix
- reading Fint2 is over
- F subspace V matrix is obtained normally
- isym, dimn                     1                     6
- Start F subspace S matrix
- F subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after F subspace S matrix cdiag, new dimension is                     1
- Start F subspace B matrix
- F subspace B matrix is obtained normally
- New dimension becomes                      1
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2f(  1) =    -0.9292058518E-02 a.u.
-e2f      =    -0.9292058518E-02 a.u.
-sumc2,f  =     0.2083412194E-02
- end solve_F_subspace
+computational time = 0 day 0 h 0 min 0.024 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of F subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       8.54 MB
+  
+ e2f(isym)
+ e2f(  1) =    -0.929205851761428E-02 a.u.
+ e2f      =    -0.929205851761428E-02 a.u.
+ sumc2,f  =     0.208341219392662E-02
+  
  End calcuation of F subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.880sec  
-computational time =   0day  0h   0min  0.004sec
-Master rank allocated memory size:     975.56 KB
- End intra_1 Gint
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.938sec  
-computational time =   0day  0h   0min  0.058sec
- Start calcuation of G subspace 2nd order energy
- ENTER solve G part
- Start G subspace V matrix
- reading Gint2 is over
- G subspace V matrix is obtained normally
- isym, dimn                     1                     4
- Start G subspace S matrix
- G subspace S matrix is obtained normally
- cut off threshold is   1.000000000000000E-008
- after G subspace S matrix cdiag, new dimension is                     4
- Start G subspace B matrix
- G subspace B matrix is obtained normally
- New dimension becomes                      4
- bC matrix is transrated to bc1(M*M matrix)!
- bC1 matrix is diagonalized!
-e2g(  1) =    -0.3755478636E-01 a.u.
-e2g      =    -0.3755478636E-01 a.u.
-sumc2,g  =     0.7613839701E-02
- end solve_G_subspace
+computational time = 0 day 0 h 0 min 0.063 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of G subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       8.97 MB
+  
+ e2g(isym)
+ e2g(  1) =    -0.375547863590659E-01 a.u.
+ e2g      =    -0.375547863590659E-01 a.u.
+ sumc2,g  =     0.761383970080181E-02
+  
  End calcuation of G subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  40.947sec  
-computational time =   0day  0h   0min  0.009sec
- Enter intra_2 Hint
-Master rank allocated memory size:       1.81 MB
- End intra_2 Hint
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  41. 56sec  
-computational time =   0day  0h   0min  0.109sec
- Start calcuation of H subspace 2nd order energy
- ENTER solve H part
- reading Hint is over
-e2h      =    -0.7249520477E-01 a.u.
-sumc2,h  =     0.1109520016E-01
- end solve_H_subspace
+computational time = 0 day 0 h 0 min 0.129 sec
+----------------------------------------------------------------
+  
+----------------------------------------------------------------
+ Start calcultion of H subspace 2nd order energy
+----------------------------------------------------------------
+Master rank allocated memory size:       9.84 MB
+  
+ e2h      =    -0.724952047733263E-01 a.u.
+ sumc2,h  =     0.110952001597395E-01
+  
  End calcuation of H subspace 2nd order energy
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  41. 63sec  
-computational time =   0day  0h   0min  0.007sec
-c^2              0.022949500215245
-weight of 0th wave function is             0.977565363480391
-Total second order energy is             -0.127274388954617 a.u.
-Total energy is            -37.587672202491149 a.u.
-Present time is
-year  = 2024month =    1date  =   29
-                 1h     39min  41. 63sec  
-computational time =   0day  0h   0min  1.071sec
- End r4dcaspt2_tra
-MPI_Wtime :    0.107191E+01
+computational time = 0 day 0 h 0 min 0.217 sec
+----------------------------------------------------------------
+  
+ CASPT2 ENERGY FOR 2 STATE, selectroot = 1
+ c^2 is                                 0.02294950021861205669
+ weight of 0th wave function is         0.97756536347717315483
+ Total second order energy is          -0.12727438897032380960 a.u.
+ Total energy is                      -37.58767220250686591498 a.u.
+  
+ END OF RELATIVISTIC CASPT2 PROGRAM
 
 ================= Standard error =================
 
 ================= Calculation finished ================
-User Command : /home/noda/develop/dirac_caspt2/bin/dcaspt2 --inp active.caspt2.inp --get dcas_MDCINT --mpi 10
-Auto-created Command : mpirun -np 10 /home/noda/develop/dirac_caspt2/bin/r4dcascicoexe && mpirun -np 10 /home/noda/develop/dirac_caspt2/bin/r4dcaspt2ocoexe
-Scratch directory : /home/noda/dcaspt2_scratch/active.caspt2_2024-01-29_01-39-36_kwfdb7_9
-Output file : /home/noda/test/instruction/gui/test/c1_methane/23/dirac_caspt2.out
-Calculation started at : 2024-01-29 01:39:36
-Calculation finished at : 2024-01-29 01:39:41
-Elapsed time (sec) : 4.2019 sec
-Elapsed time : 0 day 0 hour 0 min 4 sec 201873 millisecond
+User Command : /workspace/build/dcaspt2 -i /workspace/test/unmarked/c1_methane_dirac23/active.inp -o /workspace/test/unmarked/c1_methane_dirac23/c1_methane_dirac23.caspt2.out --omp 1
+Auto-created Command :  /workspace/build/r4dcaspt2exe
+Scratch directory : /home/docker/dcaspt2_scratch/active_2025-02-27_12-56-40_l8ptdydm
+Output file : /workspace/test/unmarked/c1_methane_dirac23/c1_methane_dirac23.caspt2.out
+Calculation started at : 2025-02-27 12:56:40
+Calculation finished at : 2025-02-27 12:56:42
+Elapsed time (sec) : 1.4230 sec
+Elapsed time : 0 day 0 hour 0 min 1 sec 422 millisecond
+dirac-caspt2 version (commit hash) : e91dda0be404ad211985ff259698f8c040354219
 NORMAL END OF dirac-caspt2 CALCULATION
