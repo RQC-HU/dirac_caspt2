@@ -42,6 +42,7 @@ jobs:
         toolchain:
           - {fc: mpiifort, pkgname: intel-oneapi-compiler-fortran-2024.2}
           - {fc: mpiifx, pkgname: intel-oneapi-compiler-fortran}
+        integeroption: ["", "--int64"]
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
     steps:
@@ -88,7 +89,7 @@ jobs:
         run: python -m pip install pytest
       - name: Build source code (parallel)
         run: |
-          ./setup --mpi --omp -j --build --fc ${{ matrix.toolchain.fc }} --int64
+          ./setup --mpi --omp -j --build --fc ${{ matrix.toolchain.fc }} ${{ matrix.toolchain.integeroption }}
       - name: Run unittest(parallel, run slowonly tests, pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
@@ -115,6 +116,7 @@ jobs:
           - { compiler: gcc, version: 12, image: ubuntu-24.04 }
           - { compiler: gcc, version: 13, image: ubuntu-24.04 }
           - { compiler: gcc, version: 14, image: ubuntu-24.04 }
+        integeroption: ["", "--int64"]
     runs-on: ${{ matrix.toolchain.image }}
     env:
       KEYVERSION: v1 # If you don't want to cache (intel fortran), you should change KEYVERSION.
@@ -174,7 +176,7 @@ jobs:
         run: python -m pip install pytest
       - name: Build source code
         run: |
-          ./setup --fc ${{ steps.setenv.outputs.FC }} ${{ steps.setenv.outputs.BUILD_OPTION }} -j --build --int64
+          ./setup --fc ${{ steps.setenv.outputs.FC }} ${{ steps.setenv.outputs.BUILD_OPTION }} -j --build ${{ matrix.toolchain.integeroption }}
       - name: Set MKL_NUM_THREADS env variable to 1
         run: |
           echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
