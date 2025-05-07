@@ -7,6 +7,7 @@ message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
 option(MPI "Enable MPI?" OFF)
 option(OPENMP "Enable OpenMP?" OFF)
 option(MKL "Enable MKL?" ON)
+option(INT64 "Default integer size is 64bit?" OFF)
 
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules) # Set module output path
 
@@ -27,16 +28,22 @@ endif()
 
 if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel OR CMAKE_Fortran_COMPILER_ID STREQUAL IntelLLVM)
   if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel)
-    set(CMAKE_Fortran_FLAGS "-mp1")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mp1")
   endif()
 
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DINTEL -g -traceback -cpp -i8 -I$ENV{MKLROOT}/include -pad -integer-size 64 -unroll -warn nounused -nogen-interface")
+  if(INT64)
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -integer-size 64")
+    set(MKL_LP64 "-lmkl_intel_ilp64")
+  else()
+    set(MKL_LP64 "-lmkl_intel_lp64")
+  endif()
+
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DINTEL -g -traceback -cpp -I$ENV{MKLROOT}/include -pad -unroll -warn nounused -nogen-interface")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -check -debug extended -debug-parameters -warn -DDEBUG")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -fp-model=precise")
-  link_libraries(-i8)
 
   if(MKL)
-    link_libraries(-L$ENV{MKLROOT}/lib/intel64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl)
+    link_libraries(-L$ENV{MKLROOT}/lib/intel64 ${MKL_LP64} -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl)
   endif()
 
   if(OPENMP)
@@ -45,7 +52,14 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL Intel OR CMAKE_Fortran_COMPILER_ID STREQUA
     link_libraries(-qopenmp)
   endif()
 elseif(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DGNU -g -fbacktrace -cpp -fdefault-integer-8 -m64 -I$ENV{MKLROOT}/include -Wall -Wno-unused-variable")
+  if(INT64)
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-integer-8")
+    set(MKL_LP64 "-lmkl_gf_ilp64")
+  else()
+    set(MKL_LP64 "-lmkl_gf_lp64")
+  endif()
+
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DGNU -g -fbacktrace -cpp -m64 -I$ENV{MKLROOT}/include -Wall -Wno-unused-variable")
 
   # if gfortran version >= 10.0, Use -fallow-argument-mismatch option to treat the mismatch between the actual and dummy arguments as a warning instead of an error.
   # (Ref: https://gcc.gnu.org/gcc-10/changes.html#:~:text=Use%20the%20new%20option%20%2Dfallow%2Dargument%2Dmismatch%20to%20turn%20these%20errors%20into%20warnings)
@@ -55,10 +69,9 @@ elseif(CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
 
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -Wall -Wextra -Wimplicit-interface -fPIC -fmax-errors=1 -fcheck=all -DDEBUG")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
-  link_libraries(-fdefault-integer-8 -m64)
 
   if(MKL)
-    link_libraries(-L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_gf_ilp64 -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl)
+    link_libraries(-L$ENV{MKLROOT}/lib/intel64 -Wl,--no-as-needed ${MKL_LP64} -lmkl_core -lmkl_gnu_thread -lgomp -lpthread -lm -ldl)
   endif()
 
   if(OPENMP)
