@@ -1,5 +1,6 @@
 SUBROUTINE solve_C_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
@@ -297,7 +298,7 @@ contains
         integer, intent(in)      :: dimn, indsym(3, dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
         real(8)  ::a, b
-        integer :: it, iu, iv, ix, iy, iz
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start C subspace S matrix'
@@ -364,8 +365,9 @@ contains
 #endif
         Implicit NONE
 
-        integer :: it, iu, iv, ix, iy, iz, iw, i, j
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz, iw
         integer :: jt, ju, jv, jx, jy, jz, jw
+        integer :: i, j
 
         integer, intent(in) :: dimn, indsym(3, dimn)
         complex*16, intent(in)  :: sc(dimn, dimn)
@@ -452,11 +454,11 @@ contains
         complex*16               :: cint1
         complex*16              :: cint2, d
         complex*16              :: effh(nsec, nact)
-        integer :: i, j, k, l, dim(nsymrpa)
-        integer :: isym, syma, symb, symc
+        integer(kind=int64) :: i, j, k, l
+        integer :: dim(nsymrpa), isym, syma, symb, symc
         integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
-        integer :: it, iu, iv, ia, ip
-        integer :: jt, ju, jv, ja
+        integer(kind=int64) :: it, iu, iv, ip
+        integer :: ia, jt, ju, jv, ja
         integer :: i0, iostat, unit_int2
         logical :: is_end_of_file
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~
@@ -921,7 +923,7 @@ contains
         integer, intent(in)      :: dimn, indsym(3, dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
         real(8)  ::a, b
-        integer :: it, iu, iv, ix, iy, iz
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start C subspace S matrix'
@@ -988,8 +990,9 @@ contains
 #endif
         Implicit NONE
 
-        integer :: it, iu, iv, ix, iy, iz, iw, i, j
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz, iw
         integer :: jt, ju, jv, jx, jy, jz, jw
+        integer :: i, j
 
         integer, intent(in) :: dimn, indsym(3, dimn)
         real(8), intent(in)  :: sc(dimn, dimn)
@@ -1076,11 +1079,11 @@ contains
         complex*16               :: cint1
         real(8)              :: cint2, d
         real(8)              :: effh(nsec, nact)
-        integer :: i, j, k, l, dim(nsymrpa)
-        integer :: isym, syma, symb, symc
+        integer(kind=int64) :: i, j, k, l
+        integer :: dim(nsymrpa), isym, syma, symb, symc
         integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
-        integer :: it, iu, iv, ia, ip
-        integer :: jt, ju, jv, ja
+        integer(kind=int64) :: it, iu, iv, ip
+        integer :: ia, jt, ju, jv, ja
         integer :: i0, iostat, unit_int2
         logical :: is_end_of_file
 !^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~

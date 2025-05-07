@@ -1,5 +1,6 @@
 SUBROUTINE solve_A_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
@@ -300,7 +301,7 @@ contains
         integer, intent(in)      :: dimn, indsym(3, dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
         real(8)  ::a, b
-        integer :: it, iu, iv, ix, iy, iz
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start A subspace S matrix'
@@ -355,7 +356,7 @@ contains
 #endif
         Implicit NONE
 
-        integer :: it, iu, iv, ix, iy, iz, iw
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz, iw
         integer :: jt, ju, jv, jx, jy, jz, jw
         integer :: i, j
 
@@ -455,10 +456,10 @@ contains
         complex*16              :: cint1
         logical                 :: is_end_of_file
 
-        integer :: it, iu, iv, ii, ip
-        integer :: jt, ju, jv, ji, jp
-        integer :: i, j, k, l, dim(nsymrpa)
-        integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, unit_int2
+        integer(kind=int64) :: it, iu, iv, ii, ip
+        integer(kind=int64) :: jt, ju, jv, ji, jp
+        integer(kind=int64) :: i, j, k, l 
+        integer :: dim(nsymrpa), dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, unit_int2
         integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
         integer, allocatable :: ind2u(:, :), ind2v(:, :)
 
@@ -946,7 +947,7 @@ contains
         integer, intent(in)      :: dimn, indsym(3, dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
         real(8)  ::a, b
-        integer :: it, iu, iv, ix, iy, iz
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start A subspace S matrix'
@@ -1001,7 +1002,7 @@ contains
 #endif
         Implicit NONE
 
-        integer :: it, iu, iv, ix, iy, iz, iw
+        integer(kind=int64) :: it, iu, iv, ix, iy, iz, iw
         integer :: jt, ju, jv, jx, jy, jz, jw
         integer :: i, j
 
@@ -1101,10 +1102,10 @@ contains
         complex*16              :: cint1
         logical                 :: is_end_of_file
 
-        integer :: it, iu, iv, ii, ip
+        integer(kind=int64) :: it, iu, iv, ii, ip
         integer :: jt, ju, jv, ji, jp
-        integer :: i, j, k, l, dim(nsymrpa)
-        integer :: dim2(nsymrpa), isym, i0, syma, symb, symc, iostat, unit_int2
+        integer(kind=int64) :: i, j, k, l
+        integer :: dim(nsymrpa), dim2(nsymrpa), isym, i0, tmp_i, syma, symb, symc, iostat, unit_int2
         integer, allocatable :: indt(:, :), indu(:, :), indv(:, :)
         integer, allocatable :: ind2u(:, :), ind2v(:, :)
 

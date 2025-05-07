@@ -1,5 +1,6 @@
 SUBROUTINE solve_D_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_blas, only: gemv, gemm
     use module_global_variables
@@ -317,7 +318,7 @@ contains
         integer, intent(in)      :: dimn, indsym(2, dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
         real(8)  :: a, b
-        integer :: it, iu, iy, ix
+        integer(kind=int64) :: it, iu, iy, ix
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start D subspace S matrix'
@@ -372,7 +373,7 @@ contains
         real(8)              :: e, denr, deni
         complex*16          :: den
 
-        integer :: it, iu, ix, iy, iw
+        integer(kind=int64) :: it, iu, ix, iy, iw
         integer :: jt, ju, jy, jx, jw, i, j
 
         bc(:, :) = 0.0d+00
@@ -446,8 +447,9 @@ contains
         complex*16              :: cint1
         complex*16              :: cint2, d
         complex*16              :: effh(nsec, ninact)
-        integer :: i, j, k, l, tai, iostat, unit_int2
-        integer :: it, jt, ju, iu, ia, ii, ja, ji
+        integer(kind=int64) :: i, j, k, l, it, iu
+        integer :: tai, iostat, unit_int2
+        integer :: jt, ju, ia, ii, ja, ji
         logical :: is_end_of_file
 
         if (debug .and. rank == 0) print *, 'Start D subspace V matrix'
@@ -892,7 +894,7 @@ contains
         integer, intent(in)      :: dimn, indsym(2, dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
         real(8)  :: a, b
-        integer :: it, iu, iy, ix
+        integer(kind=int64) :: it, iu, iy, ix
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start D subspace S matrix'
@@ -947,7 +949,7 @@ contains
         real(8)              :: e, denr, deni
         real(8)          :: den
 
-        integer :: it, iu, ix, iy, iw
+        integer(kind=int64) :: it, iu, ix, iy, iw
         integer :: jt, ju, jy, jx, jw, i, j
 
         bc(:, :) = 0.0d+00
@@ -1021,8 +1023,9 @@ contains
         complex*16              :: cint1
         real(8)              :: cint2, d
         real(8)              :: effh(nsec, ninact)
-        integer :: i, j, k, l, tai, iostat, unit_int2
-        integer :: it, jt, ju, iu, ia, ii, ja, ji
+        integer(kind=int64) :: i, j, k, l, it, iu
+        integer :: tai, iostat, unit_int2
+        integer :: jt, ju, ia, ii, ja, ji
         logical :: is_end_of_file
 
         if (debug .and. rank == 0) print *, 'Start D subspace V matrix'

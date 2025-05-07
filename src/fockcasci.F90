@@ -6,6 +6,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_index_utils, only: convert_global_to_active_idx
     use module_time
@@ -45,7 +46,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
                 do l = global_act_start, global_act_end           ! ACTIVE SPACE
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
-                    Call dim1_density(kact, lact, dr, di)
+                    Call dim1_density(int(kact, kind=int64), int(lact, kind=int64), dr, di)
                     dens = DCMPLX(dr, di)
                     fock_cmplx(i, j) = fock_cmplx(i, j) + dens*DCMPLX(inttwr(i, j, k, l), inttwi(i, j, k, l))
                     fock_cmplx(i, j) = fock_cmplx(i, j) - dens*DCMPLX(inttwr(i, l, k, j), inttwi(i, l, k, j))
@@ -70,7 +71,7 @@ SUBROUTINE fockcasci_complex ! TO MAKE FOCK MATRIX for CASCI state
                 do l = global_act_start, global_act_end           ! ACTIVE SPACE
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
-                    Call dim1_density(kact, lact, dr, di)
+                    Call dim1_density(int(kact, kind=int64), int(lact, kind=int64), dr, di)
                     dens = DCMPLX(dr, di)
                     fock_cmplx(i, j) = fock_cmplx(i, j) + dens*DCMPLX(int2r_f1(i, j, k, l), int2i_f1(i, j, k, l))
                     fock_cmplx(i, j) = fock_cmplx(i, j) - dens*DCMPLX(int2r_f2(i, l, k, j), int2i_f2(i, l, k, j))
@@ -96,6 +97,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_index_utils, only: convert_global_to_active_idx
     use module_time
@@ -134,7 +136,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
 
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
-                    Call dim1_density_R(kact, lact, dr)
+                    Call dim1_density_R(int(kact, kind=int64), int(lact, kind=int64), dr)
                     fock_real(i, j) = fock_real(i, j) + dr*inttwr(i, j, k, l)
                     fock_real(i, j) = fock_real(i, j) - dr*inttwr(i, l, k, j)
 
@@ -159,7 +161,7 @@ SUBROUTINE fockcasci_real ! TO MAKE FOCK MATRIX for CASCI state
                 do l = global_act_start, global_act_end           ! ACTIVE SPACE
                     kact = convert_global_to_active_idx(k)
                     lact = convert_global_to_active_idx(l)
-                    Call dim1_density_R(kact, lact, dr)
+                    Call dim1_density_R(int(kact, kind=int64), int(lact, kind=int64), dr)
                     fock_real(i, j) = fock_real(i, j) + dr*int2r_f1(i, j, k, l)
                     fock_real(i, j) = fock_real(i, j) - dr*int2r_f2(i, l, k, j)
 

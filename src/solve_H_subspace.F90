@@ -1,5 +1,6 @@
 SUBROUTINE solve_H_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_global_variables
     use module_realonly, only: realonly
@@ -32,12 +33,13 @@ contains
 #endif
         Implicit NONE
 
-        Integer                 :: ia, ib, ii, ij, syma, symb, i, j, k, l
+        integer(kind=int64)     :: i, j, k, l
+        Integer                 :: ia, ib, ii, ij, syma, symb
         Integer                 :: i0, j0, tab, nab, tij, nij, iostat, unit_int2
         Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
         complex*16              :: cint2
         complex*16, allocatable :: v(:, :)
-        real(8)                  :: e
+        real(8)                 :: e
         logical                 :: is_end_of_file
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -204,12 +206,13 @@ contains
 #endif
         Implicit NONE
 
-        Integer                 :: ia, ib, ii, ij, syma, symb, i, j, k, l
+        integer(kind=int64)     :: i, j, k, l
+        Integer                 :: ia, ib, ii, ij, syma, symb
         Integer                 :: i0, j0, tab, nab, tij, nij, iostat, unit_int2
         Integer, allocatable    :: ia0(:), ib0(:), ii0(:), ij0(:), iab(:, :), iij(:, :)
-        real(8)              :: cint2
-        real(8), allocatable :: v(:, :)
-        real(8)                  :: e
+        real(8)                 :: cint2
+        real(8), allocatable    :: v(:, :)
+        real(8)                 :: e
         logical                 :: is_end_of_file
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=

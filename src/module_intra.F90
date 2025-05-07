@@ -1,4 +1,5 @@
 module module_intra
+    use, intrinsic :: iso_fortran_env, only: int64
 ! 2 electron integrals transformation module
     use module_takekr, only: takekr
     implicit none
@@ -76,7 +77,8 @@ contains
         real(8)                  :: cutoff_threshold
         complex*16              :: cint2
 
-        integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
+        integer(kind=int64) :: i, j, k, l
+        integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le, iostat
         integer :: nmx, ini(3), end(3), isp, isym, imo
 
@@ -306,7 +308,8 @@ contains
         real(8)                  :: cutoff_threshold
         real(8)              :: cint2
 
-        integer :: i, j, k, l, i1, j1, k1, l1, inew, jnew, knew, lnew
+        integer(kind=int64) :: i, j, k, l
+        integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le, iostat
         integer :: nmx, ini(3), end(3), isp, isym, imo
 
@@ -538,7 +541,7 @@ contains
         complex*16              :: cint2
         complex*16              :: readint2
 
-        integer :: i, j, k, l
+        integer(kind=int64) :: i, j, k, l
         integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le
         integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
@@ -806,7 +809,7 @@ contains
         real(8)              :: cint2
         complex*16              :: readint2
 
-        integer :: i, j, k, l
+        integer(kind=int64) :: i, j, k, l
         integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le
         integer :: nmx, ini(3), end(3), isp, isym, imo, iostat
@@ -1073,7 +1076,7 @@ contains
         real(8)                  :: cutoff_threshold
         complex*16              :: cint2, initial_cint2
 
-        integer :: i, j, k, l
+        integer(kind=int64) :: i, j, k, l
         integer :: initial_i, initial_j, initial_k, initial_l
         integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le
@@ -1342,7 +1345,7 @@ contains
         real(8)                  :: cutoff_threshold
         real(8)              :: cint2, initial_cint2
 
-        integer :: i, j, k, l
+        integer(kind=int64) :: i, j, k, l
         integer :: initial_i, initial_j, initial_k, initial_l
         integer :: i1, j1, k1, l1, inew, jnew, knew, lnew
         integer :: ii, ji, ki, li, ie, je, ke, le
@@ -1596,7 +1599,8 @@ contains
 !==============================================================================================
         use module_global_variables, only: nprocs, rank
         implicit none
-        integer                 :: n_cnt, i, j, k, l
+        integer                 :: n_cnt
+        integer(kind=int64)     :: i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
         real(8)                 :: cutoff_threshold
         complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
@@ -1643,7 +1647,8 @@ contains
     subroutine write_traint2_to_disk_complex(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         use module_global_variables, only: nprocs, rank
         implicit none
-        integer                 :: n_cnt, i, j, k, l
+        integer                 :: n_cnt
+        integer(kind=int64)     :: i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
         real(8)                 :: cutoff_threshold
         complex*16, intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
@@ -1680,7 +1685,8 @@ contains
 !==============================================================================================
         use module_global_variables, only: nprocs, rank
         implicit none
-        integer                 :: n_cnt, i, j, k, l
+        integer                 :: n_cnt
+        integer(kind=int64)     :: i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
         real(8)                 :: cutoff_threshold
         real(8), intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
@@ -1728,7 +1734,8 @@ contains
     subroutine write_traint2_to_disk_real(ii, ie, ji, je, ki, ke, li, le, traint2, cutoff_threshold, unit_int2_subspace)
         use module_global_variables, only: nprocs, rank
         implicit none
-        integer                 :: n_cnt, i, j, k, l
+        integer                 :: n_cnt
+        integer(kind=int64)     :: i, j, k, l
         integer, intent(in)     :: ii, ie, ji, je, ki, ke, li, le, unit_int2_subspace
         real(8)                 :: cutoff_threshold
         real(8), intent(in)  :: traint2(ii:ie, ji:je, ki:ke, li:le)
