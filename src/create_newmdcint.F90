@@ -27,6 +27,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
     integer(kind=int64) :: iikr, jjkr, kkkr, llkr, iii, jjj, kkk, lll
     integer(kind=int32), allocatable :: indk_32bit(:), indl_32bit(:), kr_32bit(:)
     integer(kind=int64), allocatable :: indk(:), indl(:), kr(:)
+    integer(kind=int64), parameter :: zero = 0
     double precision, allocatable  :: rklr(:), rkli(:)
     double precision :: cur_int2_real, cur_int2_imag
     real(8) :: cutoff
@@ -194,7 +195,7 @@ Subroutine create_newmdcint ! 2 Electorn Integrals In Mdcint
         call get_mdcint_filename(file_idx) ! Get the next MDCINT filename
 
     end do
-    write (unit_mdcintnew) 0, 0, 0
+    write(unit_mdcintnew) zero, zero, zero
     close (unit_mdcintnew)
     deallocate (indk)
     deallocate (indl)
