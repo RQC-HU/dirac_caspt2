@@ -1,4 +1,5 @@
 module module_index_utils
+    use, intrinsic :: iso_fortran_env, only: int32, int64
     use module_error, only: stop_with_errorcode
     implicit none
     private
@@ -6,16 +7,25 @@ module module_index_utils
               convert_global_to_active_idx, convert_global_to_secondary_idx, &
               get_mo_range, set_global_index
 
+    interface convert_active_to_global_idx
+        procedure convert_active_to_global_idx_i4
+        procedure convert_active_to_global_idx_i8
+    end interface convert_active_to_global_idx
+
+    interface convert_secondary_to_global_idx
+        procedure convert_secondary_to_global_idx_i4
+        procedure convert_secondary_to_global_idx_i8
+    end interface convert_secondary_to_global_idx
 contains
 
-    function convert_active_to_global_idx(active_idx) result(global_idx)
+    function convert_active_to_global_idx_i4(active_idx) result(global_idx)
         ! ====================================================================================================
         ! Converts a active index to a global index ====================================================================================================
         ! The global index means the index of sequential ordering of all (inactive + active + secondary) orbitals
         ! The active index means the index of sequential ordering of active orbitals
         use module_global_variables, only: ninact, nact, rank
-        integer, intent(in) :: active_idx
-        integer :: global_idx
+        integer(kind=int32), intent(in) :: active_idx
+        integer(kind=int32) :: global_idx
         global_idx = 0
 
         if (1 <= active_idx .and. active_idx <= nact) then
@@ -24,17 +34,35 @@ contains
             if (rank == 0) print '(a,i0,a)', "Error: active_idx = ", active_idx, " is not in the range of active orbitals."
             call stop_with_errorcode(1)
         end if
-    end function convert_active_to_global_idx
+    end function convert_active_to_global_idx_i4
 
-    function convert_secondary_to_global_idx(secondary_idx) result(global_idx)
+    function convert_active_to_global_idx_i8(active_idx) result(global_idx)
+        ! ====================================================================================================
+        ! Converts a active index to a global index ====================================================================================================
+        ! The global index means the index of sequential ordering of all (inactive + active + secondary) orbitals
+        ! The active index means the index of sequential ordering of active orbitals
+        use module_global_variables, only: ninact, nact, rank
+        integer(kind=int64), intent(in) :: active_idx
+        integer(kind=int64) :: global_idx
+        global_idx = 0
+
+        if (1 <= active_idx .and. active_idx <= nact) then
+            global_idx = active_idx + ninact
+        else
+            if (rank == 0) print '(a,i0,a)', "Error: active_idx = ", active_idx, " is not in the range of active orbitals."
+            call stop_with_errorcode(1)
+        end if
+    end function convert_active_to_global_idx_i8
+
+    function convert_secondary_to_global_idx_i4(secondary_idx) result(global_idx)
         ! ====================================================================================================
         ! Converts a secondary index to a global index
         ! ====================================================================================================
         ! The global index means the index of sequential ordering of all (inactive + active + secondary) orbitals
         ! The acsecondarytive index means the index of sequential ordering of secondary orbitals
         use module_global_variables, only: ninact, nact, nsec, rank
-        integer, intent(in) :: secondary_idx
-        integer :: global_idx
+        integer(kind=int32), intent(in) :: secondary_idx
+        integer(kind=int32) :: global_idx
         global_idx = 0
 
         if (1 <= secondary_idx .and. secondary_idx <= nsec) then
@@ -43,7 +71,26 @@ contains
             if (rank == 0) print '(a,i0,a)', "Error: secondary_idx = ", secondary_idx, " is not in the range of secondary orbitals."
             call stop_with_errorcode(1)
         end if
-    end function convert_secondary_to_global_idx
+    end function convert_secondary_to_global_idx_i4
+
+    function convert_secondary_to_global_idx_i8(secondary_idx) result(global_idx)
+        ! ====================================================================================================
+        ! Converts a secondary index to a global index
+        ! ====================================================================================================
+        ! The global index means the index of sequential ordering of all (inactive + active + secondary) orbitals
+        ! The acsecondarytive index means the index of sequential ordering of secondary orbitals
+        use module_global_variables, only: ninact, nact, nsec, rank
+        integer(kind=int64), intent(in) :: secondary_idx
+        integer(kind=int64) :: global_idx
+        global_idx = 0
+
+        if (1 <= secondary_idx .and. secondary_idx <= nsec) then
+            global_idx = secondary_idx + ninact + nact
+        else
+            if (rank == 0) print '(a,i0,a)', "Error: secondary_idx = ", secondary_idx, " is not in the range of secondary orbitals."
+            call stop_with_errorcode(1)
+        end if
+    end function convert_secondary_to_global_idx_i8
 
     function convert_global_to_active_idx(global_idx) result(active_idx)
         ! ====================================================================================================

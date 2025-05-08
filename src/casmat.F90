@@ -17,14 +17,14 @@ SUBROUTINE casmat_complex(mat)
 
     complex*16, intent(out) :: mat(ndet, ndet)
 
-    integer              :: occ, vir, indr, inds, inda, indb
+    integer              :: occ, vir
+    integer(kind=int64)  :: indr, inds, inda, indb, phase1, phase2
     integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0
     integer(kind=int64)  :: i, j, newcas_idx1, newcas_idx2
-    integer              :: phase1, phase2
     real(8)              :: i2r, i2i
     complex*16           :: cmplxint, mat0
-    integer, allocatable :: oc(:), vi(:)
+    integer, allocatable, save :: oc(:), vi(:)
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -239,13 +239,13 @@ SUBROUTINE casmat_real(mat)
 
     real(8), intent(out) :: mat(ndet, ndet)
 
-    integer              :: occ, vir, indr, inds, inda, indb
+    integer              :: occ, vir
+    integer(kind=int64)  :: indr, inds, inda, indb, phase1, phase2
     integer              :: ir, is, ia, ib, imo
     integer              :: i0, j0, k0, l0
     integer(kind=int64)  :: i, j, newcas_idx1, newcas_idx2
-    integer              :: phase1, phase2
     real(8)              :: mat0, i2r
-    integer, allocatable :: oc(:), vi(:)
+    integer, allocatable, save :: oc(:), vi(:)
 
     ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

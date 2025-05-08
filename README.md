@@ -102,6 +102,12 @@ cd /path/to/dirac_caspt2
     ./setup --help
     ```
 
+  - If you want to set default integer size to 64 bit, use --int64 option
+
+    ```sh
+    ./setup --build --int64
+    ```
+
   - You can also do a parallel build with multiple cores. You can specify the number of cores with the -j option
 
     ```sh
@@ -196,6 +202,14 @@ The following custom CMake build options are currently supported
 
     ```sh
     cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DMKL=OFF && cmake --build build
+    ```
+
+- INT64
+  - Set default integer size to 64 bit.(default: OFF)
+    (e.g.) Build with setting default integer size to 64 bit
+
+    ```sh
+    cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DINT64=ON && cmake --build build
     ```
 
 ## How to use

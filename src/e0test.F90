@@ -11,6 +11,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_index_utils, only: convert_global_to_active_idx
     use module_realonly
@@ -19,7 +20,7 @@ SUBROUTINE e0test ! test to calculate <i|H|i>=Ei i is solution of the CASCI
 #endif
     Implicit NONE
 
-    integer :: ii, jj, kk, ll
+    integer(kind=int64) :: ii, jj, kk, ll
     integer :: j, i, k, l
     real(8) :: i2r, i2i, dr, di
     complex*16 :: oneeff, cmplxint, dens, energyHF(2)

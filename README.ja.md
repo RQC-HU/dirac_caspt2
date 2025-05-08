@@ -108,6 +108,12 @@ cd /path/to/dirac_caspt2
     ./setup --help
     ```
 
+  - 整数値のデフォルトサイズを64bitでビルドするには--int64オプションを使用します
+
+    ```sh
+    ./setup --build --int64
+    ```
+
   - 複数コアを用いた並列ビルドも可能です。並列ビルドは-j 並列数のオプションを付ければ実行できます
 
     ```sh
@@ -208,6 +214,17 @@ pytest --all
       ```sh
       LDFLAGS="/your/blas/link/path /your/lapack/link/path" cmake -DCMAKE_Fortran_COMPILER=ifort -DMKL=off -B build && cmake --build build
       ```
+
+- INT64
+
+  - デフォルトのintegerサイズを64bitにします.(default: OFF)
+
+    (例)
+
+    ```sh
+    cmake -B build -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Release -DINT64=ON && cmake --build build
+    ```
+
 
 ## How to use
 

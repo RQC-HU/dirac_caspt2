@@ -1,5 +1,6 @@
 SUBROUTINE solve_B_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
@@ -308,7 +309,7 @@ contains
 
         real(8)  :: a, b
 
-        integer :: it, iu, iy, ix
+        integer(kind=int64) :: it, iu, iy, ix
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start B subspace S matrix'
@@ -387,7 +388,7 @@ contains
         real(8)              :: e, denr, deni
         complex*16          :: den
 
-        integer :: it, iu, ix, iy, iw
+        integer(kind=int64) :: it, iu, ix, iy, iw
         integer :: jt, ju, jy, jx, jw, i, j
 
         if (debug .and. rank == 0) print *, 'Start B subspace B matrix'
@@ -487,11 +488,11 @@ contains
         complex*16, intent(out) :: v(nij, nact, nact)
         real(8)                  :: dr, di
         complex*16              :: cint2, dens
-        integer :: i, j, k, l, tij, i0
-        integer :: it, iu, iostat, unit_int2
+        integer(kind=int64) :: i, j, k, l, it, iu
+        integer :: tij, i0, iostat, unit_int2
         integer :: isym, syma, jt, ju
         integer :: pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
-        integer ::  multb_s_reverse(ninact, ninact)
+        integer :: multb_s_reverse(ninact, ninact)
         logical :: is_end_of_file
 
         if (debug .and. rank == 0) print *, 'Start B subspace V matrix'
@@ -871,7 +872,7 @@ contains
 
         real(8)  :: a, b
 
-        integer :: it, iu, iy, ix
+        integer(kind=int64) :: it, iu, iy, ix
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start B subspace S matrix'
@@ -950,7 +951,7 @@ contains
         real(8)              :: e, denr, deni
         real(8)          :: den
 
-        integer :: it, iu, ix, iy, iw
+        integer(kind=int64) :: it, iu, ix, iy, iw
         integer :: jt, ju, jy, jx, jw, i, j
 
         if (debug .and. rank == 0) print *, 'Start B subspace B matrix'
@@ -1050,11 +1051,11 @@ contains
         real(8), intent(out) :: v(nij, nact, nact)
         real(8)                  :: dr, di
         real(8)              :: cint2, dens
-        integer :: i, j, k, l, tij, i0
-        integer :: it, iu, iostat, unit_int2
+        integer(kind=int64) :: i, j, k, l, it, iu
+        integer :: tij, i0, iostat, unit_int2
         integer :: isym, syma, jt, ju
         integer :: pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
-        integer ::  multb_s_reverse(ninact, ninact)
+        integer :: multb_s_reverse(ninact, ninact)
         logical :: is_end_of_file
 
         if (debug .and. rank == 0) print *, 'Start B subspace V matrix'

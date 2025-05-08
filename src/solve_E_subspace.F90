@@ -1,5 +1,6 @@
 SUBROUTINE solve_E_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
@@ -295,7 +296,7 @@ contains
 
         real(8)  ::a, b
 
-        integer :: it, iu
+        integer(kind=int64) :: it, iu
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start E subspace S matrix'
@@ -352,15 +353,15 @@ contains
 #endif
         Implicit NONE
 
-        integer :: it, iu, iw, jt, ju, jw
-        integer :: i, j
+        integer(kind=int64) :: it, iu, iw
+        integer :: i, j, jt, ju, jw
 
         integer, intent(in) :: dimn, indt(dimn)
         complex*16, intent(in)  :: sc(dimn, dimn)
         complex*16, intent(out) :: bc(dimn, dimn)
 
-        real(8)              :: denr, deni
-        complex*16          :: den
+        real(8)    :: denr, deni
+        complex*16 :: den
 
         bc(:, :) = 0.0d+00
 
@@ -422,11 +423,11 @@ contains
 
         complex*16, intent(out) :: v(naij, nact)
 
-        real(8)                  :: dr, di
-        complex*16              :: cint2, dens
+        real(8)    :: dr, di
+        complex*16 :: cint2, dens
 
-        integer :: i, j, k, l, taij
-        integer :: it, iostat, unit_int2
+        integer(kind=int64) :: i, j, k, l, it
+        integer :: taij, iostat, unit_int2
         logical :: is_end_of_file
 
         if (debug .and. rank == 0) print *, 'Start E subspace V matrix'
@@ -736,7 +737,7 @@ contains
 
         real(8)  ::a, b
 
-        integer :: it, iu
+        integer(kind=int64) :: it, iu
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start E subspace S matrix'
@@ -793,15 +794,15 @@ contains
 #endif
         Implicit NONE
 
-        integer :: it, iu, iw, jt, ju, jw
-        integer :: i, j
+        integer(kind=int64) :: it, iu, iw
+        integer :: i, j, jt, ju, jw
 
         integer, intent(in) :: dimn, indt(dimn)
         real(8), intent(in)  :: sc(dimn, dimn)
         real(8), intent(out) :: bc(dimn, dimn)
 
-        real(8)              :: denr, deni
-        real(8)          :: den
+        real(8) :: denr, deni
+        real(8) :: den
 
         bc(:, :) = 0.0d+00
 
@@ -859,15 +860,15 @@ contains
 #endif
         Implicit NONE
 
-        integer, intent(in)     :: naij, iaij(nsec, ninact, ninact)
+        integer, intent(in)  :: naij, iaij(nsec, ninact, ninact)
 
         real(8), intent(out) :: v(naij, nact)
 
-        real(8)                  :: dr, di
-        real(8)              :: cint2, dens
+        real(8) :: dr, di
+        real(8) :: cint2, dens
 
-        integer :: i, j, k, l, taij
-        integer :: it, iostat, unit_int2
+        integer(kind=int64) :: i, j, k, l, it
+        integer :: taij, iostat, unit_int2
         logical :: is_end_of_file
 
         if (debug .and. rank == 0) print *, 'Start E subspace V matrix'

@@ -6,6 +6,7 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
 
 ! This subroutine splits 2-electron integrals into subspaces (A1, A2, B, C1, C2, C3, D1, D2, D3, E, F, G, H)int
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_file_manager
     use module_realonly, only: realonly
@@ -17,11 +18,10 @@ SUBROUTINE divide_2_elec_integral_into_subspaces(filename) ! 2 electorn integral
     character  :: datex*10, timex*8
 
     integer :: unit_newmdcint, nkr, nmom, max1, max2, min1, min2
-    integer :: nz
-    integer :: i0, i, j, k, l
-    integer :: SignIJ, SignKL, itr, jtr, ltr, ktr, inz, totalint
+    integer :: i0, inz, SignIJ, SignKL, totalint
+    integer(kind=int64) :: i, j, k, l, itr, jtr, ltr, ktr, nz
 
-    integer, allocatable :: indk(:), indl(:), kr(:)
+    integer(kind=int64), allocatable :: indk(:), indl(:), kr(:)
 
     real(8), allocatable :: rklr(:), rkli(:)
 

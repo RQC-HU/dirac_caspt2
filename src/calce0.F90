@@ -13,6 +13,7 @@ SUBROUTINE calce0(e0)
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use module_global_variables
     use module_realonly, only: realonly
     use module_index_utils, only: convert_active_to_global_idx
@@ -34,9 +35,9 @@ SUBROUTINE calce0(e0)
     Do i = 1, nact
 
         If (realonly%is_realonly()) then
-            Call dim1_density_R(i, i, dr)
+            Call dim1_density_R(int(i, kind=int64), int(i, kind=int64), dr)
         Else
-            Call dim1_density(i, i, dr, di)
+            Call dim1_density(int(i, kind=int64), int(i, kind=int64), dr, di)
             if (ABS(di) > 1.0d-10 .and. rank == 0) print *, '1dim density is complex! strange', i, di
         End if
         e0 = e0 + dr*eps(convert_active_to_global_idx(i))

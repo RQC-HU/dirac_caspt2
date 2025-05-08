@@ -1,5 +1,6 @@
 SUBROUTINE solve_F_subspace(e0)
 
+    use, intrinsic :: iso_fortran_env, only: int64
     use dcaspt2_restart_file, only: get_subspace_idx
     use module_blas, only: gemv, gemm
     use module_ulambda_s_half, only: ulambda_s_half
@@ -316,8 +317,8 @@ contains
 
         integer, intent(in)      :: dimn, indsym(2, dimn)
         complex*16, intent(out)  :: sc(dimn, dimn)
-        real(8)  :: a, b
-        integer :: it, iu, iv, ix
+        real(8) :: a, b
+        integer(kind=int64) :: it, iu, iv, ix
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start F subspace S matrix'
@@ -376,10 +377,10 @@ contains
         complex*16, intent(in)  :: sc(dimn, dimn)
         complex*16, intent(out) :: bc(dimn, dimn)
 
-        real(8)              :: e, denr, deni
-        complex*16          :: den
+        real(8)    :: e, denr, deni
+        complex*16 :: den
 
-        integer :: it, iu, iv, ix, iw
+        integer(kind=int64) :: it, iu, iv, ix, iw
         integer :: jt, ju, jv, jx, jw, i, j
 
         bc(:, :) = 0.0d+00
@@ -460,8 +461,8 @@ contains
         real(8)                  :: dr, di
         complex*16              :: cint2, dens
 
-        integer :: i, j, k, l, tab, i0
-        integer :: it, jt, iu, ju, iostat, unit_int2, isym, syma
+        integer(kind=int64) :: i, j, k, l, it, iu 
+        integer :: tab, i0, jt, ju, iostat, unit_int2, isym, syma
         integer :: multb_s_reverse(nsec, nsec)
         integer :: pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
         logical :: is_end_of_file
@@ -821,10 +822,10 @@ contains
 #endif
         Implicit NONE
 
-        integer, intent(in)      :: dimn, indsym(2, dimn)
+        integer, intent(in)   :: dimn, indsym(2, dimn)
         real(8), intent(out)  :: sc(dimn, dimn)
-        real(8)  :: a, b
-        integer :: it, iu, iv, ix
+        real(8) :: a, b
+        integer(kind=int64) :: it, iu, iv, ix
         integer :: i, j
 
         if (debug .and. rank == 0) print *, 'Start F subspace S matrix'
@@ -883,10 +884,10 @@ contains
         real(8), intent(in)  :: sc(dimn, dimn)
         real(8), intent(out) :: bc(dimn, dimn)
 
-        real(8)              :: e, denr, deni
-        real(8)          :: den
+        real(8) :: e, denr, deni
+        real(8) :: den
 
-        integer :: it, iu, iv, ix, iw
+        integer(kind=int64) :: it, iu, iv, ix, iw
         integer :: jt, ju, jv, jx, jw, i, j
 
         bc(:, :) = 0.0d+00
@@ -964,11 +965,11 @@ contains
 
         real(8), intent(out) :: v(nab, nact, nact)
 
-        real(8)                  :: dr, di
-        real(8)              :: cint2, dens
+        real(8) :: dr, di
+        real(8) :: cint2, dens
 
-        integer :: i, j, k, l, tab, i0
-        integer :: it, jt, iu, ju, iostat, unit_int2, isym, syma
+        integer(kind=int64) :: i, j, k, l, it, iu
+        integer ::  tab, i0, jt, ju, iostat, unit_int2, isym, syma
         integer :: multb_s_reverse(nsec, nsec)
         integer :: pattern_t(nact**2, nsymrpa), pattern_u(nact**2, nsymrpa), pattern_tu_count(nsymrpa)
         logical :: is_end_of_file
