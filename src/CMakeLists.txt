@@ -16,6 +16,7 @@ add_library(dcaspt2_module STATIC
   module_realonly.F90
   module_restart_file.F90
   module_sort_swap.F90
+  module_validation.F90
   ras_det_check.F90
   read_input_module.F90
   takekr.F90

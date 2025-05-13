@@ -3,6 +3,7 @@ subroutine dcaspt2_run_subprograms
     use module_file_manager, only: open_formatted_file
     use module_global_variables
     use module_realonly, only: check_realonly
+    use module_validation, only: validate_ndet
     use read_input_module, only: read_input
     implicit none
     integer :: unit_input, i
@@ -43,6 +44,14 @@ subroutine dcaspt2_run_subprograms
         sumc2 = 0
         sumc2_subspace = 0
         if (enable_restart) call read_and_validate_restart_file
+
+        if (rank == 0) then
+            print '(a)', 'start casci/caspt2, rasci/raspt2 calculation'
+            print '(a,x,i0)', "totsym:", totsym
+            print '(a,x,i0)', "selectroot:", selectroot
+            print '(a,x,i0)', "nroot:", nroot
+        end if
+        if (casci_done(totsym)) call validate_ndet
 
         if (docasci .and. .not. casci_done(totsym)) then
             call r4dcasci
