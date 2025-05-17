@@ -18,6 +18,12 @@ subroutine dcaspt2_deallocate
     if (allocated(irpamo)) then
         Call memminus(KIND(irpamo), SIZE(irpamo), 1); deallocate (irpamo)
     end if
+    if (allocated(dirac_mo_energy)) then
+        Call memminus(KIND(dirac_mo_energy), SIZE(dirac_mo_energy), 1); deallocate (dirac_mo_energy)
+    end if
+    if (allocated(caspt2_mo_energy)) then
+        Call memminus(KIND(caspt2_mo_energy), SIZE(caspt2_mo_energy), 1); deallocate (caspt2_mo_energy)
+    end if
     if (allocated(indmo_cas_to_dirac)) then
         Call memminus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1); deallocate (indmo_cas_to_dirac)
     end if
