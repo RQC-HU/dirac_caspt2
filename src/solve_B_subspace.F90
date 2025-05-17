@@ -275,8 +275,8 @@ contains
         End do
 
         if (rank == 0) then
-            print '(" e2b       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
-            print '(" sumc2,b   = ",E25.15)', sumc2_subspace(subspace_idx)
+            print '(" e2b      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,b  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
         Call memminus(KIND(iij), SIZE(iij), 1); deallocate (iij)
@@ -838,8 +838,8 @@ contains
             End do
         end if
         if (rank == 0) then
-            print '(" e2b       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
-            print '(" sumc2,b   = ",E25.15)', sumc2_subspace(subspace_idx)
+            print '(" e2b      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,b  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
         Call memminus(KIND(iij), SIZE(iij), 1); deallocate (iij)
