@@ -987,10 +987,10 @@ contains
 
         ! If scheme option in active.inp is not set, set the default value.
         if (.not. is_scheme_set) then
-            if (dirac_version <= 22) then
-                mdcint_scheme = default_scheme_dirac22_or_earlier
-            else
+            if (dirac_version > 22) then
                 mdcint_scheme = default_scheme_dirac23_or_later
+            else
+                mdcint_scheme = default_scheme_dirac22_or_earlier
             end if
         end if
         is_scheme_set = .true.
