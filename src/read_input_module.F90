@@ -596,6 +596,7 @@ contains
         integer :: iostat
         character(len=max_str_length) :: input
         character(:), allocatable :: trim_input
+        logical :: is_comment
 
         do while (.true.)
             read (unit_num, '(A)', iostat=iostat) input
@@ -606,12 +607,14 @@ contains
             end if
 
             call uppercase(input)
+            call is_comment_line(input, is_comment)
+            if (is_comment) cycle
             allocate (trim_input, source=trim(adjustl(input)))
             if (index(trim_input, ".") == 1) then
                 ! If the input starts with a dot, it is the end of the subprograms.
                 ! Need to reset the file pointer to the beginning of the line.
                 backspace (unit_num)
-                return
+                exit
             end if
 
             select case (trim_input)
@@ -978,16 +981,16 @@ contains
     end subroutine check_reqired_files_exist
 
     subroutine set_mdcint_scheme
-        use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, &
+        use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, integrated_caspt2, &
                                            default_scheme_dirac22_or_earlier, default_scheme_dirac23_or_later
         implicit none
 
         ! If scheme option in active.inp is not set, set the default value.
         if (.not. is_scheme_set) then
-            if (dirac_version <= 22) then
-                mdcint_scheme = default_scheme_dirac22_or_earlier
-            else
+            if (dirac_version > 22 .or. integrated_caspt2) then
                 mdcint_scheme = default_scheme_dirac23_or_later
+            else
+                mdcint_scheme = default_scheme_dirac22_or_earlier
             end if
         end if
         is_scheme_set = .true.

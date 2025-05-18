@@ -96,11 +96,11 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
 ! From DIRAC dirgp.F WRIPCMO (Write DHF-coefficients and eigenvalues )
 
-    if (dirac_version >= 21) then
+    if (dirac_version >= 21 .or. integrated_caspt2) then
         read (unit_dfpcmo, '(A150)') line0
     end if
     read (unit_dfpcmo, '(A150)') line1
-    if (dirac_version >= 21) then
+    if (dirac_version >= 21 .or. integrated_caspt2) then
         ! A is nfsym2 in DIRAC (https://gitlab.com/dirac/dirac/-/blob/b10f505a6f00c29a062f5cad70ca156e72e012d7/src/dirac/dirgp.F#L77-78)
         ! A is 1 or 2
         read (unit_dfpcmo, *) A, B, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
@@ -121,7 +121,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     Allocate (BUF(total_ao))
 
     BUF = 0.0d+00
-    if (dirac_version >= 21) then
+    if (dirac_version >= 21 .or. integrated_caspt2) then
         read (unit_dfpcmo, '(A150)') line3
     end if
     ! Read MO coefficient of DFPCMO
@@ -130,7 +130,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     if (debug .and. rank == 0) print *, 'end reading MO coefficient'
 
-    if (dirac_version >= 21) then
+    if (dirac_version >= 21 .or. integrated_caspt2) then
         read (unit_dfpcmo, '(A150)') line4
     end if
 
@@ -141,7 +141,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         End do
         print *, 'end reading eigenvalue'
     end if
-    if (dirac_version >= 21) then
+    if (dirac_version >= 21 .or. integrated_caspt2) then
         read (unit_dfpcmo, '(A150)') line5
     end if
 
@@ -156,7 +156,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     if (.not. is_eof(unit=unit_dfpcmo, file='DFPCMO', is_formatted=.true.)) then
         ! KAPPA infomation
         allocate (kappa(total_mo))
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             read (unit_dfpcmo, '(A150)') line6
         end if
         read (unit_dfpcmo, *) kappa
@@ -308,11 +308,11 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 ! Create new DFPCMO : DFPCMONEW
     if (rank == 0) then
         call open_formatted_file(unit=unit_dfpcmo, file='DFPCMONEW', status='replace', optional_action="write")
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             write (unit_dfpcmo, '(A150)') line0
         end if
         write (unit_dfpcmo, '(A150)') line1
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             if (A == 1) then
                 format_str = '(5(X,I0))'
             else
@@ -328,22 +328,22 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             write (unit_dfpcmo, format_str) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         end if
         write (unit_dfpcmo, '(A150)') line2
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             write (unit_dfpcmo, '(A150)') line3
         end if
         write (unit_dfpcmo, '(6F22.16)') BUF(:)
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             write (unit_dfpcmo, '(A150)') line4
         end if
 
         write (unit_dfpcmo, '(6E22.12)') eval
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             write (unit_dfpcmo, '(A150)') line5
         end if
         write (unit_dfpcmo, '(66(X,I0))') (syminfo(i), i=1, total_mo)
 
         if (allocated(kappa)) then
-            if (dirac_version >= 21) then
+            if (dirac_version >= 21 .or. integrated_caspt2) then
                 write (unit_dfpcmo, '(A150)') line6
             end if
             write (unit_dfpcmo, '(66(X,I0))') kappa

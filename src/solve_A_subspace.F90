@@ -269,7 +269,7 @@ contains
         End do
 
         if (rank == 0) then
-            print '(" e2a       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" e2a      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
             print '(" sumc2,a  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
@@ -917,8 +917,8 @@ contains
         End do
 
         if (rank == 0) then
-            print '(" e2a       = ",E25.15," a.u.")', e2_subspace(subspace_idx)
-            print '(" sumc2,a   = ",E25.15)', sumc2_subspace(subspace_idx)
+            print '(" e2a      = ",E25.15," a.u.")', e2_subspace(subspace_idx)
+            print '(" sumc2,a  = ",E25.15)', sumc2_subspace(subspace_idx)
         end if
 
         Call memminus(KIND(v), SIZE(v), 2); Deallocate (v)
