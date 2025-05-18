@@ -6,7 +6,8 @@ module module_ivo_consistency_check
 
 contains
     subroutine ivo_consistency_check
-        use module_global_variables, only: irpamo, dirac_version, ninact, nact, nsec, nsymrpa, occ_mo_num, vcut_mo_num, rank
+        use module_global_variables, only: irpamo, dirac_version, integrated_caspt2, ninact, nact, nsec, nsymrpa, & 
+                                           occ_mo_num, vcut_mo_num, rank
         use module_file_manager
         use module_error
         implicit none
@@ -27,7 +28,7 @@ contains
         filename = "DFPCMO"
         call open_formatted_file(unit=unit_dfpcmo, file=filename, status="old")
         ! If DIRAC version is >= 21, additional information is printed in the DFPCMO file
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             read (unit_dfpcmo, '(A)', iostat=iostat) line ! INFO
             call check_end_of_file
         end if
@@ -35,7 +36,7 @@ contains
         read (unit_dfpcmo, '(A)', iostat=iostat) line ! (e.g.) UO2                                                Sun Apr 16 12:55:22 2023
         call check_end_of_file
 
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             read (unit_dfpcmo, *, iostat=iostat) A, B, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
         else ! DIRAC version < 21
             read (unit_dfpcmo, *, iostat=iostat) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
@@ -49,7 +50,7 @@ contains
         read (unit_dfpcmo, '(A)', iostat=iostat) line ! (e.g.) -0.2818820677301684E+05
         call check_end_of_file
 
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             read (unit_dfpcmo, '(A)', iostat=iostat) line ! COEFF
             call check_end_of_file
         end if
@@ -58,7 +59,7 @@ contains
         allocate (BUF(total_ao))
         read (unit_dfpcmo, *, iostat=iostat) BUF
 
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             read (unit_dfpcmo, '(A)', iostat=iostat) line ! EVALS
             call check_end_of_file
         end if
@@ -68,7 +69,7 @@ contains
         read (unit_dfpcmo, *, iostat=iostat) evals
         call check_end_of_file
 
-        if (dirac_version >= 21) then
+        if (dirac_version >= 21 .or. integrated_caspt2) then
             read (unit_dfpcmo, '(A)', iostat=iostat) line ! SUPERSYM
             call check_end_of_file
         end if
@@ -81,7 +82,7 @@ contains
         if (.not. is_eof(unit=unit_dfpcmo, file=filename, is_formatted=.true.)) then
             allocate (kappa(total_mo))
             ! Read KAPPA info
-            if (dirac_version >= 21) then
+            if (dirac_version >= 21 .or. integrated_caspt2) then
                 read (unit_dfpcmo, '(A)', iostat=iostat) line ! KAPPA
                 print *, line
                 call check_end_of_file

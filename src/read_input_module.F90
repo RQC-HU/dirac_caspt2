@@ -981,13 +981,13 @@ contains
     end subroutine check_reqired_files_exist
 
     subroutine set_mdcint_scheme
-        use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, &
+        use module_global_variables, only: rank, is_scheme_set, mdcint_scheme, dirac_version, integrated_caspt2, &
                                            default_scheme_dirac22_or_earlier, default_scheme_dirac23_or_later
         implicit none
 
         ! If scheme option in active.inp is not set, set the default value.
         if (.not. is_scheme_set) then
-            if (dirac_version > 22) then
+            if (dirac_version > 22 .or. integrated_caspt2) then
                 mdcint_scheme = default_scheme_dirac23_or_later
             else
                 mdcint_scheme = default_scheme_dirac22_or_earlier

@@ -19,7 +19,7 @@ MODULE module_global_variables
     ! totsym
     ! ncore         : The number of core orbitals
     ! eshift        : Real shift
-    ! dirac_version : DIRAC version
+    ! dirac_version : DIRAC version, only used for standalone ver. dirac_caspt2
     ! mdcint_scheme : MDCINT **MOLTRA>.SCHEME value (https://diracprogram.org/doc/release-23/manual/moltra.html#scheme)
     integer         :: ninact, nact, nsec, nelec
     integer         :: nroot, selectroot
@@ -186,4 +186,7 @@ MODULE module_global_variables
     integer, parameter :: cidata_key_size = 30 ! Length of the key in cidata file
     logical :: dirac_32bit_build = .false. ! If .true., the DIRAC is built in 32-bit mode (default: .false.(64-bit mode))
     logical :: casci_done(totsym_max) = .false.
+
+    ! Interface for DIRAC
+    logical, parameter :: integrated_caspt2 = .false. ! is CASPT2 integrated with DIRAC?
 end MODULE module_global_variables
