@@ -19,7 +19,7 @@ contains
     function satisfy_ras3_condition(i, upper_allowed_electron) result(is_det_allowed)
         ! function satisfy_ras3_condition(i,upper_allowed_electron) result(is_det_allowed)
         ! This function returns true if the configuration (i) is allowed
-        use module_global_variables, only: ras1_size, ras2_size
+        use module_global_variables, only: ras1_size, ras2_size, min_elec_ras3
         integer(kind=int64), intent(in) :: i, upper_allowed_electron
         integer(kind=int64) :: num_of_electron, ras3_bit, width_of_shift
         logical :: is_det_allowed
@@ -35,7 +35,7 @@ contains
         end if
         ras3_bit = ishft(ras3_bit, width_of_shift)
         call conunt_num_of_elec(i, ras3_bit, num_of_electron)
-        is_det_allowed = num_of_electron <= upper_allowed_electron
+        is_det_allowed = num_of_electron <= upper_allowed_electron .and. min_elec_ras3 <= num_of_electron
     end function satisfy_ras3_condition
 
     subroutine conunt_num_of_elec(i, bit, num_of_electron)

@@ -56,6 +56,7 @@ subroutine r4dcaspt2_tra   ! DO CASPT2 CALC WITH MO TRANSFORMATION
         print int_input_form, 'ras1_max_hole =', ras1_max_hole
         print int_input_form, 'ras3_max_elec =', ras3_max_elec
         print int_input_form, 'minholeras1   =', min_hole_ras1
+        print int_input_form, 'minelecras3   =', min_elec_ras3
         print *, 'debugprint    =', debug
         if (enable_restart) print *, "restart       =", enable_restart
         print *, ''

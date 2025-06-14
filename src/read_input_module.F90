@@ -167,6 +167,9 @@ contains
         case (".minholeras1")
             call read_an_integer(unit_num, ".minholeras1", 0, input_intmax, min_hole_ras1)
 
+        case (".minelecras3")
+            call read_an_integer(unit_num, ".minelecras3", 0, input_intmax, min_elec_ras3)
+
         case (".nocc")
             if (inversion) call err_ivo_input
             call read_an_integer(unit_num, ".nocc", 0, input_intmax, occ_mo_num(1))
@@ -1025,6 +1028,45 @@ contains
                 call stop_with_errorcode(1)
             end if
         end if
+
+        ! min_elec_ras3 can't be larger than ras3_size
+        if (min_elec_ras3 > ras3_size) then
+            ! ERROR: The number of minimum electron of ras3 is larger than the number of ras3, It is unavailable.
+            if (rank == 0) then
+                print *, "ERROR: The number of minelecras3 is larger than the number of ras3."
+                print *, "The number of ras3:", ras3_size
+                print *, "The number of minelecras3:", min_elec_ras3
+                print *, "The number of minelecras3 you specified is impossible."
+                print *, "Exit the program."
+                call stop_with_errorcode(1)
+            end if
+        end if
+
+        ! min_elec_ras3 can't be larger than nelec
+        if (min_elec_ras3 > nelec) then
+            ! ERROR: The number of minimum electron of ras3 is larger than the number of active electron, It is unavailable.
+            if (rank == 0) then
+                print *, "ERROR: The number of minelecras3 is larger than the number of active electron."
+                print *, "The number of active electron:", nelec
+                print *, "The number of minelecras3:", min_elec_ras3
+                print *, "The number of minelecras3 you specified is impossible."
+                print *, "Exit the program."
+                call stop_with_errorcode(1)
+            end if
+        end if      
+
+        ! min_elec_ras3 can't be larger than ras3_max_elec
+        if (min_elec_ras3 > ras3_max_elec) then
+            ! ERROR: The number of minelecras3 is larger than the number of ras3_max_elec, It is unavailable.
+            if (rank == 0) then
+                print *, "ERROR: The number of minelecras3 is larger than ras3_max_elec."
+                print *, "The number of ras3_max_elec:", ras3_max_elec
+                print *, "The number of minelecras3:", min_elec_ras3
+                print *, "The number of minelecras3 you specified is impossible."
+                print *, "Exit the program."
+                call stop_with_errorcode(1)
+            end if
+        end if      
 
         ! ras3_max_elec can't be larager than ras3_size
         if (ras3_max_elec > ras3_size) then
