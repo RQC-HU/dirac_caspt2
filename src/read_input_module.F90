@@ -697,7 +697,7 @@ contains
 
         allocate (max_selectroot_list(max_totsym))
         max_selectroot_list = tmp_max_selectroots(1:max_totsym) ! Copy the tmp_max_selectroots to max_selectroot_list
- 
+
     contains
         subroutine read_ciroots_line
             implicit none
@@ -725,7 +725,7 @@ contains
                     print '(2(a,i0),2a)', "ERROR: .caspt2_ciroots max number of roots is ", root_max, &
                              " but selected ", idx_filled - 1, " roots. input:", input
                 end if
-                call stop_with_errorcode(1)                
+                call stop_with_errorcode(1)
             end if
             if (idx_filled < 2) then
                 if (rank == 0) then
@@ -1013,7 +1013,7 @@ contains
     subroutine check_ras_is_valid
         use module_global_variables
         implicit none
-        integer :: idx
+        integer :: idx, max_elec_in_ras
         logical :: electron_filled(ninact + nact + nsec)
 
         ! min_hole_ras1 can't be larger than ras1_size
@@ -1053,7 +1053,7 @@ contains
                 print *, "Exit the program."
                 call stop_with_errorcode(1)
             end if
-        end if      
+        end if
 
         ! min_elec_ras3 can't be larger than ras3_max_elec
         if (min_elec_ras3 > ras3_max_elec) then
@@ -1066,7 +1066,7 @@ contains
                 print *, "Exit the program."
                 call stop_with_errorcode(1)
             end if
-        end if      
+        end if
 
         ! ras3_max_elec can't be larager than ras3_size
         if (ras3_max_elec > ras3_size) then
@@ -1076,6 +1076,22 @@ contains
                 print *, "The number of ras3:", ras3_size
                 print *, "The max number of allowed electron in ras3:", ras3_max_elec
                 print *, "The max number of allowed electron in ras3 you specified is impossible."
+                print *, "Exit the program."
+                call stop_with_errorcode(1)
+            end if
+        end if
+
+
+        max_elec_in_ras = (ras1_size - min_hole_ras1) + ras2_size + ras3_max_elec
+        if (max_elec_in_ras < nelec) then
+            if (rank == 0) then
+                print *, "ERROR: The number of electrons you specified is larger than the number of electrons allowed in RAS."
+                print *, "The number of electrons:", nelec
+                print *, "The max number of allowed electron in ras1:", ras1_size - min_hole_ras1
+                print *, "The max number of allowed electron in ras2:", ras2_size
+                print *, "The max number of allowed electron in ras3:", ras3_max_elec
+                print *, "RAS allowed electrons:", max_elec_in_ras
+                print *, "The number of electrons you specified is impossible."
                 print *, "Exit the program."
                 call stop_with_errorcode(1)
             end if
