@@ -332,6 +332,7 @@ Input for CASCI and CASPT2
 .ras2           : RAS2 spinor list
 .ras3           : RAS3 spinor list (row 1) and the maximum number of electrons in ras3(row2)
 .minholeras1    : The minimum number of hole in ras1 (default: 0)
+.minelecras3    : The minimum number of electrons in ras3 (default: 0)
 .scheme         : MOLTRA SCHEME, if you explicitly set the non-default .SCHEME value in **MOLTRA, you must set the same value for this option. (ref .SCHEME: https://diracprogram.org/doc/master/manual/moltra.html#scheme)
 .debugprint     : This keyword invokes priniting of additional information in the output file
 .restart        : Restart calculation from the previous calculation. You need to generate the caspt2_restart file by running gen_dcaspt2_restart [previous_calclation_output] and put it in the same directory as the input file. (default: .false.)
