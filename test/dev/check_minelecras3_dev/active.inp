@@ -1,0 +1,26 @@
+.ninact
+6
+.nact
+6
+.nsec
+2
+.nelec
+2
+.caspt2_ciroots
+33 1
+.subprograms
+CASCI
+CASPT2
+.diracver
+23
+.ras1
+3..4
+2
+.ras2
+9..10
+.ras3
+11..12
+2    
+.minelecras3
+1
+.end

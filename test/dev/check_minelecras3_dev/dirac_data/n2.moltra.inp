@@ -1,0 +1,25 @@
+**DIRAC                                                                                             
+.TITLE                                                                                              
+NN molecule    
+.ANALYZE         
+.4INDEX                                                                            
+.WAVE FUNCTION   
+**INTEGRALS                                                                                         
+*READIN                                                                                             
+.UNCONTRACT   
+**ANALYZE
+.PRIVEC
+*PRIVEC
+.VECPRI
+all         
+all                                                                         
+**HAMILTONIAN                                                                                     
+.X2C                                                                                                
+**WAVE FUNCTIONS                                                                                    
+.SCF                                                                                                
+*SCF 
+**MOLTRA               
+.ACTIVE              
+3..5
+2..5                                                                                                                                                                                  
+**END OF    

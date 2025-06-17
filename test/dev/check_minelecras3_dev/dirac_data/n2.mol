@@ -1,0 +1,10 @@
+DIRAC
+
+
+C   1              A
+       7.    2
+N 1           0.00000000          0.00000000          0.55000000
+N 2           0.00000000          0.00000000         -0.55000000
+LARGE BASIS STO-3G
+SMALL KINBAL
+FINISH

@@ -29,7 +29,7 @@ MODULE module_global_variables
     integer         :: mdcint_scheme = 0
     integer         :: ras1_start, ras2_start, ras3_start
     integer         :: ras1_size = 0, ras2_size = 0, ras3_size = 0
-    integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0
+    integer         :: ras1_max_hole, ras3_max_elec, min_hole_ras1 = 0, min_elec_ras3 = 0
     logical         :: enable_restart = .false.
     integer, allocatable :: ras1_list(:), ras2_list(:), ras3_list(:)
     ! totsym and selectroot list caspt2_ciroots(:, 1) = totsym, caspt2_ciroots(:, 2) = selectroot
