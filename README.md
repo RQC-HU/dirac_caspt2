@@ -391,4 +391,7 @@ Input for CASCI and CASPT2
 ## Citation
 
 - Please cite the following paper when you publish the data obtained by using this program.
-  1. Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe. Relativistic CASPT2/RASPT2 Program along with DIRAC software. J. Chem. Theory Comput. 2025, 21, 3, 1249–1258; [https://doi.org/10.1021/acs.jctc.4c01589](https://doi.org/10.1021/acs.jctc.4c01589)
+  - Y. Masuda, K. Noda, S. Iwamuro, M. Hada, N. Nakatani, M. Abe. Relativistic CASPT2/RASPT2 Program along with DIRAC software. J. Chem. Theory Comput. 2025, 21, 3, 1249–1258; [https://doi.org/10.1021/acs.jctc.4c01589](https://doi.org/10.1021/acs.jctc.4c01589)
+  - M. Abe, T. Nakajima, K. Hirao. The relativistic complete active-space second-order perturbation theory with the four-component Dirac Hamiltonian. J. Chem. Phys. 2006, 125, 234110; [https://doi.org/10.1063/1.2404666](https://doi.org/10.1063/1.2404666)
+  - S. Huzinaga, and C. Arnau. Virtual Orbitals in Hartree-Fock Theory. Phys. Rev. A. 1970, 1, 1285-1288; [https://doi.org/10.1103/PhysRevA.1.1285](https://doi.org/10.1103/PhysRevA.1.1285)
+  - K. Andersson, P. A. Malmqvist, B. O. Roos, A. J. Sadlej, K. Wolinski. Second-order perturbation theory with a CASSCF reference function. J. Phys. Chem. 1990, 94, 14, 5483–5488; [https://doi.org/10.1021/j100377a012](https://doi.org/10.1021/j100377a012)
