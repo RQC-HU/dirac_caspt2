@@ -610,6 +610,7 @@ contains
         real(8), allocatable :: mo_energy_order(:)
         integer :: idx_energy_order, idx_ras_order, idx
         integer :: ras1_idx, ras2_idx, ras3_idx
+        logical :: filled
         if (rank == 0) print *, 'sizeofras', ras1_size, ras2_size, ras3_size
         if (ras1_size == 0 .and. ras2_size == 0 .and. ras3_size == 0) return ! Do nothing because ras is not configured
 ! Initialization
@@ -619,15 +620,29 @@ contains
         mo_energy_order = want_to_sort ! Save the original orbital energy order
 ! Fill ninact
         do while (idx_ras_order <= ninact)
-            if (ras1_size /= 0 .and. ras1_list(ras1_idx) == idx_energy_order) then
-                if (ras1_size > ras1_idx) ras1_idx = ras1_idx + 1 ! Skip ras1_list(ras1_idx)
-            elseif (ras2_size /= 0 .and. ras2_list(ras2_idx) == idx_energy_order) then
-                if (ras2_size > ras2_idx) ras2_idx = ras2_idx + 1 ! Skip ras2_list(ras2_idx)
-            elseif (ras3_size /= 0 .and. ras3_list(ras3_idx) == idx_energy_order) then
-                if (ras3_size > ras3_idx) ras3_idx = ras3_idx + 1 ! Skip ras3_list(ras3_idx)
-            else
+            filled = .false.
+            if (.not. filled .and. ras1_size > 0 .and. ras1_size >= ras1_idx) then
+                if (ras1_list(ras1_idx) == idx_energy_order) then
+                    ras1_idx = ras1_idx + 1 ! Skip ras1_list(ras1_idx)
+                    filled = .true.
+                end if
+            end if
+            if (.not. filled .and. ras2_size > 0 .and. ras2_size >= ras2_idx) then
+                if (ras2_list(ras2_idx) == idx_energy_order) then
+                    ras2_idx = ras2_idx + 1 ! Skip ras2_list(ras2_idx)
+                    filled = .true.
+                end if
+            end if
+            if (.not. filled .and. ras3_size > 0 .and. ras3_size >= ras3_idx) then
+                if (ras3_list(ras3_idx) == idx_energy_order) then
+                    ras3_idx = ras3_idx + 1 ! Skip ras3_list(ras3_idx)
+                    filled = .true.
+                end if
+            end if
+            if (.not. filled) then
                 want_to_sort(idx_ras_order) = mo_energy_order(idx_energy_order)
                 idx_ras_order = idx_ras_order + 1
+                filled = .true.
             end if
             idx_energy_order = idx_energy_order + 1 ! Next spinor (energy order)
         end do
@@ -671,15 +686,29 @@ contains
         end if
 ! Fill secondary
         do while (idx_ras_order <= global_sec_end)
-            if (ras1_size > 0 .and. ras1_list(ras1_idx) == idx_energy_order) then
-                if (ras1_size > ras1_idx) ras1_idx = ras1_idx + 1 ! Skip ras1_list(ras1_idx)
-            elseif (ras2_size > 0 .and. ras2_list(ras2_idx) == idx_energy_order) then
-                if (ras2_size > ras2_idx) ras2_idx = ras2_idx + 1 ! Skip ras2_list(ras2_idx)
-            elseif (ras3_size > 0 .and. ras3_list(ras3_idx) == idx_energy_order) then
-                if (ras3_size > ras3_idx) ras3_idx = ras3_idx + 1 ! Skip ras3_list(ras3_idx)
-            else
+            filled = .false.
+            if (.not. filled .and. ras1_size > 0 .and. ras1_size >= ras1_idx) then
+                if (ras1_list(ras1_idx) == idx_energy_order) then
+                    ras1_idx = ras1_idx + 1 ! Skip ras1_list(ras1_idx)
+                    filled = .true.
+                end if
+            end if
+            if (.not. filled .and. ras2_size > 0 .and. ras2_size >= ras2_idx) then
+                if (ras2_list(ras2_idx) == idx_energy_order) then
+                    ras2_idx = ras2_idx + 1 ! Skip ras2_list(ras2_idx)
+                    filled = .true.
+                end if
+            end if
+            if (.not. filled .and. ras3_size > 0 .and. ras3_size >= ras3_idx) then
+                if (ras3_list(ras3_idx) == idx_energy_order) then
+                    ras3_idx = ras3_idx + 1 ! Skip ras3_list(ras3_idx)
+                    filled = .true.
+                end if
+            end if
+            if (.not. filled) then
                 want_to_sort(idx_ras_order) = mo_energy_order(idx_energy_order)
                 idx_ras_order = idx_ras_order + 1
+                filled = .true.
             end if
             idx_energy_order = idx_energy_order + 1 ! Next spinor (energy order)
         end do
