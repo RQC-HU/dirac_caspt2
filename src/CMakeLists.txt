@@ -25,6 +25,8 @@ add_library(dcaspt2_module STATIC
   ulambda_s_half.F90
 
   # IVO modules
+  module_cmo_variables.F90
+  module_dfpcmo_handler.F90
   module_ivo_consistency_check.F90
 )
 target_link_libraries(dcaspt2_module dcaspt2_module_global)
