@@ -9,9 +9,28 @@
 
 このプロジェクトに貢献(バグレポート、機能追加など)する方法については[CONTRIBUTING.md](CONTRIBUTING.md)を参照してください
 
+## DIRAC-CASPT2がDIRACの1機能として追加されました!
+
+2025年8月13日にDIRAC-CASPT2が[DIRACの1機能としてマージされました](https://gitlab.com/dirac/dirac/-/merge_requests/312)  
+これにより、IVO/CASCI/CASPT2およびIVO/RASCI/RASPT2計算がDIRACのpamスクリプトのみを使って計算可能になりました!  
+マニュアルは[ここ](https://diracprogram.org/doc/master/manual/wave_function/caspt2.html)で公開されています  
+スタンドアロン版DIRAC-CASPT2と比較したときの主なメリットは以下の通りです
+
+- DIRAC-CASPT2のソースコードを別にインストール、ビルドする必要がなくなりました
+- CASPT2/RASPT2エネルギー計算をするのにDIRACのpamスクリプトを1回実行するだけで済むようになりました
+- IVO計算をするときに.PCMOUTオプションを使ってDFPCMOを使う必要がなくなりました。代わりに同等の情報が保存されているcheckpoint.[no]h5ファイルを使って計算を行います。checkpoint.[no]h5ファイルはDIRACの計算を行うときにオプションなしに自動的に生成されます。
+
+最新のDIRACのソースコードは以下のコマンドで入手できます  
+また、次のDIRACのメジャーリリース版であるDIRAC26からDIRAC-CASPT2がリリースバージョンで使用可能になる予定です
+
+```bash
+git clone --recursive https://gitlab.com/dirac/dirac.git
+```
+
 ## 目次
 
 - [DIRAC-CASPT2: 相対論的多配置2次摂動論プログラム](#dirac-caspt2-相対論的多配置2次摂動論プログラム)
+  - [DIRAC-CASPT2がDIRACの1機能として追加されました!](#dirac-caspt2がdiracの1機能として追加されました)
   - [Contribution](#contribution)
   - [目次](#目次)
   - [ダウンロード](#ダウンロード)
