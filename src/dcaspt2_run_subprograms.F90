@@ -2,11 +2,13 @@ subroutine dcaspt2_run_subprograms
     use dcaspt2_restart_file, only: read_and_validate_restart_file
     use module_file_manager, only: open_formatted_file
     use module_global_variables
+    use module_index_utils, only: set_global_index
     use module_realonly, only: check_realonly
     use module_validation, only: validate_ndet
     use read_input_module, only: read_input
     implicit none
     integer :: unit_input, i
+    integer :: ninact_orig, nact_orig, nelec_orig, nsec_orig
     character(:), allocatable :: filename
 
     call print_head
@@ -14,6 +16,13 @@ subroutine dcaspt2_run_subprograms
     call open_formatted_file(unit=unit_input, file='active.inp', status="old", optional_action="read")
     rewind (unit_input)
     call read_input(unit_input)
+
+    if (doivo) then
+        ! need to generate input parameter for IVO from CASCI/CASPT2 input
+        ninact_orig = ninact; nact_orig = nact; nelec_orig = nelec; nsec_orig = nsec
+        ninact = 0; nact = ninact_orig + nelec_orig; nelec = nact; nsec = nsec_orig + nact_orig - nelec_orig
+        call set_global_index
+    end if
 
     ! Read MRCONEE file (orbital energies, symmetries and multiplication tables)
     if (rank == 0) then
@@ -33,6 +42,7 @@ subroutine dcaspt2_run_subprograms
     if (doivo) then
         call r4divo_co
         call dcaspt2_deallocate
+        ninact = ninact_orig; nact = nact_orig; nelec = nelec_orig; nsec = nsec_orig
         return
     end if
 
