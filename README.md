@@ -3,6 +3,24 @@
 
 - This program performs the second order multi-configuration perturbation calculation using the IVO/CASCI/CASPT2 or IVO/RASCI/RASPT2 method with 1- and 2-electron integrals obtained from the [DIRAC](http://diracprogram.org/doku.php) calculation.
 
+## DIRAC-CASPT2 has been merged as a feature of DIRAC!
+
+13 Aug 2025, DIRAC-CASPT2 has been [merged into the DIRAC source code](https://gitlab.com/dirac/dirac/-/merge_requests/312) as a feature of DIRAC.  
+That means now you can calculate IVO/CASCI/CASPT2 or IVO/RASCI/RASPT2 with only DIRAC pam script!  
+Manual for DIRAC-CASPT2 functionality in DIRAC is available at [here](https://diracprogram.org/doc/master/manual/wave_function/caspt2.html).  
+Main advantages of DIRAC integrated DIRAC-CASPT2 are the following
+
+- You don't need to install and execute DIRAC-CASPT2 separately.
+- You can calculate CASPT2/RASPT2 energy by running DIRAC pam script just once.
+- You don't need to add .PCMOUT option to the DIRAC input when you want to use IVO, since DIRAC integrated DIRAC-CASPT2 uses checkpoint.[no]h5 file instead of DFPCMO file.
+
+You can clone the latest DIRAC source code by the following command to use DIRAC-CASPT2 functionality in DIRAC.  
+It will be available in the next DIRAC release (DIRAC26).
+
+```bash
+git clone --recursive https://gitlab.com/dirac/dirac.git
+```
+
 ## Contribution
 
 If you want to contribute to this project (bug report, feature request, pull request, etc.), please read the [CONTRIBUTING.md](CONTRIBUTING.md) file before you start contributing.
@@ -11,6 +29,7 @@ If you want to contribute to this project (bug report, feature request, pull req
 
 - [DIRAC-CASPT2: A relativistic second order multi-configuration perturbation calculation program](#dirac-caspt2-a-relativistic-second-order-multi-configuration-perturbation-calculation-program)
   - [Contribution](#contribution)
+  - [DIRAC-CASPT2 has been merged as a feature of DIRAC!](#dirac-caspt2-has-been-merged-as-a-feature-of-dirac)
   - [Table of Contents](#table-of-contents)
   - [Download](#download)
   - [Prerequisites for build](#prerequisites-for-build)
