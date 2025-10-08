@@ -1,20 +1,23 @@
-### 前提と問題点
-> 前提事項と、あれば現状の問題点について記述してください
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
 
-### 求める機能
-> このissueでなんの機能について議論、または要求を行いたいかを記述してください
+---
 
-### 変更によるメリット
-> 要求の機能ができたときのメリットを記述してください
+**Desired feature**
+Please describe what feature you wish to discuss or request in this issue.
 
-### 変更によるデメリット
-> 要求の機能ができたときのデメリットおよび発生しうる依存関係、もしくは制限などについて記述してください
+**Benefits of the Change**
 
-### (optional)実装方法
-> 実装方法を思いついている場合は、記述してください(ソースコードレベルでも実装方針レベルでも可)
+**Disadvantages of the change**
 
-### (optional)代替案
-> 他に代替案があれば記述してください
+**(optional) Describe the solution you'd like**
 
-### (optional)追加事項
-> Add any other context or screenshots about the feature request here.
+**Describe alternatives you've considered**
+A description of any alternative solutions or features you've considered.
+
+**Additional context**
+Add any other context or screenshots about the feature request here.
