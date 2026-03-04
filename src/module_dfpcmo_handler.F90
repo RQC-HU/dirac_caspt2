@@ -25,11 +25,15 @@ contains
         end if
         read (unit_dfpcmo, '(A150)') line1
         if (dirac_version >= 21 .or. integrated_caspt2) then
-            ! A is nfsym2 in DIRAC (https://gitlab.com/dirac/dirac/-/blob/b10f505a6f00c29a062f5cad70ca156e72e012d7/src/dirac/dirgp.F#L77-78)
-            ! A is 1 or 2
-            read (unit_dfpcmo, *) A, B, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
+            ! cmo_nfsym is nfsym2 in DIRAC (https://gitlab.com/dirac/dirac/-/blob/b10f505a6f00c29a062f5cad70ca156e72e012d7/src/dirac/dirgp.F#L77-78)
+            ! cmo_nfsym is 1 (no inversion symmetry) or 2 (inversion symmetry)
+            ! cmo_nz is 1 (real), 2 (complex) or 4 (quaterion)
+            read (unit_dfpcmo, *) cmo_nfsym, cmo_nz, &
+                (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, cmo_nfsym)
         else
-            read (unit_dfpcmo, *) A, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
+            read (unit_dfpcmo, *) cmo_nfsym, &
+                (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, cmo_nfsym)
+            cmo_nz = mrconee_nz ! cannot read nz value from DFPCMO for old DIRAC (version < 21), assume that the MRCONEE nz is same as DFPCMO's
         end if
         read (unit_dfpcmo, '(A150)') line2
 
@@ -42,7 +46,7 @@ contains
 
         allocate (eval(total_mo))
         allocate (syminfo(total_mo))
-        Allocate (BUF(total_ao))
+        Allocate (BUF(cmo_nz*total_ao))
 
         BUF = 0.0d+00
         if (dirac_version >= 21 .or. integrated_caspt2) then
@@ -100,19 +104,19 @@ contains
             end if
             write (unit_dfpcmo, '(A150)') line1
             if (dirac_version >= 21 .or. integrated_caspt2) then
-                if (A == 1) then
+                if (cmo_nfsym == 1) then
                     format_str = '(5(X,I0))'
                 else
                     format_str = '(8(X,I0))'
                 end if
-                write (unit_dfpcmo, format_str) A, B, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
+                write (unit_dfpcmo, format_str) cmo_nfsym, cmo_nz, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, cmo_nfsym)
             else
-                if (A == 1) then
+                if (cmo_nfsym == 1) then
                     format_str = '(4(X,I0))'
                 else
                     format_str = '(7(X,I0))'
                 end if
-                write (unit_dfpcmo, format_str) A, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, A)
+                write (unit_dfpcmo, format_str) cmo_nfsym, (positronic_mo(i), electronic_mo(i), basis_ao(i), i=1, cmo_nfsym)
             end if
             write (unit_dfpcmo, '(A150)') line2
             if (dirac_version >= 21 .or. integrated_caspt2) then

@@ -25,7 +25,7 @@ contains
 
         call ivo_cmo_read
         if (rank == 0) print *, "syminfo", syminfo
-        do i = 1, A
+        do i = 1, cmo_nfsym
             ! Define the indices of the virtual MOs in the input and DFPCMO data
             start_idx_input = ninact + nact + 1
             end_idx_input = ninact + nact + nsec

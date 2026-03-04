@@ -269,6 +269,7 @@ SUBROUTINE read_mrconee(filename)
     else
         read (unit_mrconee, iostat=iostat) NMO, BREIT, ECORE, nfsym, nz, spinfr, norbt, hf_energy_mrconee
     end if
+    mrconee_nz = nz ! store MRCONEE nz value for stand-alone ver. dirac_caspt2 IVO with old DIRAC (version less than 21)
     call check_iostat(iostat=iostat, file=trim(filename), end_of_file_reached=is_end_of_file)
     if (is_end_of_file) then
         print *, 'Error: error in reading NMO, BREIT, ECORE (end of file reached)'

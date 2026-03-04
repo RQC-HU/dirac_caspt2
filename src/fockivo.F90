@@ -97,7 +97,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     end if
 
 ! IVO calculation (C1 symmetry is not supported)
-    do idx_irrep = 1, A
+    do idx_irrep = 1, cmo_nfsym
         num_ao = basis_ao(idx_irrep)
         if (idx_irrep == 1) then
             num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
