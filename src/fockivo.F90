@@ -26,7 +26,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
 
     integer :: nv0, idx_irrep, start_isym, end_isym
     logical :: is_all_syminfo_zero
-    integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
+    integer :: offset_mo, offset_buf, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
     integer, allocatable :: dmosym(:)
 
@@ -103,13 +103,15 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
             start_isym = 1
             end_isym = nsymrpa/2
-            juck_up_idx = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            offset_buf = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            offset_mo = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
             num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         else
             num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
             start_isym = nsymrpa/2 + 1
             end_isym = nsymrpa
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            offset_buf = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            offset_mo = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
             num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         end if
 
@@ -174,19 +176,8 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             ! Gerade
             allocate (coeff(basis_ao(idx_irrep), nv))
             coeff(:, :) = 0.0d+00
-            if (idx_irrep == 1) then
-                juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            else
-                juck_up_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            end if
             call get_coeff
-
             coeff(:, :) = MATMUL(coeff(:, :), fsym(:, :))
-            if (idx_irrep == 1) then
-                juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            else
-                juck_up_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            end if
 
             call write_back_itrfmo
 
@@ -215,18 +206,10 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             deallocate (mosym)
             deallocate (dmosym)
         end do
-        num_ao = basis_ao(idx_irrep)
-        if (idx_irrep == 1) then
-            juck_up_idx = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
-        else
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
-        end if
 
         do iao = 1, num_ao
             do imo = 1, num_mo
-                BUF(juck_up_idx + (imo - 1)*num_ao + iao) = DBLE(itrfmo(iao, imo))
+                BUF(offset_buf + (imo - 1)*num_ao + iao) = DBLE(itrfmo(iao, imo))
             end do
         end do
         deallocate (itrfmo)
@@ -242,8 +225,7 @@ contains
 
         do iao = 1, num_ao
             do imo = 1, num_mo
-                i0 = juck_up_idx + imo - 1
-                itrfmo(iao, imo) = BUF(juck_up_idx + (imo - 1)*num_ao + iao)
+                itrfmo(iao, imo) = BUF(offset_buf + (imo - 1)*num_ao + iao)
             end do
         end do
     end subroutine create_itrfmo
@@ -275,7 +257,7 @@ contains
         implicit none
 
         Do i = 1, nv0
-            i0 = dmosym(i) - juck_up_idx
+            i0 = dmosym(i) - offset_mo
             coeff(:, i) = itrfmo(:, i0)
         End do
     end subroutine get_coeff
@@ -284,7 +266,7 @@ contains
         implicit none
 
         Do i = 1, nv0
-            i0 = dmosym(i) - juck_up_idx
+            i0 = dmosym(i) - offset_mo
             itrfmo(:, i0) = coeff(:, i)
         End do
     end subroutine write_back_itrfmo
