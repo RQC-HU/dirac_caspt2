@@ -1,12 +1,12 @@
 FROM debian:bullseye-slim
 
 # For intel-mkl
-RUN echo "deb http://deb.debian.org/debian buster main contrib non-free \
-    deb-src http://deb.debian.org/debian buster main contrib non-free \
-    deb http://deb.debian.org/debian-security/ buster/updates main contrib non-free \
-    deb-src http://deb.debian.org/debian-security/ buster/updates main contrib non-free \
-    deb http://deb.debian.org/debian buster-updates main contrib non-free \
-    deb-src http://deb.debian.org/debian buster-updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://deb.debian.org/debian bullseye main contrib non-free \
+    deb-src http://deb.debian.org/debian bullseye main contrib non-free \
+    deb http://deb.debian.org/debian-security/ bullseye-security main contrib non-free \
+    deb-src http://deb.debian.org/debian-security/ bullseye-security main contrib non-free \
+    deb http://deb.debian.org/debian bullseye-updates main contrib non-free \
+    deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
 
 # update packages and install dev dependencies (python3, pytest)
 RUN apt-get update && apt-get install -y cmake python3 python3-pip python-is-python3 && pip3 install pytest
