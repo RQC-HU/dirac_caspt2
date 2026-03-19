@@ -135,7 +135,7 @@ contains
             if (dirac_version >= 26 .or. integrated_caspt2) then
                 write (unit_dfpcmo, '(6G25.17)') eval
             else
-                write (unit_dfpcmo, '(6F22.16)') eval
+                write (unit_dfpcmo, '(6E22.12)') eval
             end if
             if (dirac_version >= 21 .or. integrated_caspt2) then
                 write (unit_dfpcmo, '(A150)') line5
