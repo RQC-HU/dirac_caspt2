@@ -30,6 +30,7 @@ contains
             read (unit_dfpcmo, *) A, B, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
         else
             read (unit_dfpcmo, *) A, (positronic_mo(idx_irrep), electronic_mo(idx_irrep), basis_ao(idx_irrep), idx_irrep=1, A)
+            B = mrconee_nz
         end if
         read (unit_dfpcmo, '(A150)') line2
 
@@ -42,7 +43,7 @@ contains
 
         allocate (eval(total_mo))
         allocate (syminfo(total_mo))
-        Allocate (BUF(total_ao))
+        Allocate (BUF(B*total_ao))
 
         BUF = 0.0d+00
         if (dirac_version >= 21 .or. integrated_caspt2) then
@@ -118,12 +119,20 @@ contains
             if (dirac_version >= 21 .or. integrated_caspt2) then
                 write (unit_dfpcmo, '(A150)') line3
             end if
-            write (unit_dfpcmo, '(6F22.16)') BUF(:)
+            if (dirac_version >= 26 .or. integrated_caspt2) then
+                write (unit_dfpcmo, '(6G25.17)') BUF
+            else
+                write (unit_dfpcmo, '(6F22.16)') BUF
+            end if
             if (dirac_version >= 21 .or. integrated_caspt2) then
                 write (unit_dfpcmo, '(A150)') line4
             end if
 
-            write (unit_dfpcmo, '(6E22.12)') eval
+            if (dirac_version >= 26 .or. integrated_caspt2) then
+                write (unit_dfpcmo, '(6G25.17)') eval
+            else
+                write (unit_dfpcmo, '(6E22.12)') eval
+            end if
             if (dirac_version >= 21 .or. integrated_caspt2) then
                 write (unit_dfpcmo, '(A150)') line5
             end if
