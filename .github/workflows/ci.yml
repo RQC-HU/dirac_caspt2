@@ -10,6 +10,7 @@ on:
       - "**.cmake"
       - "**/CMakeLists.txt"
       - "**.py"
+      - "test/**"
       - "tools/**"
       - ".github/workflows/**"
   pull_request:
@@ -23,6 +24,7 @@ on:
       - "**.cmake"
       - "**/CMakeLists.txt"
       - "**.py"
+      - "test/**"
       - "tools/**"
       - ".github/workflows/**"
 
