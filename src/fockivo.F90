@@ -16,7 +16,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     Implicit NONE
 
     integer      :: j, i, k, i0, j0
-    integer      :: isym, nv, numh
+    integer      :: isym, nv, numh, buf_idx
     integer      :: imo, iao, unit_buf
     real(8)      :: thresd
     complex*16, allocatable  :: fsym(:, :) ! Symmetrized fock_ivo_matrix for particular irrep
@@ -109,7 +109,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
             start_isym = nsymrpa/2 + 1
             end_isym = nsymrpa
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            juck_up_idx = B*basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
             num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         end if
 
@@ -220,15 +220,28 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             juck_up_idx = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
             num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         else
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            juck_up_idx = B*basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
             num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         end if
 
         do iao = 1, num_ao
             do imo = 1, num_mo
-                BUF(juck_up_idx + (imo - 1)*num_ao + iao) = DBLE(itrfmo(iao, imo))
+                buf_idx = juck_up_idx + (imo - 1)*num_ao + iao
+                BUF(buf_idx) = DBLE(itrfmo(iao, imo))
             end do
         end do
+
+        if (B == 2) then
+            do iao = 1, num_ao
+                do imo = 1, num_mo
+                    buf_idx = juck_up_idx + (imo - 1)*num_ao + iao
+                    ! basis_all(idx_irrep) + buf_idx is a imaginary part idx of the CMO
+                    BUF(basis_all(idx_irrep) + buf_idx) = DIMAG(itrfmo(iao, imo))
+                end do
+            end do
+        end if
+
+        ! TODO: impl quaternion (B = NZ = 4)
         deallocate (itrfmo)
     end do
 
@@ -243,7 +256,13 @@ contains
         do iao = 1, num_ao
             do imo = 1, num_mo
                 i0 = juck_up_idx + imo - 1
-                itrfmo(iao, imo) = BUF(juck_up_idx + (imo - 1)*num_ao + iao)
+                buf_idx = juck_up_idx + (imo - 1)*num_ao + iao
+                if (B == 1) then
+                    itrfmo(iao, imo) = BUF(buf_idx)
+                else if (B == 2) then
+                    itrfmo(iao, imo) = DCMPLX(BUF(buf_idx), BUF(basis_all(idx_irrep) + buf_idx))
+                end if
+                ! TODO: impl quaternion (B = NZ = 4)
             end do
         end do
     end subroutine create_itrfmo

@@ -100,7 +100,7 @@ MODULE module_global_variables
     !! Variables of MRCONEE (A file stores 1-electron integrals, symmetry information, multiplication table etc. that is created by DIRAC)
     !! ====================================================================================================================================
     double precision :: ecore ! core energy
-    integer(kind=int64)  :: nmo, scfru
+    integer(kind=int64)  :: nmo, scfru, mrconee_nz
     integer(kind=int64), allocatable :: irpamo(:) ! symmetry number of the specific mo
     integer(kind=int64), allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
     integer(kind=int64), allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor
