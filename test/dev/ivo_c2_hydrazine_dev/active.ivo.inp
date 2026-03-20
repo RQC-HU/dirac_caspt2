@@ -1,0 +1,24 @@
+.ninact
+14
+.nact
+8
+.nelec
+4
+.nsec
+30
+.caspt2_ciroots
+3 1
+.nocc
+9
+.nvcut
+16
+.diracver
+26
+# NOTE: If you want to use this input to stand-alone version of DIRAC_CASPT2,
+# you cannot specify IVO and CASCI or CASPT2 simultaneously.
+# Please comment out subprograms depend on the calculation you want to run.
+.subprograms
+IVO
+#CASCI
+#CASPT2
+.end
