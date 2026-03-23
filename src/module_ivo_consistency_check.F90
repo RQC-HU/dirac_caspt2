@@ -9,7 +9,7 @@ contains
         use module_cmo_variables
         use module_cmo_handler, only: ivo_cmo_read
         use module_global_variables, only: irpamo, dirac_version, integrated_caspt2, ninact, nact, nsec, nsymrpa, &
-                                           occ_mo_num, vcut_mo_num, rank
+                                           occ_mo_num, vcut_mo_num, is_kramers_pair_irrep_distinct, rank
         use module_file_manager
         use module_error
         implicit none
@@ -74,6 +74,14 @@ contains
                     end if
                 end if
                 nv_input = count(irpamo(start_idx_input:end_idx_input) == isym)  ! Number of virtual MOs corresponding to isym in the input file
+                if (.not. is_kramers_pair_irrep_distinct) then
+                    ! doubly count because irrep indices are the same between the kramers pairs that has the same spinor energies
+                    ! for example when NZ=4, NSYM=2 (Ci Symmetry)
+                    ! in such cases, we should halve the nv_input
+                    if (rank == 0) print *, "NOTE: nv_input doubly count because irrep indices are the same between ", &
+                        "the kramers pairs that has the same spinor energies. we halve the irpamo count and store it to nv_input."
+                    nv_input = nv_input/2
+                end if
                 if (rank == 0) print *, "isym", isym, "isym_f_s", isym_for_syminfo, "nv_dfpcmo", nv_dfpcmo, "nv_input", nv_input
                 if (nv_input /= nv_dfpcmo) then
                     if (rank == 0) then

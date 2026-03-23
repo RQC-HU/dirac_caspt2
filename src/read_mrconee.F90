@@ -253,6 +253,8 @@ SUBROUTINE read_mrconee(filename)
     integer(kind=int64) :: i0, j0, k0, i, j, m
     logical(kind=int64) :: breit, spinfr
     integer(kind=int64) :: nfsym, nz, norbt
+    real(8) :: cur_energy
+    integer :: cur_irpamo
     integer :: iostat
     logical :: is_end_of_file
     call open_unformatted_file(unit=unit_mrconee, file=trim(filename), status='old', optional_action='read')
@@ -316,6 +318,18 @@ SUBROUTINE read_mrconee(filename)
         end do
         print *, ' '
     end if
+
+    ! are irrep indices different between the same energy spinors?
+    is_kramers_pair_irrep_distinct = .true.
+    cur_energy = caspt2_mo_energy(1)
+    cur_irpamo = irpamo(1)
+    do i0 = 2, size(caspt2_mo_energy)
+        if (cur_energy == caspt2_mo_energy(i0) .and. cur_irpamo == irpamo(i0)) then
+            is_kramers_pair_irrep_distinct = .false.
+        end if
+        cur_energy = caspt2_mo_energy(i0)
+        cur_irpamo = irpamo(i0)
+    end do
 
 ! Read 1 electron integrals to the variables one_elec_int_r and one_elec_int_i
     call read_1_elec_integrals
