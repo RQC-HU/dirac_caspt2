@@ -119,7 +119,6 @@ MODULE module_global_variables
     !! ========================================
     !! Variables of IVO calculation
     !! ========================================
-    complex*16, allocatable :: itrfmo(:, :)
     logical :: is_kramers_pair_irrep_distinct
 
 ! Old Dirac

@@ -21,8 +21,12 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     real(8)      :: thresd
     complex*16, allocatable  :: fsym(:, :) ! Symmetrized fock_ivo_matrix for particular irrep
     complex*16, allocatable  :: coeff(:, :)
+    complex*16, allocatable  :: coeff_jk(:, :)
     real(8), allocatable     :: wsym(:)
     integer, allocatable     :: mosym(:)
+
+    complex*16, allocatable :: itrfmo(:, :)
+    complex*16, allocatable :: itrfmo_jk(:, :)
 
     integer :: nv0, idx_irrep, start_isym, end_isym
     logical :: is_all_syminfo_zero
@@ -97,7 +101,10 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
         close (unit_buf)
     end if
 
-! IVO calculation (C1 symmetry is not supported)
+! IVO calculation
+! ε = U†FvU (Fv: virtual fock matrix, U: unitary matrix to diagonalize the Fv)
+! CMO_new = CMO * U ! for real and imaginary part
+! CMO_new = CMO * congj(U) ! for j and k part (quaternion case)
     do idx_irrep = 1, A
         num_ao = basis_ao(idx_irrep)
         if (idx_irrep == 1) then
@@ -110,12 +117,16 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             num_virtual_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
             start_isym = nsymrpa/2 + 1
             end_isym = nsymrpa
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
+            juck_up_idx = (idx_irrep - 1)*size(BUF)/A + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
             num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
         end if
 
         allocate (itrfmo(basis_ao(idx_irrep), num_virtual_mo))
         itrfmo(:, :) = 0.0d+00
+        if (B == 4) then
+            allocate (itrfmo_jk(basis_ao(idx_irrep), num_virtual_mo))
+            itrfmo_jk(:, :) = 0.0d+00
+        end if
         call create_itrfmo
 
         num_mo = num_virtual_mo
@@ -189,23 +200,21 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             ! Gerade
             allocate (coeff(basis_ao(idx_irrep), nv))
             coeff(:, :) = 0.0d+00
-            if (idx_irrep == 1) then
-                juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            else
-                juck_up_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
+            if (B == 4) then
+                allocate (coeff_jk(basis_ao(idx_irrep), nv))
+                coeff_jk(:, :) = 0.0d+00
             end if
             call get_coeff
 
             coeff(:, :) = MATMUL(coeff(:, :), fsym(:, :))
-            if (idx_irrep == 1) then
-                juck_up_idx = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            else
-                juck_up_idx = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
-            end if
+            ! for quaternion q = coeff + coeff_jk*j, right multiplying by complex fsym gives
+            ! q*fsym = coeff*z + coeff_jk*conj(z)*j
+            if (B == 4) coeff_jk(:, :) = MATMUL(coeff_jk(:, :), DCONJG(fsym(:, :)))
 
             call write_back_itrfmo
 
             deallocate (coeff)
+            if(allocated(coeff_jk)) deallocate (coeff_jk)
 
             Do i = 1, nv
                 i0 = mosym(i)
@@ -231,13 +240,6 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             deallocate (dmosym)
         end do
         num_ao = basis_ao(idx_irrep)
-        if (idx_irrep == 1) then
-            juck_up_idx = (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
-        else
-            juck_up_idx = basis_all(1) + (positronic_mo(idx_irrep) + occ_mo_num(idx_irrep))*basis_ao(idx_irrep)
-            num_mo = electronic_mo(idx_irrep) - occ_mo_num(idx_irrep) - vcut_mo_num(idx_irrep)
-        end if
 
         do iao = 1, num_ao
             do imo = 1, num_mo
@@ -246,18 +248,28 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             end do
         end do
 
-        if (B == 2) then
+        if (B == 2 .or. B == 4) then
             do iao = 1, num_ao
                 do imo = 1, num_mo
                     buf_idx = juck_up_idx + (imo - 1)*num_ao + iao
                     ! size(BUF)/B + buf_idx is a imaginary part idx of the CMO
-                    BUF(size(BUF)/B + buf_idx) = DIMAG(itrfmo(iao, imo))
+                    BUF(size(BUF)/(A*B) + buf_idx) = DIMAG(itrfmo(iao, imo))
                 end do
             end do
         end if
 
-        ! TODO: impl quaternion (B = NZ = 4)
+        if (B == 4) then
+            do iao = 1, num_ao
+                do imo = 1, num_mo
+                    buf_idx = juck_up_idx + (imo - 1)*num_ao + iao
+                    ! size(BUF)/B + buf_idx is a imaginary part idx of the CMO
+                    BUF(2*size(BUF)/(A*B) + buf_idx) = DBLE(itrfmo_jk(iao, imo))
+                    BUF(3*size(BUF)/(A*B) + buf_idx) = DIMAG(itrfmo_jk(iao, imo))
+                end do
+            end do
+        end if
         deallocate (itrfmo)
+        if (allocated(itrfmo_jk)) deallocate(itrfmo_jk)
     end do
 
     call ivo_cmo_write
@@ -270,14 +282,15 @@ contains
 
         do iao = 1, num_ao
             do imo = 1, num_mo
-                i0 = juck_up_idx + imo - 1
                 buf_idx = juck_up_idx + (imo - 1)*num_ao + iao
                 if (B == 1) then
                     itrfmo(iao, imo) = BUF(buf_idx)
                 else if (B == 2) then
-                    itrfmo(iao, imo) = DCMPLX(BUF(buf_idx), BUF(size(BUF)/B + buf_idx))
+                    itrfmo(iao, imo) = DCMPLX(BUF(buf_idx), BUF(size(BUF)/(A*B) + buf_idx))
+                else if (B == 4) then
+                    itrfmo(iao, imo) = DCMPLX(BUF(buf_idx), BUF(size(BUF)/(A*B) + buf_idx))
+                    itrfmo_jk(iao, imo) = DCMPLX(BUF(2*size(BUF)/(A*B) + buf_idx), BUF(3*size(BUF)/(A*B) + buf_idx))
                 end if
-                ! TODO: impl quaternion (B = NZ = 4)
             end do
         end do
     end subroutine create_itrfmo
@@ -286,26 +299,32 @@ contains
         use module_error, only: stop_with_errorcode
         implicit none
         integer, intent(in) :: start_idx, end_idx
-        integer :: idx, cnt
+        integer :: idx, cnt, offset_occupied_mo
+
+        if (idx_irrep == 1) then
+            offset_occupied_mo = positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
+        else
+            offset_occupied_mo = mo(1) + positronic_mo(idx_irrep) + occ_mo_num(idx_irrep)
+        end if
 
         dmosym(:) = 0
         cnt = 0
         do idx = start_idx, end_idx
             if (is_all_syminfo_zero) then
                 cnt = cnt + 1
-                dmosym(cnt) = idx
+                dmosym(cnt) = idx - offset_occupied_mo
             else
                 if (allocated(kappa)) then
                     call atomic_id(syminfo(idx), kp, j, mj, ll)
                     indi = (abs(mj) + 1)/2
                     if (2*indi - 1 == isym_for_syminfo) then
                         cnt = cnt + 1
-                        dmosym(cnt) = idx
+                        dmosym(cnt) = idx - offset_occupied_mo
                     end if
                 else
                     if (abs(syminfo(idx)) == isym_for_syminfo) then
                         cnt = cnt + 1
-                        dmosym(cnt) = idx
+                        dmosym(cnt) = idx - offset_occupied_mo
                     end if
                 end if
             end if
@@ -323,17 +342,29 @@ contains
         implicit none
 
         Do i = 1, nv0
-            i0 = dmosym(i) - juck_up_idx
+            i0 = dmosym(i)
             coeff(:, i) = itrfmo(:, i0)
         End do
+        if (B == 4) then
+            Do i = 1, nv0
+                i0 = dmosym(i)
+                coeff_jk(:, i) = itrfmo_jk(:, i0)
+            End do
+        end if
     end subroutine get_coeff
 
     subroutine write_back_itrfmo
         implicit none
 
         Do i = 1, nv0
-            i0 = dmosym(i) - juck_up_idx
+            i0 = dmosym(i)
             itrfmo(:, i0) = coeff(:, i)
         End do
+        if (B == 4) then
+            Do i = 1, nv0
+                i0 = dmosym(i)
+                itrfmo_jk(:, i0) = coeff_jk(:, i)
+            End do
+        end if
     end subroutine write_back_itrfmo
 end subroutine fockivo
