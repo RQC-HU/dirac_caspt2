@@ -28,6 +28,7 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
     logical :: is_all_syminfo_zero
     integer :: juck_up_idx, num_ao, num_mo, num_virtual_mo
     integer :: mo_start_idx, mo_end_idx, isym_for_syminfo
+    integer :: kp, mj, ll, indi, idx
     integer, allocatable :: dmosym(:)
 
 ! +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
@@ -146,11 +147,25 @@ SUBROUTINE fockivo ! TO MAKE FOCK MATRIX for IVO
             end if
 
             if (all(syminfo(mo_start_idx:mo_end_idx) == 0)) then
-                print *, 'all syminfo is zero, idx_irrep = ', idx_irrep
+                if (rank == 0) print *, 'all syminfo is zero, idx_irrep = ', idx_irrep
                 nv0 = mo_end_idx - mo_start_idx + 1
                 is_all_syminfo_zero = .true.
             else
-                nv0 = count(ABS(syminfo(mo_start_idx:mo_end_idx)) == isym_for_syminfo)
+                if (allocated(kappa)) then
+                    nv0 = 0
+                    do idx = mo_start_idx, mo_end_idx
+                        ! If kappa is available, we check MJ instead of syminfo.
+                        ! In atomic case, multiple D2h symmetries can have same MJ.
+                        ! Ar(Atom) has linear symmetry, so we check Linear ID = abs(MJ) = 2*INDI - 1.
+                        call atomic_id(syminfo(idx), kp, j, mj, ll)
+                        indi = (abs(mj) + 1)/2
+                        if (2*indi - 1 == isym_for_syminfo) then
+                            nv0 = nv0 + 1
+                        end if
+                    end do
+                else
+                    nv0 = count(abs(syminfo(mo_start_idx:mo_end_idx)) == isym_for_syminfo)
+                end if
                 is_all_syminfo_zero = .false.
             end if
             Allocate (dmosym(nv0))
@@ -257,9 +272,23 @@ contains
         dmosym(:) = 0
         cnt = 0
         do idx = start_idx, end_idx
-            if (is_all_syminfo_zero .or. abs(syminfo(idx)) == isym_for_syminfo) then
+            if (is_all_syminfo_zero) then
                 cnt = cnt + 1
                 dmosym(cnt) = idx
+            else
+                if (allocated(kappa)) then
+                    call atomic_id(syminfo(idx), kp, j, mj, ll)
+                    indi = (abs(mj) + 1)/2
+                    if (2*indi - 1 == isym_for_syminfo) then
+                        cnt = cnt + 1
+                        dmosym(cnt) = idx
+                    end if
+                else
+                    if (abs(syminfo(idx)) == isym_for_syminfo) then
+                        cnt = cnt + 1
+                        dmosym(cnt) = idx
+                    end if
+                end if
             end if
         end do
 
