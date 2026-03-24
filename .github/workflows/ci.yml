@@ -11,6 +11,7 @@ on:
       - "**/CMakeLists.txt"
       - "**.py"
       - "tools/**"
+      - "test/**"
       - ".github/workflows/**"
   pull_request:
     branches:
@@ -24,6 +25,7 @@ on:
       - "**/CMakeLists.txt"
       - "**.py"
       - "tools/**"
+      - "test/**"
       - ".github/workflows/**"
 
 # Ref : https://github.com/pytest-dev/pytest/issues/7443#issue-650484842
