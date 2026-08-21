@@ -104,6 +104,8 @@ MODULE module_global_variables
     integer(kind=int64), allocatable :: irpamo(:) ! symmetry number of the specific mo
     integer(kind=int64), allocatable :: indmo_cas_to_dirac(:) ! MO index transformation from CASPT2 to DIRAC (irrep: irreducible representation) order. Ex: indmo_cas_to_order(cas_index) = dirac_index [old name]: indmo
     integer(kind=int64), allocatable :: indmo_dirac_to_cas(:) ! MO index transformation from DIRAC (irrep) to CASPT2 order. Ex: indmo_dirac_to_order(dirac_index) = cas_index [old name]: indmor
+    integer(kind=int64), allocatable :: kramers_partner(:) ! Kramers partner index in CASPT2 order
+    logical, allocatable :: is_kramers_representative(:) ! True for the unbarred member of each Kramers pair
     real(8), allocatable :: one_elec_int_r(:, :) ! one-electron integral in CASPT2 order (real part) [old name]: oner
     real(8), allocatable :: one_elec_int_i(:, :) ! one-electron integral in CAPST2 order (imaginally part) [old name]: onei
     real(8), allocatable :: dirac_mo_energy(:) ! MO energy (a.u.) (DIRAC order)
@@ -119,8 +121,6 @@ MODULE module_global_variables
     !! ========================================
     !! Variables of IVO calculation
     !! ========================================
-    complex*16, allocatable :: itrfmo(:, :)
-
 ! Old Dirac
 !       Write(UT_sys_ftmp) NMO,BREIT,ETOTAL
 !       Write(UT_sys_ftmp) NSYMRP,(REPN(IRP),IRP=1,NSYMRP)

@@ -9,7 +9,7 @@ contains
         use module_cmo_variables
         use module_cmo_handler, only: ivo_cmo_read
         use module_global_variables, only: irpamo, dirac_version, integrated_caspt2, ninact, nact, nsec, nsymrpa, &
-                                           occ_mo_num, vcut_mo_num, rank
+                                           occ_mo_num, vcut_mo_num, kramers_partner, is_kramers_representative, rank
         use module_file_manager
         use module_error
         implicit none
@@ -19,7 +19,7 @@ contains
         character(:), allocatable :: filename
         integer :: isym, nv_input, nv_dfpcmo, start_isym, end_isym, isym_for_syminfo
         integer :: start_idx_input, end_idx_input, start_idx_dfpcmo, end_idx_dfpcmo
-        integer :: i
+        integer :: i, kp, j, mj, ll, indi, idx
 
         if (rank == 0) print *, "Start checking the consistency of your input and DFPCMO data"
 
@@ -57,9 +57,27 @@ contains
                 if (all(syminfo(:) == 0)) then
                     nv_dfpcmo = end_idx_dfpcmo - start_idx_dfpcmo + 1  ! All virtual MOs are in the same irreducible representation
                 else
-                    nv_dfpcmo = count(abs(syminfo(start_idx_dfpcmo:end_idx_dfpcmo)) == isym_for_syminfo)  ! Number of virtual MOs corresponding to isym in the DFPCMO file
+                    if (allocated(kappa)) then
+                        nv_dfpcmo = 0
+                        do idx = start_idx_dfpcmo, end_idx_dfpcmo
+                            ! If kappa is available, we check MJ instead of syminfo.
+                            ! In atomic case, multiple D2h symmetries can have same MJ.
+                            ! Ar(Atom) has linear symmetry, so we check Linear ID = abs(MJ) = 2*INDI - 1.
+                            call atomic_id(syminfo(idx), kp, j, mj, ll)
+                            indi = (abs(mj) + 1)/2
+                            if (2*indi - 1 == isym_for_syminfo) then
+                                nv_dfpcmo = nv_dfpcmo + 1
+                            end if
+                        end do
+                    else
+                        nv_dfpcmo = count(abs(syminfo(start_idx_dfpcmo:end_idx_dfpcmo)) == isym_for_syminfo)  ! Number of virtual MOs corresponding to isym in the DFPCMO file
+                    end if
                 end if
-                nv_input = count(irpamo(start_idx_input:end_idx_input) == isym)  ! Number of virtual MOs corresponding to isym in the input file
+                ! If both partners have this irrep, count only the structural
+                ! representative. Otherwise count whichever partner has isym.
+                nv_input = count(irpamo(start_idx_input:end_idx_input) == isym .and. &
+                    (is_kramers_representative(start_idx_input:end_idx_input) .or. &
+                     irpamo(kramers_partner(start_idx_input:end_idx_input)) /= isym))
                 if (rank == 0) print *, "isym", isym, "isym_f_s", isym_for_syminfo, "nv_dfpcmo", nv_dfpcmo, "nv_input", nv_input
                 if (nv_input /= nv_dfpcmo) then
                     if (rank == 0) then

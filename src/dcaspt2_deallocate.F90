@@ -30,6 +30,12 @@ subroutine dcaspt2_deallocate
     if (allocated(indmo_dirac_to_cas)) then
         Call memminus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1); deallocate (indmo_dirac_to_cas)
     end if
+    if (allocated(kramers_partner)) then
+        Call memminus(KIND(kramers_partner), SIZE(kramers_partner), 1); deallocate (kramers_partner)
+    end if
+    if (allocated(is_kramers_representative)) then
+        Call memminus(KIND(is_kramers_representative), SIZE(is_kramers_representative), 1); deallocate (is_kramers_representative)
+    end if
     if (allocated(space_idx)) then
         Call memminus(KIND(space_idx), SIZE(space_idx), 1); deallocate (space_idx)
     end if

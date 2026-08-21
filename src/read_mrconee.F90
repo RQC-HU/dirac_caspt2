@@ -456,9 +456,12 @@ contains
         implicit none
         integer(kind=int64), allocatable :: tmp_mo(:)
         integer(kind=int64), allocatable :: irpmo(:)
-        integer(kind=int64), allocatable :: energy_order(:)
+        integer(kind=int64), allocatable :: dirac_partner(:)
+        integer(kind=int64), allocatable :: pair_unbarred(:), pair_barred(:), pair_order(:)
         integer(kind=int32), allocatable :: irpmo_32bit(:), irpamo_32bit(:)
-        integer(kind=int64) :: previous_index, cas_idx, dirac_idx
+        real(8), allocatable :: pair_sort_energy(:)
+        integer(kind=int64) :: ifsym, nstr_unbarred, nstr_barred, offset, pair_count
+        integer(kind=int64) :: pair_idx, previous_pair, cas_idx, dirac_idx, partner_cas_idx
         ! Define the space index for each molecular orbital.
         Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
         space_idx(1:ninact) = 1 ! inactive = 1
@@ -494,55 +497,115 @@ contains
         if (debug .and. rank == 0) then
             print '("irpmo ",20I3)', (irpmo(i0), i0=1, nmo)
         end if
-        if (allocated(irpmo)) Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
         if (debug .and. rank == 0) then
             print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
         end if
 
-        ! Sort orbital indices by energy. Keeping the indices throughout the
-        ! sort avoids reconstructing the mapping with exact float equality.
-        allocate (energy_order(nmo))
-        energy_order = [(i0, i0=1, nmo)]
-        do i0 = 2, nmo
-            previous_index = energy_order(i0)
-            j0 = i0 - 1
-            do while (j0 >= 1)
-                if (dirac_mo_energy(energy_order(j0)) <= dirac_mo_energy(previous_index)) exit
-                energy_order(j0 + 1) = energy_order(j0)
-                j0 = j0 - 1
+        if (mod(nmo, 2) /= 0) then
+            if (rank == 0) print *, 'Error: odd number of spinors in MRCONEE: ', nmo
+            call stop_with_errorcode(1)
+        end if
+
+        ! Build Kramers pairs from the structural MRCONEE ordering. For each
+        ! fermion ircop DIRAC writes all unbarred spinors followed by their
+        ! barred partners in the same ordinal order.
+        allocate (dirac_partner(nmo)); dirac_partner = 0
+        allocate (pair_unbarred(nmo/2), pair_barred(nmo/2), pair_order(nmo/2))
+        allocate (pair_sort_energy(nmo/2))
+        pair_count = 0
+        offset = 0
+        do ifsym = 1, nfsym
+            nstr_unbarred = count(irpmo == 2*ifsym - 1)
+            nstr_barred = count(irpmo == 2*ifsym)
+            if (nstr_unbarred /= nstr_barred) then
+                if (rank == 0) print *, 'Error: unequal Kramers blocks for fermion ircop ', ifsym, &
+                    ': ', nstr_unbarred, nstr_barred
+                call stop_with_errorcode(1)
+            end if
+            do k0 = 1, nstr_unbarred
+                i0 = offset + k0
+                j0 = offset + nstr_unbarred + k0
+                if (irpmo(i0) /= 2*ifsym - 1 .or. irpmo(j0) /= 2*ifsym) then
+                    if (rank == 0) print *, 'Error: unexpected MRCONEE Kramers block ordering at ', i0, j0
+                    call stop_with_errorcode(1)
+                end if
+                pair_count = pair_count + 1
+                pair_unbarred(pair_count) = i0
+                pair_barred(pair_count) = j0
+                dirac_partner(i0) = j0
+                dirac_partner(j0) = i0
+                pair_order(pair_count) = pair_count
+                pair_sort_energy(pair_count) = 0.5d0*(dirac_mo_energy(i0) + dirac_mo_energy(j0))
             end do
-            energy_order(j0 + 1) = previous_index
+            offset = offset + 2*nstr_unbarred
+        end do
+        if (offset /= nmo .or. pair_count /= nmo/2 .or. any(dirac_partner == 0)) then
+            if (rank == 0) print *, 'Error: incomplete Kramers pairing from MRCONEE ordering'
+            call stop_with_errorcode(1)
+        end if
+
+        ! Stable pair-level insertion sort. The original DIRAC pair index is
+        ! the deterministic tie breaker for accidental degeneracies.
+        do pair_idx = 2, pair_count
+            previous_pair = pair_order(pair_idx)
+            k0 = pair_idx - 1
+            do while (k0 >= 1)
+                if (pair_sort_energy(pair_order(k0)) <= pair_sort_energy(previous_pair)) exit
+                pair_order(k0 + 1) = pair_order(k0)
+                k0 = k0 - 1
+            end do
+            pair_order(k0 + 1) = previous_pair
         end do
 
         allocate (caspt2_mo_energy(1:NMO)); call memplus(size(caspt2_mo_energy), kind(caspt2_mo_energy), 1)
-        caspt2_mo_energy = dirac_mo_energy(energy_order)
-
-        ! RAS sort (if RAS is used)
-        if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) then
-            call sort_list_from_energy_order_to_ras_order(caspt2_mo_energy, energy_order)
-        end if
-
-        ! Create indmo_cas_to_dirac and indmo_dirac_to_cas
         Allocate (indmo_cas_to_dirac(nmo)); Call memplus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
         Allocate (indmo_dirac_to_cas(nmo)); Call memplus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
         indmo_cas_to_dirac(:) = 0; indmo_dirac_to_cas(:) = 0
-        indmo_cas_to_dirac = energy_order
+        do pair_idx = 1, pair_count
+            i0 = pair_unbarred(pair_order(pair_idx))
+            j0 = pair_barred(pair_order(pair_idx))
+            cas_idx = 2*pair_idx - 1
+            indmo_cas_to_dirac(cas_idx) = i0
+            indmo_cas_to_dirac(cas_idx + 1) = j0
+            caspt2_mo_energy(cas_idx) = dirac_mo_energy(i0)
+            caspt2_mo_energy(cas_idx + 1) = dirac_mo_energy(j0)
+        end do
+
+        ! RAS sort (if RAS is used)
+        if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) then
+            call sort_list_from_energy_order_to_ras_order(caspt2_mo_energy, indmo_cas_to_dirac)
+        end if
+
         do cas_idx = 1, nmo
             dirac_idx = indmo_cas_to_dirac(cas_idx)
+            if (dirac_idx < 1 .or. dirac_idx > nmo .or. indmo_dirac_to_cas(dirac_idx) /= 0) then
+                if (rank == 0) print *, 'Error: CASPT2 to DIRAC orbital map is not bijective at ', cas_idx, dirac_idx
+                call stop_with_errorcode(1)
+            end if
             indmo_dirac_to_cas(dirac_idx) = cas_idx
         end do
-        deallocate (energy_order)
 
         ! irpamo is in MRCONEE order (DIRAC order)
         Allocate (tmp_mo(nmo)); Call memplus(KIND(tmp_mo), SIZE(tmp_mo), 1)
         tmp_mo = irpamo
 
-        ! Convert irpamo and irpamo into energy order (CAS order)
+        allocate (kramers_partner(nmo)); call memplus(kind(kramers_partner), size(kramers_partner), 1)
+        allocate (is_kramers_representative(nmo)); call memplus(kind(is_kramers_representative), size(is_kramers_representative), 1)
+        ! Convert irpamo and Kramers metadata into CASPT2 order.
         do i0 = 1, nmo
             irpamo(i0) = tmp_mo(indmo_cas_to_dirac(i0))
-            irpamo(i0) = tmp_mo(indmo_cas_to_dirac(i0))
+            dirac_idx = indmo_cas_to_dirac(i0)
+            partner_cas_idx = indmo_dirac_to_cas(dirac_partner(dirac_idx))
+            kramers_partner(i0) = partner_cas_idx
+            is_kramers_representative(i0) = mod(irpmo(dirac_idx), 2) == 1
+            if (partner_cas_idx /= i0 - (-1)**i0) then
+                if (rank == 0) print *, 'Error: RAS ordering split Kramers pair at CASPT2 index ', i0, partner_cas_idx
+                call stop_with_errorcode(1)
+            end if
         end do
         if (allocated(tmp_mo)) Call memminus(KIND(tmp_mo), SIZE(tmp_mo), 1); deallocate (tmp_mo)
+        if (allocated(irpmo)) Call memminus(KIND(irpmo), SIZE(irpmo), 1); deallocate (irpmo)
+        deallocate (dirac_partner, pair_unbarred, pair_barred, pair_order, pair_sort_energy)
     end subroutine create_mo_irrep_conversion_list
 
 ! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
