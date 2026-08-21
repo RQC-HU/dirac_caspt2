@@ -2,13 +2,14 @@ import os
 import shutil
 
 import pytest
-from module_testing import run_test_dcaspt2
+from module_testing import delete_scratch_files, run_test_dcaspt2
 
 
 # @replace_marker
 def replace_test_template(env_setup_ivo) -> None:
     (test_path, DFPCMONEW_path, ref_DFPCMONEW_path, latest_passed_DFPCMONEW_path, output_path, latest_passed_output_path, test_command) = env_setup_ivo
     os.chdir(test_path)  # Change directory to the path of this file
+    delete_scratch_files(["DFPCMONEW"], test_path)
     run_test_dcaspt2(test_command)
 
     # DFPCMONEW format
