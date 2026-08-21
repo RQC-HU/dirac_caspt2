@@ -3,7 +3,6 @@ subroutine check_dirac_integer_size(filename)
     use module_global_variables
     use module_error, only: stop_with_errorcode
     use module_file_manager
-    use module_sort_swap
     Implicit NONE
 
     integer :: unit_mrconee
@@ -250,7 +249,7 @@ SUBROUTINE read_mrconee(filename)
     integer(kind=int32) :: nmo_32bit, nfsym_32bit, nz_32bit, norbt_32bit
     logical(kind=int32) :: breit_32bit, spinfr_32bit
     integer(kind=int64) :: IMO, IRP
-    integer(kind=int64) :: i0, j0, k0, i, j, m
+    integer(kind=int64) :: i0, j0, k0, i, j
     logical(kind=int64) :: breit, spinfr
     integer(kind=int64) :: nfsym, nz, norbt
     integer :: iostat
@@ -457,7 +456,9 @@ contains
         implicit none
         integer(kind=int64), allocatable :: tmp_mo(:)
         integer(kind=int64), allocatable :: irpmo(:)
+        integer(kind=int64), allocatable :: energy_order(:)
         integer(kind=int32), allocatable :: irpmo_32bit(:), irpamo_32bit(:)
+        integer(kind=int64) :: previous_index, cas_idx, dirac_idx
         ! Define the space index for each molecular orbital.
         Allocate (space_idx(1:nmo)); Call memplus(KIND(space_idx), SIZE(space_idx), 1)
         space_idx(1:ninact) = 1 ! inactive = 1
@@ -498,37 +499,39 @@ contains
             print '("irpamo ",20I3)', (irpamo(i0), i0=1, nmo)
         end if
 
-        ! Sort the orbital energies in ascending order.
+        ! Sort orbital indices by energy. Keeping the indices throughout the
+        ! sort avoids reconstructing the mapping with exact float equality.
+        allocate (energy_order(nmo))
+        energy_order = [(i0, i0=1, nmo)]
+        do i0 = 2, nmo
+            previous_index = energy_order(i0)
+            j0 = i0 - 1
+            do while (j0 >= 1)
+                if (dirac_mo_energy(energy_order(j0)) <= dirac_mo_energy(previous_index)) exit
+                energy_order(j0 + 1) = energy_order(j0)
+                j0 = j0 - 1
+            end do
+            energy_order(j0 + 1) = previous_index
+        end do
+
         allocate (caspt2_mo_energy(1:NMO)); call memplus(size(caspt2_mo_energy), kind(caspt2_mo_energy), 1)
-        caspt2_mo_energy = dirac_mo_energy
-        call heapSort(list=caspt2_mo_energy, is_descending_order=.false.)
+        caspt2_mo_energy = dirac_mo_energy(energy_order)
 
         ! RAS sort (if RAS is used)
         if (ras1_size /= 0 .or. ras2_size /= 0 .or. ras3_size /= 0) then
-            call sort_list_from_energy_order_to_ras_order(caspt2_mo_energy)
+            call sort_list_from_energy_order_to_ras_order(caspt2_mo_energy, energy_order)
         end if
 
         ! Create indmo_cas_to_dirac and indmo_dirac_to_cas
-        ! caspt2_mo_energy(i0) and caspt2_mo_energy(i0+1) should be same orbital energy (kramers pair)
         Allocate (indmo_cas_to_dirac(nmo)); Call memplus(KIND(indmo_cas_to_dirac), SIZE(indmo_cas_to_dirac), 1)
         Allocate (indmo_dirac_to_cas(nmo)); Call memplus(KIND(indmo_dirac_to_cas), SIZE(indmo_dirac_to_cas), 1)
         indmo_cas_to_dirac(:) = 0; indmo_dirac_to_cas(:) = 0
-        do i0 = 1, nmo, 2
-            m = 0
-            do j0 = 1, nmo
-                ! i0 is energetic order, j0 is symmtric order (MRCONEE order)
-                if (dirac_mo_energy(j0) == caspt2_mo_energy(i0)) then  ! dirac_mo_energy(j0) is i0 th MO
-                    if (m == 0) then
-                        indmo_cas_to_dirac(i0) = j0
-                        indmo_dirac_to_cas(j0) = i0
-                        m = m + 1
-                    else
-                        indmo_cas_to_dirac(i0 + 1) = j0
-                        indmo_dirac_to_cas(j0) = i0 + 1
-                    end if
-                end if
-            end do
+        indmo_cas_to_dirac = energy_order
+        do cas_idx = 1, nmo
+            dirac_idx = indmo_cas_to_dirac(cas_idx)
+            indmo_dirac_to_cas(dirac_idx) = cas_idx
         end do
+        deallocate (energy_order)
 
         ! irpamo is in MRCONEE order (DIRAC order)
         Allocate (tmp_mo(nmo)); Call memplus(KIND(tmp_mo), SIZE(tmp_mo), 1)
@@ -600,7 +603,7 @@ contains
         Call memminus(KIND(ronei), SIZE(ronei), 1); deallocate (ronei)
     end subroutine read_1_elec_integrals
 
-    subroutine sort_list_from_energy_order_to_ras_order(want_to_sort)
+    subroutine sort_list_from_energy_order_to_ras_order(want_to_sort, index_to_sort)
 !===========================================================================================================================
 ! This subroutine sorts the want_to_sort list form orbital energy order
 ! to RAS order(ninact => ras1 => ras2 => ras3 => secondary).
@@ -609,6 +612,8 @@ contains
         implicit none
         real(8), intent(inout) :: want_to_sort(:)
         real(8), allocatable :: mo_energy_order(:)
+        integer(kind=int64), intent(inout), optional :: index_to_sort(:)
+        integer(kind=int64), allocatable :: index_energy_order(:)
         integer :: idx_energy_order, idx_ras_order, idx
         integer :: ras1_idx, ras2_idx, ras3_idx
         logical :: filled
@@ -619,6 +624,10 @@ contains
         ras1_idx = 1; ras2_idx = 1; ras3_idx = 1
         allocate (mo_energy_order(size(want_to_sort)))
         mo_energy_order = want_to_sort ! Save the original orbital energy order
+        if (present(index_to_sort)) then
+            allocate (index_energy_order(size(index_to_sort)))
+            index_energy_order = index_to_sort
+        end if
 ! Fill ninact
         do while (idx_ras_order <= ninact)
             filled = .false.
@@ -642,6 +651,7 @@ contains
             end if
             if (.not. filled) then
                 want_to_sort(idx_ras_order) = mo_energy_order(idx_energy_order)
+                if (present(index_to_sort)) index_to_sort(idx_ras_order) = index_energy_order(idx_energy_order)
                 idx_ras_order = idx_ras_order + 1
                 filled = .true.
             end if
@@ -660,6 +670,7 @@ contains
         if (ras1_size > 0) then
             do idx = 1, ras1_size
                 want_to_sort(idx_ras_order + idx - 1) = mo_energy_order(ras1_list(idx))
+                if (present(index_to_sort)) index_to_sort(idx_ras_order + idx - 1) = index_energy_order(ras1_list(idx))
             end do
             idx_ras_order = idx_ras_order + ras1_size
         end if
@@ -667,6 +678,7 @@ contains
         if (ras2_size > 0) then
             do idx = 1, ras2_size
                 want_to_sort(idx_ras_order + idx - 1) = mo_energy_order(ras2_list(idx))
+                if (present(index_to_sort)) index_to_sort(idx_ras_order + idx - 1) = index_energy_order(ras2_list(idx))
             end do
             idx_ras_order = idx_ras_order + ras2_size
         end if
@@ -674,6 +686,7 @@ contains
         if (ras3_size > 0) then
             do idx = 1, ras3_size
                 want_to_sort(idx_ras_order + idx - 1) = mo_energy_order(ras3_list(idx))
+                if (present(index_to_sort)) index_to_sort(idx_ras_order + idx - 1) = index_energy_order(ras3_list(idx))
             end do
             idx_ras_order = idx_ras_order + ras3_size
         end if
@@ -708,11 +721,14 @@ contains
             end if
             if (.not. filled) then
                 want_to_sort(idx_ras_order) = mo_energy_order(idx_energy_order)
+                if (present(index_to_sort)) index_to_sort(idx_ras_order) = index_energy_order(idx_energy_order)
                 idx_ras_order = idx_ras_order + 1
                 filled = .true.
             end if
             idx_energy_order = idx_energy_order + 1 ! Next spinor (energy order)
         end do
+        if (allocated(index_energy_order)) deallocate (index_energy_order)
+        deallocate (mo_energy_order)
     end subroutine sort_list_from_energy_order_to_ras_order
 
 end subroutine read_mrconee
