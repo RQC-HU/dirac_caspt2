@@ -7,6 +7,7 @@ add_library(dcaspt2_module_global STATIC
 )
 
 add_library(dcaspt2_module STATIC
+  dirac_subroutines.F90
   module_2integrals.F90
   module_blas.F90
   module_essential_input.F90
